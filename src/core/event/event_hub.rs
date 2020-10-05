@@ -1,8 +1,7 @@
 //! Internal pub/sub interface for Event objects
 //!
-//! This submodule provides the heart of the event simulation. The EventHub
-//! handles Event dispatch to their corresponding transformers and listeners
-//! based on their TypeId
+//! The EventHub handles Event dispatch to their corresponding transformers
+//! and listeners based on their TypeId
 
 use crate::core::id_gen::{IdType, IdGenerator};
 
