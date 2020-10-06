@@ -16,7 +16,7 @@ use crate::core::event::Event;
 use crate::util::quantity_wrapper::OrderedTime;
 
 fn execute_listeners<'a>(manager_id: Uuid, time: OrderedTime,
-    listeners: &mut Vec<(u32, std::boxed::Box<dyn std::ops::FnMut() + 'a>)>) {
+    listeners: &mut Vec<(u32, Box<dyn FnMut() + 'a>)>) {
 
     for (_, listener) in listeners {
         log::debug!("TimeManager {} executing listener scheduled for {}",
@@ -162,7 +162,8 @@ impl<'a> TimeManager<'a> {
         // Generate an id for the event
         let id = self.id_gen.get_id();
 
-        // Add the id, event tuple to the event list
+        // Add the (id, event) tuple to the event list which should
+        // certainly exist by this point
         evt_list.unwrap().push((id, Box::new(event)));
 
         // Insert a mapping for the id to the execution time for
@@ -188,7 +189,7 @@ impl<'a> TimeManager<'a> {
                         Ok(())
                     }
                     None => {
-                        panic!("A scheduled ID refers to an invalid time!");
+                        panic!("Scheduled ID {} refers to an invalid time on TimeManager {}!", schedule_id, self.manager_id);
                     }
                 }
             }
@@ -214,19 +215,14 @@ impl<'a> TimeManager<'a> {
         self.event_listener = Some(Box::new(listener));
     }
 
-    // /// Get a reference to the internal `Event` queue (implemented as a BTreeMap)
-    // /// 
-    // /// Returns a reference to the current `Event` queue
-    // pub fn event_queue_ref(&self) -> &BTreeMap<OrderedTime, Vec<Box<dyn Event>>> {
-    //     &self.event_queue
-    // }
-
     /// Registers a listener for time advances
     /// 
     /// # Arguments
     /// * `listener` - function to call when time advances
-    pub fn on_advance(&self, listener: impl FnMut() + 'a) -> IdType {
-        0
+    pub fn on_advance(&mut self, listener: impl FnMut() + 'a) -> IdType {
+        let lis_id = self.id_gen.get_id();
+        self.advance_listeners.insert(lis_id, Box::new(listener));
+        lis_id
     }
 
     /// Unregisters a previously attached time advance listener
@@ -235,8 +231,11 @@ impl<'a> TimeManager<'a> {
     /// * `listener_id` - identifier returned from the call to `on_advance`
     /// 
     /// Returns an `Err` if the provided listener_id is invalid
-    pub fn off_advance(&self, listener_id: IdType) -> Result<()> {
-        Ok(())
+    pub fn off_advance(&mut self, listener_id: IdType) -> Result<()> {
+        match self.advance_listeners.remove(&listener_id) {
+            Some(_) => Ok(()),
+            None => Err(anyhow!("Invalid listener id {} provided to TimeManager {}", listener_id, self.manager_id))
+        }
     }
 
     /// Schedules a callback to be called at a future simulation time
@@ -244,8 +243,32 @@ impl<'a> TimeManager<'a> {
     /// # Arguments
     /// * `wait_time` - amount of simulation time to wait before calling the listener
     /// * `listener` - function to call at the scheduled time
-    pub fn schedule_callback(&self, wait_time: Time, listener: impl FnMut() + 'a) -> IdType {
-        0
+    /// 
+    /// Returns an ID for the scheduled listener
+    pub fn schedule_callback(&mut self, wait_time: Time, listener: impl FnMut() + 'a) -> IdType {
+        let exec_time = OrderedTime(self.sim_time + wait_time);
+        let mut listeners = self.scheduled_listeners.get_mut(&exec_time);
+
+        // If we haven't already created a vector for this time step, 
+        // then create one now and get the populated Option
+        if listeners.is_none() {
+            self.scheduled_listeners.insert(exec_time, Vec::new());
+            listeners = self.scheduled_listeners.get_mut(&exec_time);
+        }
+        
+        // Generate a new ID for the scheduled callback
+        let lis_id = self.id_gen.get_id();
+
+        // Add the listener and its ID to the listeners array, which
+        // should certainly exist by this point
+        listeners.unwrap().push((lis_id, Box::new(listener)));
+
+        // Add the mapping of the listener id to the execution time
+        // for faster lookup later
+        self.id_time_map.insert(lis_id, exec_time);
+
+        // return the new id
+        lis_id
     }
 
     /// Unschedules a previously scheduled listener
@@ -254,12 +277,26 @@ impl<'a> TimeManager<'a> {
     /// * `listener_id` - The identifier returned from the call to `schedule_callback`
     /// 
     /// Returns an `Err` if the provided listener_id is invalid
-    pub fn unschedule_callback(&self, listener_id: IdType) -> Result<()> {
-        Ok(())
+    pub fn unschedule_callback(&mut self, listener_id: IdType) -> Result<()> {
+        match self.id_time_map.get(&listener_id) {
+            Some(time) => {
+                match self.scheduled_listeners.get_mut(time) {
+                    Some(listeners) => {
+                        listeners.retain(|item| item.0 != listener_id);
+                        Ok(())
+                    }
+                    None => {
+                        panic!("Scheduled listener ID {} refers to an invalid time on TimeManager {}!", listener_id, self.manager_id);
+                    }
+                }
+            }
+            None => {
+                Err(anyhow!("Invalid schedule_id {} passed to `unschedule_event` for TimeManager {}", listener_id, self.manager_id))
+            }
+        }
     }
 
-
-    /// Internal function for triggering
+    /// Internal function for triggering scheduled listeners and event listeners
     fn trigger_listeners(&mut self) {
         log::debug!("Triggering listeners for TimeManager {}", self.manager_id);
 
@@ -306,7 +343,6 @@ impl<'a> TimeManager<'a> {
             }
         }
 
-
         // iterate over the scheduled_listeners until we reach a time which is
         // still in the future. Call each listener in those times and keep track
         // of completed times so we can remove them later.
@@ -341,3 +377,37 @@ impl<'a> TimeManager<'a> {
 
 }
 
+#[cfg(test)]
+mod tests {
+    use std::mem;
+    use super::Uuid;
+    use super::OrderedTime;
+    use super::Time;
+    use super::second;
+    use super::IdType;
+    use super::TimeManager;
+    use super::execute_listeners;
+    use super::emit_events;
+
+    #[test]
+    fn test_execute_listeners() {
+        let test_id = Uuid::new_v4();
+        let test_time = OrderedTime(Time::new::<second>(10.0));
+        
+        let mut a_fn_called = false;
+        let mut b_fn_called = false;
+
+        // Need to scope the vector to ensure we can access the
+        // flags again after the function call
+        {
+            let mut listener_vec: Vec<(IdType, Box<dyn FnMut()>)> = 
+                vec![(1, Box::new(|| a_fn_called = true)),
+                     (2, Box::new(|| b_fn_called = true))];
+
+            execute_listeners(test_id, test_time, &mut listener_vec);
+        }
+
+        assert!(a_fn_called);
+        assert!(b_fn_called);
+    }
+}
