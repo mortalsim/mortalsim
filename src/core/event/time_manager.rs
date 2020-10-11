@@ -15,59 +15,29 @@ use crate::core::id_gen::{IdType, IdGenerator};
 use crate::core::event::Event;
 use crate::util::quantity_wrapper::OrderedTime;
 
-fn execute_listeners<'a>(manager_id: Uuid, time: OrderedTime,
-    listeners: &mut Vec<(u32, Box<dyn FnMut() + 'a>)>) {
 
-    for (_, listener) in listeners {
-        log::debug!("TimeManager {} executing listener scheduled for {}",
-            manager_id, time.get_value().into_format_args(second, Abbreviation));
-        listener();
-    }
-}
-
-fn emit_events<'a>(manager_id: Uuid, time: OrderedTime, events: &mut Vec<(IdType, Box<dyn Event + 'a>)>,
-    event_listener: &mut Option<Box<dyn FnMut(Box<dyn Event + 'a>) + 'a>>) {
-
-    log::debug!("TimeManager {} emitting events scheduled for {}",
-        manager_id, time.get_value().into_format_args(second, Abbreviation));
-
-    // Get a mutable reference to the inner function
-    match event_listener.as_mut() {
-        Some(listener_fn) => {
-            while let Some((_, event)) = events.pop() {
-                // Call the listener function with the given event
-                listener_fn(event);
-            }
-        }
-        None => {
-            log::debug!("... or not because no one is listening");
-            return;
-        }
-    }
-}
-
-struct TimeManager<'a> {
+struct TimeManager<'b> {
     /// Identifier for this TimeManager object
     manager_id: Uuid,
     /// Current simulation time
     sim_time: Time,
     /// Sorted map of events to be executed
-    event_queue: BTreeMap<OrderedTime, Vec<(IdType, Box<dyn Event + 'a>)>>,
+    event_queue: BTreeMap<OrderedTime, Vec<(IdType, Box<dyn Event>)>>,
     /// Generator for our listener IDs
     id_gen: IdGenerator,
     /// Map of listeners for any time advance
-    advance_listeners: HashMap<IdType, Box<dyn FnMut() + 'a>>,
+    advance_listeners: HashMap<IdType, Box<dyn FnMut() + 'b>>,
     /// Map of listeners to execute at future simulation times
-    scheduled_listeners: BTreeMap<OrderedTime, Vec<(IdType, Box<dyn FnMut() + 'a>)>>,
+    scheduled_listeners: BTreeMap<OrderedTime, Vec<(IdType, Box<dyn FnOnce() + 'b>)>>,
     /// Vector of Event listeners to call when events are emitted
-    event_listener: Option<Box<dyn FnMut(Box<dyn Event + 'a>) + 'a>>,
+    event_listener: Option<Box<dyn FnMut(Box<dyn Event>) + 'b>>,
     /// Used to lookup listeners and Event objects for unscheduling
     id_time_map: HashMap<IdType, OrderedTime>
 }
 
-impl<'a> TimeManager<'a> {
+impl<'b> TimeManager<'b> {
     /// Creates a new TimeManager object starting at t = 0
-    pub fn new() -> TimeManager<'a> {
+    pub fn new() -> TimeManager<'b> {
         TimeManager {
             manager_id: Uuid::new_v4(),
             sim_time: Time::new::<second>(0.0),
@@ -129,7 +99,7 @@ impl<'a> TimeManager<'a> {
     /// 
     /// # Arguments
     /// * `time_step` - Amount of time to advance by
-    pub fn advance_by(&mut self, time_step: Time) {
+    pub fn counter_by(&mut self, time_step: Time) {
         // If the time_step is zero or negative, advance to the next
         // point in the simulation
         if time_step <= Time::new::<second>(0.0) {
@@ -148,7 +118,7 @@ impl<'a> TimeManager<'a> {
     /// * `event` - Event instance to emit
     /// 
     /// Returns the schedule ID
-    pub fn schedule_event(&mut self, wait_time: Time, event: impl Event + 'a) -> IdType {
+    pub fn schedule_event(&mut self, wait_time: Time, event: impl Event) -> IdType {
         let exec_time = OrderedTime(self.sim_time + wait_time);
         let mut evt_list = self.event_queue.get_mut(&exec_time);
 
@@ -211,7 +181,7 @@ impl<'a> TimeManager<'a> {
     /// # Arguments
     /// * `listener` - an EventListener function to call when `Event`
     ///                objects are emitted
-    pub fn on_event(&mut self, listener: impl FnMut(Box<dyn Event + 'a>) + 'a) {
+    pub fn on_event(&mut self, listener: impl FnMut(Box<dyn Event>) + 'b) {
         self.event_listener = Some(Box::new(listener));
     }
 
@@ -219,7 +189,7 @@ impl<'a> TimeManager<'a> {
     /// 
     /// # Arguments
     /// * `listener` - function to call when time advances
-    pub fn on_advance(&mut self, listener: impl FnMut() + 'a) -> IdType {
+    pub fn on_advance(&mut self, listener: impl FnMut() + 'b) -> IdType {
         let lis_id = self.id_gen.get_id();
         self.advance_listeners.insert(lis_id, Box::new(listener));
         lis_id
@@ -245,7 +215,7 @@ impl<'a> TimeManager<'a> {
     /// * `listener` - function to call at the scheduled time
     /// 
     /// Returns an ID for the scheduled listener
-    pub fn schedule_callback(&mut self, wait_time: Time, listener: impl FnMut() + 'a) -> IdType {
+    pub fn schedule_callback(&mut self, wait_time: Time, listener: impl FnOnce() + 'b) -> IdType {
         let exec_time = OrderedTime(self.sim_time + wait_time);
         let mut listeners = self.scheduled_listeners.get_mut(&exec_time);
 
@@ -310,13 +280,14 @@ impl<'a> TimeManager<'a> {
         // We need to iterate over the event_queue and scheduled_listeners queue
         // simultaneously so that we can execute everything in the appropriate
         // simulation time order
-        let lis_iter = self.scheduled_listeners.iter_mut();
-        let evt_iter = self.event_queue.iter_mut();
+        let mut lis_times: Vec<OrderedTime> = self.scheduled_listeners.keys().cloned().collect();
+        let evt_times: Vec<OrderedTime> = self.event_queue.keys().cloned().collect();
 
         // Keep track of the maximum time reached while we're iterating both
+        // simultaneously
         let mut reached_time = Time::new::<second>(0.0);
 
-        for ((lis_time, listeners), (evt_time, events)) in lis_iter.zip(evt_iter) {
+        for (lis_time, evt_time) in lis_times.into_iter().zip(evt_times.into_iter()) {
 
             // If both times are beyond the current simulation time, exit the loop
             if lis_time.get_value() > self.sim_time && evt_time.get_value() > self.sim_time {
@@ -326,27 +297,31 @@ impl<'a> TimeManager<'a> {
             if lis_time < evt_time {
                 // The listeners come first, so we need to call all of those associated
                 // with the given time step
-                execute_listeners(self.manager_id, *lis_time, listeners);
+                self.execute_listeners(lis_time);
 
                 // Add this time to the list of completed times
-                times_completed.push(*lis_time);
+                times_completed.push(lis_time);
                 reached_time = lis_time.get_value();
             }
             else {
                 // The events come first, so we need to emit all of those to any
                 // event listeners
-                emit_events(self.manager_id, *evt_time, events, &mut self.event_listener);
+                self.emit_events(evt_time);
                 
                 // Add this time to the list of completed times
-                times_completed.push(*evt_time);
+                times_completed.push(evt_time);
                 reached_time = evt_time.get_value();
             }
         }
 
+        // Repopulate the array of times again... there's probably a more efficient
+        // way to do this, but this keeps the borrow checker happy.
+        lis_times = self.scheduled_listeners.keys().cloned().collect();
+
         // iterate over the scheduled_listeners until we reach a time which is
         // still in the future. Call each listener in those times and keep track
         // of completed times so we can remove them later.
-        for (time, listeners) in self.scheduled_listeners.iter_mut() {
+        for time in lis_times {
             if time.get_value() > self.sim_time {
                 // Go until we reach 
                 break;
@@ -355,10 +330,10 @@ impl<'a> TimeManager<'a> {
                 // If we've already processed these, continue to the next iteration
                 continue;
             }
-            execute_listeners(self.manager_id, *time, listeners);
+            self.execute_listeners(time);
 
             // Add this time to the list of completed times
-            times_completed.push(*time);
+            times_completed.push(time);
         }
 
         // Remove the completed times from the scheduled listeners queue. Done
@@ -375,39 +350,215 @@ impl<'a> TimeManager<'a> {
         }
     }
 
+    fn execute_listeners(&mut self, time: OrderedTime) {
+
+        for (_, listener) in self.scheduled_listeners.remove(&time).unwrap() {
+            log::debug!("TimeManager {} executing listener scheduled for {}",
+                self.manager_id, time.get_value().into_format_args(second, Abbreviation));
+            listener();
+        }
+    }
+
+    fn emit_events(&mut self, time: OrderedTime) {
+
+        log::debug!("TimeManager {} emitting events scheduled for {}",
+            self.manager_id, time.get_value().into_format_args(second, Abbreviation));
+
+        let mut events = self.event_queue.remove(&time).unwrap();
+
+        // Get a mutable reference to the inner function
+        match self.event_listener.as_mut() {
+            Some(listener_fn) => {
+                while let Some((_, event)) = events.pop() {
+                    // Call the listener function with the given event
+                    listener_fn(event);
+                }
+            }
+            None => {
+                log::debug!("... or not because no one is listening");
+                return;
+            }
+        }
+    }
+
 }
 
 #[cfg(test)]
 mod tests {
-    use std::mem;
-    use super::Uuid;
+    use std::cell::Cell;
     use super::OrderedTime;
     use super::Time;
     use super::second;
     use super::IdType;
     use super::TimeManager;
-    use super::execute_listeners;
-    use super::emit_events;
+    use super::Event;
+    use uom::si::f64::Length;
+    use uom::si::f64::AmountOfSubstance;
+    use uom::si::length::meter;
+    use uom::si::amount_of_substance::mole;
+
+    #[derive(Debug)]
+    struct TestEventA {
+        len: Length
+    }
+    impl Event for TestEventA {}
+
+    #[derive(Debug)]
+    struct TestEventB {
+        amt: AmountOfSubstance
+    }
+    impl Event for TestEventB {}
+        
+    // #[test]
+    // fn test_execute_listeners() {
+    //     let test_id = Uuid::new_v4();
+    //     let test_time = OrderedTime(Time::new::<second>(10.0));
+        
+    //     let mut a_fn_called = false;
+    //     let mut b_fn_called = false;
+
+    //     // Need to scope the vector to ensure we can access the
+    //     // flags again after the function call
+    //     {
+    //         let mut listener_vec: Vec<(IdType, Box<dyn FnMut()>)> = 
+    //             vec![(1, Box::new(|| a_fn_called = true)),
+    //                  (2, Box::new(|| b_fn_called = true))];
+
+    //         execute_listeners(test_id, test_time, &mut listener_vec);
+    //     }
+
+    //     assert!(a_fn_called);
+    //     assert!(b_fn_called);
+    // }
+
+    // #[test]
+    // fn test_emit_events<'a>() {
+    //     let test_id = Uuid::new_v4();
+    //     let test_time = OrderedTime(Time::new::<second>(10.0));
+
+    //     let mut a_evt: Option<Box<TestEventA>> = None;
+    //     let mut b_evt: Option<Box<TestEventB>> = None;
+        
+    //     // Create our vector of Events
+    //     let mut evt_vec: Vec<(IdType, Box<dyn Event>)> = Vec::new();
+
+    //     evt_vec.push((5, Box::new(TestEventA {len: Length::new::<meter>(3.5)})));
+    //     evt_vec.push((8, Box::new(TestEventB {amt: AmountOfSubstance::new::<mole>(123456.0)})));
+
+    //     // Need to scope the vector to ensure we can access the
+    //     // values again after the function call
+    //     {
+    //         let mut listener: Option<Box<dyn FnMut(Box<dyn Event>)>> =
+    //             Some(Box::new(|evt| {
+    //                 if evt.is::<TestEventA>() {
+    //                     match evt.downcast::<TestEventA>() {
+    //                         Ok(evt_a) => a_evt = Some(evt_a),
+    //                         Err(_) => {/*ignore*/}
+    //                     }
+    //                 }
+    //                 else {
+    //                     match evt.downcast::<TestEventB>() {
+    //                         Ok(evt_b) => b_evt = Some(evt_b),
+    //                         Err(_) => {/*ignore*/}
+    //                     }
+    //                 }
+    //             }));
+
+    //         emit_events(test_id, test_time, &mut evt_vec, &mut listener);
+    //     }
+
+    //     assert!(a_evt.is_some());
+    //     assert!(b_evt.is_some());
+    //     assert!(a_evt.unwrap().len == Length::new::<meter>(3.5));
+    //     assert!(b_evt.unwrap().amt == AmountOfSubstance::new::<mole>(123456.0));
+    // }
 
     #[test]
-    fn test_execute_listeners() {
-        let test_id = Uuid::new_v4();
-        let test_time = OrderedTime(Time::new::<second>(10.0));
+    fn advance_test() {
+        // Track advance counts for each of our listeners
+        // note that order is important here because
+        // counter_a and counter_b are captured by the
+        // callbacks passed to the time_manager, which
+        // then must exist for at least the duration of
+        // time_manager. Otherwise the compiler gets upset.
+        let counter_a: Cell<u32> = Cell::new(0);
+        let counter_b: Cell<u32> = Cell::new(0);
+
+        // Create a time manager and a handy reusable
+        // variable representing one second
+        let mut time_manager = TimeManager::new();
+        let one_sec = Time::new::<second>(1.0);
         
-        let mut a_fn_called = false;
-        let mut b_fn_called = false;
+        // Count the number of advances through
+        // the callback
+        let a_id = time_manager.on_advance(|| {
+            counter_a.set(counter_a.get() + 1);
+        });
 
-        // Need to scope the vector to ensure we can access the
-        // flags again after the function call
-        {
-            let mut listener_vec: Vec<(IdType, Box<dyn FnMut()>)> = 
-                vec![(1, Box::new(|| a_fn_called = true)),
-                     (2, Box::new(|| b_fn_called = true))];
+        // Time should start at zero seconds
+        assert_eq!(time_manager.get_time(), Time::new::<second>(0.0));
 
-            execute_listeners(test_id, test_time, &mut listener_vec);
-        }
+        // Advance time by 1s
+        time_manager.counter_by(one_sec);
 
-        assert!(a_fn_called);
-        assert!(b_fn_called);
+        // The callback should have been called
+        assert_eq!(counter_a.get(), 1);
+
+        // time should now be at approx. 1 second
+        // (within possible floating point errors)
+        assert_eq!(time_manager.get_time(), one_sec);
+        
+        // Add a seconed listener
+        let b_id = time_manager.on_advance(|| {
+            counter_b.set(counter_b.get() + 1);
+        });
+        
+        // Advance another second
+        time_manager.counter_by(one_sec);
+
+        // Both callbacks should have been called
+        assert_eq!(counter_a.get(), 2);
+        assert_eq!(counter_b.get(), 1);
+
+        // Time should now be at 2 seconds
+        assert_eq!(time_manager.get_time(), Time::new::<second>(2.0));
+
+        // Remove a callback
+        time_manager.off_advance(a_id).unwrap();
+
+        // Advance again, but this time by 3 seconds
+        time_manager.counter_by(Time::new::<second>(3.0));
+
+        // Only the b callback should have been called
+        assert_eq!(counter_a.get(), 2);
+        assert_eq!(counter_b.get(), 2);
+        
+        // Time should now be at 5 seconds
+        assert_eq!(time_manager.get_time(), Time::new::<second>(5.0));
+
+        // Remove the other callback
+        time_manager.off_advance(b_id).unwrap();
+
+        // Advance one last time
+        time_manager.counter_by(one_sec);
+
+        // This time b shouldn't have been triggered
+        assert_eq!(counter_b.get(), 2);
+
+        // Try off'ing one of our ids again. This should
+        // give us an Err
+        assert!(time_manager.off_advance(a_id).is_err());
+    }
+
+    #[test]
+    fn schedule_test() {
+        let counter_a: Cell<u32> = Cell::new(0);
+        let counter_b: Cell<u32> = Cell::new(0);
+
+        // Create a time manager and a handy reusable
+        // variable representing one second
+        let mut time_manager = TimeManager::new();
+        let one_sec = Time::new::<second>(1.0);
+
     }
 }
