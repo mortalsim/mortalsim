@@ -99,7 +99,7 @@ impl<'b> TimeManager<'b> {
     /// 
     /// # Arguments
     /// * `time_step` - Amount of time to advance by
-    pub fn counter_by(&mut self, time_step: Time) {
+    pub fn advance_by(&mut self, time_step: Time) {
         // If the time_step is zero or negative, advance to the next
         // point in the simulation
         if time_step <= Time::new::<second>(0.0) {
@@ -281,7 +281,7 @@ impl<'b> TimeManager<'b> {
         // simultaneously so that we can execute everything in the appropriate
         // simulation time order
         let mut lis_times: Vec<OrderedTime> = self.scheduled_listeners.keys().cloned().collect();
-        let evt_times: Vec<OrderedTime> = self.event_queue.keys().cloned().collect();
+        let mut evt_times: Vec<OrderedTime> = self.event_queue.keys().cloned().collect();
 
         // Keep track of the maximum time reached while we're iterating both
         // simultaneously
@@ -331,6 +331,28 @@ impl<'b> TimeManager<'b> {
                 continue;
             }
             self.execute_listeners(time);
+
+            // Add this time to the list of completed times
+            times_completed.push(time);
+        }
+        
+        // Repopulate the array of times again... there's probably a more efficient
+        // way to do this, but this keeps the borrow checker happy.
+        evt_times = self.event_queue.keys().cloned().collect();
+
+        // iterate over the events until we reach a time which is
+        // still in the future. Call each listener in those times and keep track
+        // of completed times so we can remove them later.
+        for time in evt_times {
+            if time.get_value() > self.sim_time {
+                // Go until we reach 
+                break;
+            }
+            if time.get_value() < reached_time {
+                // If we've already processed these, continue to the next iteration
+                continue;
+            }
+            self.emit_events(time);
 
             // Add this time to the list of completed times
             times_completed.push(time);
@@ -386,6 +408,7 @@ impl<'b> TimeManager<'b> {
 #[cfg(test)]
 mod tests {
     use std::cell::Cell;
+    use std::cell::RefCell;
     use super::OrderedTime;
     use super::Time;
     use super::second;
@@ -431,47 +454,6 @@ mod tests {
     //     assert!(b_fn_called);
     // }
 
-    // #[test]
-    // fn test_emit_events<'a>() {
-    //     let test_id = Uuid::new_v4();
-    //     let test_time = OrderedTime(Time::new::<second>(10.0));
-
-    //     let mut a_evt: Option<Box<TestEventA>> = None;
-    //     let mut b_evt: Option<Box<TestEventB>> = None;
-        
-    //     // Create our vector of Events
-    //     let mut evt_vec: Vec<(IdType, Box<dyn Event>)> = Vec::new();
-
-    //     evt_vec.push((5, Box::new(TestEventA {len: Length::new::<meter>(3.5)})));
-    //     evt_vec.push((8, Box::new(TestEventB {amt: AmountOfSubstance::new::<mole>(123456.0)})));
-
-    //     // Need to scope the vector to ensure we can access the
-    //     // values again after the function call
-    //     {
-    //         let mut listener: Option<Box<dyn FnMut(Box<dyn Event>)>> =
-    //             Some(Box::new(|evt| {
-    //                 if evt.is::<TestEventA>() {
-    //                     match evt.downcast::<TestEventA>() {
-    //                         Ok(evt_a) => a_evt = Some(evt_a),
-    //                         Err(_) => {/*ignore*/}
-    //                     }
-    //                 }
-    //                 else {
-    //                     match evt.downcast::<TestEventB>() {
-    //                         Ok(evt_b) => b_evt = Some(evt_b),
-    //                         Err(_) => {/*ignore*/}
-    //                     }
-    //                 }
-    //             }));
-
-    //         emit_events(test_id, test_time, &mut evt_vec, &mut listener);
-    //     }
-
-    //     assert!(a_evt.is_some());
-    //     assert!(b_evt.is_some());
-    //     assert!(a_evt.unwrap().len == Length::new::<meter>(3.5));
-    //     assert!(b_evt.unwrap().amt == AmountOfSubstance::new::<mole>(123456.0));
-    // }
 
     #[test]
     fn advance_test() {
@@ -499,7 +481,7 @@ mod tests {
         assert_eq!(time_manager.get_time(), Time::new::<second>(0.0));
 
         // Advance time by 1s
-        time_manager.counter_by(one_sec);
+        time_manager.advance_by(one_sec);
 
         // The callback should have been called
         assert_eq!(counter_a.get(), 1);
@@ -514,7 +496,7 @@ mod tests {
         });
         
         // Advance another second
-        time_manager.counter_by(one_sec);
+        time_manager.advance_by(one_sec);
 
         // Both callbacks should have been called
         assert_eq!(counter_a.get(), 2);
@@ -527,7 +509,7 @@ mod tests {
         time_manager.off_advance(a_id).unwrap();
 
         // Advance again, but this time by 3 seconds
-        time_manager.counter_by(Time::new::<second>(3.0));
+        time_manager.advance_by(Time::new::<second>(3.0));
 
         // Only the b callback should have been called
         assert_eq!(counter_a.get(), 2);
@@ -540,7 +522,7 @@ mod tests {
         time_manager.off_advance(b_id).unwrap();
 
         // Advance one last time
-        time_manager.counter_by(one_sec);
+        time_manager.advance_by(one_sec);
 
         // This time b shouldn't have been triggered
         assert_eq!(counter_b.get(), 2);
@@ -552,13 +534,185 @@ mod tests {
 
     #[test]
     fn schedule_test() {
-        let counter_a: Cell<u32> = Cell::new(0);
-        let counter_b: Cell<u32> = Cell::new(0);
+        let call_flag_a: Cell<bool> = Cell::new(false);
+        let call_flag_b: Cell<bool> = Cell::new(false);
 
         // Create a time manager and a handy reusable
         // variable representing one second
         let mut time_manager = TimeManager::new();
         let one_sec = Time::new::<second>(1.0);
+        
+        // Schedule our test callbacks
+        time_manager.schedule_callback(Time::new::<second>(5.0), || {
+            call_flag_a.set(true);
+        });
+        time_manager.schedule_callback(Time::new::<second>(7.0), || {
+            call_flag_b.set(true);
+        });
 
+        // Advance by one second
+        time_manager.advance_by(one_sec);
+
+        // Nothing should have been called
+        assert!(!call_flag_a.get(), "Call flag 'a' hasn't been fired yet");
+        assert!(!call_flag_b.get(), "Call flag 'b' hasn't been fired yet");
+
+        // Advance automatically to the next scheduled thing
+        time_manager.advance();
+
+        // Time should now be at 5.0s
+        assert_eq!(time_manager.get_time(), Time::new::<second>(5.0));
+        assert!(call_flag_a.get(), "Call flag 'a' should have fired");
+        assert!(!call_flag_b.get(), "Call flag 'b' should NOT have fired");
+
+        // Advance again
+        time_manager.advance();
+
+        // Time should now be at 7.0s
+        assert_eq!(time_manager.get_time(), Time::new::<second>(7.0));
+        assert!(call_flag_b.get(), "Call flag 'b' should have fired now");
+    }
+
+
+    #[test]
+    fn emit_events_test() {
+
+        // Create target Cells to grab our Events when they are emitted
+        let a_evt_target: Cell<Option<Box<TestEventA>>> = Cell::new(None);
+        let b_evt_target: Cell<Option<Box<TestEventB>>> = Cell::new(None);
+        let call_flag_a: Cell<bool> = Cell::new(false);
+        let call_flag_b: Cell<bool> = Cell::new(false);
+
+        // Scope the time manager so we can just pull out the events at the end
+        {
+            let a_evt = TestEventA {len: Length::new::<meter>(3.5)};
+            let b_evt = TestEventB {amt: AmountOfSubstance::new::<mole>(123456.0)};
+        
+            // Create a time manager and a handy reusable
+            // variable representing one second
+            let mut time_manager = TimeManager::new();
+            let one_sec = Time::new::<second>(1.0);
+        
+            // Set up our listener
+            time_manager.on_event(|evt| {
+                    if evt.is::<TestEventA>() {
+                        match evt.downcast::<TestEventA>() {
+                            Ok(evt_a) => {
+                                a_evt_target.set(Some(evt_a));
+                                call_flag_a.set(true);
+                            },
+                            Err(_) => {/*ignore*/}
+                        }
+                    }
+                    else {
+                        match evt.downcast::<TestEventB>() {
+                            Ok(evt_b) => {
+                                b_evt_target.set(Some(evt_b));
+                                call_flag_b.set(true);
+                            },
+                            Err(_) => {/*ignore*/}
+                        }
+                    }
+                });
+
+            // Schedule the events to be emitted later
+            time_manager.schedule_event(Time::new::<second>(2.0), a_evt);
+            time_manager.schedule_event(Time::new::<second>(6.0), b_evt);
+
+            // Advance by 1s. No events yet.
+            time_manager.advance_by(one_sec);
+            assert_eq!(time_manager.get_time(), Time::new::<second>(1.0));
+            assert!(!call_flag_a.get(), "A Event should not have fired.");
+            assert!(!call_flag_b.get(), "B Event should not have fired.");
+            
+            // Advance again. First event should fire.
+            time_manager.advance_by(one_sec);
+            assert_eq!(time_manager.get_time(), Time::new::<second>(2.0));
+            assert!(call_flag_a.get(), "A Event should have fired.");
+            assert!(!call_flag_b.get(), "B Event should not have fired.");
+            
+            // Advance again automatically. Should fire both now.
+            time_manager.advance();
+            assert!(call_flag_a.get(), "A Event should have fired.");
+            assert!(call_flag_b.get(), "B Event should have fired.");
+        }
+
+        // Ensure we can pull the events and get their values
+        assert!(a_evt_target.into_inner().unwrap().len == Length::new::<meter>(3.5));
+        assert!(b_evt_target.into_inner().unwrap().amt == AmountOfSubstance::new::<mole>(123456.0));
+    }
+    #[test]
+
+    fn evt_lis_mixed_test() {
+
+        // Create target Cells to grab our Events when they are emitted
+        let call_flag_a: Cell<bool> = Cell::new(false);
+        let call_flag_b: Cell<bool> = Cell::new(false);
+        let call_flag_c: Cell<bool> = Cell::new(false);
+        let call_flag_d: Cell<bool> = Cell::new(false);
+
+        let a_evt = TestEventA {len: Length::new::<meter>(3.5)};
+        let b_evt = TestEventB {amt: AmountOfSubstance::new::<mole>(123456.0)};
+        
+        // Create a time manager and a handy reusable
+        // variable representing one second
+        let mut time_manager = TimeManager::new();
+        let one_sec = Time::new::<second>(1.0);
+        
+        // Set up our listener
+        time_manager.on_event(|evt| {
+                if evt.is::<TestEventA>() {
+                    match evt.downcast::<TestEventA>() {
+                        Ok(_) => {
+                            call_flag_a.set(true);
+                        },
+                        Err(_) => {/*ignore*/}
+                    }
+                }
+                else {
+                    match evt.downcast::<TestEventB>() {
+                        Ok(_) => {
+                            call_flag_b.set(true);
+                        },
+                        Err(_) => {/*ignore*/}
+                    }
+                }
+            });
+
+        // Schedule a callback at 1s
+        time_manager.schedule_callback(one_sec, || {
+            call_flag_c.set(true);
+        });
+
+        // Schedule the events to be emitted later
+        time_manager.schedule_event(Time::new::<second>(2.0), a_evt);
+        time_manager.schedule_event(Time::new::<second>(6.0), b_evt);
+        
+        // Schedule a callback at 7s
+        time_manager.schedule_callback(Time::new::<second>(7.0), || {
+            call_flag_d.set(true);
+        });
+
+        // Advance by 1s. First callback should fire
+        time_manager.advance_by(one_sec);
+        assert!(!call_flag_a.get(), "A Event should not have fired.");
+        assert!(!call_flag_b.get(), "B Event should not have fired.");
+        assert!(call_flag_c.get(), "C Event should have fired.");
+        assert!(!call_flag_d.get(), "D Event should not have fired.");
+        
+        // Advance again. Event A should fire now.
+        time_manager.advance_by(one_sec);
+        assert!(call_flag_a.get(), "A Event should have fired.");
+        assert!(!call_flag_b.get(), "B Event should not have fired.");
+        assert!(!call_flag_d.get(), "D Event should not have fired.");
+        
+        // Advance again automatically. Should fire B now.
+        time_manager.advance();
+        assert!(call_flag_b.get(), "B Event should have fired.");
+        assert!(!call_flag_d.get(), "D Event should not have fired.");
+        
+        // Last advance. Should fire D now.
+        time_manager.advance();
+        assert!(call_flag_d.get(), "D Event should have fired.");
     }
 }
