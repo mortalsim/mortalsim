@@ -25,6 +25,6 @@ mod tests {
 
     #[test]
     fn instantiate() {
-        let hub = EventHub::new();
+        let _hub = EventHub::new();
     }
 }

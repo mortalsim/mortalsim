@@ -29,7 +29,7 @@ struct TimeManager<'b> {
     advance_listeners: HashMap<IdType, Box<dyn FnMut() + 'b>>,
     /// Map of listeners to execute at future simulation times
     scheduled_listeners: BTreeMap<OrderedTime, Vec<(IdType, Box<dyn FnOnce() + 'b>)>>,
-    /// Vector of Event listeners to call when events are emitted
+    /// Event listener to call when events are emitted
     event_listener: Option<Box<dyn FnMut(Box<dyn Event>) + 'b>>,
     /// Used to lookup listeners and Event objects for unscheduling
     id_time_map: HashMap<IdType, OrderedTime>
@@ -408,11 +408,8 @@ impl<'b> TimeManager<'b> {
 #[cfg(test)]
 mod tests {
     use std::cell::Cell;
-    use std::cell::RefCell;
-    use super::OrderedTime;
     use super::Time;
     use super::second;
-    use super::IdType;
     use super::TimeManager;
     use super::Event;
     use uom::si::f64::Length;
@@ -432,29 +429,6 @@ mod tests {
     }
     impl Event for TestEventB {}
         
-    // #[test]
-    // fn test_execute_listeners() {
-    //     let test_id = Uuid::new_v4();
-    //     let test_time = OrderedTime(Time::new::<second>(10.0));
-        
-    //     let mut a_fn_called = false;
-    //     let mut b_fn_called = false;
-
-    //     // Need to scope the vector to ensure we can access the
-    //     // flags again after the function call
-    //     {
-    //         let mut listener_vec: Vec<(IdType, Box<dyn FnMut()>)> = 
-    //             vec![(1, Box::new(|| a_fn_called = true)),
-    //                  (2, Box::new(|| b_fn_called = true))];
-
-    //         execute_listeners(test_id, test_time, &mut listener_vec);
-    //     }
-
-    //     assert!(a_fn_called);
-    //     assert!(b_fn_called);
-    // }
-
-
     #[test]
     fn advance_test() {
         // Track advance counts for each of our listeners
