@@ -1,26 +1,30 @@
 use mopa::Any;
+use uom::si::f64::Length;
+use uom::si::f64::AmountOfSubstance;
+use uom::si::length::meter;
+use uom::si::amount_of_substance::mole;
 pub mod event_hub;
 pub mod time_manager;
 pub mod event_listener;
-pub mod event_transformer;
 
 pub type EventHandler<T> = dyn FnMut(Box<T>);
 
 pub trait Event: Any {}
 mopafy!(Event);
 
-
 #[cfg(test)]
-pub struct TestEventA {
-    value: i32
+#[derive(Debug)]
+struct TestEventA {
+    len: Length
 }
 
 #[cfg(test)]
 impl Event for TestEventA {}
 
 #[cfg(test)]
-pub struct TestEventB {
-    value: String
+#[derive(Debug)]
+struct TestEventB {
+    amt: AmountOfSubstance
 }
 
 #[cfg(test)]

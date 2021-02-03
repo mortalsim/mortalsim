@@ -412,23 +412,13 @@ mod tests {
     use super::second;
     use super::TimeManager;
     use super::Event;
+    use crate::core::event::TestEventA;
+    use crate::core::event::TestEventB;
     use uom::si::f64::Length;
     use uom::si::f64::AmountOfSubstance;
     use uom::si::length::meter;
     use uom::si::amount_of_substance::mole;
 
-    #[derive(Debug)]
-    struct TestEventA {
-        len: Length
-    }
-    impl Event for TestEventA {}
-
-    #[derive(Debug)]
-    struct TestEventB {
-        amt: AmountOfSubstance
-    }
-    impl Event for TestEventB {}
-        
     #[test]
     fn advance_test() {
         // Track advance counts for each of our listeners
