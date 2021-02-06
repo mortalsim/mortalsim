@@ -4,7 +4,7 @@ extern crate uom;
 #[macro_use]
 extern crate anyhow;
 #[macro_use]
-extern crate mopa;
+extern crate downcast_rs;
 
 mod core;
 mod util;

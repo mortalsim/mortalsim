@@ -1,4 +1,4 @@
-use mopa::Any;
+use downcast_rs::DowncastSync;
 use uom::si::f64::Length;
 use uom::si::f64::AmountOfSubstance;
 use uom::si::length::meter;
@@ -9,8 +9,8 @@ pub mod event_listener;
 
 pub type EventHandler<T> = dyn FnMut(Box<T>);
 
-pub trait Event: Any {}
-mopafy!(Event);
+pub trait Event: DowncastSync {}
+impl_downcast!(Event);
 
 #[cfg(test)]
 #[derive(Debug)]
