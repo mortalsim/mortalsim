@@ -8,8 +8,6 @@ use std::fmt;
 use uuid::Uuid;
 use anyhow::Result;
 
-
-
 /// The underlying type for identifiers. Can be modified depending
 /// on capacity needs.
 pub type IdType = u32;
