@@ -15,7 +15,6 @@ use crate::core::id_gen::{IdType, IdGenerator};
 use crate::core::event::Event;
 use crate::util::quantity_wrapper::OrderedTime;
 
-
 struct TimeManager<'b> {
     /// Identifier for this TimeManager object
     manager_id: Uuid,
@@ -412,8 +411,8 @@ mod tests {
     use super::second;
     use super::TimeManager;
     use super::Event;
-    use crate::core::event::TestEventA;
-    use crate::core::event::TestEventB;
+    use crate::core::event::test::TestEventA;
+    use crate::core::event::test::TestEventB;
     use uom::si::f64::Length;
     use uom::si::f64::AmountOfSubstance;
     use uom::si::length::meter;
@@ -549,8 +548,8 @@ mod tests {
 
         // Scope the time manager so we can just pull out the events at the end
         {
-            let a_evt = TestEventA {len: Length::new::<meter>(3.5)};
-            let b_evt = TestEventB {amt: AmountOfSubstance::new::<mole>(123456.0)};
+            let a_evt = TestEventA::new(Length::new::<meter>(3.5));
+            let b_evt = TestEventB::new(AmountOfSubstance::new::<mole>(123456.0));
         
             // Create a time manager and a handy reusable
             // variable representing one second
@@ -615,8 +614,8 @@ mod tests {
         let call_flag_c: Cell<bool> = Cell::new(false);
         let call_flag_d: Cell<bool> = Cell::new(false);
 
-        let a_evt = TestEventA {len: Length::new::<meter>(3.5)};
-        let b_evt = TestEventB {amt: AmountOfSubstance::new::<mole>(123456.0)};
+        let a_evt = TestEventA::new(Length::new::<meter>(3.5));
+        let b_evt = TestEventB::new(AmountOfSubstance::new::<mole>(123456.0));
         
         // Create a time manager and a handy reusable
         // variable representing one second
