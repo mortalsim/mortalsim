@@ -11,8 +11,12 @@ anyhow = "1.0"
 approx = "0.3.2"
 downcast-rs = "1.2.0"
 dynamic = "0.2"
+lazy_static = "1.4.0"
 log = "0.4"
 ordered-float = "2.0"
 rand = "0.7.3"
 uom = { version = "0.31.0", default-features = false, features = ["autoconvert", "rational", "f64", "si", "std", "try-from", "use_serde"] }
 uuid = { version = "0.8", features = ["serde", "v4"] }
+
+[dev-dependencies]
+simple_logger = "1.11.0"

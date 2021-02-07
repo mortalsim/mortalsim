@@ -2,13 +2,16 @@
 //!
 //! Provides an Ord wrapper for `Event` handling functions
 
-use std::fmt;
-use std::marker::Sized;
 use std::cmp;
+use std::sync::Mutex;
 use uuid::Uuid;
 use crate::core::id_gen::{IdType, IdGenerator};
 use crate::core::event::Event;
 use crate::core::event::EventHandler;
+
+lazy_static! {
+    static ref ID_GEN: Mutex<IdGenerator> = Mutex::new(IdGenerator::new());
+}
 
 pub trait EventListener {
     /// Calls this listener's handler function with the given Event
@@ -19,32 +22,96 @@ pub trait EventListener {
 
     /// Retrieves the priority value for this listener
     fn priority(&self) -> i32;
+    
+    /// Retrieves the id for this listener
+    fn listener_id(&self) -> IdType;
 }
 
 // Implement all the traits we need to support Ord
-impl PartialEq for dyn EventListener {
+impl<'a> PartialEq for dyn EventListener + 'a {
     fn eq(&self, other: &Self) -> bool {
-        self.priority() == other.priority()
+        self.listener_id() == other.listener_id()
     }
 }
 
-impl PartialOrd for dyn EventListener {
+impl<'a> PartialOrd for dyn EventListener + 'a {
     fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
-        self.priority().partial_cmp(&other.priority())
+        other.priority().partial_cmp(&self.priority())
     }
 }
 
-impl Eq for dyn EventListener {}
+impl<'a> Eq for dyn EventListener + 'a {}
 
-impl Ord for dyn EventListener {
+impl<'a> Ord for dyn EventListener + 'a {
     fn cmp(&self, other: &Self) -> cmp::Ordering {
-        self.priority().cmp(&other.priority())
+        other.priority().cmp(&self.priority())
+    }
+}
+
+pub struct GenericListener<'a> {
+    /// Unique identifier for this listener
+    listener_id: IdType,
+    /// Container for the Event handling function
+    handler: Box<dyn FnMut(&dyn Event) + 'a>,
+    /// Priority for this listener
+    priority: i32
+}
+
+impl<'a> GenericListener<'a> {
+    /// Creates a new GenericListener for the given handler function with
+    /// the default priority of 0
+    ///
+    /// # Arguments
+    /// * `id` - Identifier for this listener
+    pub fn new(handler: impl FnMut(&dyn Event) + 'a) -> GenericListener<'a> {
+        GenericListener {
+            listener_id: ID_GEN.lock().unwrap().get_id(),
+            priority: 0,
+            handler: Box::new(handler),
+        }
+    }
+    /// Creates a new GenericListener for the given handler function
+    /// and priority of execution
+    /// 
+    /// # Arguments
+    /// * `handler`  - Event handling function
+    /// * `priority` - determines this listener's priority when Events
+    ///                are dispatched. Higher priority listeners are
+    ///                executed first.
+    pub fn new_prioritized(handler: impl FnMut(&dyn Event) + 'a, priority: i32) -> GenericListener<'a> {
+        GenericListener {
+            listener_id: ID_GEN.lock().unwrap().get_id(),
+            handler: Box::new(handler),
+            priority: priority
+        }
+    }
+}
+
+impl<'a> Drop for GenericListener<'a> {
+    fn drop(&mut self) {
+        // Return ids back to the pool when listeners are dropped
+        ID_GEN.lock().unwrap().return_id(self.listener_id).unwrap();
+    }
+}
+
+impl<'a> EventListener for GenericListener<'a> {
+    fn handle(&mut self, evt: &dyn Event) {
+        log::debug!("Executing generic event listener {} with Event {}", self.listener_id, evt.event_id());
+        (*self.handler)(evt);
+    }
+
+    fn priority(&self) -> i32 {
+        self.priority
+    }
+    
+    fn listener_id(&self) -> IdType {
+        self.listener_id
     }
 }
 
 pub struct ListenerItem<'a, T: Event> {
     /// Unique identifier for this listener
-    listener_id: Uuid,
+    listener_id: IdType,
     /// Container for the Event handling function
     handler: Box<dyn FnMut(&T) + 'a>,
     /// Priority for this listener
@@ -56,12 +123,12 @@ impl<'a, T: Event> ListenerItem<'a, T> {
     /// the default priority of 0
     ///
     /// # Arguments
-    /// * `handler` - Event handling function
+    /// * `id` - Identifier for this listener
     pub fn new(handler: impl FnMut(&T) + 'a) -> ListenerItem<'a, T> {
         ListenerItem {
-            listener_id: Uuid::new_v4(),
+            listener_id: ID_GEN.lock().unwrap().get_id(),
+            priority: 0,
             handler: Box::new(handler),
-            priority: 0
         }
     }
     /// Creates a new ListenerItem for the given handler function
@@ -74,10 +141,17 @@ impl<'a, T: Event> ListenerItem<'a, T> {
     ///                executed first.
     pub fn new_prioritized(handler: impl FnMut(&T) + 'a, priority: i32) -> ListenerItem<'a, T> {
         ListenerItem {
-            listener_id: Uuid::new_v4(),
+            listener_id: ID_GEN.lock().unwrap().get_id(),
             handler: Box::new(handler),
             priority: priority
         }
+    }
+}
+
+impl<'a, T: Event> Drop for ListenerItem<'a, T> {
+    fn drop(&mut self) {
+        // Return ids back to the pool when listeners are dropped
+        ID_GEN.lock().unwrap().return_id(self.listener_id).unwrap();
     }
 }
 
@@ -92,6 +166,10 @@ impl<'a, T: Event> EventListener for ListenerItem<'a, T> {
 
     fn priority(&self) -> i32 {
         self.priority
+    }
+    
+    fn listener_id(&self) -> IdType {
+        self.listener_id
     }
 }
 
@@ -135,10 +213,10 @@ mod tests {
 
         v.sort();
 
-        assert_eq!(v[0].priority(), -2);
-        assert_eq!(v[1].priority(), 0);
-        assert_eq!(v[2].priority(), 3);
-        assert_eq!(v[3].priority(), 5);
+        assert_eq!(v[0].priority(), 5);
+        assert_eq!(v[1].priority(), 3);
+        assert_eq!(v[2].priority(), 0);
+        assert_eq!(v[3].priority(), -2);
     }
 
 }

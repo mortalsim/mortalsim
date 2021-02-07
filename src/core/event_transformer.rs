@@ -2,15 +2,16 @@
 //!
 //! Provides an Ord wrapper for `Event` transforming functions
 
-use std::cmp::PartialEq;
-use std::cmp::PartialOrd;
-use std::cmp::Eq;
-use std::cmp::Ord;
-use std::cmp::Ordering;
+use std::cmp;
+use std::sync::Mutex;
 use uuid::Uuid;
 use crate::core::id_gen::{IdType, IdGenerator};
 use crate::core::event::Event;
 use crate::core::event::EventHandler;
+
+lazy_static! {
+    static ref ID_GEN: Mutex<IdGenerator> = Mutex::new(IdGenerator::new());
+}
 
 pub trait EventTransformer {
     /// Calls this transformer's handler function with the given Event
@@ -21,32 +22,35 @@ pub trait EventTransformer {
 
     /// Retrieves the priority value for this transformer
     fn priority(&self) -> i32;
+    
+    /// Retrieves the id for this listener
+    fn transformer_id(&self) -> IdType;
 }
 
 // Implement all the traits we need to support Ord
-impl PartialEq for dyn EventTransformer {
+impl<'a> PartialEq for dyn EventTransformer + 'a {
     fn eq(&self, other: &Self) -> bool {
-        self.priority() == other.priority()
+        self.transformer_id() == other.transformer_id()
     }
 }
 
-impl PartialOrd for dyn EventTransformer {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        self.priority().partial_cmp(&other.priority())
+impl<'a> PartialOrd for dyn EventTransformer + 'a {
+    fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
+        other.priority().partial_cmp(&self.priority())
     }
 }
 
-impl Eq for dyn EventTransformer {}
+impl<'a> Eq for dyn EventTransformer + 'a {}
 
-impl Ord for dyn EventTransformer {
-    fn cmp(&self, other: &Self) -> Ordering {
-        self.priority().cmp(&other.priority())
+impl<'a> Ord for dyn EventTransformer + 'a {
+    fn cmp(&self, other: &Self) -> cmp::Ordering {
+        other.priority().cmp(&self.priority())
     }
 }
 
 pub struct TransformerItem<'a, T: Event> {
     /// Unique identifier for this listener
-    transformer_id: Uuid,
+    transformer_id: IdType,
     /// Container for the Event transforming function
     handler: Box<dyn FnMut(&mut T) + 'a>,
     /// Priority for this transformer
@@ -61,7 +65,7 @@ impl<'a, T: Event> TransformerItem<'a, T> {
     /// * `handler` - Event transforming function
     pub fn new(handler: impl FnMut(&mut T) + 'a) -> TransformerItem<'a, T> {
         TransformerItem {
-            transformer_id: Uuid::new_v4(),
+            transformer_id: ID_GEN.lock().unwrap().get_id(),
             handler: Box::new(handler),
             priority: 0
         }
@@ -77,10 +81,17 @@ impl<'a, T: Event> TransformerItem<'a, T> {
     ///                executed first.
     pub fn new_prioritized(handler: impl FnMut(&mut T) + 'a, priority: i32) -> TransformerItem<'a, T> {
         TransformerItem {
-            transformer_id: Uuid::new_v4(),
+            transformer_id: ID_GEN.lock().unwrap().get_id(),
             handler: Box::new(handler),
             priority: priority
         }
+    }
+}
+
+impl<'a, T: Event> Drop for TransformerItem<'a, T> {
+    fn drop(&mut self) {
+        // Return ids back to the pool when listeners are dropped
+        ID_GEN.lock().unwrap().return_id(self.transformer_id).unwrap();
     }
 }
     
@@ -94,6 +105,10 @@ impl<'a, T: Event> EventTransformer for TransformerItem<'a, T> {
     
     fn priority(&self) -> i32 {
         self.priority
+    }
+
+    fn transformer_id(&self) -> IdType {
+        self.transformer_id
     }
 }
 
@@ -135,9 +150,9 @@ mod tests {
 
         v.sort();
 
-        assert_eq!(v[0].priority(), -2);
-        assert_eq!(v[1].priority(), 0);
-        assert_eq!(v[2].priority(), 3);
-        assert_eq!(v[3].priority(), 5);
+        assert_eq!(v[0].priority(), 5);
+        assert_eq!(v[1].priority(), 3);
+        assert_eq!(v[2].priority(), 0);
+        assert_eq!(v[3].priority(), -2);
     }
 }
