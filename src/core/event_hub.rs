@@ -80,11 +80,6 @@ impl<'a> EventHub<'a> {
             listener.handle(&evt);
         }
 
-        log::debug!("All typed listener lengths:");
-        for (type_id, listeners) in &self.event_listeners {
-            log::debug!("{:?} : {:?}", type_id, listeners.len());
-        }
-        
         // Call each typed listener with the event
         match self.event_listeners.get_mut(&type_key) {
             None => {}, // No listeners = nothing to do
@@ -236,7 +231,8 @@ impl<'a> EventHub<'a> {
 
 #[cfg(test)]
 mod tests {
-    use std::cell::Cell;
+    use std::time::{Duration, SystemTime};
+    use std::cell::{Cell, RefCell};
     use uom::si::f64::Length;
     use uom::si::f64::AmountOfSubstance;
     use uom::si::length::meter;
@@ -307,8 +303,58 @@ mod tests {
     }
 
     #[test]
-    fn test_prioritized() {
+    fn test_hub_priority_listeners() {
         crate::init_test();
-        // TODO
+
+        let calls = RefCell::new(Vec::new());
+
+        let mut hub = EventHub::new();
+
+        // Attach handler 1 for A Events
+        hub.on_prioritized(2, |_evt: &TestEventA| {
+            calls.try_borrow_mut().unwrap().push(1);
+        });
+        
+        // Attach handler 2 for A Events
+        hub.on_prioritized(5, |_evt: &TestEventA| {
+            calls.try_borrow_mut().unwrap().push(2);
+        });
+
+        // Attach handler 3 for A Events
+        hub.on_prioritized(3, |_evt: &TestEventA| {
+            calls.try_borrow_mut().unwrap().push(3);
+        });
+
+        hub.emit(TestEventA::new(Length::new::<meter>(1.0)));
+        
+        assert_eq!(vec![2,3,1], *calls.try_borrow().unwrap());
+    }
+    
+    #[test]
+    fn test_hub_priority_transformers() {
+        crate::init_test();
+
+        let calls = RefCell::new(Vec::new());
+
+        let mut hub = EventHub::new();
+
+        // Attach handler 1 for A Events
+        hub.transform_prioritized(2, |_evt: &mut TestEventA| {
+            calls.try_borrow_mut().unwrap().push(1);
+        });
+        
+        // Attach handler 2 for A Events
+        hub.transform_prioritized(5, |_evt: &mut TestEventA| {
+            calls.try_borrow_mut().unwrap().push(2);
+        });
+
+        // Attach handler 3 for A Events
+        hub.transform_prioritized(3, |_evt: &mut TestEventA| {
+            calls.try_borrow_mut().unwrap().push(3);
+        });
+
+        hub.emit(TestEventA::new(Length::new::<meter>(1.0)));
+        
+        assert_eq!(vec![2,3,1], *calls.try_borrow().unwrap());
     }
 }
