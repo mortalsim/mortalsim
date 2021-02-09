@@ -9,9 +9,9 @@ use std::collections::HashMap;
 use core::any::TypeId;
 use uuid::Uuid;
 use anyhow::Result;
-use crate::core::id_gen::{IdType, IdGenerator};
-use crate::core::event_listener::{EventListener, ListenerItem, GenericListener};
-use crate::core::event_transformer::{EventTransformer, TransformerItem};
+use crate::util::id_gen::{IdType, IdGenerator};
+use crate::core::hub::event_listener::{EventListener, ListenerItem, GenericListener};
+use crate::core::hub::event_transformer::{EventTransformer, TransformerItem};
 use crate::core::event::Event;
 
 /// Internal error struct when an invalid listener or transformer id is

@@ -5,7 +5,7 @@
 use std::cmp;
 use std::sync::Mutex;
 use uuid::Uuid;
-use crate::core::id_gen::{IdType, IdGenerator};
+use crate::util::id_gen::{IdType, IdGenerator};
 use crate::core::event::Event;
 use crate::core::event::EventHandler;
 

@@ -11,7 +11,7 @@ use uom::si::f64::Time;
 use uom::si::time::second;
 use uom::fmt::DisplayStyle::*;
 use anyhow::{Result, Error};
-use crate::core::id_gen::{IdType, IdGenerator};
+use crate::util::id_gen::{IdType, IdGenerator};
 use crate::core::event::Event;
 use crate::util::quantity_wrapper::OrderedTime;
 
