@@ -39,6 +39,7 @@ impl fmt::Debug for InvalidIdError {
     }
 }
 
+/// Pub/Sub router for Event objects. Handles Event dispatch and transformation.
 pub struct EventHub<'a> {
     /// Id for this EventHub
     hub_id: Uuid,
@@ -51,6 +52,8 @@ pub struct EventHub<'a> {
 }
 
 impl<'a> EventHub<'a> {
+
+    /// Creates a new EventHub
     pub fn new() -> EventHub<'a> {
         EventHub {
             hub_id: Uuid::new_v4(),
@@ -60,6 +63,11 @@ impl<'a> EventHub<'a> {
         }
     }
 
+    /// Dispatches an Event. First calls any registered transformers for the
+    /// Event, then passes the event to all listeners.
+    ///
+    /// # Arguments
+    /// * `evt` - Event to dispatch
     pub fn emit<T: Event>(&mut self, mut evt: T) {
         let type_key = TypeId::of::<T>();
 
@@ -92,14 +100,29 @@ impl<'a> EventHub<'a> {
         }
     }
 
+    /// Registers a listener for any Event. 
+    ///
+    /// # Arguments
+    /// * `handler` - Event handling function
+    /// 
+    /// Returns the registration ID for the listener
     pub fn on_any(&mut self, handler: impl FnMut(&dyn Event) + 'a) -> IdType {
         self.on_any_impl(Box::new(GenericListener::new(handler)))
     }
     
+    /// Registers a listener for any Event with the given priority value. Higher
+    /// priority listeners are executed first.
+    ///
+    /// # Arguments
+    /// * `priority` - Priority of the listener
+    /// * `handler` - Event handling function
+    /// 
+    /// Returns the registration ID for the listener
     pub fn on_any_prioritized(&mut self, priority: i32, handler: impl FnMut(&dyn Event) + 'a) -> IdType {
         self.on_any_impl(Box::new(GenericListener::new_prioritized(handler, priority)))
     }
     
+    /// Internal function for registering listeners for any Event
     fn on_any_impl(&mut self, listener: Box<dyn EventListener + 'a>) -> IdType {
 
         let listener_id = listener.listener_id();
@@ -116,6 +139,13 @@ impl<'a> EventHub<'a> {
         listener_id
     }
 
+    /// Unregisters a listener for any Event with the given registration ID returned
+    /// from the call to `on_any` or `on_any_prioritized`.
+    ///
+    /// # Arguments
+    /// * `listener_id` - listener registration ID
+    /// 
+    /// Returns Ok if successful, or Err if the provided ID is invalid.
     pub fn off_any(&mut self, listener_id: IdType) -> Result<()> {
         match self.generic_event_listeners.iter().position(|l| l.listener_id() == listener_id) {
             Some(pos) => {
@@ -126,14 +156,29 @@ impl<'a> EventHub<'a> {
         }
     }
 
+    /// Registers a listener for a specific Event. 
+    ///
+    /// # Arguments
+    /// * `handler` - Event handling function
+    /// 
+    /// Returns the registration ID for the listener
     pub fn on<T: Event>(&mut self, handler: impl FnMut(&T) + 'a) -> IdType {
         self.on_impl::<T>(Box::new(ListenerItem::new(handler)))
     }
     
+    /// Registers a listener for a specific Event with the given priority value.
+    /// Higher priority listeners are executed first.
+    ///
+    /// # Arguments
+    /// * `priority` - Priority of the listener
+    /// * `handler` - Event handling function
+    /// 
+    /// Returns the registration ID for the listener
     pub fn on_prioritized<T: Event>(&mut self, priority: i32, handler: impl FnMut(&T) + 'a) -> IdType {
         self.on_impl::<T>(Box::new(ListenerItem::new_prioritized(handler, priority)))
     }
     
+    /// Internal function for registering specific Event listeners
     fn on_impl<T: Event>(&mut self, listener: Box<dyn EventListener + 'a>) -> IdType {
         let type_key = TypeId::of::<T>();
 
@@ -161,6 +206,13 @@ impl<'a> EventHub<'a> {
         listener_id
     }
 
+    /// Unregisters a listener for a specific Event with the given registration ID returned
+    /// from the call to `on` or `on_prioritized`.
+    ///
+    /// # Arguments
+    /// * `listener_id` - listener registration ID
+    /// 
+    /// Returns Ok if successful, or Err if the provided ID is invalid.
     pub fn off<T: Event>(&mut self, listener_id: IdType) -> Result<()> {
         let type_key = TypeId::of::<T>();
 
@@ -178,14 +230,29 @@ impl<'a> EventHub<'a> {
         }
     }
 
+    /// Registers a transformer for a specific Event. 
+    ///
+    /// # Arguments
+    /// * `handler` - Event transforming function
+    /// 
+    /// Returns the registration ID for the transformer
     pub fn transform<T: Event>(&mut self, handler: impl FnMut(&mut T) + 'a) -> IdType {
         self.transform_impl::<T>(Box::new(TransformerItem::new(handler)))
     }
     
+    /// Registers a transformer for a specific Event with the given priority. Higher
+    /// priority transformers are executed first.
+    ///
+    /// # Arguments
+    /// * `handler` - Event transforming function
+    /// * `priority` - Priority of the transformer
+    /// 
+    /// Returns the registration ID for the transformer
     pub fn transform_prioritized<T: Event>(&mut self, priority: i32, handler: impl FnMut(&mut T) + 'a) -> IdType {
         self.transform_impl::<T>(Box::new(TransformerItem::new_prioritized(handler, priority)))
     }
 
+    /// Internal function for registering specific Event transformers
     fn transform_impl<T: Event>(&mut self, transformer: Box<dyn EventTransformer + 'a>) -> IdType {
         let type_key = TypeId::of::<T>();
 
@@ -211,6 +278,13 @@ impl<'a> EventHub<'a> {
         transformer_id
     }
 
+    /// Unregisters a transformer for a specific Event with the given registration ID returned
+    /// from the call to `transform` or `transform_prioritized`.
+    ///
+    /// # Arguments
+    /// * `transformer_id` - transformer registration ID
+    /// 
+    /// Returns Ok if successful, or Err if the provided ID is invalid.
     pub fn unset_transform<T: Event>(&mut self, transformer_id: IdType) -> Result<()> {
         let type_key = TypeId::of::<T>();
 
