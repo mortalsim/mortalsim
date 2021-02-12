@@ -6,8 +6,8 @@ use std::cmp;
 use std::sync::Mutex;
 use uuid::Uuid;
 use crate::util::id_gen::{IdType, IdGenerator};
-use crate::core::event::Event;
-use crate::core::event::EventHandler;
+use crate::event::Event;
+use crate::event::EventHandler;
 
 lazy_static! {
     static ref ID_GEN: Mutex<IdGenerator> = Mutex::new(IdGenerator::new());
@@ -117,7 +117,7 @@ mod tests {
     use std::cell::Cell;
     use super::TransformerItem;
     use super::EventTransformer;
-    use crate::core::event::test::TestEventA;
+    use crate::event::test::TestEventA;
     use uom::si::f64::Length;
     use uom::si::length::meter;
 

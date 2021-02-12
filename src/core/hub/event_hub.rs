@@ -12,7 +12,7 @@ use anyhow::Result;
 use crate::util::id_gen::{IdType, IdGenerator, InvalidIdError};
 use crate::core::hub::event_listener::{EventListener, ListenerItem, GenericListener};
 use crate::core::hub::event_transformer::{EventTransformer, TransformerItem};
-use crate::core::event::Event;
+use crate::event::Event;
 
 
 /// Pub/Sub router for Event objects. Handles Event dispatch and transformation.
@@ -296,9 +296,9 @@ mod tests {
     use uom::si::amount_of_substance::mole;
     use simple_logger::SimpleLogger;
     use super::EventHub;
-    use crate::core::event::Event;
-    use crate::core::event::test::TestEventA;
-    use crate::core::event::test::TestEventB;
+    use crate::event::Event;
+    use crate::event::test::TestEventA;
+    use crate::event::test::TestEventB;
 
     #[test]
     fn test_hub() {

@@ -12,7 +12,7 @@ use uom::si::time::second;
 use uom::fmt::DisplayStyle::*;
 use anyhow::{Result, Error};
 use crate::util::id_gen::{IdType, IdGenerator};
-use crate::core::event::Event;
+use crate::event::Event;
 use crate::util::quantity_wrapper::OrderedTime;
 
 struct TimeManager<'b> {
@@ -411,8 +411,8 @@ mod tests {
     use super::second;
     use super::TimeManager;
     use super::Event;
-    use crate::core::event::test::TestEventA;
-    use crate::core::event::test::TestEventB;
+    use crate::event::test::TestEventA;
+    use crate::event::test::TestEventB;
     use uom::si::f64::Length;
     use uom::si::f64::AmountOfSubstance;
     use uom::si::length::meter;

@@ -12,6 +12,7 @@ mod core;
 mod util;
 
 pub mod substance;
+pub mod event;
 
 #[cfg(test)]
 use std::sync::Once;
