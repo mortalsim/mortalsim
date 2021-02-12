@@ -9,35 +9,11 @@ use std::collections::HashMap;
 use core::any::TypeId;
 use uuid::Uuid;
 use anyhow::Result;
-use crate::util::id_gen::{IdType, IdGenerator};
+use crate::util::id_gen::{IdType, IdGenerator, InvalidIdError};
 use crate::core::hub::event_listener::{EventListener, ListenerItem, GenericListener};
 use crate::core::hub::event_transformer::{EventTransformer, TransformerItem};
 use crate::core::event::Event;
 
-/// Internal error struct when an invalid listener or transformer id is
-/// provided to an EventHub
-pub struct InvalidIdError {
-    /// Which EventHub object the erroneous id was given to
-    eventhub_id: Uuid,
-    /// The duplicate id which was returned
-    bad_id: IdType
-}
-
-impl Error for InvalidIdError {}
-
-impl fmt::Display for InvalidIdError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Invalid ID {} passed to EventHub {}", self.bad_id, self.eventhub_id)?;
-        Ok(())
-    }
-}
-impl fmt::Debug for InvalidIdError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Invalid ID {} passed to EventHub {}, file: {}, line: {}",
-            self.bad_id, self.eventhub_id, file!(), line!())?;
-        Ok(())
-    }
-}
 
 /// Pub/Sub router for Event objects. Handles Event dispatch and transformation.
 pub struct EventHub<'a> {
@@ -49,6 +25,13 @@ pub struct EventHub<'a> {
     event_transformers: HashMap<TypeId, Vec<Box<dyn EventTransformer + 'a>>>,
     /// Listeners for any Event, regardless of Event type
     generic_event_listeners: Vec<Box<dyn EventListener + 'a>>,
+}
+
+impl<'a> fmt::Display for EventHub<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "EventHub<{}>", self.hub_id)?;
+        Ok(())
+    }
 }
 
 impl<'a> EventHub<'a> {
@@ -152,7 +135,7 @@ impl<'a> EventHub<'a> {
                 self.generic_event_listeners.remove(pos);
                 Ok(())
             }
-            None => Err(anyhow::Error::new(InvalidIdError {eventhub_id: self.hub_id, bad_id: listener_id}))
+            None => Err(anyhow::Error::new(InvalidIdError::new(self.to_string(), listener_id)))
         }
     }
 
@@ -223,10 +206,10 @@ impl<'a> EventHub<'a> {
                         listeners.remove(pos);
                         Ok(())
                     },
-                    None => Err(anyhow::Error::new(InvalidIdError {eventhub_id: self.hub_id, bad_id: listener_id}))
+                    None => Err(anyhow::Error::new(InvalidIdError::new(self.to_string(), listener_id)))
                 }
             }
-            None => Err(anyhow::Error::new(InvalidIdError {eventhub_id: self.hub_id, bad_id: listener_id}))
+            None => Err(anyhow::Error::new(InvalidIdError::new(self.to_string(), listener_id)))
         }
     }
 
@@ -295,10 +278,10 @@ impl<'a> EventHub<'a> {
                         transformers.remove(pos);
                         Ok(())
                     },
-                    None => Err(anyhow::Error::new(InvalidIdError {eventhub_id: self.hub_id, bad_id: transformer_id}))
+                    None => Err(anyhow::Error::new(InvalidIdError::new(self.to_string(), transformer_id)))
                 }
             }
-            None => Err(anyhow::Error::new(InvalidIdError {eventhub_id: self.hub_id, bad_id: transformer_id}))
+            None => Err(anyhow::Error::new(InvalidIdError::new(self.to_string(), transformer_id)))
         }
     }
 }
