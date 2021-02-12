@@ -11,6 +11,8 @@ extern crate lazy_static;
 mod core;
 mod util;
 
+pub mod substance;
+
 #[cfg(test)]
 use std::sync::Once;
 #[cfg(test)]
