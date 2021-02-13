@@ -101,7 +101,7 @@ impl Substance {
             Substance::PYR  => 0,
         }
     }
-    /// Typical molar mass
+    /// Typical molar mass of the substance
     fn molar_mass(&self) -> MolarMass {
         match self {
             Substance::None => MolarMass::new::<gram_per_mole>(0.0),
