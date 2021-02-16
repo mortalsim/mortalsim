@@ -13,6 +13,7 @@ mod util;
 
 pub mod substance;
 pub mod event;
+pub mod blood;
 
 #[cfg(test)]
 use std::sync::Once;
