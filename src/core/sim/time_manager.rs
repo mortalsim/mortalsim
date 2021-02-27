@@ -6,6 +6,7 @@
 
 use std::collections::BTreeMap;
 use std::collections::hash_map::HashMap;
+use std::any::TypeId;
 use uuid::Uuid;
 use uom::si::f64::Time;
 use uom::si::time::second;
@@ -21,7 +22,7 @@ pub struct TimeManager<'b> {
     /// Current simulation time
     sim_time: Time,
     /// Sorted map of events to be executed
-    event_queue: BTreeMap<OrderedTime, Vec<(IdType, Box<dyn Event>)>>,
+    event_queue: BTreeMap<OrderedTime, Vec<(IdType, TypeId, Box<dyn Event>)>>,
     /// Generator for our listener IDs
     id_gen: IdGenerator,
     /// Map of listeners for any time advance
@@ -29,7 +30,7 @@ pub struct TimeManager<'b> {
     /// Map of listeners to execute at future simulation times
     scheduled_listeners: BTreeMap<OrderedTime, Vec<(IdType, Box<dyn FnOnce() + 'b>)>>,
     /// Event listener to call when events are emitted
-    event_listener: Option<Box<dyn FnMut(Box<dyn Event>) + 'b>>,
+    event_listener: Option<Box<dyn FnMut(TypeId, Box<dyn Event>) + 'b>>,
     /// Used to lookup listeners and Event objects for unscheduling
     id_time_map: HashMap<IdType, OrderedTime>
 }
@@ -117,7 +118,7 @@ impl<'b> TimeManager<'b> {
     /// * `event` - Event instance to emit
     /// 
     /// Returns the schedule ID
-    pub fn schedule_event(&mut self, wait_time: Time, event: impl Event) -> IdType {
+    pub fn schedule_event<T: Event>(&mut self, wait_time: Time, event: T) -> IdType {
         let exec_time = OrderedTime(self.sim_time + wait_time);
         let mut evt_list = self.event_queue.get_mut(&exec_time);
 
@@ -133,7 +134,7 @@ impl<'b> TimeManager<'b> {
 
         // Add the (id, event) tuple to the event list which should
         // certainly exist by this point
-        evt_list.unwrap().push((id, Box::new(event)));
+        evt_list.unwrap().push((id, TypeId::of::<T>(), Box::new(event)));
 
         // Insert a mapping for the id to the execution time for
         // faster lookup later
@@ -180,7 +181,7 @@ impl<'b> TimeManager<'b> {
     /// # Arguments
     /// * `listener` - an EventListener function to call when `Event`
     ///                objects are emitted
-    pub fn on_event(&mut self, listener: impl FnMut(Box<dyn Event>) + 'b) {
+    pub fn on_event(&mut self, listener: impl FnMut(TypeId, Box<dyn Event>) + 'b) {
         self.event_listener = Some(Box::new(listener));
     }
 
@@ -390,9 +391,9 @@ impl<'b> TimeManager<'b> {
         // Get a mutable reference to the inner function
         match self.event_listener.as_mut() {
             Some(listener_fn) => {
-                while let Some((_, event)) = events.pop() {
+                while let Some((_, type_key, event)) = events.pop() {
                     // Call the listener function with the given event
-                    listener_fn(event);
+                    listener_fn(type_key, event);
                 }
             }
             None => {
@@ -556,7 +557,7 @@ mod tests {
             let one_sec = Time::new::<second>(1.0);
         
             // Set up our listener
-            time_manager.on_event(|evt| {
+            time_manager.on_event(|_, evt| {
                     if evt.is::<TestEventA>() {
                         match evt.downcast::<TestEventA>() {
                             Ok(evt_a) => {
@@ -622,7 +623,7 @@ mod tests {
         let one_sec = Time::new::<second>(1.0);
         
         // Set up our listener
-        time_manager.on_event(|evt| {
+        time_manager.on_event(|_, evt| {
                 if evt.is::<TestEventA>() {
                     match evt.downcast::<TestEventA>() {
                         Ok(_) => {

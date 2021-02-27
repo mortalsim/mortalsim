@@ -32,18 +32,6 @@ impl SimState {
         }
     }
 
-    /// Sets an `Event` object on the current state. The previous `Event`
-    /// of this type (if any) will be replaced with the new `Event`
-    /// 
-    /// # Arguments
-    /// * `event` - `Event` object to set
-    /// 
-    /// returns previously stored `Event` or `None`
-    pub fn set_state<T: Event>(&mut self, event: T) -> Option<Box<dyn Event>> {
-        let type_id = TypeId::of::<T>();
-        self.state.insert(type_id, Box::new(event))
-    }
-    
     /// Checks whether an `Event` exists in this state for a given `Event` type
     /// 
     /// returns `true` if it exists or `false` otherwise
@@ -51,6 +39,30 @@ impl SimState {
         let type_id = TypeId::of::<T>();
         self.state.contains_key(&type_id)
     }
+
+    /// Adds an Event to the state given it's TypeId
+    /// 
+    /// # Arguments
+    /// * `type_key` - type of the `Event` object
+    /// * `event`    - owned `Event` object to set
+    /// 
+    /// returns previously stored `Event` or `None`
+    pub(super) fn put_state(&mut self, type_key: TypeId, event: Box<dyn Event>) -> Option<Box<dyn Event>> {
+        self.state.insert(type_key, event)
+    }
+    
+    /// Sets an `Event` object on the current state. The previous `Event`
+    /// of this type (if any) will be replaced with the new `Event`
+    /// 
+    /// # Arguments
+    /// * `event` - `Event` object to set
+    /// 
+    /// returns previously stored `Event` or `None`
+    pub(super) fn set_state<T: Event>(&mut self, event: T) -> Option<Box<dyn Event>> {
+        let type_id = TypeId::of::<T>();
+        self.state.insert(type_id, Box::new(event))
+    }
+    
 }
 
 #[cfg(test)]
