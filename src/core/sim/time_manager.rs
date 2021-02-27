@@ -15,7 +15,7 @@ use crate::util::id_gen::{IdType, IdGenerator};
 use crate::event::Event;
 use crate::util::quantity_wrapper::OrderedTime;
 
-struct TimeManager<'b> {
+pub struct TimeManager<'b> {
     /// Identifier for this TimeManager object
     manager_id: Uuid,
     /// Current simulation time
