@@ -96,7 +96,7 @@ impl<'a> Drop for GenericListener<'a> {
 
 impl<'a> EventListener for GenericListener<'a> {
     fn handle(&mut self, evt: &dyn Event) {
-        log::debug!("Executing generic event listener {} with Event {}", self.listener_id, evt.event_id());
+        log::debug!("Executing generic event listener {} with Event {}", self.listener_id, evt.event_name());
         (*self.handler)(evt);
     }
 
@@ -157,7 +157,7 @@ impl<'a, T: Event> Drop for ListenerItem<'a, T> {
 
 impl<'a, T: Event> EventListener for ListenerItem<'a, T> {
     fn handle(&mut self, evt: &dyn Event) {
-        log::debug!("Executing event listener {} with Event {}", self.listener_id, evt.event_id());
+        log::debug!("Executing event listener {} with Event {}", self.listener_id, evt.event_name());
         match evt.downcast_ref::<T>() {
             Some(typed_evt) => (*self.handler)(typed_evt),
             None => panic!("Ahhh! Listener {} is on fire!!!", self.listener_id)

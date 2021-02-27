@@ -4,7 +4,7 @@ use uuid::Uuid;
 pub type EventHandler<T> = dyn FnMut(Box<T>);
 
 pub trait Event: DowncastSync {
-    fn event_id(&self) -> Uuid;
+    fn event_name(&self) -> &str;
 }
 impl_downcast!(Event);
 
@@ -34,9 +34,7 @@ pub mod test {
     }
 
     impl Event for TestEventA {
-        fn event_id(&self) -> Uuid {
-            self.event_id
-        }
+        fn event_name(&self) -> &str {"TestEventA"}
     }
 
     #[derive(Debug)]
@@ -53,10 +51,8 @@ pub mod test {
             }
         }
     }
-
+    
     impl Event for TestEventB {
-        fn event_id(&self) -> Uuid {
-            self.event_id
-        }
+        fn event_name(&self) -> &str {"TestEventB"}
     }
 }

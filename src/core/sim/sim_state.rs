@@ -4,6 +4,7 @@ use crate::event::Event;
 use anyhow::{Result, Error};
 
 pub struct SimState {
+    /// Internal storage mechanism for `SimState` objects
     state: HashMap<TypeId, Box<dyn Event>>
 }
 
