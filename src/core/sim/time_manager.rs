@@ -401,7 +401,6 @@ impl<'b> TimeManager<'b> {
             }
         }
     }
-
 }
 
 #[cfg(test)]
