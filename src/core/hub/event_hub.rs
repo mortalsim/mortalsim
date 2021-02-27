@@ -25,6 +25,8 @@ pub struct EventHub<'a> {
     event_transformers: HashMap<TypeId, Vec<Box<dyn EventTransformer + 'a>>>,
     /// Listeners for any Event, regardless of Event type
     generic_event_listeners: Vec<Box<dyn EventListener + 'a>>,
+    /// Listener to take ownership of emitted Events
+    on_emitted_fn: Option<Box<dyn FnMut(TypeId, Box<dyn Event>) + 'a>>,
 }
 
 impl<'a> fmt::Display for EventHub<'a> {
@@ -43,6 +45,7 @@ impl<'a> EventHub<'a> {
             event_listeners: HashMap::new(),
             event_transformers: HashMap::new(),
             generic_event_listeners: Vec::new(),
+            on_emitted_fn: None
         }
     }
 
@@ -291,6 +294,20 @@ impl<'a> EventHub<'a> {
                 }
             }
         }
+
+        match &mut self.on_emitted_fn {
+            None => {/* Nothing to do if noone's listening */}
+            Some(cb) => cb(type_key, Box::new(evt))
+        }
+    }
+
+    /// Registers a listener for Event's which have completed emittion. Ownership of the Event
+    /// is transferred to the target function.
+    ///
+    /// # Arguments
+    /// * `handler` - Function to own the emitted Event
+    pub(super) fn on_emitted(&mut self, handler: impl FnMut(TypeId, Box<dyn Event>) + 'a) {
+        self.on_emitted_fn = Some(Box::new(handler));
     }
 }
 
