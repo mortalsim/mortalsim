@@ -56,7 +56,47 @@ impl<'a> EventHub<'a> {
     /// * `evt` - Event to dispatch
     pub fn emit<T: Event>(&mut self, evt: T) {
         let type_key = TypeId::of::<T>();
-        self.emit_typed(evt, type_key);
+        self.emit_typed(type_key, Box::new(evt));
+    }
+    
+    /// Dispatches an Event trait object with it's given type.
+    ///
+    /// # Arguments
+    /// * `evt`      - Event to dispatch
+    /// * `type_key` - TypeId of the event
+    pub(crate) fn emit_typed(&mut self, type_key: TypeId, mut evt: Box<dyn Event>) {
+        // Call each transformer with the event
+        match self.event_transformers.get_mut(&type_key) {
+            None => {}, // No transformers = nothing to do
+            Some(transformers) => {
+                log::debug!("Triggering {} transformers for EventHub {}", transformers.len(), self.hub_id);
+                for transformer in transformers {
+                    transformer.transform(&mut *evt);
+                }
+            }
+        }
+        
+        // Call each generic listener with the event
+        log::debug!("Triggering {} generic listeners for EventHub {}", self.generic_event_listeners.len(), self.hub_id);
+        for listener in &mut self.generic_event_listeners {
+            listener.handle(& *evt);
+        }
+
+        // Call each typed listener with the event
+        match self.event_listeners.get_mut(&type_key) {
+            None => {}, // No listeners = nothing to do
+            Some(listeners) => {
+                log::debug!("Triggering {} transformers for EventHub {}", listeners.len(), self.hub_id);
+                for listener in listeners {
+                    listener.handle(& *evt);
+                }
+            }
+        }
+
+        match &mut self.on_emitted_fn {
+            None => {/* Nothing to do if noone's listening */}
+            Some(cb) => cb(type_key, evt)
+        }
     }
 
     /// Registers a listener for any Event. 
@@ -174,6 +214,10 @@ impl<'a> EventHub<'a> {
     /// Returns Ok if successful, or Err if the provided ID is invalid.
     pub fn off<T: Event>(&mut self, listener_id: IdType) -> Result<()> {
         let type_key = TypeId::of::<T>();
+        self.off_typed(type_key, listener_id)
+    }
+    
+    pub(crate) fn off_typed(&mut self, type_key: TypeId, listener_id: IdType) -> Result<()> {
 
         match self.event_listeners.get_mut(&type_key) {
             Some(listeners) => {
@@ -261,52 +305,12 @@ impl<'a> EventHub<'a> {
         }
     }
 
-    /// Dispatches an Event trait object with it's given type.
-    ///
-    /// # Arguments
-    /// * `evt`      - Event to dispatch
-    /// * `type_key` - TypeId of the event
-    pub(super) fn emit_typed(&mut self, mut evt: impl Event, type_key: TypeId) {
-        // Call each transformer with the event
-        match self.event_transformers.get_mut(&type_key) {
-            None => {}, // No transformers = nothing to do
-            Some(transformers) => {
-                log::debug!("Triggering {} transformers for EventHub {}", transformers.len(), self.hub_id);
-                for transformer in transformers {
-                    transformer.transform(&mut evt);
-                }
-            }
-        }
-        
-        // Call each generic listener with the event
-        log::debug!("Triggering {} generic listeners for EventHub {}", self.generic_event_listeners.len(), self.hub_id);
-        for listener in &mut self.generic_event_listeners {
-            listener.handle(&evt);
-        }
-
-        // Call each typed listener with the event
-        match self.event_listeners.get_mut(&type_key) {
-            None => {}, // No listeners = nothing to do
-            Some(listeners) => {
-                log::debug!("Triggering {} transformers for EventHub {}", listeners.len(), self.hub_id);
-                for listener in listeners {
-                    listener.handle(&evt);
-                }
-            }
-        }
-
-        match &mut self.on_emitted_fn {
-            None => {/* Nothing to do if noone's listening */}
-            Some(cb) => cb(type_key, Box::new(evt))
-        }
-    }
-
     /// Registers a listener for Event's which have completed emittion. Ownership of the Event
     /// is transferred to the target function.
     ///
     /// # Arguments
     /// * `handler` - Function to own the emitted Event
-    pub(super) fn on_emitted(&mut self, handler: impl FnMut(TypeId, Box<dyn Event>) + 'a) {
+    pub(crate) fn on_emitted(&mut self, handler: impl FnMut(TypeId, Box<dyn Event>) + 'a) {
         self.on_emitted_fn = Some(Box::new(handler));
     }
 }

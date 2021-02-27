@@ -18,7 +18,7 @@ pub mod test {
     use uom::si::length::meter;
     use uom::si::amount_of_substance::mole;
 
-    #[derive(Debug)]
+    #[derive(Debug, Clone, Copy)]
     pub struct TestEventA {
         pub len: Length,
         event_id: Uuid,
@@ -37,7 +37,7 @@ pub mod test {
         fn event_name(&self) -> &str {"TestEventA"}
     }
 
-    #[derive(Debug)]
+    #[derive(Debug, Clone, Copy)]
     pub struct TestEventB {
         pub amt: AmountOfSubstance,
         event_id: Uuid,

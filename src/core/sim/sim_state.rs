@@ -1,18 +1,23 @@
-use std::collections::HashMap;
+use std::rc::Rc;
+use std::any::Any;
+use std::collections::{HashMap, HashSet};
 use std::any::TypeId;
 use crate::event::Event;
 use anyhow::{Result, Error};
 
 pub struct SimState {
     /// Internal storage mechanism for `SimState` objects
-    state: HashMap<TypeId, Box<dyn Event>>
+    state: HashMap<TypeId, Rc<Box<dyn Event>>>,
+    /// Keep track of any Events which have been tainted
+    tainted_states: HashSet<TypeId>,
 }
 
 impl SimState {
     /// Creates a new `SimState` object
     pub fn new() -> SimState {
         SimState {
-            state: HashMap::new()
+            state: HashMap::new(),
+            tainted_states: HashSet::new(),
         }
     }
 
@@ -31,6 +36,16 @@ impl SimState {
             }
         }
     }
+    
+    /// Retrieves an Rc to the current `Event` of a given type in this state
+    /// 
+    /// returns an `Rc<Event>` or `None` if no `Event` of this type has been set
+    pub(crate) fn get_state_ref(&self, type_id: &TypeId) -> Option<Rc<Box<dyn Event>>> {
+        match self.state.get(&type_id) {
+            None => None,
+            Some(box_val) => Some(box_val.clone())
+        }
+    }
 
     /// Checks whether an `Event` exists in this state for a given `Event` type
     /// 
@@ -47,7 +62,8 @@ impl SimState {
     /// * `event`    - owned `Event` object to set
     /// 
     /// returns previously stored `Event` or `None`
-    pub(super) fn put_state(&mut self, type_key: TypeId, event: Box<dyn Event>) -> Option<Box<dyn Event>> {
+    pub(crate) fn put_state(&mut self, type_key: TypeId, event: Rc<Box<dyn Event>>) -> Option<Rc<Box<dyn Event>>> {
+        self.tainted_states.insert(type_key);
         self.state.insert(type_key, event)
     }
     
@@ -58,11 +74,38 @@ impl SimState {
     /// * `event` - `Event` object to set
     /// 
     /// returns previously stored `Event` or `None`
-    pub(super) fn set_state<T: Event>(&mut self, event: T) -> Option<Box<dyn Event>> {
+    pub(crate) fn set_state<T: Event>(&mut self, event: T) -> Option<Rc<Box<dyn Event>>> {
         let type_id = TypeId::of::<T>();
-        self.state.insert(type_id, Box::new(event))
+        self.tainted_states.insert(type_id);
+        self.state.insert(type_id, Rc::new(Box::new(event)))
+    }
+
+    /// Resets the tainted status on all Event types
+    pub(crate) fn clear_taint(&mut self) {
+        self.tainted_states.clear();
+    }
+
+    /// Merges tainted Events from the target `SimState` to this one, overwriting
+    /// any matching `Events` which exist in this `SimState`.
+    /// 
+    /// # Arguments
+    /// * `other` - Other `SimState` to merge into this one
+    pub fn merge_tainted(&mut self, other: &Self) {
+        for type_key in other.tainted_states.iter() {
+            self.put_state(type_key.clone(), other.get_state_ref(type_key).unwrap());
+        }
     }
     
+    /// Merges all Events from the target `SimState` to this one, overwriting
+    /// any matching `Events` which exist in this `SimState`.
+    /// 
+    /// # Arguments
+    /// * `other` - Other `SimState` to merge into this one
+    pub fn merge_all(&mut self, other: &Self) {
+        for (type_key, evt_rc) in other.state.iter() {
+            self.put_state(type_key.clone(), evt_rc.clone());
+        }
+    }
 }
 
 #[cfg(test)]

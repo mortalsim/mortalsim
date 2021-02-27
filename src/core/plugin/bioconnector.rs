@@ -1,17 +1,25 @@
-use std::rc::Rc;
+use std::rc::{Rc, Weak};
+use std::collections::hash_map::HashMap;
+use std::cell::{Ref, RefCell, Cell};
+use std::any::TypeId;
+use crate::util::id_gen::IdType;
 use crate::core::sim::SimState;
 use crate::core::hub::EventHub;
 use crate::core::sim::TimeManager;
 use crate::event::Event;
 
-pub struct BioConnector<'a> {
-    state: Rc<SimState>,
-    hub: Rc<EventHub<'a>>,
-    time_manager: Rc<TimeManager<'a>>,
+pub struct BioConnector {
+    local_state: SimState,
 }
 
-impl<'a> BioConnector<'a> {
+impl BioConnector {
+    pub fn new() -> BioConnector {
+        BioConnector {
+            local_state: SimState::new(),
+        }
+    }
+
     pub fn get<T: Event>(&self) -> Option<&T> {
-        self.state.get_state::<T>()
+        self.local_state.get_state::<T>()
     }
 }
