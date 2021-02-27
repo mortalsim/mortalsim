@@ -51,36 +51,9 @@ impl<'a> EventHub<'a> {
     ///
     /// # Arguments
     /// * `evt` - Event to dispatch
-    pub fn emit<T: Event>(&mut self, mut evt: T) {
+    pub fn emit<T: Event>(&mut self, evt: T) {
         let type_key = TypeId::of::<T>();
-
-        // Call each transformer with the event
-        match self.event_transformers.get_mut(&type_key) {
-            None => {}, // No transformers = nothing to do
-            Some(transformers) => {
-                log::debug!("Triggering {} transformers for EventHub {}", transformers.len(), self.hub_id);
-                for transformer in transformers {
-                    transformer.transform(&mut evt);
-                }
-            }
-        }
-        
-        // Call each generic listener with the event
-        log::debug!("Triggering {} generic listeners for EventHub {}", self.generic_event_listeners.len(), self.hub_id);
-        for listener in &mut self.generic_event_listeners {
-            listener.handle(&evt);
-        }
-
-        // Call each typed listener with the event
-        match self.event_listeners.get_mut(&type_key) {
-            None => {}, // No listeners = nothing to do
-            Some(listeners) => {
-                log::debug!("Triggering {} transformers for EventHub {}", listeners.len(), self.hub_id);
-                for listener in listeners {
-                    listener.handle(&evt);
-                }
-            }
-        }
+        self.emit_typed(evt, type_key);
     }
 
     /// Registers a listener for any Event. 
@@ -282,6 +255,41 @@ impl<'a> EventHub<'a> {
                 }
             }
             None => Err(anyhow::Error::new(InvalidIdError::new(self.to_string(), transformer_id)))
+        }
+    }
+
+    /// Dispatches an Event trait object with it's given type.
+    ///
+    /// # Arguments
+    /// * `evt`      - Event to dispatch
+    /// * `type_key` - TypeId of the event
+    pub(super) fn emit_typed(&mut self, mut evt: impl Event, type_key: TypeId) {
+        // Call each transformer with the event
+        match self.event_transformers.get_mut(&type_key) {
+            None => {}, // No transformers = nothing to do
+            Some(transformers) => {
+                log::debug!("Triggering {} transformers for EventHub {}", transformers.len(), self.hub_id);
+                for transformer in transformers {
+                    transformer.transform(&mut evt);
+                }
+            }
+        }
+        
+        // Call each generic listener with the event
+        log::debug!("Triggering {} generic listeners for EventHub {}", self.generic_event_listeners.len(), self.hub_id);
+        for listener in &mut self.generic_event_listeners {
+            listener.handle(&evt);
+        }
+
+        // Call each typed listener with the event
+        match self.event_listeners.get_mut(&type_key) {
+            None => {}, // No listeners = nothing to do
+            Some(listeners) => {
+                log::debug!("Triggering {} transformers for EventHub {}", listeners.len(), self.hub_id);
+                for listener in listeners {
+                    listener.handle(&evt);
+                }
+            }
         }
     }
 }
