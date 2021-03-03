@@ -2,6 +2,6 @@ mod bioconnector;
 pub use bioconnector::BioConnector;
 
 pub trait BioModule {
-    fn trigger();
-    fn init(connector: BioConnector);
+    fn init(connector: &mut BioConnector);
+    fn trigger(connector: &mut BioConnector);
 }

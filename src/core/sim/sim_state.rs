@@ -7,7 +7,7 @@ use anyhow::{Result, Error};
 
 pub struct SimState {
     /// Internal storage mechanism for `SimState` objects
-    state: HashMap<TypeId, Rc<Box<dyn Event>>>,
+    state: HashMap<TypeId, Rc<dyn Event>>,
     /// Keep track of any Events which have been tainted
     tainted_states: HashSet<TypeId>,
 }
@@ -40,7 +40,7 @@ impl SimState {
     /// Retrieves an Rc to the current `Event` of a given type in this state
     /// 
     /// returns an `Rc<Event>` or `None` if no `Event` of this type has been set
-    pub(crate) fn get_state_ref(&self, type_id: &TypeId) -> Option<Rc<Box<dyn Event>>> {
+    pub(crate) fn get_state_ref(&self, type_id: &TypeId) -> Option<Rc<dyn Event>> {
         match self.state.get(&type_id) {
             None => None,
             Some(box_val) => Some(box_val.clone())
@@ -62,7 +62,7 @@ impl SimState {
     /// * `event`    - owned `Event` object to set
     /// 
     /// returns previously stored `Event` or `None`
-    pub(crate) fn put_state(&mut self, type_key: TypeId, event: Rc<Box<dyn Event>>) -> Option<Rc<Box<dyn Event>>> {
+    pub(crate) fn put_state(&mut self, type_key: TypeId, event: Rc<dyn Event>) -> Option<Rc<dyn Event>> {
         self.tainted_states.insert(type_key);
         self.state.insert(type_key, event)
     }
@@ -74,10 +74,15 @@ impl SimState {
     /// * `event` - `Event` object to set
     /// 
     /// returns previously stored `Event` or `None`
-    pub(crate) fn set_state<T: Event>(&mut self, event: T) -> Option<Rc<Box<dyn Event>>> {
+    pub(crate) fn set_state<T: Event>(&mut self, event: T) -> Option<Rc<dyn Event>> {
         let type_id = TypeId::of::<T>();
         self.tainted_states.insert(type_id);
-        self.state.insert(type_id, Rc::new(Box::new(event)))
+        self.state.insert(type_id, Rc::new(event))
+    }
+
+    /// Retrieves the `Set` of tainted `Event` `TypeId`s on this `State`
+    pub(crate) fn get_tainted(&self) -> &HashSet<TypeId> {
+        &self.tainted_states
     }
 
     /// Resets the tainted status on all Event types
@@ -112,6 +117,8 @@ impl SimState {
 mod tests {
     use std::time::{Duration, SystemTime};
     use std::cell::{Cell, RefCell};
+    use std::collections::hash_set::HashSet;
+    use std::any::TypeId;
     use uom::si::f64::Length;
     use uom::si::f64::AmountOfSubstance;
     use uom::si::length::meter;
@@ -131,9 +138,16 @@ mod tests {
         state.set_state(TestEventA::new(Length::new::<meter>(0.0)));
         assert_eq!(true, state.has_state::<TestEventA>());
         assert_eq!(false, state.has_state::<TestEventB>());
+
+        let mut test_set_1 = HashSet::new();
+        test_set_1.insert(TypeId::of::<TestEventA>());
+        assert_eq!(true, &test_set_1 == state.get_tainted());
         
         state.set_state(TestEventB::new(AmountOfSubstance::new::<mole>(0.0)));
         assert_eq!(true, state.has_state::<TestEventB>());
+        
+        test_set_1.insert(TypeId::of::<TestEventB>());
+        assert_eq!(true, &test_set_1 == state.get_tainted());
 
         let evt_a = state.get_state::<TestEventA>().take().unwrap();
         assert_eq!(Length::new::<meter>(0.0), evt_a.len)
