@@ -108,6 +108,15 @@ impl SimState {
     /// * `other` - Other `SimState` to merge into this one
     pub fn merge_all(&mut self, other: &Self) {
         for (type_key, evt_rc) in other.state.iter() {
+            match self.state.get(type_key) {
+                Some(local_rc) => {
+                    // If both refs point to the same object, ignore it
+                    if &**local_rc as *const dyn Event == &**evt_rc as *const dyn Event {
+                        return
+                    }
+                }
+                None => {}
+            }
             self.put_state(type_key.clone(), evt_rc.clone());
         }
     }
