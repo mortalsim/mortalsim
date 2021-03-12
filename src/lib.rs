@@ -16,15 +16,15 @@ pub mod event;
 pub mod blood;
 
 #[cfg(test)]
-use std::sync::Once;
-#[cfg(test)]
-static INIT: Once = Once::new();
+mod test {
+    use std::sync::Once;
+    static INIT: Once = Once::new();
 
-#[cfg(test)]
-pub fn init_test() {
-    use simple_logger::SimpleLogger;
+    pub fn init_test() {
+        use simple_logger::SimpleLogger;
 
-    INIT.call_once(|| {
-        SimpleLogger::new().init().unwrap();
-    });
+        INIT.call_once(|| {
+            SimpleLogger::new().init().unwrap();
+        });
+    }
 }

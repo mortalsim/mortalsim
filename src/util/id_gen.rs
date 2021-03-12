@@ -44,8 +44,8 @@ impl fmt::Debug for DuplicateIdReturnError {
 
 /// Internal error struct when an invalid id is provided
 pub struct InvalidIdError {
-    /// Which EventHub object the erroneous id was given to
-    identifier: String,
+    /// Which object the erroneous id was given to
+    owner: String,
     /// The duplicate id which was returned
     bad_id: IdType
 }
@@ -54,21 +54,21 @@ impl Error for InvalidIdError {}
 
 impl fmt::Display for InvalidIdError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Invalid ID {} passed to {}", self.bad_id, self.identifier)?;
+        write!(f, "Invalid ID {} passed to {}", self.bad_id, self.owner)?;
         Ok(())
     }
 }
 impl fmt::Debug for InvalidIdError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "Invalid ID {} passed to {}, file: {}, line: {}",
-            self.bad_id, self.identifier, file!(), line!())?;
+            self.bad_id, self.owner, file!(), line!())?;
         Ok(())
     }
 }
 
 impl InvalidIdError {
-    pub fn new(identifier: String, bad_id: IdType) -> InvalidIdError {
-        InvalidIdError {identifier, bad_id}
+    pub fn new(owner: String, bad_id: IdType) -> InvalidIdError {
+        InvalidIdError {owner, bad_id}
     }
 }
 
@@ -77,6 +77,7 @@ impl InvalidIdError {
 /// Generates IDs in a sequential manner, and reuses IDs
 /// which have been returned to the system. If you don't
 /// want IDs to be reused, just don't return them.
+#[derive(Debug)]
 pub struct IdGenerator {
     /// Unique identifier for this generator
     generator_id: Uuid,

@@ -2,10 +2,13 @@ use std::rc::Rc;
 use std::any::Any;
 use std::collections::{HashMap, HashSet};
 use std::any::TypeId;
+use uuid::Uuid;
 use crate::event::Event;
 use anyhow::{Result, Error};
 
+#[derive(Debug)]
 pub struct SimState {
+    state_id: Uuid,
     /// Internal storage mechanism for `SimState` objects
     state: HashMap<TypeId, Rc<dyn Event>>,
     /// Keep track of any Events which have been tainted
@@ -16,6 +19,7 @@ impl SimState {
     /// Creates a new `SimState` object
     pub fn new() -> SimState {
         SimState {
+            state_id: Uuid::new_v4(),
             state: HashMap::new(),
             tainted_states: HashSet::new(),
         }
@@ -140,7 +144,7 @@ mod tests {
 
     #[test]
     fn test_sim_state() {
-        crate::init_test();
+        crate::test::init_test();
 
         let mut state = SimState::new();
 

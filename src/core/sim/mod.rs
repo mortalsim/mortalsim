@@ -24,14 +24,17 @@ pub struct Sim<'a> {
 
 impl<'a> Sim<'a> {
     fn register(component_name: &'static str, factory: impl FnMut() -> Box<dyn BioComponent> + Send + 'static) {
+        log::debug!("Registering component {}", component_name);
         COMPONENT_MAP.lock().unwrap().insert(component_name, Box::new(factory));
     }
+
     fn new() -> Sim<'a> {
         let mut components = Vec::new();
         let hub = Rc::new(RefCell::new(EventHub::new()));
         let time_manager = Rc::new(RefCell::new(TimeManager::new()));
 
-        for (_, factory) in COMPONENT_MAP.lock().unwrap().iter_mut() {
+        for (component_name, factory) in COMPONENT_MAP.lock().unwrap().iter_mut() {
+            log::debug!("Adding component \"{}\" to new Sim", component_name);
             components.push((BioConnector::new(time_manager.clone(), hub.clone()), factory()))
         }
 
@@ -43,7 +46,6 @@ impl<'a> Sim<'a> {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use std::cell::Cell;
@@ -53,7 +55,9 @@ mod tests {
 
     #[test]
     fn test_registry() {
+        crate::test::init_test();
         Sim::register("TestComponent", TestComponent::factory);
+        let sim = Sim::new();
     }
 
 }

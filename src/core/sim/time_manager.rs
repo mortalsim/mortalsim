@@ -7,6 +7,7 @@
 use std::collections::BTreeMap;
 use std::collections::hash_map::HashMap;
 use std::any::TypeId;
+use std::fmt;
 use uuid::Uuid;
 use uom::si::f64::Time;
 use uom::si::time::second;
@@ -33,6 +34,18 @@ pub struct TimeManager<'b> {
     event_listener: Option<Box<dyn FnMut(TypeId, Box<dyn Event>) + 'b>>,
     /// Used to lookup listeners and Event objects for unscheduling
     id_time_map: HashMap<IdType, OrderedTime>
+}
+
+impl<'b> fmt::Debug for TimeManager<'b> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "TimeManager<{:?}> {{ sim_time: {:?}, event_queue: {:?}, advance_listener_ids: {:?}, scheduled_listener_times: {:?} }}",
+            self.manager_id,
+            self.sim_time,
+            self.event_queue,
+            self.advance_listeners.keys(),
+            self.scheduled_listeners.keys());
+        Ok(())
+    }
 }
 
 impl<'b> TimeManager<'b> {

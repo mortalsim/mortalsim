@@ -3,6 +3,7 @@
 //! Provides an Ord wrapper for `Event` transforming functions
 
 use std::cmp;
+use std::fmt;
 use std::sync::Mutex;
 use uuid::Uuid;
 use crate::util::id_gen::{IdType, IdGenerator};
@@ -25,6 +26,15 @@ pub trait EventTransformer {
     
     /// Retrieves the id for this listener
     fn transformer_id(&self) -> IdType;
+}
+
+impl<'a> fmt::Debug for dyn EventTransformer + 'a {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "EventTransformer<{:?}> {{ priority: {:?} }}",
+            self.transformer_id(),
+            self.priority());
+        Ok(())
+    }
 }
 
 // Implement all the traits we need to support Ord

@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::fmt;
 use core::any::TypeId;
+use uuid::Uuid;
 use uom::si::f64::*;
 use uom::si::length::kilometer;
 use uom::si::time::second;
@@ -18,7 +19,8 @@ lazy_static! {
 
 /// A storage construct for Substance concentrations in a volume
 pub struct SubstanceStore<'a> {
-    identifier: String,
+    /// Id for this SubstanceStore
+    store_id: Uuid,
     /// Substance volume
     volume: Volume,
     composition: HashMap<Substance, MolarConcentration>,
@@ -28,9 +30,9 @@ pub struct SubstanceStore<'a> {
     volume_listeners: Vec<(IdType, Box<dyn FnMut() + 'a>)>
 }
 
-impl<'a> fmt::Display for SubstanceStore<'a> {
+impl<'a> fmt::Debug for SubstanceStore<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.identifier)?;
+        write!(f, "SubstanceStore<{:?}> {{ volume = {:?}, composition = {:?} }}", self.store_id, self.volume, self.composition)?;
         Ok(())
     }
 }
@@ -39,11 +41,10 @@ impl<'a> SubstanceStore<'a> {
     /// Constructs a new Substance store with the given identifier and initial volume
     /// 
     /// # Arguments
-    /// * `identifier` - string identifier
     /// * `volume` - initial volume
-    pub fn new(identifier: String, volume: Volume) -> SubstanceStore<'a> {
+    pub fn new(volume: Volume) -> SubstanceStore<'a> {
         SubstanceStore {
-            identifier,
+            store_id: Uuid::new_v4(),
             volume: volume,
             composition: HashMap::new(),
             id_gen: IdGenerator::new(),
@@ -177,10 +178,10 @@ impl<'a> SubstanceStore<'a> {
                         let _ = listeners.remove(idx);
                         Ok(())
                     },
-                    None => Err(anyhow::Error::new(InvalidIdError::new(self.to_string(), listener_id)))
+                    None => Err(anyhow::Error::new(InvalidIdError::new(format!("{:?}", self), listener_id)))
                 }
             },
-            None => Err(anyhow::Error::new(InvalidIdError::new(self.to_string(), listener_id)))
+            None => Err(anyhow::Error::new(InvalidIdError::new(format!("{:?}", self), listener_id)))
         }
     }
     
@@ -208,7 +209,7 @@ impl<'a> SubstanceStore<'a> {
                 let _ = self.any_composition_listeners.remove(idx);
                 Ok(())
             },
-            None => Err(anyhow::Error::new(InvalidIdError::new(self.to_string(), listener_id)))
+            None => Err(anyhow::Error::new(InvalidIdError::new(format!("{:?}", self), listener_id)))
         }
     }
     
@@ -236,7 +237,7 @@ impl<'a> SubstanceStore<'a> {
                 let _ = self.volume_listeners.remove(idx);
                 Ok(())
             },
-            None => Err(anyhow::Error::new(InvalidIdError::new(self.to_string(), listener_id)))
+            None => Err(anyhow::Error::new(InvalidIdError::new(format!("{:?}", self), listener_id)))
         }
     }
 }

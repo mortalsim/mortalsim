@@ -4,6 +4,7 @@
 
 use std::cmp;
 use std::sync::Mutex;
+use std::fmt;
 use uuid::Uuid;
 use crate::util::id_gen::{IdType, IdGenerator};
 use crate::event::Event;
@@ -25,6 +26,15 @@ pub trait EventListener {
     
     /// Retrieves the id for this listener
     fn listener_id(&self) -> IdType;
+}
+
+impl<'a> fmt::Debug for dyn EventListener + 'a {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "EventListener<{:?}> {{ priority: {:?} }}",
+            self.listener_id(),
+            self.priority());
+        Ok(())
+    }
 }
 
 // Implement all the traits we need to support Ord

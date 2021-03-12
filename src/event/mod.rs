@@ -1,9 +1,10 @@
+use std::fmt::{Display, Debug};
 use downcast_rs::DowncastSync;
 use uuid::Uuid;
 
 pub type EventHandler<T> = dyn FnMut(Box<T>);
 
-pub trait Event: DowncastSync {
+pub trait Event: DowncastSync + Debug {
     fn event_name(&self) -> &str;
 }
 impl_downcast!(Event);
@@ -32,6 +33,7 @@ pub mod test {
             }
         }
     }
+
 
     impl Event for TestEventA {
         fn event_name(&self) -> &str {"TestEventA"}

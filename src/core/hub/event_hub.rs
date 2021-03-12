@@ -29,9 +29,13 @@ pub struct EventHub<'a> {
     on_emitted_fn: Option<Box<dyn FnMut(TypeId, Box<dyn Event>) + 'a>>,
 }
 
-impl<'a> fmt::Display for EventHub<'a> {
+impl<'a> fmt::Debug for EventHub<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "EventHub<{}>", self.hub_id)?;
+        write!(f, "EventHub<{:?}> {{ listeners: {:?}, generic_listeners: {:?}, transformers: {:?} }}",
+            self.hub_id,
+            self.event_listeners,
+            self.generic_event_listeners,
+            self.event_transformers);
         Ok(())
     }
 }
@@ -151,7 +155,7 @@ impl<'a> EventHub<'a> {
                 self.generic_event_listeners.remove(pos);
                 Ok(())
             }
-            None => Err(anyhow::Error::new(InvalidIdError::new(self.to_string(), listener_id)))
+            None => Err(anyhow::Error::new(InvalidIdError::new(format!("{:?}", self), listener_id)))
         }
     }
 
@@ -226,10 +230,10 @@ impl<'a> EventHub<'a> {
                         listeners.remove(pos);
                         Ok(())
                     },
-                    None => Err(anyhow::Error::new(InvalidIdError::new(self.to_string(), listener_id)))
+                    None => Err(anyhow::Error::new(InvalidIdError::new(format!("{:?}", self), listener_id)))
                 }
             }
-            None => Err(anyhow::Error::new(InvalidIdError::new(self.to_string(), listener_id)))
+            None => Err(anyhow::Error::new(InvalidIdError::new(format!("{:?}", self), listener_id)))
         }
     }
 
@@ -298,10 +302,10 @@ impl<'a> EventHub<'a> {
                         transformers.remove(pos);
                         Ok(())
                     },
-                    None => Err(anyhow::Error::new(InvalidIdError::new(self.to_string(), transformer_id)))
+                    None => Err(anyhow::Error::new(InvalidIdError::new(format!("{:?}", self), transformer_id)))
                 }
             }
-            None => Err(anyhow::Error::new(InvalidIdError::new(self.to_string(), transformer_id)))
+            None => Err(anyhow::Error::new(InvalidIdError::new(format!("{:?}", self), transformer_id)))
         }
     }
 
@@ -331,7 +335,7 @@ mod tests {
 
     #[test]
     fn test_hub() {
-        crate::init_test();
+        crate::test::init_test();
 
         let any_count = Cell::new(0);
         let a_count = Cell::new(0);
@@ -390,7 +394,7 @@ mod tests {
 
     #[test]
     fn test_hub_priority_listeners() {
-        crate::init_test();
+        crate::test::init_test();
 
         let calls = RefCell::new(Vec::new());
 
@@ -418,7 +422,7 @@ mod tests {
     
     #[test]
     fn test_hub_priority_transformers() {
-        crate::init_test();
+        crate::test::init_test();
 
         let calls = RefCell::new(Vec::new());
 
