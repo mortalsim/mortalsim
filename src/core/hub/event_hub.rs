@@ -27,6 +27,8 @@ pub struct EventHub<'a> {
     generic_event_listeners: Vec<Box<dyn EventListener + 'a>>,
     /// Listener to take ownership of emitted Events
     on_emitted_fn: Option<Box<dyn FnMut(TypeId, Box<dyn Event>) + 'a>>,
+    /// Keeps track of which listener/transformer ids are associated with each TypeId
+    id_type_map: HashMap<IdType, TypeId>,
 }
 
 impl<'a> fmt::Debug for EventHub<'a> {
@@ -49,6 +51,7 @@ impl<'a> EventHub<'a> {
             event_listeners: HashMap::new(),
             event_transformers: HashMap::new(),
             generic_event_listeners: Vec::new(),
+            id_type_map: HashMap::new(),
             on_emitted_fn: None
         }
     }
@@ -204,6 +207,9 @@ impl<'a> EventHub<'a> {
                 self.event_listeners.insert(type_key, vec!(listener));
             }
         }
+        
+        // Add the id -> type mapping for quick removal if needed later
+        self.id_type_map.insert(listener_id, type_key);
 
         // Return the listener id to the caller
         listener_id
@@ -216,25 +222,21 @@ impl<'a> EventHub<'a> {
     /// * `listener_id` - listener registration ID
     /// 
     /// Returns Ok if successful, or Err if the provided ID is invalid.
-    pub fn off<T: Event>(&mut self, listener_id: IdType) -> Result<()> {
-        let type_key = TypeId::of::<T>();
-        self.off_typed(type_key, listener_id)
-    }
-    
-    pub(crate) fn off_typed(&mut self, type_key: TypeId, listener_id: IdType) -> Result<()> {
-
-        match self.event_listeners.get_mut(&type_key) {
-            Some(listeners) => {
+    pub fn off(&mut self, listener_id: IdType) -> Result<()> {
+        match self.id_type_map.get(&listener_id) {
+            Some(type_key) => {
+                let listeners = self.event_listeners.get_mut(&type_key).unwrap();
                 match listeners.iter().position(|l| l.listener_id() == listener_id) {
                     Some(pos) => {
                         listeners.remove(pos);
-                        Ok(())
+                        return Ok(());
                     },
-                    None => Err(anyhow::Error::new(InvalidIdError::new(format!("{:?}", self), listener_id)))
+                    None => {}
                 }
-            }
-            None => Err(anyhow::Error::new(InvalidIdError::new(format!("{:?}", self), listener_id)))
+            },
+            None => {}
         }
+        Err(anyhow::Error::new(InvalidIdError::new(format!("{:?}", self), listener_id)))
     }
 
     /// Registers a transformer for a specific Event. 
