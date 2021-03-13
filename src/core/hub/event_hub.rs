@@ -28,8 +28,10 @@ pub struct EventHub<'a> {
     generic_event_listeners: Vec<Box<dyn EventListener + 'a>>,
     /// Listener to take ownership of emitted Events
     on_emitted_fn: Option<Box<dyn FnMut(TypeId, Rc<dyn Event>) + 'a>>,
-    /// Keeps track of which listener/transformer ids are associated with each TypeId
-    id_type_map: HashMap<IdType, TypeId>,
+    /// Keeps track of which listener ids are associated with each TypeId
+    listener_id_type_map: HashMap<IdType, TypeId>,
+    /// Keeps track of which transformer ids are associated with each TypeId
+    transformer_id_type_map: HashMap<IdType, TypeId>,
 }
 
 impl<'a> fmt::Debug for EventHub<'a> {
@@ -52,7 +54,8 @@ impl<'a> EventHub<'a> {
             event_listeners: HashMap::new(),
             event_transformers: HashMap::new(),
             generic_event_listeners: Vec::new(),
-            id_type_map: HashMap::new(),
+            listener_id_type_map: HashMap::new(),
+            transformer_id_type_map: HashMap::new(),
             on_emitted_fn: None
         }
     }
@@ -213,7 +216,7 @@ impl<'a> EventHub<'a> {
         }
         
         // Add the id -> type mapping for quick removal if needed later
-        self.id_type_map.insert(listener_id, type_key);
+        self.listener_id_type_map.insert(listener_id, type_key);
 
         // Return the listener id to the caller
         listener_id
@@ -227,12 +230,13 @@ impl<'a> EventHub<'a> {
     /// 
     /// Returns Ok if successful, or Err if the provided ID is invalid.
     pub fn off(&mut self, listener_id: IdType) -> Result<()> {
-        match self.id_type_map.get(&listener_id) {
+        match self.listener_id_type_map.get(&listener_id) {
             Some(type_key) => {
                 let listeners = self.event_listeners.get_mut(&type_key).unwrap();
                 match listeners.iter().position(|l| l.listener_id() == listener_id) {
                     Some(pos) => {
                         listeners.remove(pos);
+                        self.listener_id_type_map.remove(&listener_id);
                         return Ok(());
                     },
                     None => {}
@@ -287,6 +291,9 @@ impl<'a> EventHub<'a> {
             }
         }
 
+        // Add the id -> type mapping for quick removal if needed later
+        self.transformer_id_type_map.insert(transformer_id, type_key);
+
         // Return the transformer id to the caller
         transformer_id
     }
@@ -298,21 +305,23 @@ impl<'a> EventHub<'a> {
     /// * `transformer_id` - transformer registration ID
     /// 
     /// Returns Ok if successful, or Err if the provided ID is invalid.
-    pub fn unset_transform<T: Event>(&mut self, transformer_id: IdType) -> Result<()> {
-        let type_key = TypeId::of::<T>();
-
-        match self.event_transformers.get_mut(&type_key) {
-            Some(transformers) => {
+    pub fn unset_transform(&mut self, transformer_id: IdType) -> Result<()> {
+        match self.transformer_id_type_map.get(&transformer_id) {
+            Some(type_key) => {
+                let transformers = self.event_transformers.get_mut(type_key).unwrap();
                 match transformers.iter().position(|l| l.transformer_id() == transformer_id) {
                     Some(pos) => {
                         transformers.remove(pos);
-                        Ok(())
+                        self.transformer_id_type_map.remove(&transformer_id);
+                        return Ok(());
                     },
-                    None => Err(anyhow::Error::new(InvalidIdError::new(format!("{:?}", self), transformer_id)))
+                    None => {}
                 }
-            }
-            None => Err(anyhow::Error::new(InvalidIdError::new(format!("{:?}", self), transformer_id)))
+            },
+            None => {}
         }
+
+        Err(anyhow::Error::new(InvalidIdError::new(format!("{:?}", self), transformer_id)))
     }
 
     /// Registers a listener for Event's which have completed emittion. Ownership of the Event

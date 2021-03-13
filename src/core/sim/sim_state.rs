@@ -41,22 +41,22 @@ impl SimState {
         }
     }
     
-    /// Retrieves an Rc to the current `Event` of a given type in this state
-    /// 
-    /// returns an `Rc<Event>` or `None` if no `Event` of this type has been set
-    pub(crate) fn get_state_ref(&self, type_id: &TypeId) -> Option<Rc<dyn Event>> {
-        match self.state.get(&type_id) {
-            None => None,
-            Some(box_val) => Some(box_val.clone())
-        }
-    }
-
     /// Checks whether an `Event` exists in this state for a given `Event` type
     /// 
     /// returns `true` if it exists or `false` otherwise
     pub fn has_state<T: Event>(&mut self) -> bool {
         let type_id = TypeId::of::<T>();
         self.state.contains_key(&type_id)
+    }
+    
+    /// Retrieves an Rc to the current `Event` of a given type in this state
+    /// 
+    /// returns an `Rc<Event>` or `None` if no `Event` of this type has been set
+    pub(super) fn get_state_ref(&self, type_id: &TypeId) -> Option<Rc<dyn Event>> {
+        match self.state.get(&type_id) {
+            None => None,
+            Some(box_val) => Some(box_val.clone())
+        }
     }
 
     /// Adds an Event to the state given it's TypeId
@@ -66,7 +66,7 @@ impl SimState {
     /// * `event`    - owned `Event` object to set
     /// 
     /// returns previously stored `Event` or `None`
-    pub(crate) fn put_state(&mut self, type_key: TypeId, event: Rc<dyn Event>) -> Option<Rc<dyn Event>> {
+    pub(super) fn put_state(&mut self, type_key: TypeId, event: Rc<dyn Event>) -> Option<Rc<dyn Event>> {
         self.tainted_states.insert(type_key);
         self.state.insert(type_key, event)
     }
@@ -78,19 +78,32 @@ impl SimState {
     /// * `event` - `Event` object to set
     /// 
     /// returns previously stored `Event` or `None`
-    pub(crate) fn set_state<T: Event>(&mut self, event: T) -> Option<Rc<dyn Event>> {
+    pub(super) fn set_state<T: Event>(&mut self, event: T) -> Option<Rc<dyn Event>> {
         let type_id = TypeId::of::<T>();
         self.tainted_states.insert(type_id);
         self.state.insert(type_id, Rc::new(event))
     }
+    
+    /// Sets an `Event` object on the current state, without tainting.
+    /// The previous `Event` of this type (if any) will be replaced with
+    /// the new `Event`
+    /// 
+    /// # Arguments
+    /// * `event` - `Event` object to set
+    /// 
+    /// returns previously stored `Event` or `None`
+    pub(super) fn set_state_quiet<T: Event>(&mut self, event: T) -> Option<Rc<dyn Event>> {
+        let type_id = TypeId::of::<T>();
+        self.state.insert(type_id, Rc::new(event))
+    }
 
     /// Retrieves the `Set` of tainted `Event` `TypeId`s on this `State`
-    pub(crate) fn get_tainted(&self) -> &HashSet<TypeId> {
+    pub(super) fn get_tainted(&self) -> &HashSet<TypeId> {
         &self.tainted_states
     }
 
     /// Resets the tainted status on all Event types
-    pub(crate) fn clear_taint(&mut self) {
+    pub(super) fn clear_taint(&mut self) {
         self.tainted_states.clear();
     }
 
