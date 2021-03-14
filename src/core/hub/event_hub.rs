@@ -40,8 +40,7 @@ impl<'a> fmt::Debug for EventHub<'a> {
             self.hub_id,
             self.event_listeners,
             self.generic_event_listeners,
-            self.event_transformers);
-        Ok(())
+            self.event_transformers)
     }
 }
 

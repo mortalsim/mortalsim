@@ -43,8 +43,7 @@ impl<'b> fmt::Debug for TimeManager<'b> {
             self.sim_time,
             self.event_queue,
             self.advance_listeners.keys(),
-            self.scheduled_listeners.keys());
-        Ok(())
+            self.scheduled_listeners.keys())
     }
 }
 

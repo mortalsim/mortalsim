@@ -32,8 +32,7 @@ impl<'a> fmt::Debug for dyn EventTransformer + 'a {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "EventTransformer<{:?}> {{ priority: {:?} }}",
             self.transformer_id(),
-            self.priority());
-        Ok(())
+            self.priority())
     }
 }
 
