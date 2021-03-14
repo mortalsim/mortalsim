@@ -13,7 +13,7 @@ pub use component::{BioComponentInitializer, BioConnector, BioComponent};
 use crate::core::hub::EventHub;
 
 lazy_static! {
-    static ref COMPONENT_MAP: Mutex<HashMap<&'static str, Box<dyn FnMut() -> Box<dyn BioComponent> + Send>>> = Mutex::new(HashMap::new());
+    static ref COMPONENT_REGISTRY: Mutex<HashMap<&'static str, Box<dyn FnMut() -> Box<dyn BioComponent> + Send>>> = Mutex::new(HashMap::new());
 }
 
 pub struct Sim<'a> {
@@ -35,7 +35,7 @@ impl<'a> Sim<'a> {
 
     pub fn register_component(component_name: &'static str, factory: impl FnMut() -> Box<dyn BioComponent> + Send + 'static) {
         log::debug!("Registering component {}", component_name);
-        COMPONENT_MAP.lock().unwrap().insert(component_name, Box::new(factory));
+        COMPONENT_REGISTRY.lock().unwrap().insert(component_name, Box::new(factory));
     }
 
     pub fn new() -> Sim<'a> {
@@ -43,7 +43,7 @@ impl<'a> Sim<'a> {
 
         // build our list of components
         let mut component_list = Vec::new();
-        for (component_name, factory) in COMPONENT_MAP.lock().unwrap().iter_mut() {
+        for (component_name, factory) in COMPONENT_REGISTRY.lock().unwrap().iter_mut() {
             log::debug!("Adding component \"{}\" to new Sim", component_name);
             component_list.push(factory());
         }
@@ -59,7 +59,7 @@ impl<'a> Sim<'a> {
         // build our list of components
         let mut component_list = Vec::new();
         for component_name in component_set {
-            match COMPONENT_MAP.lock().unwrap().get_mut(component_name) {
+            match COMPONENT_REGISTRY.lock().unwrap().get_mut(component_name) {
                 Some(factory) => {
                     log::debug!("Adding component \"{}\" to new Sim", component_name);
                     component_list.push(factory());
