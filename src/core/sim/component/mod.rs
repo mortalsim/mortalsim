@@ -36,8 +36,8 @@ pub mod test {
             });
         }
         fn run(&mut self, connector: &mut BioConnector) {
-            let evtA = connector.get::<TestEventA>().unwrap();
-            assert_eq!(evtA.len, Length::new::<meter>(3.0));
+            let evt_a = connector.get::<TestEventA>().unwrap();
+            assert_eq!(evt_a.len, Length::new::<meter>(3.0));
         }
     }
 }
