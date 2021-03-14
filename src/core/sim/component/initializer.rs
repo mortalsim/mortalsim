@@ -28,11 +28,15 @@ impl<'a> BioComponentInitializer<'a> {
         }
     }
 
-    fn notify<T: Event>(&mut self) {
-        self.notify_prioritized::<T>(0);
+    pub fn notify<T: Event>(&mut self, default: T) {
+        self.notify_prioritized::<T>(0, default);
     }
     
-    fn notify_prioritized<T: Event>(&mut self, priority: i32) {
+    pub fn notify_prioritized<T: Event>(&mut self, priority: i32, default: T) {
+        // Set the provided default
+        self.connector.borrow_mut().local_state.set_state_quiet(default);
+
+        // Create weak pointers to our connector & component
         let connector_weak = Rc::downgrade(&self.connector);
         let component_weak = Rc::downgrade(&self.component);
 
@@ -55,12 +59,12 @@ impl<'a> BioComponentInitializer<'a> {
         self.listener_ids.push(listener_id);
     }
     
-    fn transform<T: Event>(&mut self, transformer: impl FnMut(&mut T) + 'a) {
+    pub fn transform<T: Event>(&mut self, transformer: impl FnMut(&mut T) + 'a) {
         let transformer_id = self.hub.borrow_mut().transform(transformer);
         self.transformer_ids.push(transformer_id);
     }
     
-    fn transform_prioritized<T: Event>(&mut self, priority: i32, transformer: impl FnMut(&mut T) + 'a) {
+    pub fn transform_prioritized<T: Event>(&mut self, priority: i32, transformer: impl FnMut(&mut T) + 'a) {
         let transformer_id = self.hub.borrow_mut().transform_prioritized(priority, transformer);
         self.transformer_ids.push(transformer_id);
     }

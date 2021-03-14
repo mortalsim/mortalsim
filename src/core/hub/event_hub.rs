@@ -239,12 +239,11 @@ impl<'a> EventHub<'a> {
                         self.listener_id_type_map.remove(&listener_id);
                         return Ok(());
                     },
-                    None => {}
+                    None => {Err(anyhow::Error::new(InvalidIdError::new(format!("{:?}", self), listener_id)))}
                 }
             },
-            None => {}
+            None => {Err(anyhow::Error::new(InvalidIdError::new(format!("{:?}", self), listener_id)))}
         }
-        Err(anyhow::Error::new(InvalidIdError::new(format!("{:?}", self), listener_id)))
     }
 
     /// Registers a transformer for a specific Event. 
@@ -313,15 +312,13 @@ impl<'a> EventHub<'a> {
                     Some(pos) => {
                         transformers.remove(pos);
                         self.transformer_id_type_map.remove(&transformer_id);
-                        return Ok(());
+                        Ok(())
                     },
-                    None => {}
+                    None => Err(anyhow::Error::new(InvalidIdError::new(format!("{:?}", self), transformer_id)))
                 }
             },
-            None => {}
+            None => Err(anyhow::Error::new(InvalidIdError::new(format!("{:?}", self), transformer_id)))
         }
-
-        Err(anyhow::Error::new(InvalidIdError::new(format!("{:?}", self), transformer_id)))
     }
 
     /// Registers a listener for Event's which have completed emittion. Ownership of the Event
