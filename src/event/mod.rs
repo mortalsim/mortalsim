@@ -7,7 +7,7 @@ pub type EventHandler<T> = dyn FnMut(Box<T>);
 pub trait Event: DowncastSync + Debug {
     fn event_name(&self) -> &str;
 }
-impl_downcast!(Event);
+impl_downcast!(sync Event);
 
 #[cfg(test)]
 pub mod test {

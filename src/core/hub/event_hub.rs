@@ -6,7 +6,7 @@
 use std::fmt;
 use std::error::Error;
 use std::collections::HashMap;
-use std::rc::Rc;
+use std::sync::Arc;
 use core::any::TypeId;
 use uuid::Uuid;
 use anyhow::Result;
@@ -27,7 +27,7 @@ pub struct EventHub<'a> {
     /// Listeners for any Event, regardless of Event type
     generic_event_listeners: Vec<Box<dyn EventListener + 'a>>,
     /// Listener to take ownership of emitted Events
-    on_emitted_fn: Option<Box<dyn FnMut(TypeId, Rc<dyn Event>) + 'a>>,
+    on_emitted_fn: Option<Box<dyn FnMut(TypeId, Arc<dyn Event>) + 'a>>,
     /// Keeps track of which listener ids are associated with each TypeId
     listener_id_type_map: HashMap<IdType, TypeId>,
     /// Keeps track of which transformer ids are associated with each TypeId
@@ -87,7 +87,7 @@ impl<'a> EventHub<'a> {
         }
 
         // Event is now finalized, so convert it into an Rc for shared, read-only ownership
-        let final_evt: Rc<dyn Event> = evt.into();
+        let final_evt: Arc<dyn Event> = evt.into();
         
         // Call each generic listener with the event
         log::debug!("Triggering {} generic listeners for EventHub {}", self.generic_event_listeners.len(), self.hub_id);
@@ -118,7 +118,7 @@ impl<'a> EventHub<'a> {
     /// * `handler` - Event handling function
     /// 
     /// Returns the registration ID for the listener
-    pub fn on_any(&mut self, handler: impl FnMut(Rc<dyn Event>) + 'a) -> IdType {
+    pub fn on_any(&mut self, handler: impl FnMut(Arc<dyn Event>) + 'a) -> IdType {
         self.on_any_impl(Box::new(GenericListener::new(handler)))
     }
     
@@ -130,7 +130,7 @@ impl<'a> EventHub<'a> {
     /// * `handler` - Event handling function
     /// 
     /// Returns the registration ID for the listener
-    pub fn on_any_prioritized(&mut self, priority: i32, handler: impl FnMut(Rc<dyn Event>) + 'a) -> IdType {
+    pub fn on_any_prioritized(&mut self, priority: i32, handler: impl FnMut(Arc<dyn Event>) + 'a) -> IdType {
         self.on_any_impl(Box::new(GenericListener::new_prioritized(handler, priority)))
     }
     
@@ -174,7 +174,7 @@ impl<'a> EventHub<'a> {
     /// * `handler` - Event handling function
     /// 
     /// Returns the registration ID for the listener
-    pub fn on<T: Event>(&mut self, handler: impl FnMut(Rc<T>) + 'a) -> IdType {
+    pub fn on<T: Event>(&mut self, handler: impl FnMut(Arc<T>) + 'a) -> IdType {
         self.on_impl::<T>(Box::new(ListenerItem::new(handler)))
     }
     
@@ -186,7 +186,7 @@ impl<'a> EventHub<'a> {
     /// * `handler` - Event handling function
     /// 
     /// Returns the registration ID for the listener
-    pub fn on_prioritized<T: Event>(&mut self, priority: i32, handler: impl FnMut(Rc<T>) + 'a) -> IdType {
+    pub fn on_prioritized<T: Event>(&mut self, priority: i32, handler: impl FnMut(Arc<T>) + 'a) -> IdType {
         self.on_impl::<T>(Box::new(ListenerItem::new_prioritized(handler, priority)))
     }
     
@@ -325,7 +325,7 @@ impl<'a> EventHub<'a> {
     ///
     /// # Arguments
     /// * `handler` - Function to own the emitted Event
-    pub(crate) fn on_emitted(&mut self, handler: impl FnMut(TypeId, Rc<dyn Event>) + 'a) {
+    pub(crate) fn on_emitted(&mut self, handler: impl FnMut(TypeId, Arc<dyn Event>) + 'a) {
         self.on_emitted_fn = Some(Box::new(handler));
     }
 }
@@ -334,7 +334,7 @@ impl<'a> EventHub<'a> {
 mod tests {
     use std::time::{Duration, SystemTime};
     use std::cell::{Cell, RefCell};
-    use std::rc::Rc;
+    use std::sync::Arc;
     use uom::si::f64::Length;
     use uom::si::f64::AmountOfSubstance;
     use uom::si::length::meter;
@@ -358,7 +358,7 @@ mod tests {
         let mut hub = EventHub::new();
 
         // Attach a handler for A Events
-        hub.on(|evt: Rc<TestEventA>| {
+        hub.on(|evt: Arc<TestEventA>| {
             on_val_a.set(evt.len);
             a_count.set(a_count.get() + 1);
         });
@@ -369,7 +369,7 @@ mod tests {
         assert_eq!(a_count.get(), 1);
         
         // Attach a handler for any Event
-        hub.on_any(|_evt: Rc<dyn Event>| {
+        hub.on_any(|_evt: Arc<dyn Event>| {
             any_count.set(any_count.get() + 1);
         });
 
@@ -380,7 +380,7 @@ mod tests {
         assert_eq!(any_count.get(), 1);
         
         // Attach a handler for B Events
-        hub.on(|evt: Rc<TestEventB>| {
+        hub.on(|evt: Arc<TestEventB>| {
             on_val_b.set(evt.amt);
             b_count.set(b_count.get() + 1);
         });
@@ -413,17 +413,17 @@ mod tests {
         let mut hub = EventHub::new();
 
         // Attach handler 1 for A Events
-        hub.on_prioritized(2, |_evt: Rc<TestEventA>| {
+        hub.on_prioritized(2, |_evt: Arc<TestEventA>| {
             calls.try_borrow_mut().unwrap().push(1);
         });
         
         // Attach handler 2 for A Events
-        hub.on_prioritized(5, |_evt: Rc<TestEventA>| {
+        hub.on_prioritized(5, |_evt: Arc<TestEventA>| {
             calls.try_borrow_mut().unwrap().push(2);
         });
 
         // Attach handler 3 for A Events
-        hub.on_prioritized(3, |_evt: Rc<TestEventA>| {
+        hub.on_prioritized(3, |_evt: Arc<TestEventA>| {
             calls.try_borrow_mut().unwrap().push(3);
         });
 

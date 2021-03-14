@@ -5,7 +5,7 @@
 use std::cmp;
 use std::sync::Mutex;
 use std::fmt;
-use std::rc::Rc;
+use std::sync::Arc;
 use uuid::Uuid;
 use crate::util::id_gen::{IdType, IdGenerator};
 use crate::event::Event;
@@ -20,7 +20,7 @@ pub trait EventListener {
     ///
     /// # Arguments
     /// * `evt` - Event to dispatch to the handler function
-    fn handle(&mut self, evt: Rc<dyn Event>);
+    fn handle(&mut self, evt: Arc<dyn Event>);
 
     /// Retrieves the priority value for this listener
     fn priority(&self) -> i32;
@@ -62,7 +62,7 @@ pub struct GenericListener<'a> {
     /// Unique identifier for this listener
     listener_id: IdType,
     /// Container for the Event handling function
-    handler: Box<dyn FnMut(Rc<dyn Event>) + 'a>,
+    handler: Box<dyn FnMut(Arc<dyn Event>) + 'a>,
     /// Priority for this listener
     priority: i32
 }
@@ -73,7 +73,7 @@ impl<'a> GenericListener<'a> {
     ///
     /// # Arguments
     /// * `id` - Identifier for this listener
-    pub fn new(handler: impl FnMut(Rc<dyn Event>) + 'a) -> GenericListener<'a> {
+    pub fn new(handler: impl FnMut(Arc<dyn Event>) + 'a) -> GenericListener<'a> {
         GenericListener {
             listener_id: ID_GEN.lock().unwrap().get_id(),
             priority: 0,
@@ -88,7 +88,7 @@ impl<'a> GenericListener<'a> {
     /// * `priority` - determines this listener's priority when Events
     ///                are dispatched. Higher priority listeners are
     ///                executed first.
-    pub fn new_prioritized(handler: impl FnMut(Rc<dyn Event>) + 'a, priority: i32) -> GenericListener<'a> {
+    pub fn new_prioritized(handler: impl FnMut(Arc<dyn Event>) + 'a, priority: i32) -> GenericListener<'a> {
         GenericListener {
             listener_id: ID_GEN.lock().unwrap().get_id(),
             handler: Box::new(handler),
@@ -105,7 +105,7 @@ impl<'a> Drop for GenericListener<'a> {
 }
 
 impl<'a> EventListener for GenericListener<'a> {
-    fn handle(&mut self, evt: Rc<dyn Event>) {
+    fn handle(&mut self, evt: Arc<dyn Event>) {
         log::debug!("Executing generic event listener {} with Event {}", self.listener_id, evt.event_name());
         (*self.handler)(evt);
     }
@@ -123,7 +123,7 @@ pub struct ListenerItem<'a, T: Event> {
     /// Unique identifier for this listener
     listener_id: IdType,
     /// Container for the Event handling function
-    handler: Box<dyn FnMut(Rc<T>) + 'a>,
+    handler: Box<dyn FnMut(Arc<T>) + 'a>,
     /// Priority for this listener
     priority: i32
 }
@@ -134,7 +134,7 @@ impl<'a, T: Event> ListenerItem<'a, T> {
     ///
     /// # Arguments
     /// * `id` - Identifier for this listener
-    pub fn new(handler: impl FnMut(Rc<T>) + 'a) -> ListenerItem<'a, T> {
+    pub fn new(handler: impl FnMut(Arc<T>) + 'a) -> ListenerItem<'a, T> {
         ListenerItem {
             listener_id: ID_GEN.lock().unwrap().get_id(),
             priority: 0,
@@ -149,7 +149,7 @@ impl<'a, T: Event> ListenerItem<'a, T> {
     /// * `priority` - determines this listener's priority when Events
     ///                are dispatched. Higher priority listeners are
     ///                executed first.
-    pub fn new_prioritized(handler: impl FnMut(Rc<T>) + 'a, priority: i32) -> ListenerItem<'a, T> {
+    pub fn new_prioritized(handler: impl FnMut(Arc<T>) + 'a, priority: i32) -> ListenerItem<'a, T> {
         ListenerItem {
             listener_id: ID_GEN.lock().unwrap().get_id(),
             handler: Box::new(handler),
@@ -166,9 +166,10 @@ impl<'a, T: Event> Drop for ListenerItem<'a, T> {
 }
 
 impl<'a, T: Event> EventListener for ListenerItem<'a, T> {
-    fn handle(&mut self, evt: Rc<dyn Event>) {
+    fn handle(&mut self, evt: Arc<dyn Event>) {
         log::debug!("Executing event listener {} with Event {}", self.listener_id, evt.event_name());
-        match evt.downcast_rc::<T>() {
+
+        match evt.downcast_arc::<T>() {
             Ok(typed_evt) => (*self.handler)(typed_evt),
             Err(_) => panic!("Ahhh! Listener {} is melting!!!", self.listener_id)
         }
@@ -187,7 +188,7 @@ impl<'a, T: Event> EventListener for ListenerItem<'a, T> {
 #[cfg(test)]
 mod tests {
     use std::cell::Cell;
-    use std::rc::Rc;
+    use std::sync::Arc;
     use super::ListenerItem;
     use super::EventListener;
     use crate::event::test::TestEventA;
@@ -197,23 +198,23 @@ mod tests {
     #[test]
     fn test_handle() {
         let val: Cell<Length> = Cell::new(Length::new::<meter>(0.0));
-        let mut listener = ListenerItem::new(|evt: Rc<TestEventA>| {
+        let mut listener = ListenerItem::new(|evt: Arc<TestEventA>| {
             val.set(evt.len);
         });
 
-        listener.handle(Rc::new(TestEventA::new(Length::new::<meter>(5.0))));
+        listener.handle(Arc::new(TestEventA::new(Length::new::<meter>(5.0))));
         assert_eq!(val.get(), Length::new::<meter>(5.0));
         
-        listener.handle(Rc::new(TestEventA::new(Length::new::<meter>(7.0))));
+        listener.handle(Arc::new(TestEventA::new(Length::new::<meter>(7.0))));
         assert_eq!(val.get(), Length::new::<meter>(7.0));
     }
 
     #[test]
     fn test_ord() {
-        let listener1 = ListenerItem::new_prioritized(|_evt: Rc<TestEventA>| {}, 0);
-        let listener2 = ListenerItem::new_prioritized(|_evt: Rc<TestEventA>| {}, 5);
-        let listener3 = ListenerItem::new_prioritized(|_evt: Rc<TestEventA>| {}, -2);
-        let listener4 = ListenerItem::new_prioritized(|_evt: Rc<TestEventA>| {}, 3);
+        let listener1 = ListenerItem::new_prioritized(|_evt: Arc<TestEventA>| {}, 0);
+        let listener2 = ListenerItem::new_prioritized(|_evt: Arc<TestEventA>| {}, 5);
+        let listener3 = ListenerItem::new_prioritized(|_evt: Arc<TestEventA>| {}, -2);
+        let listener4 = ListenerItem::new_prioritized(|_evt: Arc<TestEventA>| {}, 3);
 
         let mut v = Vec::<Box<dyn EventListener>>::new();
 

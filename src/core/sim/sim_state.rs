@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::sync::Arc;
 use std::any::Any;
 use std::collections::{HashMap, HashSet};
 use std::any::TypeId;
@@ -10,7 +10,7 @@ use anyhow::{Result, Error};
 pub struct SimState {
     state_id: Uuid,
     /// Internal storage mechanism for `SimState` objects
-    state: HashMap<TypeId, Rc<dyn Event>>,
+    state: HashMap<TypeId, Arc<dyn Event>>,
     /// Keep track of any Events which have been tainted
     tainted_states: HashSet<TypeId>,
 }
@@ -51,11 +51,11 @@ impl SimState {
     
     /// Retrieves an Rc to the current `Event` of a given type in this state
     /// 
-    /// returns an `Rc<Event>` or `None` if no `Event` of this type has been set
-    pub(super) fn get_state_ref(&self, type_id: &TypeId) -> Option<Rc<dyn Event>> {
+    /// returns an `Arc<Event>` or `None` if no `Event` of this type has been set
+    pub(super) fn get_state_ref(&self, type_id: &TypeId) -> Option<Arc<dyn Event>> {
         match self.state.get(&type_id) {
             None => None,
-            Some(box_val) => Some(box_val.clone())
+            Some(rc_val) => Some(rc_val.clone())
         }
     }
 
@@ -66,7 +66,7 @@ impl SimState {
     /// * `event`    - owned `Event` object to set
     /// 
     /// returns previously stored `Event` or `None`
-    pub(super) fn put_state(&mut self, type_key: TypeId, event: Rc<dyn Event>) -> Option<Rc<dyn Event>> {
+    pub(super) fn put_state(&mut self, type_key: TypeId, event: Arc<dyn Event>) -> Option<Arc<dyn Event>> {
         self.tainted_states.insert(type_key);
         self.state.insert(type_key, event)
     }
@@ -78,10 +78,10 @@ impl SimState {
     /// * `event` - `Event` object to set
     /// 
     /// returns previously stored `Event` or `None`
-    pub(super) fn set_state<T: Event>(&mut self, event: T) -> Option<Rc<dyn Event>> {
+    pub(super) fn set_state<T: Event>(&mut self, event: T) -> Option<Arc<dyn Event>> {
         let type_id = TypeId::of::<T>();
         self.tainted_states.insert(type_id);
-        self.state.insert(type_id, Rc::new(event))
+        self.state.insert(type_id, Arc::new(event))
     }
     
     /// Sets an `Event` object on the current state, without tainting.
@@ -92,9 +92,9 @@ impl SimState {
     /// * `event` - `Event` object to set
     /// 
     /// returns previously stored `Event` or `None`
-    pub(super) fn set_state_quiet<T: Event>(&mut self, event: T) -> Option<Rc<dyn Event>> {
+    pub(super) fn set_state_quiet<T: Event>(&mut self, event: T) -> Option<Arc<dyn Event>> {
         let type_id = TypeId::of::<T>();
-        self.state.insert(type_id, Rc::new(event))
+        self.state.insert(type_id, Arc::new(event))
     }
 
     /// Retrieves the `Set` of tainted `Event` `TypeId`s on this `State`

@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use std::rc::{Rc, Weak};
 use std::collections::HashMap;
 use std::cell::{Ref, RefCell, Cell};
@@ -6,44 +7,18 @@ use std::io;
 use std::convert::From;
 use anyhow::{Error, Result};
 use crate::util::id_gen::IdType;
-use crate::core::sim::SimState;
 use crate::core::hub::EventHub;
-use crate::core::sim::TimeManager;
+use crate::core::sim::{SimState, TimeManager, Time};
 use crate::event::Event;
 
-pub struct InitBioConnector {
-    pub(in super::super) local_state: SimState,
-    pub(in super::super) notify_events: HashMap<TypeId, i32>,
-}
-
-impl<'a> InitBioConnector {
-    pub fn new() -> InitBioConnector {
-        InitBioConnector {
-            local_state: SimState::new(),
-            notify_events: HashMap::new(),
-        }
-    }
-
-    pub fn emit_initial<T: Event>(&mut self, evt: T) {
-        self.local_state.set_state(evt);
-    }
-
-    pub fn notify_on<T: Event>(&mut self, default: T) {
-        self.local_state.set_state_quiet(default);
-        self.notify_events.insert(TypeId::of::<T>(), 0);
-    }
-    
-    pub fn notify_prioritized_on<T: Event>(&mut self, default: T, priority: i32) {
-        self.local_state.set_state_quiet(default);
-        self.notify_events.insert(TypeId::of::<T>(), priority);
-    }
-}
-
+/// Provides methods for `Sim` components to interact with the simulation
 pub struct BioConnector<'a> {
+    /// State specific to the connected component
     pub(in super::super) local_state: SimState,
+    /// Ref to the `Sim`'s `TimeManager` instance for scheduling `Event` objects
     time_manager: Rc<RefCell<TimeManager<'a>>>,
     hub: Rc<RefCell<EventHub<'a>>>,
-    trigger_event: Option<Rc<dyn Event>>,
+    trigger_event: Option<Arc<dyn Event>>,
 }
 
 impl<'a> BioConnector<'a> {
@@ -55,12 +30,38 @@ impl<'a> BioConnector<'a> {
             trigger_event: None,
         }
     }
-
-    pub(super) fn set_trigger_event(&mut self, evt: Rc<dyn Event>) {
+    
+    pub(super) fn set_trigger_event(&mut self, evt: Arc<dyn Event>) {
         self.trigger_event = Some(evt);
+    }
+
+    pub fn schedule_event<T: Event>(&self, wait_time: Time, evt: T) -> IdType {
+        self.time_manager.borrow_mut().schedule_event(wait_time, evt)
+    }
+
+    pub fn unschedule_event(&self, schedule_id: IdType) -> Result<()> {
+        self.time_manager.borrow_mut().unschedule_event(schedule_id)
+    }
+
+    pub fn get_time(&self) -> Time {
+        self.time_manager.borrow().get_time()
     }
 
     pub fn get<T: Event>(&self) -> Option<&T> {
         self.local_state.get_state::<T>()
     }
+    
+    // pub fn get_Arc<T: Event>(&self) -> Option<Arc<T>> {
+    //     match self.local_state.get_state_ref(&TypeId::of::<T>()) {
+    //         None => None,
+    //         Some(evt_rc) => {
+    //             match evt_rc.downcast_arc::<T>() {
+    //                 Err(_) => None,
+    //                 Ok(typed_evt_rc) => {
+    //                     Some(typed_evt_rc)
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 }

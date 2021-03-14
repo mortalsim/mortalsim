@@ -9,13 +9,14 @@ use std::collections::hash_map::HashMap;
 use std::any::TypeId;
 use std::fmt;
 use uuid::Uuid;
-use uom::si::f64::Time;
 use uom::si::time::second;
 use uom::fmt::DisplayStyle::*;
 use anyhow::{Result, Error};
 use crate::util::id_gen::{IdType, IdGenerator};
 use crate::event::Event;
 use crate::util::quantity_wrapper::OrderedTime;
+
+pub type Time = uom::si::f64::Time;
 
 pub struct TimeManager<'b> {
     /// Identifier for this TimeManager object

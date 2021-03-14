@@ -1,4 +1,5 @@
 use std::rc::{Rc, Weak};
+use std::sync::Arc;
 use std::cell::RefCell;
 use std::any::TypeId;
 use crate::core::hub::EventHub;
@@ -40,7 +41,7 @@ impl<'a> BioComponentInitializer<'a> {
         let connector_weak = Rc::downgrade(&self.connector);
         let component_weak = Rc::downgrade(&self.component);
 
-        let listener_id = self.hub.borrow_mut().on_prioritized(priority, move |evt: Rc<T>| {
+        let listener_id = self.hub.borrow_mut().on_prioritized(priority, move |evt: Arc<T>| {
             match component_weak.upgrade() {
                 Some(component) => {
                     match connector_weak.upgrade() {

@@ -4,12 +4,13 @@ pub mod component;
 
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::any::TypeId;
-use std::sync::Mutex;
+use std::sync::{Mutex, Arc};
 use std::rc::Rc;
 use std::cell::RefCell;
 use time_manager::TimeManager;
 use sim_state::SimState;
 pub use component::{BioComponentInitializer, BioConnector, BioComponent};
+pub use time_manager::Time;
 use crate::core::hub::EventHub;
 
 lazy_static! {
