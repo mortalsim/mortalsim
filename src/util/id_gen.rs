@@ -114,7 +114,7 @@ impl IdGenerator {
 
     /// Returns an identifier to the generator for reuse
     /// 
-    /// # Arguments
+    /// ### Arguments
     /// * `id` - ID to return for reuse
     pub fn return_id(&mut self,  id: IdType) -> Result<()> {
         if self.available_ids.iter().any(|&i| i == id) {

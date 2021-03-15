@@ -40,7 +40,7 @@ impl<'a> fmt::Debug for SubstanceStore<'a> {
 impl<'a> SubstanceStore<'a> {
     /// Constructs a new Substance store with the given identifier and initial volume
     /// 
-    /// # Arguments
+    /// ### Arguments
     /// * `volume` - initial volume
     pub fn new(volume: Volume) -> SubstanceStore<'a> {
         SubstanceStore {
@@ -56,7 +56,7 @@ impl<'a> SubstanceStore<'a> {
 
     /// Determines whether the store has any of the indicated Substance
     /// 
-    /// # Arguments
+    /// ### Arguments
     /// * `substance` - Substance to check
     /// 
     /// Returns true if any amount of that Substance is present, false otherwise
@@ -66,7 +66,7 @@ impl<'a> SubstanceStore<'a> {
     
     /// Retrieves the concentration of a given Substance in the store.
     /// 
-    /// # Arguments
+    /// ### Arguments
     /// * `substance` - Substance to retrieve
     /// 
     /// Returns the amount of that substance, or 0.0 mol/L if it is not present
@@ -79,7 +79,7 @@ impl<'a> SubstanceStore<'a> {
     
     /// Retrieves the amount of a given Substance in the store.
     /// 
-    /// # Arguments
+    /// ### Arguments
     /// * `substance` - Substance to retrieve
     /// 
     /// Returns the amount of that substance, or 0.0 mol if it is not present
@@ -92,7 +92,7 @@ impl<'a> SubstanceStore<'a> {
     
     /// sets the concentration of a given Substance in the store.
     /// 
-    /// # Arguments
+    /// ### Arguments
     /// * `substance` - Substance to set the concentration for
     /// * `concentration` - concentration to set for the Substance
     pub fn set_concentration(&mut self, substance: &Substance, concentration: MolarConcentration) {
@@ -109,7 +109,7 @@ impl<'a> SubstanceStore<'a> {
     
     /// sets the amount of a given Substance in the store.
     /// 
-    /// # Arguments
+    /// ### Arguments
     /// * `substance` - Substance to set the concentration for
     /// * `amount` - amount to set for the Substance
     pub fn set_amount(&mut self, substance: &Substance, amount: AmountOfSubstance) {
@@ -118,7 +118,7 @@ impl<'a> SubstanceStore<'a> {
     
     /// Modifies the volume of this store
     /// 
-    /// # Arguments
+    /// ### Arguments
     /// * `volume` - new volume to set
     pub fn set_volume(&mut self, volume: Volume) {
         self.volume = volume;
@@ -137,7 +137,7 @@ impl<'a> SubstanceStore<'a> {
     /// Merges the provided composition with this store's internal composition, updating
     /// any existing substances and adding any new concentrations
     /// 
-    /// # Arguments
+    /// ### Arguments
     /// * `composition` - the Substance composition to merge
     pub fn merge_composition(&mut self, composition: HashMap<Substance, MolarConcentration>) {
         self.composition.extend(composition);
@@ -145,7 +145,7 @@ impl<'a> SubstanceStore<'a> {
     
     /// Registers a listener for composition changes on a particular substance
     /// 
-    /// # Arguments
+    /// ### Arguments
     /// * `substance` - the Substance to register the listener for
     /// * `listener` - substance change listener function
     /// 
@@ -165,7 +165,7 @@ impl<'a> SubstanceStore<'a> {
     
     /// Removes a listener for composition changes on a particular substance
     /// 
-    /// # Arguments
+    /// ### Arguments
     /// * `substance` - the Substance to the listener is registered for
     /// * `listener_id` - the listener id returned from the call to `on_composition_change`
     /// 
@@ -187,7 +187,7 @@ impl<'a> SubstanceStore<'a> {
     
     /// Registers a listener for any composition changes on this SubstanceStore
     /// 
-    /// # Arguments
+    /// ### Arguments
     /// * `listener` - substance change listener function
     /// 
     /// Returns a unique id for this listener
@@ -199,7 +199,7 @@ impl<'a> SubstanceStore<'a> {
     
     /// Removes a listener for any composition changes on this SubstanceStore
     /// 
-    /// # Arguments
+    /// ### Arguments
     /// * `listener_id` - the listener id returned from the call to `on_any_composition_change`
     /// 
     /// Returns Ok if the id was removed successfully and an InvalidIdError otherwise
@@ -215,7 +215,7 @@ impl<'a> SubstanceStore<'a> {
     
     /// Registers a listener for volume changes on this SubstanceStore
     /// 
-    /// # Arguments
+    /// ### Arguments
     /// * `listener` - volume change listener function
     /// 
     /// Returns a unique id for this listener
@@ -227,7 +227,7 @@ impl<'a> SubstanceStore<'a> {
     
     /// Removes a listener for volume changes on this SubstanceStore
     /// 
-    /// # Arguments
+    /// ### Arguments
     /// * `listener_id` - the listener id returned from the call to `on_any_composition_change`
     /// 
     /// Returns Ok if the id was removed successfully and an InvalidIdError otherwise

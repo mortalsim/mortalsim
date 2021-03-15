@@ -38,6 +38,15 @@ pub mod test {
         fn run(&mut self, connector: &mut BioConnector) {
             let evt_a = connector.get::<TestEventA>().unwrap();
             assert_eq!(evt_a.len, Length::new::<meter>(3.0));
+
+            match connector.get_trigger_event() {
+                None => {
+                    print!("No trigger event");
+                },
+                Some(evt) => {
+                    print!("Trigger event: {:?}", evt);
+                }
+            }
         }
     }
 }

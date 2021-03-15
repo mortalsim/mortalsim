@@ -110,7 +110,7 @@ impl<'b> TimeManager<'b> {
     /// If a negative value is provided, time will immediately jump to
     /// the next scheduled Event, if any.
     /// 
-    /// # Arguments
+    /// ### Arguments
     /// * `time_step` - Amount of time to advance by
     pub fn advance_by(&mut self, time_step: Time) {
         // If the time_step is zero or negative, advance to the next
@@ -126,7 +126,7 @@ impl<'b> TimeManager<'b> {
 
     /// Schedules an `Event` for future emission
     /// 
-    /// # Arguments
+    /// ### Arguments
     /// * `wait_time` - amount of simulation time to wait before emitting the Event
     /// * `event` - Event instance to emit
     /// 
@@ -159,7 +159,7 @@ impl<'b> TimeManager<'b> {
 
     /// Unschedules a previously scheduled `Event`
     /// 
-    /// # Arguments
+    /// ### Arguments
     /// * `schedule_id` - Schedule ID returned by `schedule_event`
     /// 
     /// Returns an Err Result if the provided ID is invalid
@@ -191,7 +191,7 @@ impl<'b> TimeManager<'b> {
     /// If an event listener is already registered, calling this again
     /// will replace it
     /// 
-    /// # Arguments
+    /// ### Arguments
     /// * `listener` - an EventListener function to call when `Event`
     ///                objects are emitted
     pub fn on_event(&mut self, listener: impl FnMut(TypeId, Box<dyn Event>) + 'b) {
@@ -200,7 +200,7 @@ impl<'b> TimeManager<'b> {
 
     /// Registers a listener for time advances
     /// 
-    /// # Arguments
+    /// ### Arguments
     /// * `listener` - function to call when time advances
     pub fn on_advance(&mut self, listener: impl FnMut() + 'b) -> IdType {
         let lis_id = self.id_gen.get_id();
@@ -210,7 +210,7 @@ impl<'b> TimeManager<'b> {
 
     /// Unregisters a previously attached time advance listener
     /// 
-    /// # Arguments
+    /// ### Arguments
     /// * `listener_id` - identifier returned from the call to `on_advance`
     /// 
     /// Returns an `Err` if the provided listener_id is invalid
@@ -223,7 +223,7 @@ impl<'b> TimeManager<'b> {
 
     /// Schedules a callback to be called at a future simulation time
     /// 
-    /// # Arguments
+    /// ### Arguments
     /// * `wait_time` - amount of simulation time to wait before calling the listener
     /// * `listener` - function to call at the scheduled time
     /// 
@@ -256,7 +256,7 @@ impl<'b> TimeManager<'b> {
 
     /// Unschedules a previously scheduled listener
     /// 
-    /// # Arguments
+    /// ### Arguments
     /// * `listener_id` - The identifier returned from the call to `schedule_callback`
     /// 
     /// Returns an `Err` if the provided listener_id is invalid

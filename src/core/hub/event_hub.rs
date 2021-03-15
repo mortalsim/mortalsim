@@ -62,7 +62,7 @@ impl<'a> EventHub<'a> {
     /// Dispatches an Event. First calls any registered transformers for the
     /// Event, then passes the event to all listeners.
     ///
-    /// # Arguments
+    /// ### Arguments
     /// * `evt` - Event to dispatch
     pub fn emit<T: Event>(&mut self, evt: T) {
         let type_key = TypeId::of::<T>();
@@ -71,7 +71,7 @@ impl<'a> EventHub<'a> {
     
     /// Dispatches an Event trait object with it's given type.
     ///
-    /// # Arguments
+    /// ### Arguments
     /// * `evt`      - Event to dispatch
     /// * `type_key` - TypeId of the event
     pub(crate) fn emit_typed(&mut self, type_key: TypeId, mut evt: Box<dyn Event>) {
@@ -114,7 +114,7 @@ impl<'a> EventHub<'a> {
 
     /// Registers a listener for any Event. 
     ///
-    /// # Arguments
+    /// ### Arguments
     /// * `handler` - Event handling function
     /// 
     /// Returns the registration ID for the listener
@@ -125,7 +125,7 @@ impl<'a> EventHub<'a> {
     /// Registers a listener for any Event with the given priority value. Higher
     /// priority listeners are executed first.
     ///
-    /// # Arguments
+    /// ### Arguments
     /// * `priority` - Priority of the listener
     /// * `handler` - Event handling function
     /// 
@@ -154,7 +154,7 @@ impl<'a> EventHub<'a> {
     /// Unregisters a listener for any Event with the given registration ID returned
     /// from the call to `on_any` or `on_any_prioritized`.
     ///
-    /// # Arguments
+    /// ### Arguments
     /// * `listener_id` - listener registration ID
     /// 
     /// Returns Ok if successful, or Err if the provided ID is invalid.
@@ -170,7 +170,7 @@ impl<'a> EventHub<'a> {
 
     /// Registers a listener for a specific Event. 
     ///
-    /// # Arguments
+    /// ### Arguments
     /// * `handler` - Event handling function
     /// 
     /// Returns the registration ID for the listener
@@ -181,7 +181,7 @@ impl<'a> EventHub<'a> {
     /// Registers a listener for a specific Event with the given priority value.
     /// Higher priority listeners are executed first.
     ///
-    /// # Arguments
+    /// ### Arguments
     /// * `priority` - Priority of the listener
     /// * `handler` - Event handling function
     /// 
@@ -224,7 +224,7 @@ impl<'a> EventHub<'a> {
     /// Unregisters a listener for a specific Event with the given registration ID returned
     /// from the call to `on` or `on_prioritized`.
     ///
-    /// # Arguments
+    /// ### Arguments
     /// * `listener_id` - listener registration ID
     /// 
     /// Returns Ok if successful, or Err if the provided ID is invalid.
@@ -247,7 +247,7 @@ impl<'a> EventHub<'a> {
 
     /// Registers a transformer for a specific Event. 
     ///
-    /// # Arguments
+    /// ### Arguments
     /// * `handler` - Event transforming function
     /// 
     /// Returns the registration ID for the transformer
@@ -258,7 +258,7 @@ impl<'a> EventHub<'a> {
     /// Registers a transformer for a specific Event with the given priority. Higher
     /// priority transformers are executed first.
     ///
-    /// # Arguments
+    /// ### Arguments
     /// * `handler` - Event transforming function
     /// * `priority` - Priority of the transformer
     /// 
@@ -299,7 +299,7 @@ impl<'a> EventHub<'a> {
     /// Unregisters a transformer for a specific Event with the given registration ID returned
     /// from the call to `transform` or `transform_prioritized`.
     ///
-    /// # Arguments
+    /// ### Arguments
     /// * `transformer_id` - transformer registration ID
     /// 
     /// Returns Ok if successful, or Err if the provided ID is invalid.
@@ -323,7 +323,7 @@ impl<'a> EventHub<'a> {
     /// Registers a listener for Event's which have completed emittion. Ownership of the Event
     /// is transferred to the target function.
     ///
-    /// # Arguments
+    /// ### Arguments
     /// * `handler` - Function to own the emitted Event
     pub(crate) fn on_emitted(&mut self, handler: impl FnMut(TypeId, Arc<dyn Event>) + 'a) {
         self.on_emitted_fn = Some(Box::new(handler));

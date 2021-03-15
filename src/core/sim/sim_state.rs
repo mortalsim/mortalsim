@@ -61,7 +61,7 @@ impl SimState {
 
     /// Adds an Event to the state given it's TypeId
     /// 
-    /// # Arguments
+    /// ### Arguments
     /// * `type_key` - type of the `Event` object
     /// * `event`    - owned `Event` object to set
     /// 
@@ -74,7 +74,7 @@ impl SimState {
     /// Sets an `Event` object on the current state. The previous `Event`
     /// of this type (if any) will be replaced with the new `Event`
     /// 
-    /// # Arguments
+    /// ### Arguments
     /// * `event` - `Event` object to set
     /// 
     /// returns previously stored `Event` or `None`
@@ -88,7 +88,7 @@ impl SimState {
     /// The previous `Event` of this type (if any) will be replaced with
     /// the new `Event`
     /// 
-    /// # Arguments
+    /// ### Arguments
     /// * `event` - `Event` object to set
     /// 
     /// returns previously stored `Event` or `None`
@@ -110,7 +110,7 @@ impl SimState {
     /// Merges tainted Events from the target `SimState` to this one, overwriting
     /// any matching `Events` which exist in this `SimState`.
     /// 
-    /// # Arguments
+    /// ### Arguments
     /// * `other` - Other `SimState` to merge into this one
     pub fn merge_tainted(&mut self, other: &Self) {
         for type_key in other.tainted_states.iter() {
@@ -121,7 +121,7 @@ impl SimState {
     /// Merges all Events from the target `SimState` to this one, overwriting
     /// any matching `Events` which exist in this `SimState`.
     /// 
-    /// # Arguments
+    /// ### Arguments
     /// * `other` - Other `SimState` to merge into this one
     pub fn merge_all(&mut self, other: &Self) {
         for (type_key, evt_rc) in other.state.iter() {

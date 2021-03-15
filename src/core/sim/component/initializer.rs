@@ -12,7 +12,6 @@ pub struct BioComponentInitializer<'a> {
     pub(in super::super) connector: Rc<RefCell<BioConnector<'a>>>,
     component: Rc<RefCell<Box<dyn BioComponent>>>,
     hub: Rc<RefCell<EventHub<'a>>>,
-    time_manager: Rc<RefCell<TimeManager<'a>>>,
     listener_ids: Vec<IdType>,
     transformer_ids: Vec<IdType>,
 }
@@ -20,10 +19,9 @@ pub struct BioComponentInitializer<'a> {
 impl<'a> BioComponentInitializer<'a> {
     pub fn new(time_manager: Rc<RefCell<TimeManager<'a>>>, hub: Rc<RefCell<EventHub<'a>>>, component: Rc<RefCell<Box<dyn BioComponent>>>) -> BioComponentInitializer<'a> {
         BioComponentInitializer {
-            connector: Rc::new(RefCell::new(BioConnector::new(SimState::new(), time_manager.clone(), hub.clone()))),
+            connector: Rc::new(RefCell::new(BioConnector::new(time_manager.clone()))),
             component: component,
             hub: hub,
-            time_manager: time_manager,
             listener_ids: Vec::new(),
             transformer_ids: Vec::new(),
         }
@@ -48,7 +46,7 @@ impl<'a> BioComponentInitializer<'a> {
                         Some(connector) => {
                             let mut conn = connector.borrow_mut();
                             conn.local_state.put_state(TypeId::of::<T>(), evt.clone());
-                            conn.set_trigger_event(evt);
+                            conn.set_trigger(evt);
                             component.borrow_mut().run(&mut conn);
                         },
                         None => {}

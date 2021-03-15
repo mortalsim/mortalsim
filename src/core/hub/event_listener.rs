@@ -18,7 +18,7 @@ lazy_static! {
 pub trait EventListener {
     /// Calls this listener's handler function with the given Event
     ///
-    /// # Arguments
+    /// ### Arguments
     /// * `evt` - Event to dispatch to the handler function
     fn handle(&mut self, evt: Arc<dyn Event>);
 
@@ -71,7 +71,7 @@ impl<'a> GenericListener<'a> {
     /// Creates a new GenericListener for the given handler function with
     /// the default priority of 0
     ///
-    /// # Arguments
+    /// ### Arguments
     /// * `id` - Identifier for this listener
     pub fn new(handler: impl FnMut(Arc<dyn Event>) + 'a) -> GenericListener<'a> {
         GenericListener {
@@ -83,7 +83,7 @@ impl<'a> GenericListener<'a> {
     /// Creates a new GenericListener for the given handler function
     /// and priority of execution
     /// 
-    /// # Arguments
+    /// ### Arguments
     /// * `handler`  - Event handling function
     /// * `priority` - determines this listener's priority when Events
     ///                are dispatched. Higher priority listeners are
@@ -132,7 +132,7 @@ impl<'a, T: Event> ListenerItem<'a, T> {
     /// Creates a new ListenerItem for the given handler function with
     /// the default priority of 0
     ///
-    /// # Arguments
+    /// ### Arguments
     /// * `id` - Identifier for this listener
     pub fn new(handler: impl FnMut(Arc<T>) + 'a) -> ListenerItem<'a, T> {
         ListenerItem {
@@ -144,7 +144,7 @@ impl<'a, T: Event> ListenerItem<'a, T> {
     /// Creates a new ListenerItem for the given handler function
     /// and priority of execution
     /// 
-    /// # Arguments
+    /// ### Arguments
     /// * `handler`  - Event handling function
     /// * `priority` - determines this listener's priority when Events
     ///                are dispatched. Higher priority listeners are

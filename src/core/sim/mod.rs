@@ -6,9 +6,10 @@ use std::collections::{HashMap, HashSet, VecDeque};
 use std::any::TypeId;
 use std::sync::{Mutex, Arc};
 use std::rc::Rc;
-use std::cell::RefCell;
+use std::cell::{Ref, RefCell};
 use time_manager::TimeManager;
 use sim_state::SimState;
+use crate::event::Event;
 pub use component::{BioComponentInitializer, BioConnector, BioComponent};
 pub use time_manager::Time;
 use crate::core::hub::EventHub;
@@ -21,7 +22,7 @@ pub struct Sim<'a> {
     initializers: Vec<BioComponentInitializer<'a>>,
     hub: Rc<RefCell<EventHub<'a>>>,
     time_manager: Rc<RefCell<TimeManager<'a>>>,
-    state: SimState,
+    state: Rc<RefCell<SimState>>,
 }
 
 impl<'a> Sim<'a> {
@@ -30,7 +31,7 @@ impl<'a> Sim<'a> {
             initializers: Vec::new(),
             hub: Rc::new(RefCell::new(EventHub::new())),
             time_manager: Rc::new(RefCell::new(TimeManager::new())),
-            state: SimState::new(),
+            state: Rc::new(RefCell::new(SimState::new())),
         }
     }
 
@@ -85,7 +86,7 @@ impl<'a> Sim<'a> {
             component_ref.borrow_mut().init(&mut initializer);
 
             // set initial state
-            self.state.merge_tainted(&initializer.connector.borrow().local_state);
+            self.state.borrow_mut().merge_tainted(&initializer.connector.borrow().local_state);
             initializer.connector.borrow_mut().local_state.clear_taint();
 
             self.initializers.push(initializer);
@@ -95,7 +96,24 @@ impl<'a> Sim<'a> {
         for initializer in self.initializers.iter_mut() {
 
             // Merge the canonical Sim state to the component's local state
-            initializer.connector.borrow_mut().local_state.merge_all(&self.state);
+            initializer.connector.borrow_mut().local_state.merge_all(&self.state.borrow());
+        }
+    }
+
+    /// Retrieves the current `Event` object from state
+    pub fn get<T: Event>(&self) -> Option<Arc<T>> {
+        match self.state.borrow().get_state_ref(&TypeId::of::<T>()) {
+            None => None,
+            Some(trait_evt) => {
+                match trait_evt.downcast_arc::<T>() {
+                    Ok(evt) => {
+                        Some(evt)
+                    }
+                    Err(_) => {
+                        panic!("Event unable to downcast properly! Something went horribly wrong...")
+                    }
+                }
+            }
         }
     }
 }

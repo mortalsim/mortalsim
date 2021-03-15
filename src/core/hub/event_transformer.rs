@@ -17,7 +17,7 @@ lazy_static! {
 pub trait EventTransformer {
     /// Calls this transformer's handler function with the given Event
     ///
-    /// # Arguments
+    /// ### Arguments
     /// * `evt` - Event to dispatch to the handler function
     fn transform(&mut self, evt: &mut dyn Event);
 
@@ -70,7 +70,7 @@ impl<'a, T: Event> TransformerItem<'a, T> {
     /// Creates a new TransformerItem for the given handler with
     /// the default priority of 0
     ///
-    /// # Arguments
+    /// ### Arguments
     /// * `handler` - Event transforming function
     pub fn new(handler: impl FnMut(&mut T) + 'a) -> TransformerItem<'a, T> {
         TransformerItem {
@@ -82,7 +82,7 @@ impl<'a, T: Event> TransformerItem<'a, T> {
     /// Creates a new TransformerItem for the given handler and
     /// priority of execution
     ///
-    /// # Arguments
+    /// ### Arguments
     /// * `handler` - Event transforming function
     /// * `priority` - Event transforming function
     /// * `priority` - determines this transformer's priority when Events
