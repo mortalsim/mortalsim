@@ -7,6 +7,8 @@ use std::any::TypeId;
 use std::sync::{Mutex, Arc};
 use std::rc::Rc;
 use std::cell::{Ref, RefCell};
+use uuid::Uuid;
+use anyhow::Result;
 use time_manager::TimeManager;
 use sim_state::SimState;
 use crate::event::Event;
@@ -19,7 +21,8 @@ lazy_static! {
 }
 
 pub struct Sim<'a> {
-    initializers: Vec<BioComponentInitializer<'a>>,
+    sim_id: Uuid,
+    active_components: HashMap<&'static str, BioComponentInitializer<'a>>,
     hub: Rc<RefCell<EventHub<'a>>>,
     time_manager: Rc<RefCell<TimeManager<'a>>>,
     state: Rc<RefCell<SimState>>,
@@ -28,7 +31,8 @@ pub struct Sim<'a> {
 impl<'a> Sim<'a> {
     fn get_object() -> Sim<'a> {
         Sim {
-            initializers: Vec::new(),
+            sim_id: Uuid::new_v4(),
+            active_components: HashMap::new(),
             hub: Rc::new(RefCell::new(EventHub::new())),
             time_manager: Rc::new(RefCell::new(TimeManager::new())),
             state: Rc::new(RefCell::new(SimState::new())),
@@ -43,57 +47,64 @@ impl<'a> Sim<'a> {
     pub fn new() -> Sim<'a> {
         let mut sim = Self::get_object();
 
-        // build our list of components
-        let mut component_list = Vec::new();
-        for (component_name, factory) in COMPONENT_REGISTRY.lock().unwrap().iter_mut() {
-            log::debug!("Adding component \"{}\" to new Sim", component_name);
-            component_list.push(factory());
-        }
-
-        sim.init(component_list);
+        // our list of components is all that currently exist in the registry by default
+        let components = COMPONENT_REGISTRY.lock().unwrap().keys().cloned().collect();
+        sim.init(components);
 
         sim
     }
     
-    pub fn new_custom(component_set: HashSet<&str>) -> Sim<'a> {
+    pub fn new_custom(component_set: HashSet<&'static str>) -> Sim<'a> {
         let mut sim = Self::get_object();
-        
-        // build our list of components
-        let mut component_list = Vec::new();
-        for component_name in component_set {
+        sim.init(component_set);
+        sim
+    }
+
+    fn active_components(&self) -> HashSet<&'static str> {
+        self.active_components.keys().cloned().collect()
+    }
+
+    fn add_component(&mut self, component_name: &'static str) {
+        let mut set = HashSet::new();
+        set.insert(component_name);
+        self.init(set);
+    }
+    
+    fn add_components(&mut self, component_names: HashSet<&'static str>) {
+        self.init(component_names);
+    }
+
+    fn remove_component(&mut self, component_name: &'static str) -> Result<()> {
+        match self.active_components.remove(component_name) {
+            Some(_) => Ok(()),
+            None => Err(anyhow!("Invalid component name \"{}\" provided for removal", component_name))
+        }
+    }
+
+    fn init(&mut self, component_names: HashSet<&'static str>) {
+
+        // Initialize each component
+        for component_name in component_names.into_iter() {
+            log::debug!("Initializing component \"{}\" on Sim", component_name);
             match COMPONENT_REGISTRY.lock().unwrap().get_mut(component_name) {
+                None => panic!("Invalid component name provided: \"{}\"", component_name),
                 Some(factory) => {
-                    log::debug!("Adding component \"{}\" to new Sim", component_name);
-                    component_list.push(factory());
-                }
-                None => {
-                    panic!("Invalid component name provided: \"{}\"", component_name);
+                    let component = factory();
+                    let component_ref = Rc::new(RefCell::new(component));
+                    let mut initializer = BioComponentInitializer::new(self.time_manager.clone(), self.hub.clone(), component_ref.clone());
+                    component_ref.borrow_mut().init(&mut initializer);
+
+                    // set initial state
+                    self.state.borrow_mut().merge_tainted(&initializer.connector.borrow().local_state);
+                    initializer.connector.borrow_mut().local_state.clear_taint();
+
+                    self.active_components.insert(component_name, initializer);
                 }
             }
         }
 
-        sim.init(component_list);
-
-        sim
-    }
-
-    fn init(&mut self, component_list: Vec<Box<dyn BioComponent>>) {
-
-        // Initialize each component
-        for component in component_list.into_iter() {
-            let component_ref = Rc::new(RefCell::new(component));
-            let mut initializer = BioComponentInitializer::new(self.time_manager.clone(), self.hub.clone(), component_ref.clone());
-            component_ref.borrow_mut().init(&mut initializer);
-
-            // set initial state
-            self.state.borrow_mut().merge_tainted(&initializer.connector.borrow().local_state);
-            initializer.connector.borrow_mut().local_state.clear_taint();
-
-            self.initializers.push(initializer);
-        }
-
-        // Create the runtime connector for each component and set initial state
-        for initializer in self.initializers.iter_mut() {
+        // Set state for each component
+        for (_, initializer) in self.active_components.iter_mut() {
 
             // Merge the canonical Sim state to the component's local state
             initializer.connector.borrow_mut().local_state.merge_all(&self.state.borrow());
@@ -101,7 +112,7 @@ impl<'a> Sim<'a> {
     }
 
     /// Retrieves the current `Event` object from state
-    pub fn get<T: Event>(&self) -> Option<Arc<T>> {
+    pub fn get_state<T: Event>(&self) -> Option<Arc<T>> {
         match self.state.borrow().get_state_ref(&TypeId::of::<T>()) {
             None => None,
             Some(trait_evt) => {
