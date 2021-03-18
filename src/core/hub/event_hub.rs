@@ -325,7 +325,7 @@ impl<'a> EventHub<'a> {
     ///
     /// ### Arguments
     /// * `handler` - Function to own the emitted Event
-    pub(crate) fn on_emitted(&mut self, handler: impl FnMut(TypeId, Arc<dyn Event>) + 'a) {
+    pub(super) fn on_emitted(&mut self, handler: impl FnMut(TypeId, Arc<dyn Event>) + 'a) {
         self.on_emitted_fn = Some(Box::new(handler));
     }
 }

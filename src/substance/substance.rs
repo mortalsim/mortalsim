@@ -10,7 +10,6 @@ use uom::si::molar_mass::kilogram_per_mole;
 /// Variations are suffixed with appropriate identifiers
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Substance {
-    None,
     ADP,  // Adenosine Diphosphate (ADP)
     AMP,  // Adenosine Monophosphate (AMP)
     ATP,  // Adenosine Triphosphate (ATP)
@@ -46,7 +45,6 @@ impl Substance {
     /// Full substance name
     fn name(&self) -> &'static str {
         match self {
-            Substance::None => "None",
             Substance::ADP  => "Adenosine Diphosphate",
             Substance::AMP  => "Adenosine Monophosphate",
             Substance::ATP  => "Adenosine Triphosphate",
@@ -75,7 +73,6 @@ impl Substance {
     /// Overall substance charge
     fn charge(&self) -> i8 {
         match self {
-            Substance::None => 0,
             Substance::ADP  => 0,
             Substance::AMP  => 0,
             Substance::ATP  => 0,
@@ -104,7 +101,6 @@ impl Substance {
     /// Typical molar mass of the substance
     fn molar_mass(&self) -> MolarMass {
         match self {
-            Substance::None => MolarMass::new::<gram_per_mole>(0.0),
             Substance::ADP  => MolarMass::new::<gram_per_mole>(427.201),
             Substance::AMP  => MolarMass::new::<gram_per_mole>(347.2212),
             Substance::ATP  => MolarMass::new::<gram_per_mole>(507.18),

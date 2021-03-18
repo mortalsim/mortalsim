@@ -44,7 +44,7 @@ impl SimState {
     /// Checks whether an `Event` exists in this state for a given `Event` type
     /// 
     /// returns `true` if it exists or `false` otherwise
-    pub fn has_state<T: Event>(&mut self) -> bool {
+    pub fn has_state<T: Event>(&self) -> bool {
         let type_id = TypeId::of::<T>();
         self.state.contains_key(&type_id)
     }

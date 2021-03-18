@@ -39,7 +39,7 @@ pub struct TimeManager<'b> {
 
 impl<'b> fmt::Debug for TimeManager<'b> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "TimeManager<{:?}> {{ sim_time: {:?}, event_queue: {:?}, advance_listener_ids: {:?}, scheduled_listener_times: {:?} }}",
+        write!(f, "TimeManager({:?}) {{ sim_time: {:?}, event_queue: {:?}, advance_listener_ids: {:?}, scheduled_listener_times: {:?} }}",
             self.manager_id,
             self.sim_time,
             self.event_queue,
@@ -68,9 +68,9 @@ impl<'b> TimeManager<'b> {
         self.sim_time
     }
 
-    /// Advances simulation time to the next `Event` in the queue, if any.
+    /// Advances simulation time to the next `Event` or listener in the queue, if any.
     /// 
-    /// If there are no Events in the queue, time will remain unchanged
+    /// If there are no Events or listeners in the queue, time will remain unchanged
     pub fn advance(&mut self) {
         log::debug!("Advancing time for TimeManager {}", self.manager_id);
 

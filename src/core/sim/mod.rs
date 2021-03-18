@@ -15,6 +15,7 @@ use crate::event::Event;
 pub use component::{BioComponentInitializer, BioConnector, BioComponent};
 pub use time_manager::Time;
 use crate::core::hub::EventHub;
+use crate::util::id_gen::IdType;
 
 lazy_static! {
     static ref COMPONENT_REGISTRY: Mutex<HashMap<&'static str, Box<dyn FnMut() -> Box<dyn BioComponent> + Send>>> = Mutex::new(HashMap::new());
@@ -29,13 +30,13 @@ pub struct Sim<'a> {
 }
 
 impl<'a> Sim<'a> {
-    fn get_object() -> Sim<'a> {
+    fn get_object(initial_state: SimState) -> Sim<'a> {
         Sim {
             sim_id: Uuid::new_v4(),
             active_components: HashMap::new(),
             hub: Rc::new(RefCell::new(EventHub::new())),
             time_manager: Rc::new(RefCell::new(TimeManager::new())),
-            state: Rc::new(RefCell::new(SimState::new())),
+            state: Rc::new(RefCell::new(initial_state)),
         }
     }
 
@@ -45,19 +46,42 @@ impl<'a> Sim<'a> {
     }
 
     pub fn new() -> Sim<'a> {
-        let mut sim = Self::get_object();
-
-        // our list of components is all that currently exist in the registry by default
-        let components = COMPONENT_REGISTRY.lock().unwrap().keys().cloned().collect();
-        sim.init(components);
-
+        let mut sim = Self::get_object(SimState::new());
+        let component_set = COMPONENT_REGISTRY.lock().unwrap().keys().cloned().collect();
+        sim.setup(component_set);
         sim
     }
     
     pub fn new_custom(component_set: HashSet<&'static str>) -> Sim<'a> {
-        let mut sim = Self::get_object();
-        sim.init(component_set);
+        let mut sim = Self::get_object(SimState::new());
+        sim.setup(component_set);
         sim
+    }
+    
+    pub fn new_with_state(initial_state: SimState) -> Sim<'a> {
+        let mut sim = Self::get_object(initial_state);
+        let component_set = COMPONENT_REGISTRY.lock().unwrap().keys().cloned().collect();
+        sim.setup(component_set);
+        sim
+    }
+    
+    pub fn new_custom_with_state(component_set: HashSet<&'static str>, initial_state: SimState) -> Sim<'a> {
+        let mut sim = Self::get_object(initial_state);
+        sim.setup(component_set);
+        sim
+    }
+
+    /// Initial setup for the simulation
+    fn setup(&mut self, component_names: HashSet<&'static str>) {
+        let hub_ref = self.hub.clone();
+
+        // Hookup events from the time manager to be emitted on the hub
+        // when they emerge from the queue
+        self.time_manager.borrow_mut().on_event(move |evt_type, evt| {
+            hub_ref.borrow_mut().emit_typed(evt_type, evt)
+        });
+
+        self.init_components(component_names);
     }
 
     fn active_components(&self) -> HashSet<&'static str> {
@@ -67,11 +91,11 @@ impl<'a> Sim<'a> {
     fn add_component(&mut self, component_name: &'static str) {
         let mut set = HashSet::new();
         set.insert(component_name);
-        self.init(set);
+        self.init_components(set);
     }
     
     fn add_components(&mut self, component_names: HashSet<&'static str>) {
-        self.init(component_names);
+        self.init_components(component_names);
     }
 
     fn remove_component(&mut self, component_name: &'static str) -> Result<()> {
@@ -81,7 +105,7 @@ impl<'a> Sim<'a> {
         }
     }
 
-    fn init(&mut self, component_names: HashSet<&'static str>) {
+    fn init_components(&mut self, component_names: HashSet<&'static str>) {
 
         // Initialize each component
         for component_name in component_names.into_iter() {
@@ -111,7 +135,13 @@ impl<'a> Sim<'a> {
         }
     }
 
-    /// Retrieves the current `Event` object from state
+    /// Returns true if the given Event type exists on the Sim's current
+    /// state, false otherwise
+    pub fn has_state<T: Event>(&self) -> bool {
+        self.state.borrow().has_state::<T>()
+    }
+
+    /// Retrieves a current `Event` object from state, if it exists
     pub fn get_state<T: Event>(&self) -> Option<Arc<T>> {
         match self.state.borrow().get_state_ref(&TypeId::of::<T>()) {
             None => None,
@@ -126,6 +156,197 @@ impl<'a> Sim<'a> {
                 }
             }
         }
+    }
+
+    /// Dispatches an Event. First calls any registered transformers for the
+    /// Event, then passes the event to all listeners.
+    ///
+    /// ### Arguments
+    /// * `evt` - Event to dispatch
+    pub fn emit<T: Event>(&mut self, evt: T) {
+        self.hub.borrow_mut().emit(evt)
+    }
+    
+    /// Registers a listener for any Event. 
+    ///
+    /// ### Arguments
+    /// * `handler` - Event handling function
+    /// 
+    /// Returns the registration ID for the listener
+    pub fn on_any(&mut self, listener: impl FnMut(Arc<dyn Event>) + 'a) -> IdType {
+        self.hub.borrow_mut().on_any(listener)
+    }
+
+    /// Registers a listener for any Event with the given priority value. Higher
+    /// priority listeners are executed first.
+    ///
+    /// ### Arguments
+    /// * `priority` - Priority of the listener
+    /// * `handler` - Event handling function
+    /// 
+    /// Returns the registration ID for the listener
+    pub fn on_any_prioritized(&mut self, priority: i32, handler: impl FnMut(Arc<dyn Event>) + 'a) -> IdType {
+        self.hub.borrow_mut().on_any_prioritized(priority, handler)
+    }
+    
+    /// Unregisters a listener for any Event with the given registration ID returned
+    /// from the call to `on_any` or `on_any_prioritized`.
+    ///
+    /// ### Arguments
+    /// * `listener_id` - listener registration ID
+    /// 
+    /// Returns Ok if successful, or Err if the provided ID is invalid.
+    pub fn off_any(&mut self, listener_id: IdType) -> Result<()> {
+        self.hub.borrow_mut().off_any(listener_id)
+    }
+
+    /// Registers a listener for a specific Event. 
+    ///
+    /// ### Arguments
+    /// * `handler` - Event handling function
+    /// 
+    /// Returns the registration ID for the listener
+    pub fn on<T: Event>(&mut self, handler: impl FnMut(Arc<T>) + 'a) -> IdType {
+        self.hub.borrow_mut().on(handler)
+    }
+    
+    /// Registers a listener for a specific Event with the given priority value.
+    /// Higher priority listeners are executed first.
+    ///
+    /// ### Arguments
+    /// * `priority` - Priority of the listener
+    /// * `handler` - Event handling function
+    /// 
+    /// Returns the registration ID for the listener
+    pub fn on_prioritized<T: Event>(&mut self, priority: i32, handler: impl FnMut(Arc<T>) + 'a) -> IdType {
+        self.hub.borrow_mut().on_prioritized(priority, handler)
+    }
+
+    /// Unregisters a listener for a specific Event with the given registration ID returned
+    /// from the call to `on` or `on_prioritized`.
+    ///
+    /// ### Arguments
+    /// * `listener_id` - listener registration ID
+    /// 
+    /// Returns Ok if successful, or Err if the provided ID is invalid.
+    pub fn off(&mut self, listener_id: IdType) -> Result<()> {
+        self.hub.borrow_mut().off(listener_id)
+    }
+    
+    /// Registers a transformer for a specific Event. 
+    ///
+    /// ### Arguments
+    /// * `handler` - Event transforming function
+    /// 
+    /// Returns the registration ID for the transformer
+    pub fn transform<T: Event>(&mut self, handler: impl FnMut(&mut T) + 'a) -> IdType {
+        self.hub.borrow_mut().transform(handler)
+    }
+    
+    /// Registers a transformer for a specific Event with the given priority. Higher
+    /// priority transformers are executed first.
+    ///
+    /// ### Arguments
+    /// * `handler` - Event transforming function
+    /// * `priority` - Priority of the transformer
+    /// 
+    /// Returns the registration ID for the transformer
+    pub fn transform_prioritized<T: Event>(&mut self, priority: i32, handler: impl FnMut(&mut T) + 'a) -> IdType {
+        self.hub.borrow_mut().transform_prioritized(priority, handler)
+    }
+
+    /// Unregisters a transformer for a specific Event with the given registration ID returned
+    /// from the call to `transform` or `transform_prioritized`.
+    ///
+    /// ### Arguments
+    /// * `transformer_id` - transformer registration ID
+    /// 
+    /// Returns Ok if successful, or Err if the provided ID is invalid.
+    pub fn unset_transform(&mut self, transformer_id: IdType) -> Result<()> {
+        self.hub.borrow_mut().unset_transform(transformer_id)
+    }
+
+    /// Returns the current simulation time
+    pub fn get_time(&self) -> Time {
+        self.time_manager.borrow().get_time()
+    }
+
+    /// Advances simulation time to the next `Event` or listener in the queue, if any.
+    /// 
+    /// If there are no Events or listeners in the queue, time will remain unchanged
+    pub fn advance(&mut self) {
+        self.time_manager.borrow_mut().advance()
+    }
+
+    /// Advances simulation time by the provided time step
+    /// 
+    /// If a negative value is provided, time will immediately jump to
+    /// the next scheduled Event, if any.
+    /// 
+    /// ### Arguments
+    /// * `time_step` - Amount of time to advance by
+    pub fn advance_by(&mut self, time_step: Time) {
+        self.time_manager.borrow_mut().advance_by(time_step)
+    }
+
+    /// Schedules an `Event` for future emission on this simulation
+    /// 
+    /// ### Arguments
+    /// * `wait_time` - amount of simulation time to wait before emitting the Event
+    /// * `event` - Event instance to emit
+    /// 
+    /// Returns the schedule ID
+    pub fn schedule_event<T: Event>(&mut self, wait_time: Time, event: T) -> IdType {
+        self.time_manager.borrow_mut().schedule_event(wait_time, event)
+    }
+
+    /// Unschedules a previously scheduled `Event`
+    /// 
+    /// ### Arguments
+    /// * `schedule_id` - Schedule ID returned by `schedule_event`
+    /// 
+    /// Returns an Err Result if the provided ID is invalid
+    pub fn unschedule_event(&mut self, schedule_id: IdType) -> Result<()> {
+        self.time_manager.borrow_mut().unschedule_event(schedule_id)
+    }
+
+    /// Registers a listener for time advances
+    /// 
+    /// ### Arguments
+    /// * `listener` - function to call when time advances
+    pub fn on_advance(&mut self, listener: impl FnMut() + 'a) -> IdType {
+        self.time_manager.borrow_mut().on_advance(listener)
+    }
+
+    /// Unregisters a previously attached time advance listener
+    /// 
+    /// ### Arguments
+    /// * `listener_id` - identifier returned from the call to `on_advance`
+    /// 
+    /// Returns an `Err` if the provided listener_id is invalid
+    pub fn off_advance(&mut self, listener_id: IdType) -> Result<()> {
+        self.time_manager.borrow_mut().off_advance(listener_id)
+    }
+
+    /// Schedules a callback to be called at a future simulation time
+    /// 
+    /// ### Arguments
+    /// * `wait_time` - amount of simulation time to wait before calling the listener
+    /// * `listener` - function to call at the scheduled time
+    /// 
+    /// Returns an ID for the scheduled listener
+    pub fn schedule_callback(&mut self, wait_time: Time, listener: impl FnOnce() + 'a) -> IdType {
+        self.time_manager.borrow_mut().schedule_callback(wait_time, listener)
+    }
+
+    /// Unschedules a previously scheduled listener
+    /// 
+    /// ### Arguments
+    /// * `listener_id` - The identifier returned from the call to `schedule_callback`
+    /// 
+    /// Returns an `Err` if the provided listener_id is invalid
+    pub fn unschedule_callback(&mut self, listener_id: IdType) -> Result<()> {
+        self.time_manager.borrow_mut().unschedule_callback(listener_id)
     }
 }
 
