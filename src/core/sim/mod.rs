@@ -12,24 +12,35 @@ use anyhow::Result;
 use time_manager::TimeManager;
 use sim_state::SimState;
 use crate::event::Event;
-pub use component::{BioComponentInitializer, BioConnector, BioComponent};
+pub use component::{SimComponentInitializer, SimConnector, SimComponent};
 pub use time_manager::Time;
 use crate::core::hub::EventHub;
 use crate::util::id_gen::IdType;
 
 lazy_static! {
-    static ref COMPONENT_REGISTRY: Mutex<HashMap<&'static str, Box<dyn FnMut() -> Box<dyn BioComponent> + Send>>> = Mutex::new(HashMap::new());
+    static ref COMPONENT_REGISTRY: Mutex<HashMap<&'static str, Box<dyn FnMut() -> Box<dyn SimComponent> + Send>>> = Mutex::new(HashMap::new());
 }
 
 pub struct Sim<'a> {
     sim_id: Uuid,
-    active_components: HashMap<&'static str, BioComponentInitializer<'a>>,
+    active_components: HashMap<&'static str, SimComponentInitializer<'a>>,
     hub: Rc<RefCell<EventHub<'a>>>,
     time_manager: Rc<RefCell<TimeManager<'a>>>,
     state: Rc<RefCell<SimState>>,
 }
 
 impl<'a> Sim<'a> {
+    /// Registers a Sim component. By default, the component will be added to all newly created Sim objects
+    ///
+    /// ### Arguments
+    /// * `component_name` - String name for the component
+    /// * `factory`        - Factory function which creates an instance of the component
+    pub fn register_component(component_name: &'static str, factory: impl FnMut() -> Box<dyn SimComponent> + Send + 'static) {
+        log::debug!("Registering component {}", component_name);
+        COMPONENT_REGISTRY.lock().unwrap().insert(component_name, Box::new(factory));
+    }
+    
+    /// Internal function for creating a Sim object with initial SimState
     fn get_object(initial_state: SimState) -> Sim<'a> {
         Sim {
             sim_id: Uuid::new_v4(),
@@ -40,11 +51,8 @@ impl<'a> Sim<'a> {
         }
     }
 
-    pub fn register_component(component_name: &'static str, factory: impl FnMut() -> Box<dyn BioComponent> + Send + 'static) {
-        log::debug!("Registering component {}", component_name);
-        COMPONENT_REGISTRY.lock().unwrap().insert(component_name, Box::new(factory));
-    }
-
+    /// Creates a Sim with the default set of components which is equal to all registered
+    /// components at the time of execution.
     pub fn new() -> Sim<'a> {
         let mut sim = Self::get_object(SimState::new());
         let component_set = COMPONENT_REGISTRY.lock().unwrap().keys().cloned().collect();
@@ -52,12 +60,24 @@ impl<'a> Sim<'a> {
         sim
     }
     
+    /// Creates a Sim with custom components.
+    ///
+    /// ### Arguments
+    /// * `component_set` - Set of components to add on initialization
+    /// 
+    /// Returns a new Sim object
     pub fn new_custom(component_set: HashSet<&'static str>) -> Sim<'a> {
         let mut sim = Self::get_object(SimState::new());
         sim.setup(component_set);
         sim
     }
     
+    /// Creates a Sim with initial State
+    ///
+    /// ### Arguments
+    /// * `initial_state` - Initial SimState for the Sim
+    /// 
+    /// Returns a new Sim object
     pub fn new_with_state(initial_state: SimState) -> Sim<'a> {
         let mut sim = Self::get_object(initial_state);
         let component_set = COMPONENT_REGISTRY.lock().unwrap().keys().cloned().collect();
@@ -65,6 +85,13 @@ impl<'a> Sim<'a> {
         sim
     }
     
+    /// Creates a custom Sim with initial State
+    ///
+    /// ### Arguments
+    /// * `component_set` - Set of components to add on initialization
+    /// * `initial_state` - Initial SimState for the Sim
+    /// 
+    /// Returns a new Sim object
     pub fn new_custom_with_state(component_set: HashSet<&'static str>, initial_state: SimState) -> Sim<'a> {
         let mut sim = Self::get_object(initial_state);
         sim.setup(component_set);
@@ -84,27 +111,38 @@ impl<'a> Sim<'a> {
         self.init_components(component_names);
     }
 
+    /// Retrieves the set of names of components which are active on this Sim
     fn active_components(&self) -> HashSet<&'static str> {
         self.active_components.keys().cloned().collect()
     }
 
-    fn add_component(&mut self, component_name: &'static str) {
-        let mut set = HashSet::new();
-        set.insert(component_name);
-        self.init_components(set);
-    }
-    
+    /// Adds components to this Sim. Panics if any component names are invalid
+    ///
+    /// ### Arguments
+    /// * `component_names` - Set of components to add
     fn add_components(&mut self, component_names: HashSet<&'static str>) {
         self.init_components(component_names);
     }
 
-    fn remove_component(&mut self, component_name: &'static str) -> Result<()> {
-        match self.active_components.remove(component_name) {
-            Some(_) => Ok(()),
-            None => Err(anyhow!("Invalid component name \"{}\" provided for removal", component_name))
+    /// Removes a component from this Sim. Panics if any of the component names
+    /// are invalid.
+    ///
+    /// ### Arguments
+    /// * `component_names` - Set of components to remove
+    fn remove_components(&mut self, component_names: HashSet<&'static str>) {
+        for component_name in component_names {
+            if self.active_components.remove(component_name).is_none() {
+                panic!("Invalid component name \"{}\" provided for removal", component_name);
+            }
         }
     }
 
+    /// Internal function for initializing components on this Sim. If a component which has
+    /// already been initialized is initialized again, it will be replaced by a new instance.
+    /// Panics if any provided component name is invalid.
+    ///
+    /// ### Arguments
+    /// * `component_names` - Set of component names to initialize
     fn init_components(&mut self, component_names: HashSet<&'static str>) {
 
         // Initialize each component
@@ -115,7 +153,7 @@ impl<'a> Sim<'a> {
                 Some(factory) => {
                     let component = factory();
                     let component_ref = Rc::new(RefCell::new(component));
-                    let mut initializer = BioComponentInitializer::new(self.time_manager.clone(), self.hub.clone(), component_ref.clone());
+                    let mut initializer = SimComponentInitializer::new(self.time_manager.clone(), self.hub.clone(), component_ref.clone());
                     component_ref.borrow_mut().init(&mut initializer);
 
                     // set initial state
@@ -354,7 +392,7 @@ impl<'a> Sim<'a> {
 mod tests {
     use std::cell::Cell;
     use super::Sim;
-    use super::component::BioComponent;
+    use super::component::SimComponent;
     use super::component::test::TestComponent;
 
     #[test]

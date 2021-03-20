@@ -6,20 +6,20 @@ use crate::core::hub::EventHub;
 use crate::core::sim::{TimeManager, SimState};
 use crate::event::Event;
 use crate::util::id_gen::IdType;
-use super::{BioComponent, BioConnector};
+use super::{SimComponent, SimConnector};
 
-pub struct BioComponentInitializer<'a> {
-    pub(in super::super) connector: Rc<RefCell<BioConnector<'a>>>,
-    component: Rc<RefCell<Box<dyn BioComponent>>>,
+pub struct SimComponentInitializer<'a> {
+    pub(in super::super) connector: Rc<RefCell<SimConnector<'a>>>,
+    component: Rc<RefCell<Box<dyn SimComponent>>>,
     hub: Rc<RefCell<EventHub<'a>>>,
     listener_ids: Vec<IdType>,
     transformer_ids: Vec<IdType>,
 }
 
-impl<'a> BioComponentInitializer<'a> {
-    pub fn new(time_manager: Rc<RefCell<TimeManager<'a>>>, hub: Rc<RefCell<EventHub<'a>>>, component: Rc<RefCell<Box<dyn BioComponent>>>) -> BioComponentInitializer<'a> {
-        BioComponentInitializer {
-            connector: Rc::new(RefCell::new(BioConnector::new(time_manager.clone()))),
+impl<'a> SimComponentInitializer<'a> {
+    pub fn new(time_manager: Rc<RefCell<TimeManager<'a>>>, hub: Rc<RefCell<EventHub<'a>>>, component: Rc<RefCell<Box<dyn SimComponent>>>) -> SimComponentInitializer<'a> {
+        SimComponentInitializer {
+            connector: Rc::new(RefCell::new(SimConnector::new(time_manager.clone()))),
             component: component,
             hub: hub,
             listener_ids: Vec::new(),
@@ -27,10 +27,21 @@ impl<'a> BioComponentInitializer<'a> {
         }
     }
 
+    /// Registers the corresponding `SimComponent` to `run` whenever the
+    /// provided `Event` is modified on the `Sim`.
+    /// 
+    /// ### Arguments
+    /// * `default` - Default `Event` value when one isn't provided by another component
     pub fn notify<T: Event>(&mut self, default: T) {
         self.notify_prioritized::<T>(0, default);
     }
     
+    /// Registers the corresponding `SimComponent` to `run` whenever the
+    /// provided `Event` is modified on the `Sim` with a given priority value.
+    /// 
+    /// ### Arguments
+    /// * `priority` - Notify order priority for this registration
+    /// * `default` - Default `Event` value when one isn't provided by another component
     pub fn notify_prioritized<T: Event>(&mut self, priority: i32, default: T) {
         // Set the provided default
         self.connector.borrow_mut().local_state.set_state_quiet(default);
@@ -58,11 +69,22 @@ impl<'a> BioComponentInitializer<'a> {
         self.listener_ids.push(listener_id);
     }
     
+    /// Registers a transformation function whenever the indicated `Event` is
+    /// emitted for the correspoinding `Sim`.
+    /// 
+    /// ### Arguments
+    /// * `transformer` - Function to modify the `Event`
     pub fn transform<T: Event>(&mut self, transformer: impl FnMut(&mut T) + 'a) {
         let transformer_id = self.hub.borrow_mut().transform(transformer);
         self.transformer_ids.push(transformer_id);
     }
     
+    /// Registers a transformation function whenever the indicated `Event` is
+    /// emitted for the correspoinding `Sim` with a given priority value.
+    /// 
+    /// ### Arguments
+    /// * `priority` - Transformation order priority for this registration
+    /// * `transformer` - Function to modify the `Event`
     pub fn transform_prioritized<T: Event>(&mut self, priority: i32, transformer: impl FnMut(&mut T) + 'a) {
         let transformer_id = self.hub.borrow_mut().transform_prioritized(priority, transformer);
         self.transformer_ids.push(transformer_id);
@@ -70,7 +92,7 @@ impl<'a> BioComponentInitializer<'a> {
 }
 
 // Unset any listeners & transformers when this object drops
-impl<'a> Drop for BioComponentInitializer<'a> {
+impl<'a> Drop for SimComponentInitializer<'a> {
     fn drop(&mut self) {
         let mut hub = self.hub.borrow_mut();
         for listener_id in self.listener_ids.iter_mut() {
