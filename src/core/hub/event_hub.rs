@@ -442,12 +442,12 @@ mod tests {
 
         // Attach handler 1 for A Events
         hub.transform_prioritized(2, |_evt: &mut TestEventA| {
-            calls.try_borrow_mut().unwrap().push(1);
+            calls.try_borrow_mut().unwrap().push(2);
         });
         
         // Attach handler 2 for A Events
         hub.transform_prioritized(5, |_evt: &mut TestEventA| {
-            calls.try_borrow_mut().unwrap().push(2);
+            calls.try_borrow_mut().unwrap().push(5);
         });
 
         // Attach handler 3 for A Events
@@ -457,6 +457,6 @@ mod tests {
 
         hub.emit(TestEventA::new(Length::new::<meter>(1.0)));
         
-        assert_eq!(vec![2,3,1], *calls.try_borrow().unwrap());
+        assert_eq!(vec![2,3,5], *calls.try_borrow().unwrap());
     }
 }

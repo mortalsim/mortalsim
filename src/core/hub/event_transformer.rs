@@ -45,7 +45,7 @@ impl<'a> PartialEq for dyn EventTransformer + 'a {
 
 impl<'a> PartialOrd for dyn EventTransformer + 'a {
     fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
-        other.priority().partial_cmp(&self.priority())
+        self.priority().partial_cmp(&other.priority())
     }
 }
 
@@ -53,7 +53,7 @@ impl<'a> Eq for dyn EventTransformer + 'a {}
 
 impl<'a> Ord for dyn EventTransformer + 'a {
     fn cmp(&self, other: &Self) -> cmp::Ordering {
-        other.priority().cmp(&self.priority())
+        self.priority().cmp(&other.priority())
     }
 }
 
@@ -159,9 +159,9 @@ mod tests {
 
         v.sort();
 
-        assert_eq!(v[0].priority(), 5);
-        assert_eq!(v[1].priority(), 3);
-        assert_eq!(v[2].priority(), 0);
-        assert_eq!(v[3].priority(), -2);
+        assert_eq!(v[0].priority(), -2);
+        assert_eq!(v[1].priority(), 0);
+        assert_eq!(v[2].priority(), 3);
+        assert_eq!(v[3].priority(), 5);
     }
 }
