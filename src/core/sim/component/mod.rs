@@ -37,19 +37,45 @@ pub mod test {
     use uom::si::length::meter;
     use uom::si::amount_of_substance::mole;
 
-    pub struct TestComponent {}
-    impl TestComponent {
+    pub struct TestComponentA {}
+    impl TestComponentA {
         pub fn factory() -> Box<dyn SimComponent> {
-            Box::new(TestComponent {})
+            Box::new(TestComponentA {})
         }
     }
-    impl SimComponent for TestComponent {
+    impl SimComponent for TestComponentA {
         fn init(&mut self, initializer: &mut SimComponentInitializer) {
             initializer.notify(TestEventA::new(Length::new::<meter>(1.0)));
             initializer.notify(TestEventB::new(AmountOfSubstance::new::<mole>(1.0)));
             initializer.transform(|evt: &mut TestEventA| {
                 evt.len = Length::new::<meter>(3.0);
             });
+        }
+        fn run(&mut self, connector: &mut SimConnector) {
+            let evt_a = connector.get::<TestEventA>().unwrap();
+            assert_eq!(evt_a.len, Length::new::<meter>(3.0));
+
+            match connector.get_trigger_event() {
+                None => {
+                    print!("No trigger event");
+                },
+                Some(evt) => {
+                    print!("Trigger event: {:?}", evt);
+                }
+            }
+        }
+    }
+    
+    pub struct TestComponentB {}
+    impl TestComponentB {
+        pub fn factory() -> Box<dyn SimComponent> {
+            Box::new(TestComponentB {})
+        }
+    }
+    impl SimComponent for TestComponentB {
+        fn init(&mut self, initializer: &mut SimComponentInitializer) {
+            initializer.notify(TestEventA::new(Length::new::<meter>(2.0)));
+            initializer.notify(TestEventB::new(AmountOfSubstance::new::<mole>(2.0)));
         }
         fn run(&mut self, connector: &mut SimConnector) {
             let evt_a = connector.get::<TestEventA>().unwrap();

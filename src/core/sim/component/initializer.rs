@@ -2,6 +2,7 @@ use std::rc::{Rc, Weak};
 use std::sync::Arc;
 use std::cell::RefCell;
 use std::any::TypeId;
+use std::collections::HashSet;
 use crate::core::hub::EventHub;
 use crate::core::sim::{TimeManager, SimState};
 use crate::event::Event;
@@ -14,6 +15,8 @@ pub struct SimComponentInitializer<'a> {
     hub: Rc<RefCell<EventHub<'a>>>,
     listener_ids: Vec<IdType>,
     transformer_ids: Vec<IdType>,
+    input_events: HashSet<TypeId>,
+    output_events: HashSet<TypeId>,
 }
 
 impl<'a> SimComponentInitializer<'a> {
@@ -24,6 +27,8 @@ impl<'a> SimComponentInitializer<'a> {
             hub: hub,
             listener_ids: Vec::new(),
             transformer_ids: Vec::new(),
+            input_events: HashSet::new(),
+            output_events: HashSet::new(),
         }
     }
 
@@ -43,6 +48,12 @@ impl<'a> SimComponentInitializer<'a> {
     /// * `priority` - Notify order priority for this registration
     /// * `default` - Default `Event` value when one isn't provided by another component
     pub fn notify_prioritized<T: Event>(&mut self, priority: i32, default: T) {
+        let type_key = TypeId::of::<T>();
+        // If this event type has already been registered as an output, panic
+        if self.output_events.contains(&type_key) {
+            panic!("Components cannot run against Events they are producing! This could cause an infinite loop.")
+        }
+
         // Set the provided default
         self.connector.borrow_mut().local_state.set_state_quiet(default);
 
@@ -56,7 +67,7 @@ impl<'a> SimComponentInitializer<'a> {
                     match connector_weak.upgrade() {
                         Some(connector) => {
                             let mut conn = connector.borrow_mut();
-                            conn.local_state.put_state(TypeId::of::<T>(), evt.clone());
+                            conn.local_state.put_state(type_key, evt.clone());
                             conn.set_trigger(evt);
                             component.borrow_mut().run(&mut conn);
                         },
@@ -86,6 +97,15 @@ impl<'a> SimComponentInitializer<'a> {
     /// * `priority` - Transformation order priority for this registration
     /// * `transformer` - Function to modify the `Event`
     pub fn transform_prioritized<T: Event>(&mut self, priority: i32, transformer: impl FnMut(&mut T) + 'a) {
+        let transformer_id = self.hub.borrow_mut().transform_prioritized(priority, transformer);
+        self.transformer_ids.push(transformer_id);
+    }
+    
+    /// Sets an `Event` as the initial state on the `Sim`
+    /// 
+    /// ### Arguments
+    /// * `event` - `Event` instance to set on initial state
+    pub fn set_initial_state<T: Event>(&mut self, priority: i32, transformer: impl FnMut(&mut T) + 'a) {
         let transformer_id = self.hub.borrow_mut().transform_prioritized(priority, transformer);
         self.transformer_ids.push(transformer_id);
     }

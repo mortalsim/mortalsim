@@ -100,14 +100,6 @@ impl<'a> Sim<'a> {
 
     /// Initial setup for the simulation
     fn setup(&mut self, component_names: HashSet<&'static str>) {
-        let hub_ref = self.hub.clone();
-
-        // Hookup events from the time manager to be emitted on the hub
-        // when they emerge from the queue
-        self.time_manager.borrow_mut().on_event(move |evt_type, evt| {
-            hub_ref.borrow_mut().emit_typed(evt_type, evt)
-        });
-
         self.init_components(component_names);
     }
 
@@ -313,7 +305,7 @@ impl<'a> Sim<'a> {
     /// 
     /// If there are no Events or listeners in the queue, time will remain unchanged
     pub fn advance(&mut self) {
-        self.time_manager.borrow_mut().advance()
+        self.time_manager.borrow_mut().advance();
     }
 
     /// Advances simulation time by the provided time step
@@ -324,7 +316,56 @@ impl<'a> Sim<'a> {
     /// ### Arguments
     /// * `time_step` - Amount of time to advance by
     pub fn advance_by(&mut self, time_step: Time) {
-        self.time_manager.borrow_mut().advance_by(time_step)
+        self.time_manager.borrow_mut().advance_by(time_step);
+
+    }
+
+    fn execute_time_step(&mut self) {
+        // Keep going until no more events / listeners are left to deal with
+        loop {
+            let next_events = self.time_manager.borrow_mut().next_events();
+            let next_listeners = self.time_manager.borrow_mut().next_listeners();
+
+            // If we have both, we need to determine which ones to deal with first
+            // based on their scheduled time
+            if next_events.is_some() && next_listeners.is_some() {
+                let (evt_time, evt_list) = next_events.unwrap();
+                let (lis_time, lis_list) = next_listeners.unwrap();
+
+                if evt_time <= lis_time {
+                    for (type_key, evt) in evt_list.into_iter() {
+                        self.hub.borrow_mut().emit_typed(type_key, evt);
+                    }
+                    for listener in lis_list {
+                        listener();
+                    }
+                }
+                else {
+                    for listener in lis_list {
+                        listener();
+                    }
+                    for (type_key, evt) in evt_list.into_iter() {
+                        self.hub.borrow_mut().emit_typed(type_key, evt);
+                    }
+                }
+            }
+            else if next_events.is_some() {
+                let (_, evt_list) = next_events.unwrap();
+                for (type_key, evt) in evt_list.into_iter() {
+                    self.hub.borrow_mut().emit_typed(type_key, evt);
+                }
+            }
+            else if next_listeners.is_some() {
+                let (_, lis_list) = next_listeners.unwrap();
+                for listener in lis_list {
+                    listener();
+                }
+            }
+            else {
+                // break out of the loop when there's nothing left to process
+                break;
+            }
+        }
     }
 
     /// Schedules an `Event` for future emission on this simulation
@@ -393,12 +434,12 @@ mod tests {
     use std::cell::Cell;
     use super::Sim;
     use super::component::SimComponent;
-    use super::component::test::TestComponent;
+    use super::component::test::TestComponentA;
 
     #[test]
     fn test_registry() {
         crate::test::init_test();
-        Sim::register_component("TestComponent", TestComponent::factory);
+        Sim::register_component("TestComponent", TestComponentA::factory);
         Sim::new();
     }
 

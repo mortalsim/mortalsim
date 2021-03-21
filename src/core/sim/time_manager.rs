@@ -5,7 +5,7 @@
 //! immediately to the next `Event`
 
 use std::collections::BTreeMap;
-use std::collections::hash_map::HashMap;
+use std::collections::hash_map::{HashMap, Keys};
 use std::any::TypeId;
 use std::fmt;
 use uuid::Uuid;
@@ -31,8 +31,6 @@ pub struct TimeManager<'b> {
     advance_listeners: HashMap<IdType, Box<dyn FnMut() + 'b>>,
     /// Map of listeners to execute at future simulation times
     scheduled_listeners: BTreeMap<OrderedTime, Vec<(IdType, Box<dyn FnOnce() + 'b>)>>,
-    /// Event listener to call when events are emitted
-    event_listener: Option<Box<dyn FnMut(TypeId, Box<dyn Event>) + 'b>>,
     /// Used to lookup listeners and Event objects for unscheduling
     id_time_map: HashMap<IdType, OrderedTime>
 }
@@ -58,7 +56,6 @@ impl<'b> TimeManager<'b> {
             id_gen: IdGenerator::new(),
             advance_listeners: HashMap::new(),
             scheduled_listeners: BTreeMap::new(),
-            event_listener: None,
             id_time_map: HashMap::new()
         }
     }
@@ -101,8 +98,6 @@ impl<'b> TimeManager<'b> {
             // If both queues are empty, there's nothing to do
             return;
         }
-
-        self.trigger_listeners();
     }
 
     /// Advances simulation time by the provided time step
@@ -121,7 +116,6 @@ impl<'b> TimeManager<'b> {
 
         // otherwise, advance time and trigger listeners
         self.sim_time = self.sim_time + time_step;
-        self.trigger_listeners();
     }
 
     /// Schedules an `Event` for future emission
@@ -180,22 +174,6 @@ impl<'b> TimeManager<'b> {
                 Err(anyhow!("Invalid schedule_id {} passed to `unschedule_event` for TimeManager {}", schedule_id, self.manager_id))
             }
         }
-    }
-
-    /// Registers a listener for `Event` objects
-    /// 
-    /// Events are always emitted one at a time in time order. If Events
-    /// are emitted at identical times, they are emitted to listeners in
-    /// the order they were scheduled.
-    /// 
-    /// If an event listener is already registered, calling this again
-    /// will replace it
-    /// 
-    /// ### Arguments
-    /// * `listener` - an EventListener function to call when `Event`
-    ///                objects are emitted
-    pub fn on_event(&mut self, listener: impl FnMut(TypeId, Box<dyn Event>) + 'b) {
-        self.event_listener = Some(Box::new(listener));
     }
 
     /// Registers a listener for time advances
@@ -279,142 +257,176 @@ impl<'b> TimeManager<'b> {
         }
     }
 
-    /// Internal function for triggering scheduled listeners and event listeners
-    fn trigger_listeners(&mut self) {
-        log::debug!("Triggering listeners for TimeManager {}", self.manager_id);
+    pub(super) fn next_events(&mut self) -> Option<(OrderedTime, Vec<(TypeId, Box<dyn Event>)>)> {
+        let mut evt_times = self.event_queue.keys().cloned();
+        let next_evt_time = evt_times.next();
 
-        for (_, listener) in self.advance_listeners.iter_mut() {
-            listener();
+        if next_evt_time.is_some() && next_evt_time.unwrap() <= OrderedTime(self.sim_time) {
+            let evt_time = next_evt_time.unwrap();
+            let evt_list = self.event_queue.remove(&evt_time).unwrap();
+
+            // Drop the registration token when returning the result vector
+            let result: Vec<(TypeId, Box<dyn Event>)> = evt_list.into_iter().map(|(_, type_key, evt)| (type_key, evt)).rev().collect();
+            Some((evt_time, result))
         }
+        else {
+            None
+        }
+    }
 
-        // Keep a list of scheduled listener times which will be completed
-        let mut times_completed: Vec<OrderedTime> = Vec::new();
+    pub(super) fn next_listeners(&mut self) -> Option<(OrderedTime, Vec<Box<dyn FnOnce() + 'b>>)> {
+        let mut lis_times = self.scheduled_listeners.keys().cloned();
+        let next_lis_time = lis_times.next();
 
-        // We need to iterate over the event_queue and scheduled_listeners queue
-        // simultaneously so that we can execute everything in the appropriate
-        // simulation time order
-        let mut lis_times: Vec<OrderedTime> = self.scheduled_listeners.keys().cloned().collect();
-        let mut evt_times: Vec<OrderedTime> = self.event_queue.keys().cloned().collect();
+        if next_lis_time.is_some() && next_lis_time.unwrap() <= OrderedTime(self.sim_time) {
+            let lis_time = next_lis_time.unwrap();
+            let listener_list = self.scheduled_listeners.remove(&lis_time).unwrap();
 
-        // Keep track of the maximum time reached while we're iterating both
-        // simultaneously
-        let mut reached_time = Time::new::<second>(0.0);
+            // Drop the registration token when returning the result vector
+            let result: Vec<Box<dyn FnOnce() + 'b>> = listener_list.into_iter().map(|(_, listener)| listener).rev().collect();
+            Some((lis_time, result))
+        }
+        else {
+            None
+        }
+    }
 
-        for (lis_time, evt_time) in lis_times.into_iter().zip(evt_times.into_iter()) {
+    // /// Internal function for triggering scheduled listeners and event listeners
+    // fn trigger_listeners(&mut self) {
+    //     log::debug!("Triggering listeners for TimeManager {}", self.manager_id);
 
-            // If both times are beyond the current simulation time, exit the loop
-            if lis_time.get_value() > self.sim_time && evt_time.get_value() > self.sim_time {
-                break;
-            }
+    //     for (_, listener) in self.advance_listeners.iter_mut() {
+    //         listener();
+    //     }
 
-            if lis_time < evt_time {
-                // The listeners come first, so we need to call all of those associated
-                // with the given time step
-                self.execute_listeners(lis_time);
+    //     // Keep a list of scheduled listener times which will be completed
+    //     let mut times_completed: Vec<OrderedTime> = Vec::new();
 
-                // Add this time to the list of completed times
-                times_completed.push(lis_time);
-                reached_time = lis_time.get_value();
-            }
-            else {
-                // The events come first, so we need to emit all of those to any
-                // event listeners
-                self.emit_events(evt_time);
+    //     // We need to iterate over the event_queue and scheduled_listeners queue
+    //     // simultaneously so that we can execute everything in the appropriate
+    //     // simulation time order
+    //     let mut lis_times: Vec<OrderedTime> = self.scheduled_listeners.keys().cloned().collect();
+    //     let mut evt_times: Vec<OrderedTime> = self.event_queue.keys().cloned().collect();
+
+    //     // Keep track of the maximum time reached while we're iterating both
+    //     // simultaneously
+    //     let mut reached_time = Time::new::<second>(0.0);
+
+    //     for (lis_time, evt_time) in lis_times.into_iter().zip(evt_times.into_iter()) {
+
+    //         // If both times are beyond the current simulation time, exit the loop
+    //         if lis_time.get_value() > self.sim_time && evt_time.get_value() > self.sim_time {
+    //             break;
+    //         }
+
+    //         if lis_time < evt_time {
+    //             // The listeners come first, so we need to call all of those associated
+    //             // with the given time step
+    //             self.execute_listeners(lis_time);
+
+    //             // Add this time to the list of completed times
+    //             times_completed.push(lis_time);
+    //             reached_time = lis_time.get_value();
+    //         }
+    //         else {
+    //             // The events come first, so we need to emit all of those to any
+    //             // event listeners
+    //             self.emit_events(evt_time);
                 
-                // Add this time to the list of completed times
-                times_completed.push(evt_time);
-                reached_time = evt_time.get_value();
-            }
-        }
+    //             // Add this time to the list of completed times
+    //             times_completed.push(evt_time);
+    //             reached_time = evt_time.get_value();
+    //         }
+    //     }
 
-        // Repopulate the array of times again... there's probably a more efficient
-        // way to do this, but this keeps the borrow checker happy.
-        lis_times = self.scheduled_listeners.keys().cloned().collect();
+    //     // Repopulate the array of times again... there's probably a more efficient
+    //     // way to do this, but this keeps the borrow checker happy.
+    //     lis_times = self.scheduled_listeners.keys().cloned().collect();
 
-        // iterate over the scheduled_listeners until we reach a time which is
-        // still in the future. Call each listener in those times and keep track
-        // of completed times so we can remove them later.
-        for time in lis_times {
-            if time.get_value() > self.sim_time {
-                // Go until we reach 
-                break;
-            }
-            if time.get_value() < reached_time {
-                // If we've already processed these, continue to the next iteration
-                continue;
-            }
-            self.execute_listeners(time);
+    //     // iterate over the scheduled_listeners until we reach a time which is
+    //     // still in the future. Call each listener in those times and keep track
+    //     // of completed times so we can remove them later.
+    //     for time in lis_times {
+    //         if time.get_value() > self.sim_time {
+    //             // Go until we reach 
+    //             break;
+    //         }
+    //         if time.get_value() < reached_time {
+    //             // If we've already processed these, continue to the next iteration
+    //             continue;
+    //         }
+    //         self.execute_listeners(time);
 
-            // Add this time to the list of completed times
-            times_completed.push(time);
-        }
+    //         // Add this time to the list of completed times
+    //         times_completed.push(time);
+    //     }
         
-        // Repopulate the array of times again... there's probably a more efficient
-        // way to do this, but this keeps the borrow checker happy.
-        evt_times = self.event_queue.keys().cloned().collect();
+    //     // Repopulate the array of times again... there's probably a more efficient
+    //     // way to do this, but this keeps the borrow checker happy.
+    //     evt_times = self.event_queue.keys().cloned().collect();
 
-        // iterate over the events until we reach a time which is
-        // still in the future. Call each listener in those times and keep track
-        // of completed times so we can remove them later.
-        for time in evt_times {
-            if time.get_value() > self.sim_time {
-                // Go until we reach 
-                break;
-            }
-            if time.get_value() < reached_time {
-                // If we've already processed these, continue to the next iteration
-                continue;
-            }
-            self.emit_events(time);
+    //     // iterate over the events until we reach a time which is
+    //     // still in the future. Call each listener in those times and keep track
+    //     // of completed times so we can remove them later.
+    //     for time in evt_times {
+    //         if time.get_value() > self.sim_time {
+    //             // Go until we reach 
+    //             break;
+    //         }
+    //         if time.get_value() < reached_time {
+    //             // If we've already processed these, continue to the next iteration
+    //             continue;
+    //         }
+    //         self.emit_events(time);
 
-            // Add this time to the list of completed times
-            times_completed.push(time);
-        }
+    //         // Add this time to the list of completed times
+    //         times_completed.push(time);
+    //     }
 
-        // Remove the completed times from the scheduled listeners queue. Done
-        // afterwards since we can't modify scheduled_listeners while iterating
-        // (requires two mutable borrows)
-        for time in &times_completed {
-            self.scheduled_listeners.remove(&time);
-        }
+    //     // Remove the completed times from the scheduled listeners queue. Done
+    //     // afterwards since we can't modify scheduled_listeners while iterating
+    //     // (would require two mutable borrows)
+    //     for time in &times_completed {
+    //         self.scheduled_listeners.remove(&time);
+    //     }
 
-        // Remove the completed times from the event_queue. Also done
-        // afterwards since we can't modify while iterating
-        for time in &times_completed {
-            self.event_queue.remove(&time);
-        }
-    }
+    //     // Remove the completed times from the event_queue. Also done
+    //     // afterwards since we can't modify while iterating
+    //     for time in &times_completed {
+    //         self.event_queue.remove(&time);
+    //     }
+    // }
 
-    fn execute_listeners(&mut self, time: OrderedTime) {
+    // fn execute_listeners(&mut self, time: OrderedTime) {
 
-        for (_, listener) in self.scheduled_listeners.remove(&time).unwrap() {
-            log::debug!("TimeManager {} executing listener scheduled for {}",
-                self.manager_id, time.get_value().into_format_args(second, Abbreviation));
-            listener();
-        }
-    }
+    //     for (_, listener) in self.scheduled_listeners.remove(&time).unwrap() {
+    //         log::debug!("TimeManager {} executing listener scheduled for {}",
+    //             self.manager_id, time.get_value().into_format_args(second, Abbreviation));
+    //         listener();
+    //     }
+    // }
 
-    fn emit_events(&mut self, time: OrderedTime) {
+    // fn emit_events(&mut self, time: OrderedTime) {
 
-        log::debug!("TimeManager {} emitting events scheduled for {}",
-            self.manager_id, time.get_value().into_format_args(second, Abbreviation));
+    //     log::debug!("TimeManager {} emitting events scheduled for {}",
+    //         self.manager_id, time.get_value().into_format_args(second, Abbreviation));
 
-        let mut events = self.event_queue.remove(&time).unwrap();
+    //     let mut events = self.event_queue.remove(&time).unwrap();
 
-        // Get a mutable reference to the inner function
-        match self.event_listener.as_mut() {
-            Some(listener_fn) => {
-                while let Some((_, type_key, event)) = events.pop() {
-                    // Call the listener function with the given event
-                    listener_fn(type_key, event);
-                }
-            }
-            None => {
-                log::debug!("... or not because no one is listening");
-                return;
-            }
-        }
-    }
+    //     // Get a mutable reference to the inner function
+    //     match self.event_listener.as_mut() {
+    //         Some(listener_fn) => {
+    //             while let Some((_, type_key, event)) = events.pop() {
+    //                 // Call the listener function with the given event
+    //                 listener_fn(type_key, event);
+    //             }
+    //         }
+    //         None => {
+    //             log::debug!("... or not because no one is listening");
+    //             return;
+    //         }
+    //     }
+    // }
 }
 
 #[cfg(test)]
@@ -570,26 +582,26 @@ mod tests {
             let one_sec = Time::new::<second>(1.0);
         
             // Set up our listener
-            time_manager.on_event(|_, evt| {
-                    if evt.is::<TestEventA>() {
-                        match evt.downcast::<TestEventA>() {
-                            Ok(evt_a) => {
-                                a_evt_target.set(Some(evt_a));
-                                call_flag_a.set(true);
-                            },
-                            Err(_) => {/*ignore*/}
-                        }
-                    }
-                    else {
-                        match evt.downcast::<TestEventB>() {
-                            Ok(evt_b) => {
-                                b_evt_target.set(Some(evt_b));
-                                call_flag_b.set(true);
-                            },
-                            Err(_) => {/*ignore*/}
-                        }
-                    }
-                });
+            // time_manager.on_event(|_, evt| {
+            //         if evt.is::<TestEventA>() {
+            //             match evt.downcast::<TestEventA>() {
+            //                 Ok(evt_a) => {
+            //                     a_evt_target.set(Some(evt_a));
+            //                     call_flag_a.set(true);
+            //                 },
+            //                 Err(_) => {/*ignore*/}
+            //             }
+            //         }
+            //         else {
+            //             match evt.downcast::<TestEventB>() {
+            //                 Ok(evt_b) => {
+            //                     b_evt_target.set(Some(evt_b));
+            //                     call_flag_b.set(true);
+            //                 },
+            //                 Err(_) => {/*ignore*/}
+            //             }
+            //         }
+            //     });
 
             // Schedule the events to be emitted later
             time_manager.schedule_event(Time::new::<second>(2.0), a_evt);
@@ -636,24 +648,24 @@ mod tests {
         let one_sec = Time::new::<second>(1.0);
         
         // Set up our listener
-        time_manager.on_event(|_, evt| {
-                if evt.is::<TestEventA>() {
-                    match evt.downcast::<TestEventA>() {
-                        Ok(_) => {
-                            call_flag_a.set(true);
-                        },
-                        Err(_) => {/*ignore*/}
-                    }
-                }
-                else {
-                    match evt.downcast::<TestEventB>() {
-                        Ok(_) => {
-                            call_flag_b.set(true);
-                        },
-                        Err(_) => {/*ignore*/}
-                    }
-                }
-            });
+        // time_manager.on_event(|_, evt| {
+        //         if evt.is::<TestEventA>() {
+        //             match evt.downcast::<TestEventA>() {
+        //                 Ok(_) => {
+        //                     call_flag_a.set(true);
+        //                 },
+        //                 Err(_) => {/*ignore*/}
+        //             }
+        //         }
+        //         else {
+        //             match evt.downcast::<TestEventB>() {
+        //                 Ok(_) => {
+        //                     call_flag_b.set(true);
+        //                 },
+        //                 Err(_) => {/*ignore*/}
+        //             }
+        //         }
+        //     });
 
         // Schedule a callback at 1s
         time_manager.schedule_callback(one_sec, || {
