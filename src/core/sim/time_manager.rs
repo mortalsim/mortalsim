@@ -98,6 +98,8 @@ impl<'b> TimeManager<'b> {
             // If both queues are empty, there's nothing to do
             return;
         }
+
+        self.execute_advance_listeners();
     }
 
     /// Advances simulation time by the provided time step
@@ -116,6 +118,7 @@ impl<'b> TimeManager<'b> {
 
         // otherwise, advance time and trigger listeners
         self.sim_time = self.sim_time + time_step;
+        self.execute_advance_listeners();
     }
 
     /// Schedules an `Event` for future emission
@@ -291,147 +294,18 @@ impl<'b> TimeManager<'b> {
         }
     }
 
-    // /// Internal function for triggering scheduled listeners and event listeners
-    // fn trigger_listeners(&mut self) {
-    //     log::debug!("Triggering listeners for TimeManager {}", self.manager_id);
+    fn execute_advance_listeners(&mut self) {
+        for (_, listener) in self.advance_listeners.iter_mut() {
+            listener();
+        }
+    }
 
-    //     for (_, listener) in self.advance_listeners.iter_mut() {
-    //         listener();
-    //     }
-
-    //     // Keep a list of scheduled listener times which will be completed
-    //     let mut times_completed: Vec<OrderedTime> = Vec::new();
-
-    //     // We need to iterate over the event_queue and scheduled_listeners queue
-    //     // simultaneously so that we can execute everything in the appropriate
-    //     // simulation time order
-    //     let mut lis_times: Vec<OrderedTime> = self.scheduled_listeners.keys().cloned().collect();
-    //     let mut evt_times: Vec<OrderedTime> = self.event_queue.keys().cloned().collect();
-
-    //     // Keep track of the maximum time reached while we're iterating both
-    //     // simultaneously
-    //     let mut reached_time = Time::new::<second>(0.0);
-
-    //     for (lis_time, evt_time) in lis_times.into_iter().zip(evt_times.into_iter()) {
-
-    //         // If both times are beyond the current simulation time, exit the loop
-    //         if lis_time.get_value() > self.sim_time && evt_time.get_value() > self.sim_time {
-    //             break;
-    //         }
-
-    //         if lis_time < evt_time {
-    //             // The listeners come first, so we need to call all of those associated
-    //             // with the given time step
-    //             self.execute_listeners(lis_time);
-
-    //             // Add this time to the list of completed times
-    //             times_completed.push(lis_time);
-    //             reached_time = lis_time.get_value();
-    //         }
-    //         else {
-    //             // The events come first, so we need to emit all of those to any
-    //             // event listeners
-    //             self.emit_events(evt_time);
-                
-    //             // Add this time to the list of completed times
-    //             times_completed.push(evt_time);
-    //             reached_time = evt_time.get_value();
-    //         }
-    //     }
-
-    //     // Repopulate the array of times again... there's probably a more efficient
-    //     // way to do this, but this keeps the borrow checker happy.
-    //     lis_times = self.scheduled_listeners.keys().cloned().collect();
-
-    //     // iterate over the scheduled_listeners until we reach a time which is
-    //     // still in the future. Call each listener in those times and keep track
-    //     // of completed times so we can remove them later.
-    //     for time in lis_times {
-    //         if time.get_value() > self.sim_time {
-    //             // Go until we reach 
-    //             break;
-    //         }
-    //         if time.get_value() < reached_time {
-    //             // If we've already processed these, continue to the next iteration
-    //             continue;
-    //         }
-    //         self.execute_listeners(time);
-
-    //         // Add this time to the list of completed times
-    //         times_completed.push(time);
-    //     }
-        
-    //     // Repopulate the array of times again... there's probably a more efficient
-    //     // way to do this, but this keeps the borrow checker happy.
-    //     evt_times = self.event_queue.keys().cloned().collect();
-
-    //     // iterate over the events until we reach a time which is
-    //     // still in the future. Call each listener in those times and keep track
-    //     // of completed times so we can remove them later.
-    //     for time in evt_times {
-    //         if time.get_value() > self.sim_time {
-    //             // Go until we reach 
-    //             break;
-    //         }
-    //         if time.get_value() < reached_time {
-    //             // If we've already processed these, continue to the next iteration
-    //             continue;
-    //         }
-    //         self.emit_events(time);
-
-    //         // Add this time to the list of completed times
-    //         times_completed.push(time);
-    //     }
-
-    //     // Remove the completed times from the scheduled listeners queue. Done
-    //     // afterwards since we can't modify scheduled_listeners while iterating
-    //     // (would require two mutable borrows)
-    //     for time in &times_completed {
-    //         self.scheduled_listeners.remove(&time);
-    //     }
-
-    //     // Remove the completed times from the event_queue. Also done
-    //     // afterwards since we can't modify while iterating
-    //     for time in &times_completed {
-    //         self.event_queue.remove(&time);
-    //     }
-    // }
-
-    // fn execute_listeners(&mut self, time: OrderedTime) {
-
-    //     for (_, listener) in self.scheduled_listeners.remove(&time).unwrap() {
-    //         log::debug!("TimeManager {} executing listener scheduled for {}",
-    //             self.manager_id, time.get_value().into_format_args(second, Abbreviation));
-    //         listener();
-    //     }
-    // }
-
-    // fn emit_events(&mut self, time: OrderedTime) {
-
-    //     log::debug!("TimeManager {} emitting events scheduled for {}",
-    //         self.manager_id, time.get_value().into_format_args(second, Abbreviation));
-
-    //     let mut events = self.event_queue.remove(&time).unwrap();
-
-    //     // Get a mutable reference to the inner function
-    //     match self.event_listener.as_mut() {
-    //         Some(listener_fn) => {
-    //             while let Some((_, type_key, event)) = events.pop() {
-    //                 // Call the listener function with the given event
-    //                 listener_fn(type_key, event);
-    //             }
-    //         }
-    //         None => {
-    //             log::debug!("... or not because no one is listening");
-    //             return;
-    //         }
-    //     }
-    // }
 }
 
 #[cfg(test)]
 mod tests {
     use std::cell::Cell;
+    use std::any::TypeId;
     use super::Time;
     use super::second;
     use super::TimeManager;
@@ -541,12 +415,16 @@ mod tests {
         // Advance by one second
         time_manager.advance_by(one_sec);
 
-        // Nothing should have been called
-        assert!(!call_flag_a.get(), "Call flag 'a' hasn't been fired yet");
-        assert!(!call_flag_b.get(), "Call flag 'b' hasn't been fired yet");
+        // No listeners should be ready to call
+        assert!(time_manager.next_listeners().is_none());
 
         // Advance automatically to the next scheduled thing
         time_manager.advance();
+        
+        // Execute listeners
+        for listener in time_manager.next_listeners().unwrap().1 {
+            listener();
+        }
 
         // Time should now be at 5.0s
         assert_eq!(time_manager.get_time(), Time::new::<second>(5.0));
@@ -555,6 +433,11 @@ mod tests {
 
         // Advance again
         time_manager.advance();
+        
+        // Execute listeners
+        for listener in time_manager.next_listeners().unwrap().1 {
+            listener();
+        }
 
         // Time should now be at 7.0s
         assert_eq!(time_manager.get_time(), Time::new::<second>(7.0));
@@ -564,78 +447,44 @@ mod tests {
 
     #[test]
     fn emit_events_test() {
-
-        // Create target Cells to grab our Events when they are emitted
-        let a_evt_target: Cell<Option<Box<TestEventA>>> = Cell::new(None);
-        let b_evt_target: Cell<Option<Box<TestEventB>>> = Cell::new(None);
-        let call_flag_a: Cell<bool> = Cell::new(false);
-        let call_flag_b: Cell<bool> = Cell::new(false);
-
-        // Scope the time manager so we can just pull out the events at the end
-        {
-            let a_evt = TestEventA::new(Length::new::<meter>(3.5));
-            let b_evt = TestEventB::new(AmountOfSubstance::new::<mole>(123456.0));
+        let a_evt = TestEventA::new(Length::new::<meter>(3.5));
+        let b_evt = TestEventB::new(AmountOfSubstance::new::<mole>(123456.0));
         
-            // Create a time manager and a handy reusable
-            // variable representing one second
-            let mut time_manager = TimeManager::new();
-            let one_sec = Time::new::<second>(1.0);
+        // Create a time manager and a handy reusable
+        // variable representing one second
+        let mut time_manager = TimeManager::new();
+        let one_sec = Time::new::<second>(1.0);
         
-            // Set up our listener
-            // time_manager.on_event(|_, evt| {
-            //         if evt.is::<TestEventA>() {
-            //             match evt.downcast::<TestEventA>() {
-            //                 Ok(evt_a) => {
-            //                     a_evt_target.set(Some(evt_a));
-            //                     call_flag_a.set(true);
-            //                 },
-            //                 Err(_) => {/*ignore*/}
-            //             }
-            //         }
-            //         else {
-            //             match evt.downcast::<TestEventB>() {
-            //                 Ok(evt_b) => {
-            //                     b_evt_target.set(Some(evt_b));
-            //                     call_flag_b.set(true);
-            //                 },
-            //                 Err(_) => {/*ignore*/}
-            //             }
-            //         }
-            //     });
+        // Schedule the events to be emitted later
+        time_manager.schedule_event(Time::new::<second>(2.0), a_evt);
+        time_manager.schedule_event(Time::new::<second>(6.0), b_evt);
 
-            // Schedule the events to be emitted later
-            time_manager.schedule_event(Time::new::<second>(2.0), a_evt);
-            time_manager.schedule_event(Time::new::<second>(6.0), b_evt);
-
-            // Advance by 1s. No events yet.
-            time_manager.advance_by(one_sec);
-            assert_eq!(time_manager.get_time(), Time::new::<second>(1.0));
-            assert!(!call_flag_a.get(), "A Event should not have fired.");
-            assert!(!call_flag_b.get(), "B Event should not have fired.");
-            
-            // Advance again. First event should fire.
-            time_manager.advance_by(one_sec);
-            assert_eq!(time_manager.get_time(), Time::new::<second>(2.0));
-            assert!(call_flag_a.get(), "A Event should have fired.");
-            assert!(!call_flag_b.get(), "B Event should not have fired.");
-            
-            // Advance again automatically. Should fire both now.
-            time_manager.advance();
-            assert!(call_flag_a.get(), "A Event should have fired.");
-            assert!(call_flag_b.get(), "B Event should have fired.");
+        // Advance by 1s. No events yet.
+        time_manager.advance_by(one_sec);
+        assert_eq!(time_manager.get_time(), Time::new::<second>(1.0));
+        assert!(time_manager.next_events().is_none());
+        
+        // Advance again. First event should fire.
+        time_manager.advance_by(one_sec);
+        for (evt_type, evt) in time_manager.next_events().unwrap().1.into_iter() {
+            assert_eq!(evt_type, TypeId::of::<TestEventA>());
+            assert_eq!(evt.downcast::<TestEventA>().unwrap().len, Length::new::<meter>(3.5));
         }
-
-        // Ensure we can pull the events and get their values
-        assert!(a_evt_target.into_inner().unwrap().len == Length::new::<meter>(3.5));
-        assert!(b_evt_target.into_inner().unwrap().amt == AmountOfSubstance::new::<mole>(123456.0));
+        assert_eq!(time_manager.get_time(), Time::new::<second>(2.0));
+        
+        // Advance again automatically. Should fire the second event.
+        time_manager.advance();
+        for (evt_type, evt) in time_manager.next_events().unwrap().1.into_iter() {
+            assert_eq!(evt_type, TypeId::of::<TestEventB>());
+            assert_eq!(evt.downcast::<TestEventB>().unwrap().amt, AmountOfSubstance::new::<mole>(123456.0));
+        }
+        assert_eq!(time_manager.get_time(), Time::new::<second>(6.0));
     }
     #[test]
 
     fn evt_lis_mixed_test() {
 
         // Create target Cells to grab our Events when they are emitted
-        let call_flag_a: Cell<bool> = Cell::new(false);
-        let call_flag_b: Cell<bool> = Cell::new(false);
         let call_flag_c: Cell<bool> = Cell::new(false);
         let call_flag_d: Cell<bool> = Cell::new(false);
 
@@ -647,25 +496,6 @@ mod tests {
         let mut time_manager = TimeManager::new();
         let one_sec = Time::new::<second>(1.0);
         
-        // Set up our listener
-        // time_manager.on_event(|_, evt| {
-        //         if evt.is::<TestEventA>() {
-        //             match evt.downcast::<TestEventA>() {
-        //                 Ok(_) => {
-        //                     call_flag_a.set(true);
-        //                 },
-        //                 Err(_) => {/*ignore*/}
-        //             }
-        //         }
-        //         else {
-        //             match evt.downcast::<TestEventB>() {
-        //                 Ok(_) => {
-        //                     call_flag_b.set(true);
-        //                 },
-        //                 Err(_) => {/*ignore*/}
-        //             }
-        //         }
-        //     });
 
         // Schedule a callback at 1s
         time_manager.schedule_callback(one_sec, || {
@@ -674,7 +504,7 @@ mod tests {
 
         // Schedule the events to be emitted later
         time_manager.schedule_event(Time::new::<second>(2.0), a_evt);
-        time_manager.schedule_event(Time::new::<second>(6.0), b_evt);
+        time_manager.schedule_event(Time::new::<second>(2.0), b_evt);
         
         // Schedule a callback at 7s
         time_manager.schedule_callback(Time::new::<second>(7.0), || {
@@ -683,24 +513,33 @@ mod tests {
 
         // Advance by 1s. First callback should fire
         time_manager.advance_by(one_sec);
-        assert!(!call_flag_a.get(), "A Event should not have fired.");
-        assert!(!call_flag_b.get(), "B Event should not have fired.");
+        for listener in time_manager.next_listeners().unwrap().1 {
+            listener();
+        }
+        assert!(time_manager.next_events().is_none());
         assert!(call_flag_c.get(), "C Event should have fired.");
         assert!(!call_flag_d.get(), "D Event should not have fired.");
         
-        // Advance again. Event A should fire now.
+        // Advance again. Event A and B should fire now.
         time_manager.advance_by(one_sec);
-        assert!(call_flag_a.get(), "A Event should have fired.");
-        assert!(!call_flag_b.get(), "B Event should not have fired.");
-        assert!(!call_flag_d.get(), "D Event should not have fired.");
-        
-        // Advance again automatically. Should fire B now.
-        time_manager.advance();
-        assert!(call_flag_b.get(), "B Event should have fired.");
+        assert!(time_manager.next_listeners().is_none());
+        for (evt_type, evt) in time_manager.next_events().unwrap().1.into_iter() {
+            if evt.is::<TestEventA>() {
+                assert_eq!(evt_type, TypeId::of::<TestEventA>());
+                assert_eq!(evt.downcast::<TestEventA>().unwrap().len, Length::new::<meter>(3.5));
+            }
+            else {
+                assert_eq!(evt_type, TypeId::of::<TestEventB>());
+                assert_eq!(evt.downcast::<TestEventB>().unwrap().amt, AmountOfSubstance::new::<mole>(123456.0));
+            }
+        }
         assert!(!call_flag_d.get(), "D Event should not have fired.");
         
         // Last advance. Should fire D now.
         time_manager.advance();
+        for listener in time_manager.next_listeners().unwrap().1 {
+            listener();
+        }
         assert!(call_flag_d.get(), "D Event should have fired.");
     }
 }
