@@ -45,7 +45,17 @@ impl<'a> PartialEq for dyn EventTransformer + 'a {
 
 impl<'a> PartialOrd for dyn EventTransformer + 'a {
     fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
-        self.priority().partial_cmp(&other.priority())
+        if other.priority() == self.priority() {
+            if self.eq(other) {
+                Some(cmp::Ordering::Equal)
+            }
+            else {
+                self.transformer_id().partial_cmp(&other.transformer_id())
+            }
+        }
+        else {
+            other.priority().partial_cmp(&self.priority())
+        }
     }
 }
 
@@ -53,7 +63,17 @@ impl<'a> Eq for dyn EventTransformer + 'a {}
 
 impl<'a> Ord for dyn EventTransformer + 'a {
     fn cmp(&self, other: &Self) -> cmp::Ordering {
-        self.priority().cmp(&other.priority())
+        if other.priority() == self.priority() {
+            if self.eq(other) {
+                cmp::Ordering::Equal
+            }
+            else {
+                self.transformer_id().cmp(&other.transformer_id())
+            }
+        }
+        else {
+            other.priority().cmp(&self.priority())
+        }
     }
 }
 

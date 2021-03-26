@@ -46,7 +46,17 @@ impl<'a> PartialEq for dyn EventListener + 'a {
 
 impl<'a> PartialOrd for dyn EventListener + 'a {
     fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
-        other.priority().partial_cmp(&self.priority())
+        if other.priority() == self.priority() {
+            if self.eq(other) {
+                Some(cmp::Ordering::Equal)
+            }
+            else {
+                self.listener_id().partial_cmp(&other.listener_id())
+            }
+        }
+        else {
+            other.priority().partial_cmp(&self.priority())
+        }
     }
 }
 
@@ -54,7 +64,17 @@ impl<'a> Eq for dyn EventListener + 'a {}
 
 impl<'a> Ord for dyn EventListener + 'a {
     fn cmp(&self, other: &Self) -> cmp::Ordering {
-        other.priority().cmp(&self.priority())
+        if other.priority() == self.priority() {
+            if self.eq(other) {
+                cmp::Ordering::Equal
+            }
+            else {
+                self.listener_id().cmp(&other.listener_id())
+            }
+        }
+        else {
+            other.priority().cmp(&self.priority())
+        }
     }
 }
 
