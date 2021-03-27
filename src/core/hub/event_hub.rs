@@ -320,12 +320,12 @@ impl<'a> EventHub<'a> {
         }
     }
 
-    /// Registers a listener for Event's which have completed emittion. Ownership of the Event
+    /// Registers a listener for Events which have completed emittion. Ownership of the Event
     /// is transferred to the target function.
     ///
     /// ### Arguments
     /// * `handler` - Function to own the emitted Event
-    pub(super) fn on_emitted(&mut self, handler: impl FnMut(TypeId, Arc<dyn Event>) + 'a) {
+    pub(in super::super) fn on_emitted(&mut self, handler: impl FnMut(TypeId, Arc<dyn Event>) + 'a) {
         self.on_emitted_fn = Some(Box::new(handler));
     }
 }
@@ -457,6 +457,6 @@ mod tests {
 
         hub.emit(TestEventA::new(Length::new::<meter>(1.0)));
         
-        assert_eq!(vec![2,3,5], *calls.try_borrow().unwrap());
+        assert_eq!(vec![5,3,2], *calls.try_borrow().unwrap());
     }
 }

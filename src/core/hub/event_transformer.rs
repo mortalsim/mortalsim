@@ -179,9 +179,9 @@ mod tests {
 
         v.sort();
 
-        assert_eq!(v[0].priority(), -2);
-        assert_eq!(v[1].priority(), 0);
-        assert_eq!(v[2].priority(), 3);
-        assert_eq!(v[3].priority(), 5);
+        assert_eq!(v[0].priority(), 5);
+        assert_eq!(v[1].priority(), 3);
+        assert_eq!(v[2].priority(), 0);
+        assert_eq!(v[3].priority(), -2);
     }
 }

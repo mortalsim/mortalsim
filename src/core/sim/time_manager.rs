@@ -495,7 +495,6 @@ mod tests {
         // variable representing one second
         let mut time_manager = TimeManager::new();
         let one_sec = Time::new::<second>(1.0);
-        
 
         // Schedule a callback at 1s
         time_manager.schedule_callback(one_sec, || {

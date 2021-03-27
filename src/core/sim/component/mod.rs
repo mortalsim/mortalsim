@@ -57,10 +57,10 @@ pub mod test {
 
             match connector.get_trigger_event() {
                 None => {
-                    print!("No trigger event");
+                    log::debug!("No trigger event");
                 },
                 Some(evt) => {
-                    print!("Trigger event: {:?}", evt);
+                    log::debug!("Trigger event: {:?}", evt);
                 }
             }
         }

@@ -6,7 +6,7 @@ use uuid::Uuid;
 use crate::event::Event;
 use anyhow::{Result, Error};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SimState {
     state_id: Uuid,
     /// Internal storage mechanism for `SimState` objects

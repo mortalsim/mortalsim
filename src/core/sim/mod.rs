@@ -97,14 +97,19 @@ impl<'a> Sim<'a> {
         sim.setup(component_set);
         sim
     }
-
-    /// Initial setup for the simulation
-    fn setup(&mut self, component_names: HashSet<&'static str>) {
-        self.init_components(component_names);
+    
+    /// Attaches emitted events to this Sim's canonical state
+    /// and initializes components
+    fn setup(&mut self, component_set: HashSet<&'static str>) {
+        let state = self.state.clone();
+        self.hub.borrow_mut().on_emitted(move |evt_type, evt| {
+            state.borrow_mut().put_state(evt_type, evt);
+        });
+        self.init_components(component_set);
     }
 
     /// Retrieves the set of names of components which are active on this Sim
-    fn active_components(&self) -> HashSet<&'static str> {
+    pub fn active_components(&self) -> HashSet<&'static str> {
         self.active_components.keys().cloned().collect()
     }
 
@@ -112,7 +117,7 @@ impl<'a> Sim<'a> {
     ///
     /// ### Arguments
     /// * `component_names` - Set of components to add
-    fn add_components(&mut self, component_names: HashSet<&'static str>) {
+    pub fn add_components(&mut self, component_names: HashSet<&'static str>) {
         self.init_components(component_names);
     }
 
@@ -121,7 +126,7 @@ impl<'a> Sim<'a> {
     ///
     /// ### Arguments
     /// * `component_names` - Set of components to remove
-    fn remove_components(&mut self, component_names: HashSet<&'static str>) {
+    pub fn remove_components(&mut self, component_names: HashSet<&'static str>) {
         for component_name in component_names {
             if self.active_components.remove(component_name).is_none() {
                 panic!("Invalid component name \"{}\" provided for removal", component_name);
@@ -194,7 +199,7 @@ impl<'a> Sim<'a> {
     /// ### Arguments
     /// * `evt` - Event to dispatch
     pub fn emit<T: Event>(&mut self, evt: T) {
-        self.hub.borrow_mut().emit(evt)
+        self.hub.borrow_mut().emit(evt);
     }
     
     /// Registers a listener for any Event. 
@@ -306,6 +311,7 @@ impl<'a> Sim<'a> {
     /// If there are no Events or listeners in the queue, time will remain unchanged
     pub fn advance(&mut self) {
         self.time_manager.borrow_mut().advance();
+        self.execute_time_step();
     }
 
     /// Advances simulation time by the provided time step
@@ -317,7 +323,7 @@ impl<'a> Sim<'a> {
     /// * `time_step` - Amount of time to advance by
     pub fn advance_by(&mut self, time_step: Time) {
         self.time_manager.borrow_mut().advance_by(time_step);
-
+        self.execute_time_step();
     }
 
     fn execute_time_step(&mut self) {
@@ -431,16 +437,109 @@ impl<'a> Sim<'a> {
 
 #[cfg(test)]
 mod tests {
-    use std::cell::Cell;
+    use std::cell::{Cell, RefCell};
+    use std::rc::Rc;
+    use std::sync::Arc;
+    use std::collections::HashSet;
     use super::Sim;
     use super::component::SimComponent;
-    use super::component::test::TestComponentA;
+    use super::component::test::{TestComponentA, TestComponentB};
+    use uom::si::f64::{Time, Length, AmountOfSubstance};
+    use uom::si::length::meter;
+    use uom::si::amount_of_substance::mole;
+    use uom::si::time::second;
+    use crate::event::test::{TestEventA, TestEventB};
+    use crate::core::sim::sim_state::SimState;
 
-    #[test]
-    fn test_registry() {
+    fn setup() {
         crate::test::init_test();
-        Sim::register_component("TestComponent", TestComponentA::factory);
-        Sim::new();
+        Sim::register_component("TestComponentA", TestComponentA::factory);
+        Sim::register_component("TestComponentB", TestComponentB::factory);
     }
 
+    #[test]
+    fn registry_test() {
+        setup();
+    }
+
+    #[test]
+    fn creation_test() {
+        setup();
+        let sim1 = Sim::new();
+        let mut default_set = HashSet::new();
+        default_set.insert("TestComponentA");
+        default_set.insert("TestComponentB");
+        assert_eq!(sim1.active_components(), default_set);
+
+        let mut a_set = HashSet::new();
+        a_set.insert("TestComponentA");
+        let sim2 = Sim::new_custom(a_set.clone());
+        assert_eq!(sim2.active_components(), a_set);
+
+        let mut init_state = SimState::new();
+        init_state.set_state(TestEventA::new(Length::new::<meter>(1.0)));
+        let sim3 = Sim::new_with_state(init_state.clone());
+        assert!(sim3.has_state::<TestEventA>());
+        
+        let sim3 = Sim::new_custom_with_state(a_set.clone(), init_state);
+        assert_eq!(sim3.active_components(), a_set);
+        assert!(sim3.has_state::<TestEventA>());
+    }
+
+    #[test]
+    fn add_remove_components_test() {
+        setup();
+        let mut a_set = HashSet::new();
+        a_set.insert("TestComponentA");
+
+        let mut sim = Sim::new_custom(a_set.clone());
+        assert_eq!(sim.active_components(), a_set);
+
+        let mut b_set = HashSet::new();
+        b_set.insert("TestComponentB");
+        sim.add_components(b_set.clone());
+
+        a_set.extend(b_set.clone());
+        assert_eq!(sim.active_components(), a_set);
+
+        sim.remove_components(b_set);
+        a_set.remove("TestComponentB");
+        assert_eq!(sim.active_components(), a_set);
+    }
+    
+    #[test]
+    fn emit_get_state_test() {
+        setup();
+        let mut sim = Sim::new();
+
+        sim.emit(TestEventA::new(Length::new::<meter>(1.0)));
+        assert!(sim.get_state::<TestEventA>().is_some());
+    }
+    
+    #[test]
+    fn advance_test() {
+        setup();
+        let mut sim = Sim::new();
+
+        let evt_a = TestEventA::new(Length::new::<meter>(1.0));
+        let evt_b = TestEventB::new(AmountOfSubstance::new::<mole>(1.0));
+        sim.schedule_event(Time::new::<second>(1.0), evt_a);
+        sim.schedule_event(Time::new::<second>(3.0), evt_b);
+
+        assert!(sim.get_state::<TestEventA>().is_none());
+        assert!(sim.get_state::<TestEventB>().is_none());
+
+        sim.advance();
+        assert_eq!(sim.get_time(), Time::new::<second>(1.0));
+        assert!(sim.get_state::<TestEventA>().is_some());
+        assert!(sim.get_state::<TestEventB>().is_none());
+        
+        sim.advance_by(Time::new::<second>(1.0));
+        assert_eq!(sim.get_time(), Time::new::<second>(2.0));
+        assert!(sim.get_state::<TestEventB>().is_none());
+        
+        sim.advance_by(Time::new::<second>(2.0));
+        assert_eq!(sim.get_time(), Time::new::<second>(4.0));
+        assert!(sim.get_state::<TestEventB>().is_some());
+    }
 }

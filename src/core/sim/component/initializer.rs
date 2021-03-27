@@ -17,6 +17,7 @@ pub struct SimComponentInitializer<'a> {
     transformer_ids: Vec<IdType>,
     input_events: HashSet<TypeId>,
     output_events: HashSet<TypeId>,
+    hub_ref: Option<&'a mut EventHub<'a>>,
 }
 
 impl<'a> SimComponentInitializer<'a> {
@@ -29,7 +30,12 @@ impl<'a> SimComponentInitializer<'a> {
             transformer_ids: Vec::new(),
             input_events: HashSet::new(),
             output_events: HashSet::new(),
+            hub_ref: None,
         }
+    }
+
+    pub fn set_hub_ref(&mut self, event_hub: &'a mut EventHub<'a>) {
+        self.hub_ref = Some(event_hub);
     }
 
     /// Registers the corresponding `SimComponent` to `run` whenever the
