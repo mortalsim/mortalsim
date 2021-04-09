@@ -1,6 +1,8 @@
+mod blood_manager;
 
 /// Type of a blood vessel
-enum BloodVesselType {
+#[derive(Debug, Clone, Copy)]
+pub enum BloodVesselType {
     Vein,
     Artery,
 }
