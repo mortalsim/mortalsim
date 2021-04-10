@@ -72,7 +72,7 @@ impl<'a> SubstanceStore<'a> {
     /// Returns the amount of that substance, or 0.0 mol/L if it is not present
     pub fn concentration_of(&self, substance: &Substance) -> MolarConcentration {
         match self.composition.get(substance) {
-            None => MolarConcentration::new::<mole_per_liter>(0.0),
+            None => *ZERO_MOLAR,
             Some(amt) => amt.clone()
         }
     }
@@ -85,7 +85,7 @@ impl<'a> SubstanceStore<'a> {
     /// Returns the amount of that substance, or 0.0 mol if it is not present
     pub fn amount_of(&self, substance: &Substance) -> AmountOfSubstance {
         match self.composition.get(substance) {
-            None => AmountOfSubstance::new::<mole>(0.0),
+            None => *ZERO_MOLE,
             Some(amt) => amt.clone() * self.volume
         }
     }
