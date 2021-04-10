@@ -1,26 +1,65 @@
-
+use std::hash::{Hash, Hasher};
+use std::cmp::Ordering;
 use std::collections::HashMap;
 use serde_json::Value;
-use indextree::{Arena, NodeId};
+use petgraph::stable_graph::StableDiGraph;
 use super::BloodVesselType;
 use crate::substance::SubstanceStore;
 
+
+#[derive(Debug)]
 struct BloodNode<'a> {
     pub vessel_id: String,
     pub vessel_type: BloodVesselType,
-    pub substance_stores: Vec<SubstanceStore<'a>>,
+    pub main_store: SubstanceStore<'a>,
+    pub stores: Vec<SubstanceStore<'a>>,
 }
 
+impl<'a> BloodNode<'a> {
+    fn new(vessel_id: String, vessel_type: BloodVesselType) -> BloodNode<'a> {
+        BloodNode {
+            vessel_id: vessel_id,
+            vessel_type: vessel_type,
+            main_store: SubstanceStore::new(),
+            stores: Vec::new(),
+        }
+    }
+}
+
+impl<'a> Hash for BloodNode<'a> {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.vessel_id.hash(state);
+    }
+}
+
+// impl<'a> PartialEq for BloodNode<'a> {
+//     fn eq(&self, other: &BloodNode) -> bool {
+//         self.vessel_id.eq(&other.vessel_id)
+//     }
+// }
+
+// impl<'a> PartialOrd for BloodNode<'a> {
+//     fn partial_cmp(&self, other: &BloodNode) -> Option<Ordering> {
+//         self.vessel_id.partial_cmp(&other.vessel_id)
+//     }
+// }
+
+// impl<'a> Eq for BloodNode<'a> {}
+
+// impl<'a> Ord for BloodNode<'a> {
+//     fn cmp(&self, other: &BloodNode) -> Ordering {
+//         self.vessel_id.cmp(&other.vessel_id)
+//     }
+// }
+
 pub struct BloodManager<'a> {
-    arena: Arena<BloodNode<'a>>,
-    node_map: HashMap<String, NodeId>,
+    graph: DiGraphMap<BloodNode<'a>, u32>,
 }
 
 impl<'a> BloodManager<'a> {
     pub fn new(vessel_tree_def: &Value) -> BloodManager<'a> {
         let mut manager = BloodManager {
-            arena: Arena::new(),
-            node_map: HashMap::new(),
+            graph: DiGraphMap::new(),
         };
 
         manager.setup(vessel_tree_def);
@@ -75,5 +114,9 @@ impl<'a> BloodManager<'a> {
                 self.add_node(vein_def, &node);
             }
         }
+    }
+
+    fn add_veins(&mut self, vessel_def: &Value) {
+
     }
 }

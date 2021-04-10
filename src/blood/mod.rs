@@ -1,4 +1,3 @@
-mod blood_manager;
 
 /// Type of a blood vessel
 #[derive(Debug, Clone, Copy)]

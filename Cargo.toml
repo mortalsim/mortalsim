@@ -15,9 +15,16 @@ log = "0.4"
 ordered-float = "2.0"
 rand = "0.7.3"
 serde_json = "1.0"
-indextree = "4.3.1"
-uom = { version = "0.31.0", default-features = false, features = ["autoconvert", "rational", "f64", "si", "std", "try-from", "use_serde"] }
-uuid = { version = "0.8", features = ["serde", "v4"] }
+petgraph = "0.5.1"
+
+[dependencies.uom]
+version = "0.31.0"
+default-features = false
+features = ["autoconvert", "rational", "f64", "si", "std", "try-from", "use_serde"]
+
+[dependencies.uuid]
+version = "0.8"
+features = ["serde", "v4"]
 
 [dev-dependencies]
 simple_logger = "1.11.0"
