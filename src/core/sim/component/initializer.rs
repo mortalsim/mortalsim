@@ -9,33 +9,27 @@ use crate::event::Event;
 use crate::util::id_gen::IdType;
 use super::{SimComponent, SimConnector};
 
-pub struct SimComponentInitializer<'a> {
-    pub(in super::super) connector: Rc<RefCell<SimConnector<'a>>>,
-    component: Rc<RefCell<Box<dyn SimComponent>>>,
-    hub: Rc<RefCell<EventHub<'a>>>,
-    listener_ids: Vec<IdType>,
-    transformer_ids: Vec<IdType>,
+pub struct SimComponentInitializer<'a, 'b> {
+    hub: &'a mut EventHub<'b>,
+    connector: Rc<RefCell<SimConnector<'b>>>,
+    component: Rc<RefCell<dyn SimComponent>>,
+    pub(in super::super) listener_ids: Vec<IdType>,
+    pub(in super::super) transformer_ids: Vec<IdType>,
     input_events: HashSet<TypeId>,
     output_events: HashSet<TypeId>,
-    hub_ref: Option<&'a mut EventHub<'a>>,
 }
 
-impl<'a> SimComponentInitializer<'a> {
-    pub fn new(time_manager: Rc<RefCell<TimeManager<'a>>>, hub: Rc<RefCell<EventHub<'a>>>, component: Rc<RefCell<Box<dyn SimComponent>>>) -> SimComponentInitializer<'a> {
+impl<'a, 'b> SimComponentInitializer<'a, 'b> {
+    pub fn new(hub: &'a mut EventHub<'b>, connector: Rc<RefCell<SimConnector<'b>>>, component: Rc<RefCell<dyn SimComponent>>) -> SimComponentInitializer<'a, 'b> {
         SimComponentInitializer {
-            connector: Rc::new(RefCell::new(SimConnector::new(time_manager.clone()))),
-            component: component,
             hub: hub,
+            connector: connector,
+            component: component,
             listener_ids: Vec::new(),
             transformer_ids: Vec::new(),
             input_events: HashSet::new(),
             output_events: HashSet::new(),
-            hub_ref: None,
         }
-    }
-
-    pub fn set_hub_ref(&mut self, event_hub: &'a mut EventHub<'a>) {
-        self.hub_ref = Some(event_hub);
     }
 
     /// Registers the corresponding `SimComponent` to `run` whenever the
@@ -64,10 +58,10 @@ impl<'a> SimComponentInitializer<'a> {
         self.connector.borrow_mut().local_state.set_state_quiet(default);
 
         // Create weak pointers to our connector & component
-        let connector_weak = Rc::downgrade(&self.connector);
         let component_weak = Rc::downgrade(&self.component);
+        let connector_weak = Rc::downgrade(&self.connector);
 
-        let listener_id = self.hub.borrow_mut().on_prioritized(priority, move |evt: Arc<T>| {
+        let listener_id = self.hub.on_prioritized(priority, move |evt: Arc<T>| {
             match component_weak.upgrade() {
                 Some(component) => {
                     match connector_weak.upgrade() {
@@ -91,8 +85,8 @@ impl<'a> SimComponentInitializer<'a> {
     /// 
     /// ### Arguments
     /// * `transformer` - Function to modify the `Event`
-    pub fn transform<T: Event>(&mut self, transformer: impl FnMut(&mut T) + 'a) {
-        let transformer_id = self.hub.borrow_mut().transform(transformer);
+    pub fn transform<T: Event>(&mut self, transformer: impl FnMut(&mut T) + 'b) {
+        let transformer_id = self.hub.transform(transformer);
         self.transformer_ids.push(transformer_id);
     }
     
@@ -102,8 +96,8 @@ impl<'a> SimComponentInitializer<'a> {
     /// ### Arguments
     /// * `priority` - Transformation order priority for this registration
     /// * `transformer` - Function to modify the `Event`
-    pub fn transform_prioritized<T: Event>(&mut self, priority: i32, transformer: impl FnMut(&mut T) + 'a) {
-        let transformer_id = self.hub.borrow_mut().transform_prioritized(priority, transformer);
+    pub fn transform_prioritized<T: Event>(&mut self, priority: i32, transformer: impl FnMut(&mut T) + 'b) {
+        let transformer_id = self.hub.transform_prioritized(priority, transformer);
         self.transformer_ids.push(transformer_id);
     }
     
@@ -111,28 +105,8 @@ impl<'a> SimComponentInitializer<'a> {
     /// 
     /// ### Arguments
     /// * `event` - `Event` instance to set on initial state
-    pub fn set_initial_state<T: Event>(&mut self, priority: i32, transformer: impl FnMut(&mut T) + 'a) {
-        let transformer_id = self.hub.borrow_mut().transform_prioritized(priority, transformer);
+    pub fn set_initial_state<T: Event>(&mut self, priority: i32, transformer: impl FnMut(&mut T) + 'b) {
+        let transformer_id = self.hub.transform_prioritized(priority, transformer);
         self.transformer_ids.push(transformer_id);
-    }
-}
-
-// Unset any listeners & transformers when this object drops
-impl<'a> Drop for SimComponentInitializer<'a> {
-    fn drop(&mut self) {
-        let mut hub = self.hub.borrow_mut();
-        for listener_id in self.listener_ids.iter_mut() {
-            match hub.off(*listener_id) {
-                Err(err) => panic!(err),
-                Ok(_) => {}
-            }
-        }
-
-        for transformer_id in self.transformer_ids.iter_mut() {
-            match hub.unset_transform(*transformer_id) {
-                Err(err) => panic!(err),
-                Ok(_) => {}
-            }
-        }
     }
 }

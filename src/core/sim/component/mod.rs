@@ -2,12 +2,24 @@ mod connector;
 mod initializer;
 use std::any::TypeId;
 use std::collections::HashSet;
+use std::rc::Rc;
+use std::cell::RefCell;
 use crate::event::Event;
 pub use connector::SimConnector;
 pub use initializer::SimComponentInitializer;
 
+pub trait ConversionHelper {
+    fn wrap_in_refcell(self: Box<Self>) -> Rc<RefCell<dyn SimComponent>>;
+}
+
+impl<T: SimComponent + 'static> ConversionHelper for T {
+    fn wrap_in_refcell(self: Box<Self>) -> Rc<RefCell<dyn SimComponent>> {
+        Rc::new(RefCell::new(*self))
+    }
+}
+
 /// Trait to be used by any components for Sim objects
-pub trait SimComponent {
+pub trait SimComponent: ConversionHelper {
     /// Initializes the component. Should register any `Event` objects to listen for
     /// and set initial state.
     /// 

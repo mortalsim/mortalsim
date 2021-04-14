@@ -21,10 +21,17 @@ lazy_static! {
     static ref COMPONENT_REGISTRY: Mutex<HashMap<&'static str, Box<dyn FnMut() -> Box<dyn SimComponent> + Send>>> = Mutex::new(HashMap::new());
 }
 
+struct ComponentContext<'a> {
+    pub component: Rc<RefCell<dyn SimComponent>>,
+    pub connector: Rc<RefCell<SimConnector<'a>>>,
+    pub listener_ids: Vec<IdType>,
+    pub transformer_ids: Vec<IdType>,
+}
+
 pub struct Sim<'a> {
     sim_id: Uuid,
-    active_components: HashMap<&'static str, SimComponentInitializer<'a>>,
-    hub: Rc<RefCell<EventHub<'a>>>,
+    active_components: HashMap<&'static str, ComponentContext<'a>>,
+    hub: EventHub<'a>,
     time_manager: Rc<RefCell<TimeManager<'a>>>,
     state: Rc<RefCell<SimState>>,
 }
@@ -45,7 +52,7 @@ impl<'a> Sim<'a> {
         Sim {
             sim_id: Uuid::new_v4(),
             active_components: HashMap::new(),
-            hub: Rc::new(RefCell::new(EventHub::new())),
+            hub: EventHub::new(),
             time_manager: Rc::new(RefCell::new(TimeManager::new())),
             state: Rc::new(RefCell::new(initial_state)),
         }
@@ -102,7 +109,7 @@ impl<'a> Sim<'a> {
     /// and initializes components
     fn setup(&mut self, component_set: HashSet<&'static str>) {
         let state = self.state.clone();
-        self.hub.borrow_mut().on_emitted(move |evt_type, evt| {
+        self.hub.on_emitted(move |evt_type, evt| {
             state.borrow_mut().put_state(evt_type, evt);
         });
         self.init_components(component_set);
@@ -148,16 +155,21 @@ impl<'a> Sim<'a> {
             match COMPONENT_REGISTRY.lock().unwrap().get_mut(component_name) {
                 None => panic!("Invalid component name provided: \"{}\"", component_name),
                 Some(factory) => {
-                    let component = factory();
-                    let component_ref = Rc::new(RefCell::new(component));
-                    let mut initializer = SimComponentInitializer::new(self.time_manager.clone(), self.hub.clone(), component_ref.clone());
-                    component_ref.borrow_mut().init(&mut initializer);
+                    let component = factory().wrap_in_refcell();
+                    let connector = Rc::new(RefCell::new(SimConnector::new(self.time_manager.clone())));
+                    let mut initializer = SimComponentInitializer::new(&mut self.hub, connector.clone(), component.clone());
+                    component.borrow_mut().init(&mut initializer);
 
                     // set initial state
-                    self.state.borrow_mut().merge_tainted(&initializer.connector.borrow().local_state);
-                    initializer.connector.borrow_mut().local_state.clear_taint();
+                    self.state.borrow_mut().merge_tainted(&connector.borrow().local_state);
+                    connector.borrow_mut().local_state.clear_taint();
 
-                    self.active_components.insert(component_name, initializer);
+                    self.active_components.insert(component_name, ComponentContext {
+                        component: component,
+                        connector: connector,
+                        listener_ids: initializer.listener_ids,
+                        transformer_ids: initializer.transformer_ids,
+                    });
                 }
             }
         }
@@ -199,7 +211,7 @@ impl<'a> Sim<'a> {
     /// ### Arguments
     /// * `evt` - Event to dispatch
     pub fn emit<T: Event>(&mut self, evt: T) {
-        self.hub.borrow_mut().emit(evt);
+        self.hub.emit(evt);
     }
     
     /// Registers a listener for any Event. 
@@ -209,7 +221,7 @@ impl<'a> Sim<'a> {
     /// 
     /// Returns the registration ID for the listener
     pub fn on_any(&mut self, listener: impl FnMut(Arc<dyn Event>) + 'a) -> IdType {
-        self.hub.borrow_mut().on_any(listener)
+        self.hub.on_any(listener)
     }
 
     /// Registers a listener for any Event with the given priority value. Higher
@@ -221,7 +233,7 @@ impl<'a> Sim<'a> {
     /// 
     /// Returns the registration ID for the listener
     pub fn on_any_prioritized(&mut self, priority: i32, handler: impl FnMut(Arc<dyn Event>) + 'a) -> IdType {
-        self.hub.borrow_mut().on_any_prioritized(priority, handler)
+        self.hub.on_any_prioritized(priority, handler)
     }
     
     /// Unregisters a listener for any Event with the given registration ID returned
@@ -232,7 +244,7 @@ impl<'a> Sim<'a> {
     /// 
     /// Returns Ok if successful, or Err if the provided ID is invalid.
     pub fn off_any(&mut self, listener_id: IdType) -> Result<()> {
-        self.hub.borrow_mut().off_any(listener_id)
+        self.hub.off_any(listener_id)
     }
 
     /// Registers a listener for a specific Event. 
@@ -242,7 +254,7 @@ impl<'a> Sim<'a> {
     /// 
     /// Returns the registration ID for the listener
     pub fn on<T: Event>(&mut self, handler: impl FnMut(Arc<T>) + 'a) -> IdType {
-        self.hub.borrow_mut().on(handler)
+        self.hub.on(handler)
     }
     
     /// Registers a listener for a specific Event with the given priority value.
@@ -254,7 +266,7 @@ impl<'a> Sim<'a> {
     /// 
     /// Returns the registration ID for the listener
     pub fn on_prioritized<T: Event>(&mut self, priority: i32, handler: impl FnMut(Arc<T>) + 'a) -> IdType {
-        self.hub.borrow_mut().on_prioritized(priority, handler)
+        self.hub.on_prioritized(priority, handler)
     }
 
     /// Unregisters a listener for a specific Event with the given registration ID returned
@@ -265,7 +277,7 @@ impl<'a> Sim<'a> {
     /// 
     /// Returns Ok if successful, or Err if the provided ID is invalid.
     pub fn off(&mut self, listener_id: IdType) -> Result<()> {
-        self.hub.borrow_mut().off(listener_id)
+        self.hub.off(listener_id)
     }
     
     /// Registers a transformer for a specific Event. 
@@ -275,7 +287,7 @@ impl<'a> Sim<'a> {
     /// 
     /// Returns the registration ID for the transformer
     pub fn transform<T: Event>(&mut self, handler: impl FnMut(&mut T) + 'a) -> IdType {
-        self.hub.borrow_mut().transform(handler)
+        self.hub.transform(handler)
     }
     
     /// Registers a transformer for a specific Event with the given priority. Higher
@@ -287,7 +299,7 @@ impl<'a> Sim<'a> {
     /// 
     /// Returns the registration ID for the transformer
     pub fn transform_prioritized<T: Event>(&mut self, priority: i32, handler: impl FnMut(&mut T) + 'a) -> IdType {
-        self.hub.borrow_mut().transform_prioritized(priority, handler)
+        self.hub.transform_prioritized(priority, handler)
     }
 
     /// Unregisters a transformer for a specific Event with the given registration ID returned
@@ -298,7 +310,7 @@ impl<'a> Sim<'a> {
     /// 
     /// Returns Ok if successful, or Err if the provided ID is invalid.
     pub fn unset_transform(&mut self, transformer_id: IdType) -> Result<()> {
-        self.hub.borrow_mut().unset_transform(transformer_id)
+        self.hub.unset_transform(transformer_id)
     }
 
     /// Returns the current simulation time
@@ -340,7 +352,7 @@ impl<'a> Sim<'a> {
 
                 if evt_time <= lis_time {
                     for (type_key, evt) in evt_list.into_iter() {
-                        self.hub.borrow_mut().emit_typed(type_key, evt);
+                        self.hub.emit_typed(type_key, evt);
                     }
                     for listener in lis_list {
                         listener();
@@ -351,14 +363,14 @@ impl<'a> Sim<'a> {
                         listener();
                     }
                     for (type_key, evt) in evt_list.into_iter() {
-                        self.hub.borrow_mut().emit_typed(type_key, evt);
+                        self.hub.emit_typed(type_key, evt);
                     }
                 }
             }
             else if next_events.is_some() {
                 let (_, evt_list) = next_events.unwrap();
                 for (type_key, evt) in evt_list.into_iter() {
-                    self.hub.borrow_mut().emit_typed(type_key, evt);
+                    self.hub.emit_typed(type_key, evt);
                 }
             }
             else if next_listeners.is_some() {
