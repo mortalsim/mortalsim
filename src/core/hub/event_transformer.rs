@@ -5,6 +5,7 @@
 use std::cmp;
 use std::fmt;
 use std::sync::Mutex;
+use std::any::TypeId;
 use uuid::Uuid;
 use crate::util::id_gen::{IdType, IdGenerator};
 use crate::event::Event;
@@ -26,6 +27,9 @@ pub trait EventTransformer {
     
     /// Retrieves the id for this listener
     fn transformer_id(&self) -> IdType;
+
+    /// Retrieves the TypeId for the underlying Event type
+    fn type_id(&self) -> TypeId;
 }
 
 impl<'a> fmt::Debug for dyn EventTransformer + 'a {
@@ -138,6 +142,10 @@ impl<'a, T: Event> EventTransformer for TransformerItem<'a, T> {
 
     fn transformer_id(&self) -> IdType {
         self.transformer_id
+    }
+
+    fn type_id(&self) -> TypeId {
+        TypeId::of::<T>()
     }
 }
 

@@ -1,29 +1,33 @@
 use std::sync::Arc;
-use std::rc::{Rc, Weak};
 use std::collections::HashMap;
-use std::cell::{Ref, RefCell, Cell};
 use std::any::TypeId;
-use std::io;
-use std::convert::From;
 use anyhow::{Error, Result};
+use uom::si::time::second;
 use crate::util::id_gen::IdType;
-use crate::core::hub::EventHub;
-use crate::core::sim::{SimState, TimeManager, Time};
+use crate::core::sim::{SimState, Time};
 use crate::event::Event;
 
 /// Provides methods for `Sim` components to interact with the simulation
-pub struct SimConnector<'a> {
+pub struct SimConnector {
     /// State specific to the connected component
-    pub(in super::super) local_state: SimState,
-    /// Ref to the `Sim`'s `TimeManager` instance for scheduling `Event` objects
-    time_manager: Rc<RefCell<TimeManager<'a>>>,
+    pub(crate) local_state: SimState,
     /// Holds a shared reference to the Event which triggered component execution
-    trigger_event: Option<Arc<dyn Event>>,
-    /// List of scheduled event identifiers
-    schedule_ids: Vec<IdType>,
+    pub(crate) trigger_event: Option<Arc<dyn Event>>,
+    /// Map of scheduled event identifiers
+    pub(crate) scheduled_events: HashMap<TypeId, HashMap<IdType, Time>>,
+    /// Map of scheduled ids to event types
+    pub(crate) schedule_id_type_map: HashMap<IdType, TypeId>,
+    /// List of events to schedule
+    pub(crate) pending_schedules: Vec<(Time, Box<dyn Event>)>,
+    /// List of events to unschedule
+    pub(crate) pending_unschedules: Vec<IdType>,
+    /// Copy of the current simulation time
+    pub(crate) sim_time: Time,
+    /// Whether all currently scheduled events should be unscheduled
+    pub(crate) unschedule_all: bool,
 }
 
-impl<'a> SimConnector<'a> {
+impl SimConnector {
     
     /// Creates a new SimConnector
     /// 
@@ -31,50 +35,69 @@ impl<'a> SimConnector<'a> {
     /// * `time_manager` - Reference to the `Sim` object's `TimeManager` instance
     /// 
     /// returns the newly constructed SimConnector
-    pub fn new(time_manager: Rc<RefCell<TimeManager<'a>>>) -> SimConnector<'a> {
+    pub fn new() -> SimConnector {
         SimConnector {
             local_state: SimState::new(),
-            time_manager: time_manager,
             trigger_event: None,
-            schedule_ids: Vec::new(),
+            scheduled_events: HashMap::new(),
+            schedule_id_type_map: HashMap::new(),
+            pending_schedules: Vec::new(),
+            pending_unschedules: Vec::new(),
+            sim_time: Time::new::<second>(0.0),
+            unschedule_all: true,
         }
     }
     
-    /// Internal library function to prepare for the corresponding component to
-    /// perform its next execution
-    /// 
-    /// ### Arguments
-    /// * `evt` - Reference to the `Event` object which will trigger the component
-    pub(super) fn set_trigger(&mut self, evt: Arc<dyn Event>) {
-        self.trigger_event = Some(evt);
-        self.unschedule_events();
-    }
-    
-    /// Internal function for clearing scheduled events
-    fn unschedule_events(&mut self) {
-        for schedule_id in self.schedule_ids.iter() {
-            // ignore any Err results since it just means the `Event` has already executed
-            self.time_manager.borrow_mut().unschedule_event(*schedule_id).unwrap_or_default();
-        }
-
-        // Clear the schedule_ids vec for the next run
-        self.schedule_ids.clear();
-    }
-
     /// Schedules an `Event` for future emission after a specified delay
     /// 
     /// ### Arguments
     /// * `wait_time` - Amount of time to wait before execution
     /// * `evt` - `Event` to emit after `wait_time` has elapsed
-    /// 
-    /// Returns a schedule id which can be used to unschedule if needed later
     pub fn schedule_event<T: Event>(&mut self, wait_time: Time, evt: T) {
-        self.schedule_ids.push(self.time_manager.borrow_mut().schedule_event(wait_time, evt));
+        self.pending_schedules.push((wait_time, Box::new(evt)))
+    }
+    
+    /// Whether to unschedule all currently scheduled `Event` objects (default is true)
+    /// Set to `false` in order to manually specify which `Event` objects to unschedule
+    /// using `unschedule_event`
+    pub fn unschedule_all(&mut self, setting: bool) {
+        self.unschedule_all = setting;
+    }
+    
+    /// Unschedules an `Event` which has been scheduled previously.
+    /// 
+    /// ### Arguments
+    /// * `schedule_id` - schedule id of the Event to unschedule
+    /// 
+    /// Returns Ok if the id is valid, and Err otherwise
+    pub fn unschedule_event<T: Event>(&mut self, schedule_id: IdType) -> Result<()> {
+        let type_id = TypeId::of::<T>();
+        match self.scheduled_events.get(&type_id) {
+            Some(smap) => {
+                if smap.contains_key(&schedule_id) {
+                    Ok(())
+                }
+                else {
+                    Err(anyhow!("Invalid id provided for unscheduling"))
+                }
+            }
+            None => Err(anyhow!("Invalid type provided for unscheduling"))
+        }
+    }
+
+    /// Retrieves a mapping of schedule ids -> execution time for each
+    /// instance of the given Event type which has been scheduled previously,
+    /// and which has not yet been emitted.
+    /// 
+    /// Returns a HashMap if any events are scheduled for the given type, and
+    /// None otherwise
+    pub fn get_scheduled_events<T: Event>(&mut self) -> Option<&HashMap<IdType, Time>> {
+        self.scheduled_events.get(&TypeId::of::<T>())
     }
 
     /// Retrieves the current simulation time
     pub fn get_time(&self) -> Time {
-        self.time_manager.borrow().get_time()
+        self.sim_time
     }
 
     /// Retrieves the current `Event` object from state

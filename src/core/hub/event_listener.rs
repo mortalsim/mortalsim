@@ -165,11 +165,11 @@ impl<'a, T: Event> ListenerItem<'a, T> {
     /// and priority of execution
     /// 
     /// ### Arguments
-    /// * `handler`  - Event handling function
     /// * `priority` - determines this listener's priority when Events
     ///                are dispatched. Higher priority listeners are
     ///                executed first.
-    pub fn new_prioritized(handler: impl FnMut(Arc<T>) + 'a, priority: i32) -> ListenerItem<'a, T> {
+    /// * `handler`  - Event handling function
+    pub fn new_prioritized(priority: i32, handler: impl FnMut(Arc<T>) + 'a) -> ListenerItem<'a, T> {
         ListenerItem {
             listener_id: ID_GEN.lock().unwrap().get_id(),
             handler: Box::new(handler),
@@ -231,10 +231,10 @@ mod tests {
 
     #[test]
     fn test_ord() {
-        let listener1 = ListenerItem::new_prioritized(|_evt: Arc<TestEventA>| {}, 0);
-        let listener2 = ListenerItem::new_prioritized(|_evt: Arc<TestEventA>| {}, 5);
-        let listener3 = ListenerItem::new_prioritized(|_evt: Arc<TestEventA>| {}, -2);
-        let listener4 = ListenerItem::new_prioritized(|_evt: Arc<TestEventA>| {}, 3);
+        let listener1 = ListenerItem::new_prioritized(0, |_evt: Arc<TestEventA>| {});
+        let listener2 = ListenerItem::new_prioritized(5, |_evt: Arc<TestEventA>| {});
+        let listener3 = ListenerItem::new_prioritized(-2, |_evt: Arc<TestEventA>| {});
+        let listener4 = ListenerItem::new_prioritized(3, |_evt: Arc<TestEventA>| {});
 
         let mut v = Vec::<Box<dyn EventListener>>::new();
 

@@ -175,7 +175,7 @@ impl<'a> EventHub<'a> {
     /// 
     /// Returns the registration ID for the listener
     pub fn on<T: Event>(&mut self, handler: impl FnMut(Arc<T>) + 'a) -> IdType {
-        self.on_impl::<T>(Box::new(ListenerItem::new(handler)))
+        self.on_impl(TypeId::of::<T>(), Box::new(ListenerItem::new(handler)))
     }
     
     /// Registers a listener for a specific Event with the given priority value.
@@ -187,13 +187,11 @@ impl<'a> EventHub<'a> {
     /// 
     /// Returns the registration ID for the listener
     pub fn on_prioritized<T: Event>(&mut self, priority: i32, handler: impl FnMut(Arc<T>) + 'a) -> IdType {
-        self.on_impl::<T>(Box::new(ListenerItem::new_prioritized(handler, priority)))
+        self.on_impl(TypeId::of::<T>(), Box::new(ListenerItem::new_prioritized(priority, handler)))
     }
-    
-    /// Internal function for registering specific Event listeners
-    fn on_impl<T: Event>(&mut self, listener: Box<dyn EventListener + 'a>) -> IdType {
-        let type_key = TypeId::of::<T>();
 
+    /// Internal function for registering specific Event listeners
+    pub(crate) fn on_impl(&mut self, type_key: TypeId, listener: Box<dyn EventListener + 'a>) -> IdType {
         // Keep a reference to the listener's id so we can return it
         let listener_id = listener.listener_id();
 

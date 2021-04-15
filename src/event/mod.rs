@@ -1,8 +1,10 @@
+use std::sync::Arc;
+use std::any::TypeId;
 use std::fmt::{Display, Debug};
 use downcast_rs::DowncastSync;
 use uuid::Uuid;
 
-pub type EventHandler<T> = dyn FnMut(Box<T>);
+pub type EventHandler<T> = dyn FnMut(Arc<T>);
 
 pub trait Event: DowncastSync + Debug {
     fn event_name(&self) -> &str;
