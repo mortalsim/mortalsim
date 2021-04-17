@@ -37,7 +37,22 @@ pub enum Substance {
 
 impl fmt::Display for Substance {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?}", self)
+        let charge = self.charge();
+        if charge == 1 {
+            write!(f, "{} ({:?}+)", self.name(), self)
+        }
+        else if charge > 1 {
+            write!(f, "{} ({:?} {}+)", self.name(), self, charge)
+        }
+        else if charge == -1 {
+            write!(f, "{} ({:?}-)", self.name(), self)
+        }
+        else if charge < -1 {
+            write!(f, "{} ({:?} {}-)", self.name(), self, charge)
+        }
+        else {
+            write!(f, "{} ({:?})", self.name(), self)
+        }
     }
 }
 
@@ -125,5 +140,26 @@ impl Substance {
             Substance::PGK  => MolarMass::new::<kilogram_per_mole>(45.0),
             Substance::PYR  => MolarMass::new::<gram_per_mole>(88.06),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Substance;
+
+    #[test]
+    fn test_fmt() {
+        let ca = Substance::Ca;
+        let na = Substance::Na;
+        let cl = Substance::Cl;
+        let salt = Substance::NaCl;
+        assert_eq!(format!("{}", ca), "Calcium (Ca 2+)");
+        assert_eq!(format!("{:?}", ca), "Ca");
+        assert_eq!(format!("{}", na), "Sodium (Na+)");
+        assert_eq!(format!("{:?}", na), "Na");
+        assert_eq!(format!("{}", cl), "Chloride (Cl-)");
+        assert_eq!(format!("{:?}", cl), "Cl");
+        assert_eq!(format!("{}", salt), "Salt (NaCl)");
+        assert_eq!(format!("{:?}", salt), "NaCl");
     }
 }
