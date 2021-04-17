@@ -8,7 +8,7 @@ use uom::si::molar_mass::kilogram_per_mole;
 /// Enumeration of chemical substances.
 /// These are typically named as their most abundant form in nature.
 /// Variations are suffixed with appropriate identifiers
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Copy)]
 pub enum Substance {
     ADP,  // Adenosine Diphosphate (ADP)
     AMP,  // Adenosine Monophosphate (AMP)
