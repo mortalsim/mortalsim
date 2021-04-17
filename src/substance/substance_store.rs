@@ -18,8 +18,8 @@ pub struct SubstanceStore {
     store_id: Uuid,
     /// Substance volume
     volume: Volume,
+    /// Data structure containing the internal substance concentration
     composition: HashMap<Substance, MolarConcentration>,
-    id_gen: IdGenerator,
     /// Keep track of any Events which have been tainted
     tainted_substances: HashSet<Substance>,
 }
@@ -41,7 +41,6 @@ impl SubstanceStore {
             store_id: Uuid::new_v4(),
             volume: volume,
             composition: HashMap::new(),
-            id_gen: IdGenerator::new(),
             tainted_substances: HashSet::new(),
         }
     }
