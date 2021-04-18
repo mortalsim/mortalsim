@@ -4,13 +4,13 @@ use std::collections::HashMap;
 use std::rc::Rc;
 use std::string;
 use petgraph::graph::{Graph, NodeIndex};
-use super::{BloodNode, BloodEdge, BloodVesselType, VesselId};
+use super::{BloodNode, BloodEdge, BloodVesselType, BloodVesselId};
 use crate::substance::{SubstanceStore, Volume};
 use super::circulation::CirculationDef;
 
 pub struct BloodManager {
     graph: Graph<BloodNode, BloodEdge>,
-    node_map: HashMap<VesselId, NodeIndex>,
+    node_map: HashMap<BloodVesselId, NodeIndex>,
     depth: u32,
 }
 

@@ -12,7 +12,7 @@ use petgraph::Direction;
 use petgraph::visit::EdgeRef;
 use petgraph::graph::{Graph, NodeIndex, EdgeIndex};
 use petgraph::dot::{Dot, Config};
-use super::{BloodNode, BloodEdge, BloodVesselType, VesselId};
+use super::{BloodNode, BloodEdge, BloodVesselType, BloodVesselId};
 use super::BloodVesselType::{Vein, Artery};
 
 #[derive(Clone)]
@@ -20,7 +20,7 @@ pub struct CirculationDef {
     /// Graph structure representing circulation anatomy
     pub graph: Graph<BloodNode, BloodEdge>,
     /// Mapping from vessel id to node index for rapid lookup
-    pub node_map: HashMap<VesselId, NodeIndex>,
+    pub node_map: HashMap<BloodVesselId, NodeIndex>,
     /// Maximum depth of the circulation from root node to capillary
     pub depth: u32,
 }
@@ -110,7 +110,7 @@ impl CirculationDef {
 
     /// Adds a single node to the circulation graph
     fn add_node(&mut self, vessel: &Value, vessel_type: BloodVesselType) -> NodeIndex {
-        let vessel_id: VesselId = vessel["id"].as_str().unwrap().into();
+        let vessel_id: BloodVesselId = vessel["id"].as_str().unwrap().into();
 
         // Nodes can be defined multiple times if needed to establish multiple upstream connections
         // so we'll grab the existing value here if it already exists

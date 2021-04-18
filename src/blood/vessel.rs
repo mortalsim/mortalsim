@@ -15,39 +15,39 @@ pub enum BloodVesselType {
 /// with &str type, which is not available in
 /// the standard library unfortunately...
 #[derive(Debug, Clone, Eq, PartialEq, Hash, PartialOrd, Ord)]
-pub struct VesselId(Rc<String>);
+pub struct BloodVesselId(Rc<String>);
 
-impl fmt::Display for VesselId {
+impl fmt::Display for BloodVesselId {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.0.fmt(f)
     }
 }
 
-impl Borrow<str> for VesselId {
+impl Borrow<str> for BloodVesselId {
     fn borrow(&self) -> &str {
         &self.0
     }
 }
 
-impl Borrow<String> for VesselId {
+impl Borrow<String> for BloodVesselId {
     fn borrow(&self) -> &String {
         &self.0
     }
 }
 
-impl Borrow<Rc<String>> for VesselId {
+impl Borrow<Rc<String>> for BloodVesselId {
     fn borrow(&self) -> &Rc<String> {
         &self.0
     }
 }
 
-impl From<&str> for VesselId {
+impl From<&str> for BloodVesselId {
     fn from(val: &str) -> Self {
         Self(Rc::new(String::from(val)))
     }
 }
 
-impl Into<String> for VesselId {
+impl Into<String> for BloodVesselId {
     fn into(self) -> String {
         self.0.to_string()
     }

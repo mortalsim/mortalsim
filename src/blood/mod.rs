@@ -11,17 +11,17 @@ mod circulation;
 mod vessel;
 
 pub use vessel::BloodVesselType;
-pub use vessel::VesselId;
+pub use vessel::BloodVesselId;
 
 #[derive(Clone, Debug)]
 pub struct BloodNode {
-    pub vessel_id: VesselId,
+    pub vessel_id: BloodVesselId,
     pub vessel_type: BloodVesselType,
     pub composition: SubstanceStore,
 }
 
 impl BloodNode {
-    pub fn new(vessel_id: VesselId, vessel_type: BloodVesselType) -> BloodNode {
+    pub fn new(vessel_id: BloodVesselId, vessel_type: BloodVesselType) -> BloodNode {
         BloodNode {
             vessel_id: vessel_id,
             vessel_type: vessel_type,
