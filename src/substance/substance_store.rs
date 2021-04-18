@@ -3,16 +3,12 @@ use std::fmt;
 use core::any::TypeId;
 use uuid::Uuid;
 use uom::si::f64::*;
-use uom::si::length::kilometer;
-use uom::si::time::second;
-use uom::si::volume::liter;
-use uom::si::molar_concentration::mole_per_liter;
-use uom::si::amount_of_substance::mole;
 use anyhow::Result;
 use crate::util::id_gen::{IdType, IdGenerator, InvalidIdError};
 use crate::substance::Substance;
 
 /// A storage construct for Substance concentrations in a volume
+#[derive(Clone)]
 pub struct SubstanceStore {
     /// Id for this SubstanceStore
     store_id: Uuid,
@@ -104,7 +100,7 @@ impl SubstanceStore {
     /// 
     /// ### Arguments
     /// * `volume` - new volume to set
-    pub fn set_volume(&mut self, volume: Volume) {
+    pub(crate) fn set_volume(&mut self, volume: Volume) {
         self.volume = volume;
     }
     
@@ -114,6 +110,11 @@ impl SubstanceStore {
     pub fn get_volume(&mut self) -> &Volume {
         &self.volume
     }
+
+    /// Clears tainted flags from any substances in this store
+    pub fn clear_taint(&mut self) {
+        self.tainted_substances.clear();
+    }
     
     /// Merges the provided composition with this store's internal composition, updating
     /// any existing substances and adding any new concentrations
@@ -121,7 +122,30 @@ impl SubstanceStore {
     /// ### Arguments
     /// * `composition` - the Substance composition to merge
     pub fn merge_composition(&mut self, composition: HashMap<Substance, MolarConcentration>) {
+        self.tainted_substances.extend(composition.keys());
         self.composition.extend(composition);
+    }
+    
+    /// Merges the target store's composition with this store's internal composition, updating
+    /// any existing substances and adding any new concentrations
+    /// 
+    /// ### Arguments
+    /// * `other` - the SubstanceStore to merge
+    pub fn merge_all(&mut self, other: &SubstanceStore) {
+        self.tainted_substances.extend(other.composition.keys());
+        self.composition.extend(other.composition.clone());
+    }
+    
+    /// Merges the target store's tainted composition with this store's internal composition,
+    /// ignoring any untainted values.
+    /// 
+    /// ### Arguments
+    /// * `other` - the SubstanceStore to merge
+    pub fn merge_tainted(&mut self, other: &SubstanceStore) {
+        for substance in other.tainted_substances.iter() {
+            self.composition.insert(*substance, other.composition.get(substance).unwrap().clone());
+            self.tainted_substances.insert(*substance);
+        }
     }
     
 }
