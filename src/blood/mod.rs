@@ -1,9 +1,13 @@
 use std::rc::Rc;
 use std::hash::{Hash, Hasher};
 use std::fmt;
+use std::collections::HashMap;
+use crate::substance::{SubstanceStore, Volume};
+use uom::si::volume::liter;
 
-// pub mod blood_manager;
-mod util;
+mod manager;
+mod circulation;
+
 
 /// Type of a blood vessel
 #[derive(Debug, Clone, Copy, Hash, PartialEq)]
@@ -14,8 +18,19 @@ pub enum BloodVesselType {
 
 #[derive(Clone, Debug)]
 pub struct BloodNode {
-    pub vessel_id: Rc<String>,
+    pub vessel_id: &'static str,
     pub vessel_type: BloodVesselType,
+    pub composition: SubstanceStore,
+}
+
+impl BloodNode {
+    pub fn new(vessel_id: &'static str, vessel_type: BloodVesselType) -> BloodNode {
+        BloodNode {
+            vessel_id: vessel_id,
+            vessel_type: vessel_type,
+            composition: SubstanceStore::new(Volume::new::<liter>(1.0)),
+        }
+    }
 }
 
 // Hash only by the vessel_id
@@ -50,19 +65,4 @@ impl fmt::Display for BloodEdge {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "(out: {}, in: {})", self.outgoing_pct, self.incoming_pct)
     }
-}
-
-/// A blood vessel of the circulatory system
-trait BloodVessel {
-    /// Retrieves a list of BloodVessel objects which are immediately upstream
-    fn upstream(&self) -> Vec<&'static dyn BloodVessel>;
-    
-    /// Retrieves a list of mutable BloodVessel objects which are immediately downstream
-    fn upstream_mut(&mut self) -> Vec<&'static mut dyn BloodVessel>;
-    
-    /// Retrieves a list of BloodVessel objects which are immediately downstream
-    fn downstream(&self) -> Vec<&'static dyn BloodVessel>;
-    
-    /// Retrieves a list of mutable BloodVessel objects which are immediately downstream
-    fn downstream_mut(&mut self) -> Vec<&'static mut dyn BloodVessel>;
 }
