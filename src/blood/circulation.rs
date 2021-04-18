@@ -12,33 +12,29 @@ use petgraph::Direction;
 use petgraph::visit::EdgeRef;
 use petgraph::graph::{Graph, NodeIndex, EdgeIndex};
 use petgraph::dot::{Dot, Config};
-use super::{BloodNode, BloodEdge, BloodVesselType};
+use super::{BloodNode, BloodEdge, BloodVesselType, VesselId};
 use super::BloodVesselType::{Vein, Artery};
-
-lazy_static! {
-    static ref CIRC_MAP: Mutex<HashMap<&'static str, Value>> = Mutex::new(HashMap::new());
-}
 
 #[derive(Clone)]
 pub struct CirculationDef {
     /// Graph structure representing circulation anatomy
     pub graph: Graph<BloodNode, BloodEdge>,
     /// Mapping from vessel id to node index for rapid lookup
-    pub node_map: HashMap<&'static str, NodeIndex>,
+    pub node_map: HashMap<VesselId, NodeIndex>,
     /// Maximum depth of the circulation from root node to capillary
     pub depth: u32,
 }
 
 impl CirculationDef {
     /// Loads a circulation graph and corresponding vessel->idx map from the given file
-    pub fn from_json_file(filename: &'static str) -> Result<CirculationDef> {
+    pub fn from_json_file(filename: &str) -> Result<CirculationDef> {
         let contents = fs::read_to_string(filename).unwrap();
-        let circ_def = CIRC_MAP.lock().unwrap().entry(filename).or_insert(serde_json::from_str(&contents)?);
-        Ok(Self::from_json_value(circ_def))
+        let circ_json: Value = serde_json::from_str(&contents)?;
+        Ok(Self::from_json_value(&circ_json))
     }
 
     /// Parses a circulation graph and corresponding vessel->idx map from the given json string
-    pub fn from_json_value(circ_json: &'static Value) -> CirculationDef {
+    pub fn from_json_value(circ_json: &Value) -> CirculationDef {
         let mut circ = CirculationDef {
             graph: Graph::new(),
             node_map: HashMap::new(),
@@ -58,19 +54,19 @@ impl CirculationDef {
     }
 
     /// Adds the venous tree to the circulation graph
-    fn add_veins(&mut self, vein: &'static Value) {
+    fn add_veins(&mut self, vein: &Value) {
         let root_idx = self.add_node(vein, Vein);
         self.add_vessels(vein, root_idx, Vein, 1);
     }
 
     /// Adds the arterial tree to the circulation graph
-    fn add_arteries(&mut self, artery: &'static Value) {
+    fn add_arteries(&mut self, artery: &Value) {
         let root_idx = self.add_node(artery, Artery);
         self.add_vessels(artery, root_idx, Artery, 1);
     }
 
     /// Recursive function which adds BloodNodes to the circulation graph based on the JSON definition
-    fn add_vessels(&mut self, vessel: &'static Value, vessel_idx: NodeIndex, vessel_type: BloodVesselType, depth: u32) {
+    fn add_vessels(&mut self, vessel: &Value, vessel_idx: NodeIndex, vessel_type: BloodVesselType, depth: u32) {
         let links = &vessel["links"];
 
         // Set the depth to the maximum
@@ -99,8 +95,8 @@ impl CirculationDef {
             // Establish an edge between the current Node and the venous Node, which
             // we'll look up from the map
             for bridge_id in bridge.as_array().unwrap() {
-                let bridge_str = bridge_id.as_str().unwrap();
-                match self.node_map.get(bridge_str) {
+                let bridge_str = Rc::new(String::from(bridge_id.as_str().unwrap()));
+                match self.node_map.get(&bridge_str) {
                     Some(bridge_idx) => {
                         self.graph.add_edge(vessel_idx, bridge_idx.clone(), BloodEdge::new());
                     },
@@ -113,12 +109,12 @@ impl CirculationDef {
     }
 
     /// Adds a single node to the circulation graph
-    fn add_node(&mut self, vessel: &'static Value, vessel_type: BloodVesselType) -> NodeIndex {
-        let vessel_id = vessel["id"].as_str().unwrap();
+    fn add_node(&mut self, vessel: &Value, vessel_type: BloodVesselType) -> NodeIndex {
+        let vessel_id: VesselId = vessel["id"].as_str().unwrap().into();
 
         // Nodes can be defined multiple times if needed to establish multiple upstream connections
         // so we'll grab the existing value here if it already exists
-        self.node_map.entry(vessel_id).or_insert(
+        self.node_map.entry(vessel_id.clone()).or_insert(
             self.graph.add_node(BloodNode::new(vessel_id, vessel_type))
         ).clone()
     }

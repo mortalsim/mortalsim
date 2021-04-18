@@ -2,29 +2,26 @@ use std::rc::Rc;
 use std::hash::{Hash, Hasher};
 use std::fmt;
 use std::collections::HashMap;
+use std::borrow::Borrow;
 use crate::substance::{SubstanceStore, Volume};
 use uom::si::volume::liter;
 
 mod manager;
 mod circulation;
+mod vessel;
 
-
-/// Type of a blood vessel
-#[derive(Debug, Clone, Copy, Hash, PartialEq)]
-pub enum BloodVesselType {
-    Vein,
-    Artery,
-}
+pub use vessel::BloodVesselType;
+pub use vessel::VesselId;
 
 #[derive(Clone, Debug)]
 pub struct BloodNode {
-    pub vessel_id: &'static str,
+    pub vessel_id: VesselId,
     pub vessel_type: BloodVesselType,
     pub composition: SubstanceStore,
 }
 
 impl BloodNode {
-    pub fn new(vessel_id: &'static str, vessel_type: BloodVesselType) -> BloodNode {
+    pub fn new(vessel_id: VesselId, vessel_type: BloodVesselType) -> BloodNode {
         BloodNode {
             vessel_id: vessel_id,
             vessel_type: vessel_type,
