@@ -12,7 +12,7 @@ use petgraph::Direction;
 use petgraph::visit::EdgeRef;
 use petgraph::graph::{Graph, NodeIndex, EdgeIndex};
 use petgraph::dot::{Dot, Config};
-use super::{BloodNode, BloodEdge, BloodVessel, BloodVesselType, BloodVesselId};
+use super::{BloodNode, BloodEdge, BloodVessel, BloodVesselType};
 use super::BloodVesselType::{Vein, Artery};
 
 #[derive(Clone)]

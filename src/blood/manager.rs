@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use std::rc::Rc;
 use std::string;
 use petgraph::graph::{Graph, NodeIndex};
-use super::{BloodNode, BloodEdge, BloodVessel, BloodVesselType, BloodVesselId};
+use super::{BloodNode, BloodEdge, BloodVessel, BloodVesselType};
 use crate::substance::{SubstanceStore, Volume};
 use super::circulation::CirculationDef;
 

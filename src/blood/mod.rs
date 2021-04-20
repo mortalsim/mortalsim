@@ -3,14 +3,23 @@ use std::hash::{Hash, Hasher};
 use std::fmt;
 use std::collections::HashMap;
 use std::borrow::Borrow;
+use std::str::FromStr;
 use crate::substance::{SubstanceStore, Volume};
 use uom::si::volume::liter;
 
 mod manager;
 mod circulation;
-mod vessel;
 
-pub use vessel::{BloodVessel, BloodVesselType, BloodVesselId};
+/// Blood vessel identifier trait. Intended to be implemented by enums for various types of
+/// simulated blood circulation systems (human, dog, cat, etc.)
+pub trait BloodVessel: FromStr + Hash + Clone + Copy + PartialEq + Eq + fmt::Debug + fmt::Display {}
+
+/// Type of a blood vessel
+#[derive(Debug, Clone, Copy, Hash, PartialEq)]
+pub enum BloodVesselType {
+    Vein,
+    Artery,
+}
 
 #[derive(Clone, Debug)]
 pub struct BloodNode<T: BloodVessel> {
