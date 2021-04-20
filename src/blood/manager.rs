@@ -4,19 +4,19 @@ use std::collections::HashMap;
 use std::rc::Rc;
 use std::string;
 use petgraph::graph::{Graph, NodeIndex};
-use super::{BloodNode, BloodEdge, BloodVesselType, BloodVesselId};
+use super::{BloodNode, BloodEdge, BloodVessel, BloodVesselType, BloodVesselId};
 use crate::substance::{SubstanceStore, Volume};
 use super::circulation::CirculationDef;
 
-pub struct BloodManager {
-    graph: Graph<BloodNode, BloodEdge>,
-    node_map: HashMap<BloodVesselId, NodeIndex>,
+pub struct BloodManager<T: BloodVessel> {
+    graph: Graph<BloodNode<T>, BloodEdge>,
+    node_map: HashMap<T, NodeIndex>,
     depth: u32,
 }
 
-impl BloodManager {
+impl<T: BloodVessel> BloodManager<T> {
     /// Creates a BloodManager from a Graph representing the circulatory structure
-    pub fn new(circulation: CirculationDef) -> BloodManager {
+    pub fn new(circulation: CirculationDef<T>) -> BloodManager<T> {
         BloodManager {
             graph: circulation.graph,
             node_map: circulation.node_map,
@@ -29,8 +29,17 @@ impl BloodManager {
         self.depth
     }
 
-    pub fn vessel_type(&self, vessel_id: &str) -> Option<BloodVesselType> {
-        let node_idx = self.node_map.get(vessel_id)?;
+    pub fn vessel_type(&self, vessel: T) -> Option<BloodVesselType> {
+        let node_idx = self.node_map.get(&vessel)?;
         Some(self.graph[*node_idx].vessel_type)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::BloodManager;
+    #[test]
+    fn test_manager() {
+
     }
 }

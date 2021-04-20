@@ -12,29 +12,29 @@ use petgraph::Direction;
 use petgraph::visit::EdgeRef;
 use petgraph::graph::{Graph, NodeIndex, EdgeIndex};
 use petgraph::dot::{Dot, Config};
-use super::{BloodNode, BloodEdge, BloodVesselType, BloodVesselId};
+use super::{BloodNode, BloodEdge, BloodVessel, BloodVesselType, BloodVesselId};
 use super::BloodVesselType::{Vein, Artery};
 
 #[derive(Clone)]
-pub struct CirculationDef {
+pub struct CirculationDef<T: BloodVessel> {
     /// Graph structure representing circulation anatomy
-    pub graph: Graph<BloodNode, BloodEdge>,
+    pub graph: Graph<BloodNode<T>, BloodEdge>,
     /// Mapping from vessel id to node index for rapid lookup
-    pub node_map: HashMap<BloodVesselId, NodeIndex>,
+    pub node_map: HashMap<T, NodeIndex>,
     /// Maximum depth of the circulation from root node to capillary
     pub depth: u32,
 }
 
-impl CirculationDef {
+impl<T: BloodVessel> CirculationDef<T> {
     /// Loads a circulation graph and corresponding vessel->idx map from the given file
-    pub fn from_json_file(filename: &str) -> Result<CirculationDef> {
+    pub fn from_json_file(filename: &str) -> Result<CirculationDef<T>> {
         let contents = fs::read_to_string(filename).unwrap();
         let circ_json: Value = serde_json::from_str(&contents)?;
         Ok(Self::from_json_value(&circ_json))
     }
 
     /// Parses a circulation graph and corresponding vessel->idx map from the given json string
-    pub fn from_json_value(circ_json: &Value) -> CirculationDef {
+    pub fn from_json_value(circ_json: &Value) -> CirculationDef<T> {
         let mut circ = CirculationDef {
             graph: Graph::new(),
             node_map: HashMap::new(),
@@ -95,13 +95,17 @@ impl CirculationDef {
             // Establish an edge between the current Node and the venous Node, which
             // we'll look up from the map
             for bridge_id in bridge.as_array().unwrap() {
-                let bridge_str = Rc::new(String::from(bridge_id.as_str().unwrap()));
-                match self.node_map.get(&bridge_str) {
+                let bridge_vessel = match T::from_str(bridge_id.as_str().unwrap()) {
+                    Err(_) => panic!("Invalid BloodVessel variant: '{}'", bridge_id.as_str().unwrap()),
+                    Ok(val) => val
+                };
+
+                match self.node_map.get(&bridge_vessel) {
                     Some(bridge_idx) => {
                         self.graph.add_edge(vessel_idx, bridge_idx.clone(), BloodEdge::new());
                     },
                     None => {
-                        panic!("Invalid bridge value for Node '{}': '{}'", &self.graph[vessel_idx], bridge_str)
+                        panic!("Invalid bridge vessel for Node '{}': '{}'", &self.graph[vessel_idx], bridge_vessel)
                     }
                 }
             }
@@ -110,15 +114,17 @@ impl CirculationDef {
 
     /// Adds a single node to the circulation graph
     fn add_node(&mut self, vessel: &Value, vessel_type: BloodVesselType) -> NodeIndex {
-        let vessel_id: BloodVesselId = vessel["id"].as_str().unwrap().into();
+        let vessel = match T::from_str(vessel["id"].as_str().unwrap()) {
+            Err(_) => panic!("Invalid BloodVessel variant: '{}'", vessel["id"].as_str().unwrap()),
+            Ok(val) => val
+        };
 
         // Nodes can be defined multiple times if needed to establish multiple upstream connections
         // so we'll grab the existing value here if it already exists
-        self.node_map.entry(vessel_id.clone()).or_insert(
-            self.graph.add_node(BloodNode::new(vessel_id, vessel_type))
+        self.node_map.entry(vessel).or_insert(
+            self.graph.add_node(BloodNode::new(vessel, vessel_type))
         ).clone()
     }
-
 
     /// Sets edge weights for which incoming and outgoing are set evenly based on the number
     /// of inputs/outputs connected to the Node
@@ -143,7 +149,7 @@ impl CirculationDef {
     /// rapid lookup later
     fn compute_node_map(&mut self) {
         for node_idx in self.graph.node_indices() {
-            self.node_map.insert(self.graph[node_idx].vessel_id.clone(), node_idx);
+            self.node_map.insert(self.graph[node_idx].vessel, node_idx);
         }
     }
 
@@ -165,10 +171,11 @@ mod tests {
     use petgraph::dot::{Dot, Config};
     use serde_json::to_string_pretty;
     use super::CirculationDef;
+    use crate::human::circulation::{HUMAN_CIRCULATION_FILEPATH, HumanBloodVessel};
 
     #[test]
     fn test_load() {
-        let circ = CirculationDef::from_json_file("config/circulation/human_circulation.json").unwrap();
+        let circ: CirculationDef<HumanBloodVessel> = CirculationDef::from_json_file(HUMAN_CIRCULATION_FILEPATH).unwrap();
         println!("{}", circ.digraph());
         println!("depth: {}", circ.depth);
     }

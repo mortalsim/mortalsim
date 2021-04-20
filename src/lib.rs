@@ -7,6 +7,8 @@ extern crate anyhow;
 extern crate downcast_rs;
 #[macro_use]
 extern crate lazy_static;
+#[macro_use]
+extern crate strum_macros;
 
 mod core;
 mod util;
@@ -14,6 +16,7 @@ mod util;
 pub mod substance;
 pub mod event;
 pub mod blood;
+pub mod human;
 
 #[cfg(test)]
 mod test {

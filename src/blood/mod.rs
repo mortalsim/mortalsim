@@ -10,20 +10,19 @@ mod manager;
 mod circulation;
 mod vessel;
 
-pub use vessel::BloodVesselType;
-pub use vessel::BloodVesselId;
+pub use vessel::{BloodVessel, BloodVesselType, BloodVesselId};
 
 #[derive(Clone, Debug)]
-pub struct BloodNode {
-    pub vessel_id: BloodVesselId,
+pub struct BloodNode<T: BloodVessel> {
+    pub vessel: T,
     pub vessel_type: BloodVesselType,
     pub composition: SubstanceStore,
 }
 
-impl BloodNode {
-    pub fn new(vessel_id: BloodVesselId, vessel_type: BloodVesselType) -> BloodNode {
+impl<T: BloodVessel> BloodNode<T> {
+    pub fn new(vessel: T, vessel_type: BloodVesselType) -> BloodNode<T> {
         BloodNode {
-            vessel_id: vessel_id,
+            vessel: vessel,
             vessel_type: vessel_type,
             composition: SubstanceStore::new(Volume::new::<liter>(1.0)),
         }
@@ -31,15 +30,15 @@ impl BloodNode {
 }
 
 // Hash only by the vessel_id
-impl Hash for BloodNode {
+impl<T: BloodVessel> Hash for BloodNode<T> {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        self.vessel_id.hash(state);
+        self.vessel.hash(state);
     }
 }
 
-impl fmt::Display for BloodNode {
+impl<T: BloodVessel> fmt::Display for BloodNode<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.vessel_id)
+        write!(f, "{}", self.vessel)
     }
 }
 

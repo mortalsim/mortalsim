@@ -1,6 +1,11 @@
 use std::fmt;
+use std::str::FromStr;
 use std::rc::Rc;
 use std::borrow::Borrow;
+use std::hash::Hash;
+
+pub trait BloodVessel: FromStr + Hash + Clone + Copy + PartialEq + Eq + fmt::Debug + fmt::Display {}
+
 
 /// Type of a blood vessel
 #[derive(Debug, Clone, Copy, Hash, PartialEq)]

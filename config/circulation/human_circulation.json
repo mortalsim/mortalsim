@@ -1,30 +1,30 @@
 {
    "version": "1.0.0",
    "arterial": {
-      "id": "AORTA",
+      "id": "Aorta",
       "links": [
          {
-            "id": "RIGHT_BRACIOCEPHALIC_ARTERY",
+            "id": "RightBraciocephalicArtery",
             "links": [
                {
-                  "id": "RIGHT_SUBCLAVIAN_ARTERY",
+                  "id": "RightSubclavianArtery",
                   "links": [
                      {
-                        "id": "RIGHT_AXILLARY_ARTERY",
+                        "id": "RightAxillaryArtery",
                         "links": [
                            {
-                              "id": "RIGHT_BRACHIAL_ARTERY",
+                              "id": "RightBrachialArtery",
                               "links": [
                                  {
-                                    "id": "RIGHT_ULNAR_ARTERY",
+                                    "id": "RightUlnarArtery",
                                     "bridge": [
-                                       "RIGHT_BASILIC_VEIN"
+                                       "RightBasilicVein"
                                     ]
                                  },
                                  {
-                                    "id": "RIGHT_RADIAL_ARTERY",
+                                    "id": "RightRadialArtery",
                                     "bridge": [
-                                       "RIGHT_CEPHALIC_VEIN"
+                                       "RightCephalicVein"
                                     ]
                                  }
                               ]
@@ -34,21 +34,21 @@
                   ]
                },
                {
-                  "id": "RIGHT_COMMON_CAROTID_ARTERY",
+                  "id": "RightCommonCarotidArtery",
                   "links": [
                      {
-                        "id": "RIGHT_CAROTID_SINUS_ARTERY",
+                        "id": "RightCarotidSinusArtery",
                         "links": [
                            {
-                              "id": "RIGHT_INTERNAL_CAROTID_ARTERY",
+                              "id": "RightInternalCarotidArtery",
                               "bridge": [
-                                 "RIGHT_INTERNAL_JUGULAR_VEIN"
+                                 "RightInternalJugularVein"
                               ]
                            },
                            {
-                              "id": "RIGHT_EXTERNAL_CAROTID_ARTERY",
+                              "id": "RightExternalCarotidArtery",
                               "bridge": [
-                                 "RIGHT_INTERNAL_JUGULAR_VEIN"
+                                 "RightInternalJugularVein"
                               ]
                            }
                         ]
@@ -58,24 +58,24 @@
             ]
          },
          {
-            "id": "LEFT_SUBCLAVIAN_ARTERY",
+            "id": "LeftSubclavianArtery",
             "links": [
                {
-                  "id": "LEFT_AXILLARY_ARTERY",
+                  "id": "LeftAxillaryArtery",
                   "links": [
                      {
-                        "id": "LEFT_BRACHIAL_ARTERY",
+                        "id": "LeftBrachialArtery",
                         "links": [
                            {
-                              "id": "LEFT_ULNAR_ARTERY",
+                              "id": "LeftUlnarArtery",
                               "bridge": [
-                                 "LEFT_BASILIC_VEIN"
+                                 "LeftBasilicVein"
                               ]
                            },
                            {
-                              "id": "LEFT_RADIAL_ARTERY",
+                              "id": "LeftRadialArtery",
                               "bridge": [
-                                 "LEFT_CEPHALIC_VEIN"
+                                 "LeftCephalicVein"
                               ]
                            }
                         ]
@@ -85,21 +85,21 @@
             ]
          },
          {
-            "id": "LEFT_COMMON_CAROTID_ARTERY",
+            "id": "LeftCommonCarotidArtery",
             "links": [
                {
-                  "id": "LEFT_CAROTID_SINUS_ARTERY",
+                  "id": "LeftCarotidSinusArtery",
                   "links": [
                      {
-                        "id": "LEFT_INTERNAL_CAROTID_ARTERY",
+                        "id": "LeftInternalCarotidArtery",
                         "bridge": [
-                           "LEFT_INTERNAL_JUGULAR_VEIN"
+                           "LeftInternalJugularVein"
                         ]
                      },
                      {
-                        "id": "LEFT_EXTERNAL_CAROTID_ARTERY",
+                        "id": "LeftExternalCarotidArtery",
                         "bridge": [
-                           "LEFT_INTERNAL_JUGULAR_VEIN"
+                           "LeftInternalJugularVein"
                         ]
                      }
                   ]
@@ -107,112 +107,112 @@
             ]
          },
          {
-            "id": "THORACIC_AORTA",
+            "id": "ThoracicAorta",
             "links": [
                {
-                  "id": "ABDOMINAL_AORTA",
+                  "id": "AbdominalAorta",
                   "links": [
                      {
-                        "id": "CELIAC_ARTERY",
+                        "id": "CeliacArtery",
                         "links": [
                            {
-                              "id": "COMMON_HEPATIC_ARTERY",
+                              "id": "CommonHepaticArtery",
                               "links": [
                                  {
-                                    "id": "RIGHT_GASTRIC_ARTERY",
+                                    "id": "RightGastricArtery",
                                     "bridge": [
-                                       "RIGHT_GASTRIC_VEIN"
+                                       "RightGastricVein"
                                     ]
                                  }
                               ],
                               "bridge": [
-                                 "HEPATIC_VEIN"
+                                 "HepaticVein"
                               ]
                            },
                            {
-                              "id": "SPLENIC_ARTERY",
+                              "id": "SplenicArtery",
                               "bridge": [
-                                 "SPLENIC_VEIN"
+                                 "SplenicVein"
                               ]
                            },
                            {
-                              "id": "LEFT_GASTRIC_ARTERY",
+                              "id": "LeftGastricArtery",
                               "bridge": [
-                                 "LEFT_GASTRIC_VEIN"
+                                 "LeftGastricVein"
                               ]
                            }
                         ]
                      },
                      {
-                        "id": "SUPERIOR_MESENTERIC_ARTERY",
+                        "id": "SuperiorMesentericArtery",
                         "links": [
                            {
-                              "id": "INFERIOR_MESENTERIC_ARTERY",
+                              "id": "InferiorMesentericArtery",
                               "bridge": [
-                                 "INFERIOR_MESENTERIC_VEIN"
+                                 "InferiorMesentericVein"
                               ]
                            }
                         ],
                         "bridge": [
-                           "SUPERIOR_MESENTERIC_VEIN"
+                           "SuperiorMesentericVein"
                         ]
                      },
                      {
-                        "id": "RIGHT_RENAL_ARTERY",
+                        "id": "RightRenalArtery",
                         "bridge": [
-                           "RIGHT_RENAL_VEIN"
+                           "RightRenalVein"
                         ]
                      },
                      {
-                        "id": "LEFT_RENAL_ARTERY",
+                        "id": "LeftRenalArtery",
                         "bridge": [
-                           "LEFT_RENAL_VEIN"
+                           "LeftRenalVein"
                         ]
                      },
                      {
-                        "id": "RIGHT_COMMON_ILIAC_ARTERY",
+                        "id": "RightCommonIliacArtery",
                         "links": [
                            {
-                              "id": "RIGHT_INTERNAL_ILIAC_ARTERY",
+                              "id": "RightInternalIliacArtery",
                               "bridge": [
-                                 "RIGHT_INTERNAL_ILIAC_VEIN"
+                                 "RightInternalIliacVein"
                               ]
                            },
                            {
-                              "id": "RIGHT_EXTERNAL_ILIAC_ARTERY",
+                              "id": "RightExternalIliacArtery",
                               "links": [
                                  {
-                                    "id": "RIGHT_COMMON_FEMORAL_ARTERY",
+                                    "id": "RightCommonFemoralArtery",
                                     "links": [
                                        {
-                                          "id": "RIGHT_DEEP_FEMORAL_ARTERY",
+                                          "id": "RightDeepFemoralArtery",
                                           "bridge": [
-                                             "RIGHT_DEEP_FEMORAL_VEIN"
+                                             "RightDeepFemoralVein"
                                           ]
                                        },
                                        {
-                                          "id": "RIGHT_SUPERFICIAL_FEMORAL_ARTERY",
+                                          "id": "RightSuperficialFemoralArtery",
                                           "links": [
                                              {
-                                                "id": "RIGHT_POPLITEAL_ARTERY",
+                                                "id": "RightPoplitealArtery",
                                                 "links": [
                                                    {
-                                                      "id": "RIGHT_ANTERIOR_TIBIAL_ARTERY",
+                                                      "id": "RightAnteriorTibialArtery",
                                                       "bridge": [
-                                                         "RIGHT_ANTERIOR_TIBIAL_VEIN",
-                                                         "RIGHT_GREAT_SAPHENOUS_VEIN"
+                                                         "RightAnteriorTibialVein",
+                                                         "RightGreatSaphenousVein"
                                                       ]
                                                    },
                                                    {
-                                                      "id": "RIGHT_POSTERIOR_TIBIAL_ARTERY",
+                                                      "id": "RightPosteriorTibialArtery",
                                                       "bridge": [
-                                                         "RIGHT_POSTERIOR_TIBIAL_VEIN"
+                                                         "RightPosteriorTibialVein"
                                                       ]
                                                    },
                                                    {
-                                                      "id": "RIGHT_FIBULAR_ARTERY",
+                                                      "id": "RightFibularArtery",
                                                       "bridge": [
-                                                         "RIGHT_SMALL_SAPHENOUS_VEIN"
+                                                         "RightSmallSaphenousVein"
                                                       ]
                                                    }
                                                 ]
@@ -226,49 +226,49 @@
                         ]
                      },
                      {
-                        "id": "LEFT_COMMON_ILIAC_ARTERY",
+                        "id": "LeftCommonIliacArtery",
                         "links": [
                            {
-                              "id": "LEFT_INTERNAL_ILIAC_ARTERY",
+                              "id": "LeftInternalIliacArtery",
                               "bridge": [
-                                 "LEFT_INTERNAL_ILIAC_VEIN"
+                                 "LeftInternalIliacVein"
                               ]
                            },
                            {
-                              "id": "LEFT_EXTERNAL_ILIAC_ARTERY",
+                              "id": "LeftExternalIliacArtery",
                               "links": [
                                  {
-                                    "id": "LEFT_COMMON_FEMORAL_ARTERY",
+                                    "id": "LeftCommonFemoralArtery",
                                     "links": [
                                        {
-                                          "id": "LEFT_DEEP_FEMORAL_ARTERY",
+                                          "id": "LeftDeepFemoralArtery",
                                           "bridge": [
-                                             "LEFT_DEEP_FEMORAL_VEIN"
+                                             "LeftDeepFemoralVein"
                                           ]
                                        },
                                        {
-                                          "id": "LEFT_SUPERFICIAL_FEMORAL_ARTERY",
+                                          "id": "LeftSuperficialFemoralArtery",
                                           "links": [
                                              {
-                                                "id": "LEFT_POPLITEAL_ARTERY",
+                                                "id": "LeftPoplitealArtery",
                                                 "links": [
                                                    {
-                                                      "id": "LEFT_ANTERIOR_TIBIAL_ARTERY",
+                                                      "id": "LeftAnteriorTibialArtery",
                                                       "bridge": [
-                                                         "LEFT_ANTERIOR_TIBIAL_VEIN",
-                                                         "LEFT_GREAT_SAPHENOUS_VEIN"
+                                                         "LeftAnteriorTibialVein",
+                                                         "LeftGreatSaphenousVein"
                                                       ]
                                                    },
                                                    {
-                                                      "id": "LEFT_POSTERIOR_TIBIAL_ARTERY",
+                                                      "id": "LeftPosteriorTibialArtery",
                                                       "bridge": [
-                                                         "LEFT_POSTERIOR_TIBIAL_VEIN"
+                                                         "LeftPosteriorTibialVein"
                                                       ]
                                                    },
                                                    {
-                                                      "id": "LEFT_FIBULAR_ARTERY",
+                                                      "id": "LeftFibularArtery",
                                                       "bridge": [
-                                                         "LEFT_SMALL_SAPHENOUS_VEIN"
+                                                         "LeftSmallSaphenousVein"
                                                       ]
                                                    }
                                                 ]
@@ -288,119 +288,119 @@
       ]
    },
    "venous": {
-      "id": "VENA_CAVA",
+      "id": "VenaCava",
       "links": [
          {
-            "id": "SUPERIOR_VENA_CAVA",
+            "id": "SuperiorVenaCava",
             "links": [
                {
-                  "id": "RIGHT_BRACHIOCEPHALIC_VEIN",
+                  "id": "RightBrachiocephalicVein",
                   "links": [
                      {
-                        "id": "RIGHT_SUBCLAVIAN_VEIN",
+                        "id": "RightSubclavianVein",
                         "links": [
                            {
-                              "id": "RIGHT_AXILLARY_VEIN",
+                              "id": "RightAxillaryVein",
                               "links": [
                                  {
-                                    "id": "RIGHT_BASILIC_VEIN"
+                                    "id": "RightBasilicVein"
                                  }
                               ]
                            },
                            {
-                              "id": "RIGHT_CEPHALIC_VEIN"
+                              "id": "RightCephalicVein"
                            }
                         ]
                      },
                      {
-                        "id": "RIGHT_INTERNAL_JUGULAR_VEIN"
+                        "id": "RightInternalJugularVein"
                      }
                   ]
                },
                {
-                  "id": "LEFT_BRACHIOCEPHALIC_VEIN",
+                  "id": "LeftBrachiocephalicVein",
                   "links": [
                      {
-                        "id": "LEFT_SUBCLAVIAN_VEIN",
+                        "id": "LeftSubclavianVein",
                         "links": [
                            {
-                              "id": "LEFT_AXILLARY_VEIN",
+                              "id": "LeftAxillaryVein",
                               "links": [
                                  {
-                                    "id": "LEFT_BASILIC_VEIN"
+                                    "id": "LeftBasilicVein"
                                  }
                               ]
                            },
                            {
-                              "id": "LEFT_CEPHALIC_VEIN"
+                              "id": "LeftCephalicVein"
                            }
                         ]
                      },
                      {
-                        "id": "LEFT_INTERNAL_JUGULAR_VEIN"
+                        "id": "LeftInternalJugularVein"
                      }
                   ]
                }
             ]
          },
          {
-            "id": "INFERIOR_VENA_CAVA",
+            "id": "InferiorVenaCava",
             "links": [
                {
-                  "id": "HEPATIC_VEIN",
+                  "id": "HepaticVein",
                   "links": [
                      {
-                        "id": "SPLENIC_VEIN"
+                        "id": "SplenicVein"
                      },
                      {
-                        "id": "SUPERIOR_MESENTERIC_VEIN"
+                        "id": "SuperiorMesentericVein"
                      },
                      {
-                        "id": "INFERIOR_MESENTERIC_VEIN"
+                        "id": "InferiorMesentericVein"
                      },
                      {
-                        "id": "LEFT_GASTRIC_VEIN"
+                        "id": "LeftGastricVein"
                      },
                      {
-                        "id": "RIGHT_GASTRIC_VEIN"
+                        "id": "RightGastricVein"
                      }
                   ]
                },
                {
-                  "id": "LEFT_RENAL_VEIN"
+                  "id": "LeftRenalVein"
                },
                {
-                  "id": "RIGHT_RENAL_VEIN"
+                  "id": "RightRenalVein"
                },
                {
-                  "id": "RIGHT_COMMON_ILIAC_VEIN",
+                  "id": "RightCommonIliacVein",
                   "links": [
                      {
-                        "id": "RIGHT_INTERNAL_ILIAC_VEIN"
+                        "id": "RightInternalIliacVein"
                      },
                      {
-                        "id": "RIGHT_EXTERNAL_ILIAC_VEIN",
+                        "id": "RightExternalIliacVein",
                         "links": [
                            {
-                              "id": "RIGHT_DEEP_FEMORAL_VEIN"
+                              "id": "RightDeepFemoralVein"
                            },
                            {
-                              "id": "RIGHT_GREAT_SAPHENOUS_VEIN"
+                              "id": "RightGreatSaphenousVein"
                            },
                            {
-                              "id": "RIGHT_FEMORAL_VEIN",
+                              "id": "RightFemoralVein",
                               "links": [
                                  {
-                                    "id": "RIGHT_POPLITEAL_VEIN",
+                                    "id": "RightPoplitealVein",
                                     "links": [
                                        {
-                                          "id": "RIGHT_SMALL_SAPHENOUS_VEIN"
+                                          "id": "RightSmallSaphenousVein"
                                        },
                                        {
-                                          "id": "RIGHT_ANTERIOR_TIBIAL_VEIN"
+                                          "id": "RightAnteriorTibialVein"
                                        },
                                        {
-                                          "id": "RIGHT_POSTERIOR_TIBIAL_VEIN"
+                                          "id": "RightPosteriorTibialVein"
                                        }
                                     ]
                                  }
@@ -411,34 +411,34 @@
                   ]
                },
                {
-                  "id": "LEFT_COMMON_ILIAC_VEIN",
+                  "id": "LeftCommonIliacVein",
                   "links": [
                      {
-                        "id": "LEFT_INTERNAL_ILIAC_VEIN"
+                        "id": "LeftInternalIliacVein"
                      },
                      {
-                        "id": "LEFT_EXTERNAL_ILIAC_VEIN",
+                        "id": "LeftExternalIliacVein",
                         "links": [
                            {
-                              "id": "LEFT_DEEP_FEMORAL_VEIN"
+                              "id": "LeftDeepFemoralVein"
                            },
                            {
-                              "id": "LEFT_GREAT_SAPHENOUS_VEIN"
+                              "id": "LeftGreatSaphenousVein"
                            },
                            {
-                              "id": "LEFT_FEMORAL_VEIN",
+                              "id": "LeftFemoralVein",
                               "links": [
                                  {
-                                    "id": "LEFT_POPLITEAL_VEIN",
+                                    "id": "LeftPoplitealVein",
                                     "links": [
                                        {
-                                          "id": "LEFT_SMALL_SAPHENOUS_VEIN"
+                                          "id": "LeftSmallSaphenousVein"
                                        },
                                        {
-                                          "id": "LEFT_ANTERIOR_TIBIAL_VEIN"
+                                          "id": "LeftAnteriorTibialVein"
                                        },
                                        {
-                                          "id": "LEFT_POSTERIOR_TIBIAL_VEIN"
+                                          "id": "LeftPosteriorTibialVein"
                                        }
                                     ]
                                  }
