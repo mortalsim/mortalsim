@@ -11,7 +11,7 @@ use super::circulation::CirculationDef;
 pub struct BloodManager<T: BloodVessel> {
     graph: Graph<BloodNode<T>, BloodEdge>,
     node_map: HashMap<T, NodeIndex>,
-    depth: u32,
+    depth: u8,
 }
 
 impl<T: BloodVessel> BloodManager<T> {
@@ -26,7 +26,7 @@ impl<T: BloodVessel> BloodManager<T> {
 
     /// Retrieves the maximum depth of the circulation tree (from root to capillary)
     pub fn depth(&self) -> u32 {
-        self.depth
+        self.depth as u32
     }
 
     pub fn vessel_type(&self, vessel: T) -> Option<BloodVesselType> {

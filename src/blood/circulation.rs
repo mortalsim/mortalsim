@@ -22,7 +22,7 @@ pub struct CirculationDef<T: BloodVessel> {
     /// Mapping from vessel id to node index for rapid lookup
     pub node_map: HashMap<T, NodeIndex>,
     /// Maximum depth of the circulation from root node to capillary
-    pub depth: u32,
+    pub depth: u8,
 }
 
 impl<T: BloodVessel> CirculationDef<T> {
@@ -66,7 +66,7 @@ impl<T: BloodVessel> CirculationDef<T> {
     }
 
     /// Recursive function which adds BloodNodes to the circulation graph based on the JSON definition
-    fn add_vessels(&mut self, vessel: &Value, vessel_idx: NodeIndex, vessel_type: BloodVesselType, depth: u32) {
+    fn add_vessels(&mut self, vessel: &Value, vessel_idx: NodeIndex, vessel_type: BloodVesselType, depth: u8) {
         let links = &vessel["links"];
 
         // Set the depth to the maximum

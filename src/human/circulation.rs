@@ -1,4 +1,7 @@
 use crate::blood::BloodVessel;
+use crate::blood::circulation::CirculationDef;
+
+pub type HumanCirculationDef = CirculationDef<HumanBloodVessel>;
 
 pub const HUMAN_CIRCULATION_FILEPATH: &str = "config/circulation/human_circulation.json";
 

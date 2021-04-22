@@ -7,8 +7,8 @@ use std::str::FromStr;
 use crate::substance::{SubstanceStore, Volume};
 use uom::si::volume::liter;
 
-mod manager;
-mod circulation;
+pub(crate) mod manager;
+pub(crate) mod circulation;
 
 /// Blood vessel identifier trait. Intended to be implemented by enums for various types of
 /// simulated blood circulation systems (human, dog, cat, etc.)
