@@ -11,6 +11,6 @@ mod tests {
 
     #[test]
     fn test_human_manager() {
-        let bm = HumanBloodManager::new(HumanCirculationDef::from_json_file(HUMAN_CIRCULATION_FILEPATH).unwrap());
+        let _bm = HumanBloodManager::new(HumanCirculationDef::from_json_file(HUMAN_CIRCULATION_FILEPATH).unwrap());
     }
 }
