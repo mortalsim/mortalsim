@@ -12,11 +12,11 @@ use petgraph::Direction;
 use petgraph::visit::EdgeRef;
 use petgraph::graph::{Graph, NodeIndex, EdgeIndex};
 use petgraph::dot::{Dot, Config};
-use super::{BloodNode, BloodEdge, BloodVessel, BloodVesselType};
-use super::BloodVesselType::{Vein, Artery};
+use super::super::{BloodNode, BloodEdge, BloodVessel, BloodVesselType};
+use super::super::BloodVesselType::{Vein, Artery};
 
 #[derive(Clone)]
-pub struct CirculationDef<T: BloodVessel> {
+pub struct ClosedCirculatorySystem<T: BloodVessel> {
     /// Graph structure representing circulation anatomy
     pub graph: Graph<BloodNode<T>, BloodEdge>,
     /// Mapping from vessel id to node index for rapid lookup
@@ -25,17 +25,17 @@ pub struct CirculationDef<T: BloodVessel> {
     pub depth: u8,
 }
 
-impl<T: BloodVessel> CirculationDef<T> {
+impl<T: BloodVessel> ClosedCirculatorySystem<T> {
     /// Loads a circulation graph and corresponding vessel->idx map from the given file
-    pub fn from_json_file(filename: &str) -> Result<CirculationDef<T>> {
+    pub fn from_json_file(filename: &str) -> Result<ClosedCirculatorySystem<T>> {
         let contents = fs::read_to_string(filename).unwrap();
         let circ_json: Value = serde_json::from_str(&contents)?;
         Ok(Self::from_json_value(&circ_json))
     }
 
     /// Parses a circulation graph and corresponding vessel->idx map from the given json string
-    pub fn from_json_value(circ_json: &Value) -> CirculationDef<T> {
-        let mut circ = CirculationDef {
+    pub fn from_json_value(circ_json: &Value) -> ClosedCirculatorySystem<T> {
+        let mut circ = ClosedCirculatorySystem {
             graph: Graph::new(),
             node_map: HashMap::new(),
             depth: 0,
@@ -170,12 +170,12 @@ mod tests {
     use petgraph::graphmap::DiGraphMap;
     use petgraph::dot::{Dot, Config};
     use serde_json::to_string_pretty;
-    use super::CirculationDef;
-    use crate::human::circulation::{HUMAN_CIRCULATION_FILEPATH, HumanBloodVessel};
+    use super::ClosedCirculatorySystem;
+    use crate::human::{HUMAN_CIRCULATION_FILEPATH, HumanBloodVessel};
 
     #[test]
     fn test_load() {
-        let circ: CirculationDef<HumanBloodVessel> = CirculationDef::from_json_file(HUMAN_CIRCULATION_FILEPATH).unwrap();
+        let circ: ClosedCirculatorySystem<HumanBloodVessel> = ClosedCirculatorySystem::from_json_file(HUMAN_CIRCULATION_FILEPATH).unwrap();
         println!("{}", circ.digraph());
         println!("depth: {}", circ.depth);
     }

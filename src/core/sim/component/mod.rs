@@ -5,6 +5,7 @@ use std::collections::HashMap;
 use std::rc::Rc;
 use std::cell::RefCell;
 use crate::event::Event;
+use super::SimOrganism;
 pub use connector::SimConnector;
 pub use initializer::SimComponentInitializer;
 

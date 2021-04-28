@@ -6,6 +6,7 @@ use uom::si::time::second;
 use crate::util::id_gen::IdType;
 use crate::core::sim::{SimState, Time};
 use crate::event::Event;
+use super::super::SimOrganism;
 
 /// Provides methods for `Sim` components to interact with the simulation
 pub struct SimConnector {
@@ -53,7 +54,7 @@ impl SimConnector {
     /// ### Arguments
     /// * `wait_time` - Amount of time to wait before execution
     /// * `evt` - `Event` to emit after `wait_time` has elapsed
-    pub fn schedule_event<T: Event>(&mut self, wait_time: Time, evt: T) {
+    pub fn schedule_event(&mut self, wait_time: Time, evt: impl Event) {
         self.pending_schedules.push((wait_time, Box::new(evt)))
     }
     
@@ -70,8 +71,8 @@ impl SimConnector {
     /// * `schedule_id` - schedule id of the Event to unschedule
     /// 
     /// Returns Ok if the id is valid, and Err otherwise
-    pub fn unschedule_event<T: Event>(&mut self, schedule_id: IdType) -> Result<()> {
-        let type_id = TypeId::of::<T>();
+    pub fn unschedule_event<E: Event>(&mut self, schedule_id: IdType) -> Result<()> {
+        let type_id = TypeId::of::<E>();
         match self.scheduled_events.get(&type_id) {
             Some(smap) => {
                 if smap.contains_key(&schedule_id) {
@@ -91,8 +92,8 @@ impl SimConnector {
     /// 
     /// Returns a HashMap if any events are scheduled for the given type, and
     /// None otherwise
-    pub fn get_scheduled_events<T: Event>(&mut self) -> Option<&HashMap<IdType, Time>> {
-        self.scheduled_events.get(&TypeId::of::<T>())
+    pub fn get_scheduled_events<E: Event>(&mut self) -> Option<&HashMap<IdType, Time>> {
+        self.scheduled_events.get(&TypeId::of::<E>())
     }
 
     /// Retrieves the current simulation time
@@ -101,16 +102,16 @@ impl SimConnector {
     }
 
     /// Retrieves the current `Event` object from state
-    pub fn get<T: Event>(&self) -> Option<&T> {
-        self.local_state.get_state::<T>()
+    pub fn get<E: Event>(&self) -> Option<&E> {
+        self.local_state.get_state::<E>()
     }
 
     /// Retrieves the current `Event` object from state as an Arc
-    pub fn get_arc<T: Event>(&self) -> Option<Arc<T>> {
-        match self.local_state.get_state_ref(&TypeId::of::<T>()) {
+    pub fn get_arc<E: Event>(&self) -> Option<Arc<E>> {
+        match self.local_state.get_state_ref(&TypeId::of::<E>()) {
             None => None,
             Some(evt_rc) => {
-                match evt_rc.downcast_arc::<T>() {
+                match evt_rc.downcast_arc::<E>() {
                     Err(_) => None,
                     Ok(typed_evt_rc) => {
                         Some(typed_evt_rc)

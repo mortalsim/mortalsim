@@ -6,7 +6,7 @@ use std::string;
 use petgraph::graph::{Graph, NodeIndex};
 use super::{BloodNode, BloodEdge, BloodVessel, BloodVesselType};
 use crate::substance::{SubstanceStore, Volume};
-use super::circulation::CirculationDef;
+use super::ClosedCirculatorySystem;
 
 pub struct BloodManager<T: BloodVessel> {
     graph: Graph<BloodNode<T>, BloodEdge>,
@@ -16,7 +16,7 @@ pub struct BloodManager<T: BloodVessel> {
 
 impl<T: BloodVessel> BloodManager<T> {
     /// Creates a BloodManager from a Graph representing the circulatory structure
-    pub fn new(circulation: CirculationDef<T>) -> BloodManager<T> {
+    pub fn new(circulation: ClosedCirculatorySystem<T>) -> BloodManager<T> {
         BloodManager {
             graph: circulation.graph,
             node_map: circulation.node_map,

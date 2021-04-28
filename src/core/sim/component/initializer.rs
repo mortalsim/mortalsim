@@ -9,8 +9,9 @@ use crate::core::hub::event_transformer::{EventTransformer, TransformerItem};
 use crate::event::Event;
 use crate::util::id_gen::IdType;
 use super::{SimComponent, SimConnector};
+use super::super::SimOrganism;
 
-pub struct SimComponentInitializer {
+pub struct SimComponentInitializer<T> {
     pub(crate) input_events: HashSet<TypeId>,
     pub(crate) output_events: HashSet<TypeId>,
     pub(crate) pending_notifies: Vec<(i32, Box<dyn Event>)>,
@@ -18,9 +19,9 @@ pub struct SimComponentInitializer {
     pub(crate) initial_outputs: Vec<Box<dyn Event>>,
 }
 
-impl SimComponentInitializer {
-    pub fn new() -> SimComponentInitializer {
-        SimComponentInitializer {
+impl<T> SimComponentInitializer<T> {
+    pub fn new() -> SimComponentInitializer<T> {
+        SimComponentInitializer::<T> {
             input_events: HashSet::new(),
             output_events: HashSet::new(),
             pending_notifies: Vec::new(),
@@ -34,8 +35,8 @@ impl SimComponentInitializer {
     /// 
     /// ### Arguments
     /// * `default` - Default `Event` value when one isn't provided by another component
-    pub fn notify<T: Event>(&mut self, default: T) {
-        self.notify_prioritized::<T>(0, default);
+    pub fn notify<E: Event>(&mut self, default: E) {
+        self.notify_prioritized::<E>(0, default);
     }
     
     /// Registers the corresponding `SimComponent` to `run` whenever the
@@ -44,8 +45,8 @@ impl SimComponentInitializer {
     /// ### Arguments
     /// * `priority` - Notify order priority for this registration
     /// * `default` - Default `Event` value when one isn't provided by another component
-    pub fn notify_prioritized<T: Event>(&mut self, priority: i32, default: T) {
-        let type_key = TypeId::of::<T>();
+    pub fn notify_prioritized<E: Event>(&mut self, priority: i32, default: E) {
+        let type_key = TypeId::of::<E>();
         // If this event type has already been registered as an output, panic
         if self.output_events.contains(&type_key) {
             panic!("Components cannot register notifications for Events they are producing! This could cause an infinite loop.")
@@ -59,7 +60,7 @@ impl SimComponentInitializer {
     /// 
     /// ### Arguments
     /// * `handler` - Function to modify the `Event`
-    pub fn transform<T: Event>(&mut self, handler: impl FnMut(&mut T) + 'static) {
+    pub fn transform<E: Event>(&mut self, handler: impl FnMut(&mut E) + 'static) {
         self.pending_transforms.push(Box::new(TransformerItem::new(handler)))
     }
     
@@ -69,7 +70,7 @@ impl SimComponentInitializer {
     /// ### Arguments
     /// * `priority` - Transformation order priority for this registration
     /// * `handler` - Function to modify the `Event`
-    pub fn transform_prioritized<T: Event>(&mut self, priority: i32, handler: impl FnMut(&mut T) + 'static) {
+    pub fn transform_prioritized<E: Event>(&mut self, priority: i32, handler: impl FnMut(&mut E) + 'static) {
         self.pending_transforms.push(Box::new(TransformerItem::new_prioritized(handler, priority)))
     }
     
@@ -77,7 +78,7 @@ impl SimComponentInitializer {
     /// 
     /// ### Arguments
     /// * `event` - `Event` instance to set on initial state
-    pub fn set_output<T: Event>(&mut self, initial_value: T) {
+    pub fn set_output<E: Event>(&mut self, initial_value: E) {
         self.initial_outputs.push(Box::new(initial_value))
     }
 }

@@ -1,11 +1,11 @@
 use crate::blood::BloodVessel;
-use crate::blood::circulation::CirculationDef;
+use crate::blood::ClosedCirculatorySystem;
 
-pub type HumanCirculationDef = CirculationDef<HumanBloodVessel>;
+pub type HumanCirculatorySystem = ClosedCirculatorySystem<HumanBloodVessel>;
 
 pub const HUMAN_CIRCULATION_FILEPATH: &str = "config/circulation/human_circulation.json";
 
-#[derive(Debug, Display, Hash, Clone, Copy, PartialEq, Eq, EnumString, EnumVariantNames)]
+#[derive(Debug, Display, Hash, Clone, Copy, PartialEq, Eq, EnumString)]
 pub enum HumanBloodVessel {
     Aorta,
     RightBraciocephalicArtery,
