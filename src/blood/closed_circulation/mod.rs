@@ -3,4 +3,4 @@ mod system;
 mod component;
 
 pub use system::ClosedCirculatorySystem;
-pub use component::ClosedCircSimComponent;
+pub use component::{ClosedCircSimComponent, ClosedCircComponentInitializer};

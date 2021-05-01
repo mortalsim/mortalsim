@@ -33,6 +33,16 @@ impl<T: BloodVessel> BloodManager<T> {
         let node_idx = self.node_map.get(&vessel)?;
         Some(self.graph[*node_idx].vessel_type)
     }
+
+    pub fn composition(&self, vessel: T) -> Option<&SubstanceStore> {
+        let node_idx = self.node_map.get(&vessel)?;
+        Some(&self.graph[*node_idx].composition)
+    }
+
+    pub fn composition_mut(&mut self, vessel: T) -> Option<&mut SubstanceStore> {
+        let node_idx = self.node_map.get(&vessel)?;
+        Some(&mut self.graph[*node_idx].composition)
+    }
 }
 
 #[cfg(test)]

@@ -1,16 +1,19 @@
 mod initializer;
 mod connector;
-pub use initializer::ClosedCircInitializer;
-pub use connector::ClosedCircConnector;
+pub use initializer::ClosedCircComponentInitializer;
+pub use connector::ClosedCircSimConnector;
 use crate::core::sim::{SimComponent, SimComponentInitializer, SimConnector};
+use super::super::BloodVessel;
 
 pub trait ClosedCircSimComponent {
+    type VesselType: BloodVessel;
+
     /// Initializes the component. Should register any `Event` objects to listen for
     /// and set initial state.
     /// 
     /// ### Arguments
     /// * `initializer` - Helper object for initializing the component
-    fn init(&mut self, initializer: ClosedCircInitializer);
+    fn init(&mut self, initializer: &mut ClosedCircComponentInitializer<Self::VesselType>);
     
     /// Runs an iteration of this component. Will be called anytime a `notify` registered
     /// `Event` changes on `Sim` state. All module logic should ideally occur within this
@@ -22,10 +25,5 @@ pub trait ClosedCircSimComponent {
     /// ### Arguments
     /// * `connector` - Helper object for the component to interact with the rest of
     ///                 the simulation
-    fn run(&mut self, connector: &mut ClosedCircConnector);
-}
-
-impl SimComponent for dyn ClosedCircSimComponent {
-    fn init(&mut self, _: &mut SimComponentInitializer) {}
-    fn run(&mut self, _: &mut SimConnector) {}
+    fn run(&mut self, connector: &mut ClosedCircSimConnector<Self::VesselType>);
 }
