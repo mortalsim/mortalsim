@@ -3,7 +3,7 @@ use std::fs;
 use std::rc::Rc;
 use std::sync::Mutex;
 use std::borrow::BorrowMut;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::time::{Duration, Instant};
 use anyhow::Result;
 use serde::{Serialize, Deserialize};
@@ -12,15 +12,20 @@ use petgraph::Direction;
 use petgraph::visit::EdgeRef;
 use petgraph::graph::{Graph, NodeIndex, EdgeIndex};
 use petgraph::dot::{Dot, Config};
-use super::super::{BloodNode, BloodEdge, BloodVessel, BloodVesselType};
+use super::super::{BloodVessel, BloodVesselType};
 use super::super::BloodVesselType::{Vein, Artery};
+use super::graph::{BloodNode, BloodEdge};
 
 #[derive(Clone)]
-pub struct ClosedCirculatorySystem<T: BloodVessel> {
+pub struct ClosedCirculatorySystem<V: BloodVessel> {
     /// Graph structure representing circulation anatomy
-    pub graph: Graph<BloodNode<T>, BloodEdge>,
+    pub graph: Graph<BloodNode<V>, BloodEdge>,
     /// Mapping from vessel id to node index for rapid lookup
-    pub node_map: HashMap<T, NodeIndex>,
+    pub node_map: HashMap<V, NodeIndex>,
+    /// Mapping from vessel id to node index for rapid lookup
+    pub pre_capillaries: HashSet<V>,
+    /// Mapping from vessel id to node index for rapid lookup
+    pub post_capillaries: HashSet<V>,
     /// Maximum depth of the circulation from root node to capillary
     pub depth: u8,
 }
@@ -38,6 +43,8 @@ impl<T: BloodVessel> ClosedCirculatorySystem<T> {
         let mut circ = ClosedCirculatorySystem {
             graph: Graph::new(),
             node_map: HashMap::new(),
+            pre_capillaries: HashSet::new(),
+            post_capillaries: HashSet::new(),
             depth: 0,
         };
         
@@ -92,6 +99,9 @@ impl<T: BloodVessel> ClosedCirculatorySystem<T> {
         let bridge = &vessel["bridge"];
 
         if bridge.is_array() {
+            // Note this vessel as a pre_capillary
+            self.pre_capillaries.insert(self.graph[vessel_idx].vessel);
+
             // Establish an edge between the current Node and the venous Node, which
             // we'll look up from the map
             for bridge_id in bridge.as_array().unwrap() {
@@ -103,6 +113,9 @@ impl<T: BloodVessel> ClosedCirculatorySystem<T> {
                 match self.node_map.get(&bridge_vessel) {
                     Some(bridge_idx) => {
                         self.graph.add_edge(vessel_idx, bridge_idx.clone(), BloodEdge::new());
+
+                        // Note the target as a post_capillary
+                        self.post_capillaries.insert(bridge_vessel);
                     },
                     None => {
                         panic!("Invalid bridge vessel for Node '{}': '{}'", &self.graph[vessel_idx], bridge_vessel)

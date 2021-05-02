@@ -103,4 +103,11 @@ pub enum HumanBloodVessel {
     LeftPosteriorTibialVein,
 }
 
-impl BloodVessel for HumanBloodVessel {}
+impl BloodVessel for HumanBloodVessel {
+    fn source() -> HumanBloodVessel {
+        Self::Aorta
+    }
+    fn sink() -> HumanBloodVessel {
+        Self::VenaCava
+    }
+}

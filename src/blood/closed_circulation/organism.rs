@@ -7,8 +7,8 @@ use crate::core::sim::{SimOrganism, Organism};
 use crate::substance::{SubstanceStore, Time};
 use crate::event::Event;
 use crate::util::IdType;
-use super::super::{BloodManager, BloodVessel, BloodNode};
-use super::{ClosedCircComponentInitializer, ClosedCircSimComponent};
+use super::super::BloodVessel;
+use super::{BloodNode, ClosedCirculationManager, ClosedCircComponentInitializer, ClosedCircSimComponent};
 
 lazy_static! {
     static ref COMPONENT_REGISTRY: Mutex<HashMap<TypeId, HashMap<&'static str, Box<dyn Any + Send>>>> = Mutex::new(HashMap::new());
@@ -39,7 +39,7 @@ pub trait ClosedCirculationSimOrganism: SimOrganism {}
 
 pub struct ClosedCirculationOrganism<V: BloodVessel> {
     organism: Organism,
-    blood_manager: BloodManager<V>,
+    blood_manager: ClosedCirculationManager<V>,
     active_components: HashMap<&'static str, CcComponentContext<V>>,
 }
 

@@ -187,14 +187,17 @@ impl Organism {
             match COMPONENT_REGISTRY.lock().unwrap().get_mut(component_name) {
                 None => panic!("Invalid component name provided: \"{}\"", component_name),
                 Some(factory) => {
-                    let mut ctx = ComponentContext {
-                        component: factory(),
+                    let mut component = factory();
+                    let mut initializer = SimComponentInitializer::new();
+                    component.init(&mut initializer);
+                    
+                    self.active_components.insert(component_name, ComponentContext {
+                        component: component,
                         connector: SimConnector::new(),
                         transformer_ids: Vec::new(),
-                    };
+                    });
 
-                    self.setup_component_io(component_name, &mut ctx);
-                    self.active_components.insert(component_name, ctx);
+                    self.setup_component_io(component_name, initializer);
                 }
             }
         }
@@ -208,13 +211,15 @@ impl Organism {
     }
 
     /// handles internal registrations and initial outputs for components
-    fn setup_component_io(&mut self, component_name: &'static str, ctx: &mut ComponentContext) {
-        let mut initializer = SimComponentInitializer::new();
-        ctx.component.init(&mut initializer);
+    pub(crate) fn setup_component_io(&mut self, component_name: &'static str, initializer: SimComponentInitializer) {
 
+        let mut transformer_ids = Vec::new();
         for transformer in initializer.pending_transforms {
-            ctx.transformer_ids.push(self.insert_transformer(transformer));
+            transformer_ids.push(self.insert_transformer(transformer));
         }
+        
+        let ctx = self.active_components.get_mut(component_name).unwrap();
+        ctx.transformer_ids = transformer_ids;
         
         for (priority, evt) in initializer.pending_notifies {
             let type_id = evt.type_id();

@@ -1,7 +1,7 @@
 mod initializer;
 mod connector;
 pub use initializer::ClosedCircComponentInitializer;
-pub use connector::ClosedCircSimConnector;
+pub use connector::{ClosedCircConnector, ClosedCircSimConnector};
 use crate::core::sim::{SimComponent, SimComponentInitializer, SimConnector};
 use super::super::BloodVessel;
 
@@ -25,5 +25,5 @@ pub trait ClosedCircSimComponent {
     /// ### Arguments
     /// * `connector` - Helper object for the component to interact with the rest of
     ///                 the simulation
-    fn run(&mut self, connector: &mut ClosedCircSimConnector<Self::VesselType>);
+    fn run(&mut self, connector: &mut dyn ClosedCircSimConnector<Self::VesselType>);
 }

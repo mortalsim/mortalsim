@@ -1,10 +1,10 @@
 use std::sync::Arc;
-use crate::blood::{BloodManager, ClosedCirculatorySystem};
+use crate::blood::{ClosedCirculationManager, ClosedCirculatorySystem};
 use crate::core::sim::Organism;
 mod circulation;
 
 pub use circulation::{HumanBloodVessel, HumanCirculatorySystem, HUMAN_CIRCULATION_FILEPATH};
-pub type HumanBloodManager = BloodManager<HumanBloodVessel>;
+pub type HumanClosedCirculationManager = ClosedCirculationManager<HumanBloodVessel>;
 
 lazy_static! {
     static ref CIRC_SYSTEM: HumanCirculatorySystem = HumanCirculatorySystem::from_json_file(HUMAN_CIRCULATION_FILEPATH).unwrap();
@@ -13,10 +13,10 @@ lazy_static! {
 #[cfg(test)]
 mod tests {
     use super::circulation::{HumanCirculatorySystem, HUMAN_CIRCULATION_FILEPATH};
-    use super::HumanBloodManager;
+    use super::HumanClosedCirculationManager;
 
     #[test]
     fn test_human_manager() {
-        let _bm = HumanBloodManager::new(HumanCirculatorySystem::from_json_file(HUMAN_CIRCULATION_FILEPATH).unwrap());
+        let _bm = HumanClosedCirculationManager::new(HumanCirculatorySystem::from_json_file(HUMAN_CIRCULATION_FILEPATH).unwrap());
     }
 }
