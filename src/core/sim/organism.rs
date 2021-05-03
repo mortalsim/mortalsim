@@ -28,15 +28,13 @@ fn register_component(component_name: &'static str, factory: impl FnMut() -> Box
     COMPONENT_REGISTRY.lock().unwrap().insert(component_name, Box::new(factory));
 }
 
-struct ComponentContext {
-    pub component: Box<dyn SimComponent>,
-    pub connector: SimConnector,
-    pub transformer_ids: Vec<IdType>,
-}
-
 pub trait SimOrganism {
     /// Returns the current simulation time
     fn time(&self) -> Time;
+    
+    /// Determines if the given component name corresponds to an active component
+    /// on this SimOrganism
+    fn has_component(&self, component_name: &'static str) -> bool;
 
     /// Retrieves the set of names of components which are active on this Sim
     fn active_components(&self) -> HashSet<&'static str>;
@@ -88,12 +86,14 @@ pub trait SimOrganism {
 
 pub struct Organism {
     sim_id: Uuid,
-    active_components: HashMap<&'static str, ComponentContext>,
+    active_components: HashMap<&'static str, Box<dyn SimComponent>>,
     time_manager: TimeManager,
     state: SimState,
     event_transformers: HashMap<TypeId, Vec<Box<dyn EventTransformer>>>,
     component_notifications: HashMap<TypeId, Vec<(i32, &'static str)>>,
-    transformer_id_type_map: HashMap<IdType, TypeId>,
+    connector_map: HashMap<&'static str, SimConnector>,
+    transformer_id_map: HashMap<&'static str, Vec<IdType>>,
+    transformer_type_map: HashMap<IdType, TypeId>,
 }
 
 impl fmt::Debug for Organism {
@@ -116,7 +116,9 @@ impl Organism {
             state: initial_state,
             event_transformers: HashMap::new(),
             component_notifications: HashMap::new(),
-            transformer_id_type_map: HashMap::new(),
+            connector_map: HashMap::new(),
+            transformer_id_map: HashMap::new(),
+            transformer_type_map: HashMap::new(),
         }
     }
 
@@ -179,7 +181,7 @@ impl Organism {
     ///
     /// ### Arguments
     /// * `component_names` - Set of component names to initialize
-    fn init_components(&mut self, component_names: HashSet<&'static str>) {
+    pub(crate) fn init_components(&mut self, component_names: HashSet<&'static str>) {
 
         // Initialize each component
         for component_name in component_names.into_iter() {
@@ -189,41 +191,29 @@ impl Organism {
                 Some(factory) => {
                     let mut component = factory();
                     let mut initializer = SimComponentInitializer::new();
+                    let mut connector = SimConnector::new();
                     component.init(&mut initializer);
                     
-                    self.active_components.insert(component_name, ComponentContext {
-                        component: component,
-                        connector: SimConnector::new(),
-                        transformer_ids: Vec::new(),
-                    });
+                    self.active_components.insert(component_name, component);
 
-                    self.setup_component_io(component_name, initializer);
+                    self.setup_component(component_name, initializer, &mut connector);
+                    self.connector_map.insert(component_name, connector);
                 }
             }
-        }
-
-        // Set initial state for each component
-        for (_, ctx) in self.active_components.iter_mut() {
-
-            // Merge the canonical Sim state to the component's local state
-            ctx.connector.local_state.merge_all(&self.state);
         }
     }
 
     /// handles internal registrations and initial outputs for components
-    pub(crate) fn setup_component_io(&mut self, component_name: &'static str, initializer: SimComponentInitializer) {
-
+    pub(crate) fn setup_component(&mut self, component_name: &'static str, initializer: SimComponentInitializer, connector: &mut SimConnector) {
         let mut transformer_ids = Vec::new();
         for transformer in initializer.pending_transforms {
             transformer_ids.push(self.insert_transformer(transformer));
         }
-        
-        let ctx = self.active_components.get_mut(component_name).unwrap();
-        ctx.transformer_ids = transformer_ids;
+        self.transformer_id_map.insert(component_name, transformer_ids);
         
         for (priority, evt) in initializer.pending_notifies {
             let type_id = evt.type_id();
-            ctx.connector.local_state.put_state(type_id, evt.into());
+            connector.local_state.put_state(type_id, evt.into());
             match self.component_notifications.get_mut(&type_id) {
                 None => {
                     self.component_notifications.insert(type_id, vec![(priority, component_name)]);
@@ -235,7 +225,7 @@ impl Organism {
         }
 
         // Clear taint
-        ctx.connector.local_state.clear_taint();
+        connector.local_state.clear_taint();
     }
 
     fn insert_transformer(&mut self, transformer: Box<dyn EventTransformer>) -> IdType {
@@ -257,7 +247,7 @@ impl Organism {
         }
         
         // Add the id -> type mapping for quick removal if needed later
-        self.transformer_id_type_map.insert(transformer_id, type_key);
+        self.transformer_type_map.insert(transformer_id, type_key);
 
         transformer_id
     }
@@ -315,13 +305,13 @@ impl Organism {
     /// 
     /// Returns Ok if successful, or Err if the provided ID is invalid.
     pub fn unset_transform(&mut self, transformer_id: IdType) -> Result<()> {
-        match self.transformer_id_type_map.get(&transformer_id) {
+        match self.transformer_type_map.get(&transformer_id) {
             Some(type_key) => {
                 let transformers = self.event_transformers.get_mut(type_key).unwrap();
                 match transformers.iter().position(|l| l.transformer_id() == transformer_id) {
                     Some(pos) => {
                         transformers.remove(pos);
-                        self.transformer_id_type_map.remove(&transformer_id);
+                        self.transformer_type_map.remove(&transformer_id);
                         Ok(())
                     },
                     None => Err(anyhow::Error::new(InvalidIdError::new(format!("{:?}", self), transformer_id)))
@@ -332,6 +322,12 @@ impl Organism {
     }
 
     fn execute_time_step(&mut self) {
+        self.execute_events();
+        let update_list = self.update_list();
+        self.update(update_list);
+    }
+
+    pub(crate) fn execute_events(&mut self) {
         // Keep going until no more events / listeners are left to deal with
         loop {
             let next_events = self.time_manager.next_events();
@@ -356,66 +352,64 @@ impl Organism {
                 break;
             }
         }
-        self.update();
     }
 
-    fn update(&mut self) {
-        // Execute components for which input events have been tainted
+    pub(crate) fn update_list(&mut self) -> Vec<(TypeId, Vec<&'static str>)> {
+        let mut list = Vec::new();
         for type_id in self.state.get_tainted().clone() {
             let notify_list = match self.component_notifications.get(&type_id) {
                 None => Vec::new(),
                 Some(notify_list) => {
-                    notify_list.clone()
+                    notify_list.iter().map(|(_, cname)| {*cname}).collect()
                 }
             };
-
-            for (_, component_name) in notify_list {
-                self.run_component(component_name, &type_id);
-            }
+            list.push((type_id, notify_list));
         }
 
-        // Make sure we clear state taint so these updates are effectively "completed"
+        // Make sure we clear state taint so these updates are effectively
+        // marked as "completed"
         self.state.clear_taint();
+
+        list
     }
 
-    fn run_component(&mut self, component_name: &'static str, trigger_type: &TypeId) {
-        let mut ctx = self.active_components.remove(component_name).unwrap();
+    pub(crate) fn prepare_connector(&mut self, mut connector: SimConnector, trigger_type: &TypeId) -> SimConnector {
+        // Update connector before component execution
+        connector.trigger_event = self.state.get_state_ref(trigger_type);
+        connector.sim_time = self.time_manager.get_time();
+        connector.local_state.merge_tainted(&self.state);
+        connector
+    }
 
-        // Update connector fields lazily, just before component execution
-        ctx.connector.trigger_event = self.state.get_state_ref(trigger_type);
-        ctx.connector.sim_time = self.time_manager.get_time();
-        ctx.connector.local_state.merge_tainted(&self.state);
-
-        // Execute component logic
-        ctx.component.run(&mut ctx.connector);
+    pub(crate) fn process_connector(&mut self, mut connector: SimConnector) -> SimConnector {
 
         // Unschedule any requested events
-        if ctx.connector.unschedule_all {
-            for (_, id_map) in ctx.connector.scheduled_events.iter_mut() {
+        if connector.unschedule_all {
+            for (_, id_map) in connector.scheduled_events.iter_mut() {
                 for (schedule_id, _) in id_map {
                     self.time_manager.unschedule_event(schedule_id).unwrap();
                 }
             }
-            ctx.connector.scheduled_events.drain();
+            connector.scheduled_events.drain();
         }
         else {
-            for schedule_id in ctx.connector.pending_unschedules {
+            for schedule_id in connector.pending_unschedules {
                 self.time_manager.unschedule_event(&schedule_id).unwrap();
-                let type_id = ctx.connector.schedule_id_type_map.remove(&schedule_id).unwrap();
-                ctx.connector.scheduled_events.remove(&type_id).unwrap();
+                let type_id = connector.schedule_id_type_map.remove(&schedule_id).unwrap();
+                connector.scheduled_events.remove(&type_id).unwrap();
             }
         }
 
         // Schedule any new events
-        for (wait_time, evt) in ctx.connector.pending_schedules {
+        for (wait_time, evt) in connector.pending_schedules {
             let type_id = evt.type_id();
             let schedule_id = self.time_manager.schedule_event(wait_time, evt);
-            ctx.connector.schedule_id_type_map.insert(schedule_id, type_id);
-            match ctx.connector.scheduled_events.get_mut(&type_id) {
+            connector.schedule_id_type_map.insert(schedule_id, type_id);
+            match connector.scheduled_events.get_mut(&type_id) {
                 None => {
                     let mut map = HashMap::new();
                     map.insert(schedule_id, wait_time);
-                    ctx.connector.scheduled_events.insert(type_id, map);
+                    connector.scheduled_events.insert(type_id, map);
                 },
                 Some(map) => {
                     map.insert(schedule_id, wait_time);
@@ -424,13 +418,35 @@ impl Organism {
         }
 
         // Replace our moved vectors with new ones
-        ctx.connector.pending_unschedules = Vec::new();
-        ctx.connector.pending_schedules = Vec::new();
-
-        // Insert the context back into the component map
-        self.active_components.insert(component_name, ctx);
+        connector.pending_unschedules = Vec::new();
+        connector.pending_schedules = Vec::new();
+        connector
     }
 
+    /// Private method for updating locally managed components
+    fn update(&mut self, update_list: Vec<(TypeId, Vec<&'static str>)>) {
+        for (type_id, notify_list) in update_list {
+            for component_name in notify_list {
+                let mut connector = self.connector_map.remove(component_name).unwrap();
+                connector = self.prepare_connector(connector, &type_id);
+
+                // Execute component logic
+                self.active_components.get_mut(component_name).unwrap().run(&mut connector);
+                connector = self.process_connector(connector);
+
+                // Insert the context back into the connector map
+                self.connector_map.insert(component_name, connector);
+            }
+        }
+    }
+
+    pub(crate) fn advance_time(&mut self) {
+        self.time_manager.advance();
+    }
+    
+    pub(crate) fn advance_time_by(&mut self, time_step: Time) {
+        self.time_manager.advance_by(time_step);
+    }
 }
 
 impl SimOrganism for Organism {
@@ -438,6 +454,12 @@ impl SimOrganism for Organism {
     /// Returns the current simulation time
     fn time(&self) -> Time {
         self.time_manager.get_time()
+    }
+
+    /// Determines if the given component name corresponds to an active component
+    /// on this SimOrganism
+    fn has_component(&self, component_name: &'static str) -> bool {
+        return self.active_components.contains_key(component_name)
     }
 
     /// Retrieves the set of names of components which are active on this Sim
@@ -471,7 +493,7 @@ impl SimOrganism for Organism {
     /// 
     /// If there are no Events or listeners in the queue, time will remain unchanged
     fn advance(&mut self) {
-        self.time_manager.advance();
+        self.advance_time();
         self.execute_time_step();
     }
 
@@ -483,7 +505,7 @@ impl SimOrganism for Organism {
     /// ### Arguments
     /// * `time_step` - Amount of time to advance by
     fn advance_by(&mut self, time_step: Time) {
-        self.time_manager.advance_by(time_step);
+        self.advance_time_by(time_step);
         self.execute_time_step();
     }
 

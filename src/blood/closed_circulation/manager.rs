@@ -6,6 +6,7 @@ use std::rc::Rc;
 use std::string;
 use petgraph::Direction;
 use petgraph::graph::{Graph, NodeIndex, Neighbors};
+use crate::core::sim::SimConnector;
 use crate::substance::{SubstanceStore, Volume};
 use super::super::{BloodVessel, BloodVesselType, VesselIter};
 use super::{BloodNode, BloodEdge, ClosedCirculatorySystem, ClosedCircVesselIter, ClosedCircConnector, ClosedCircSimConnector};
@@ -15,6 +16,7 @@ pub struct ClosedCirculationManager<V: BloodVessel> {
     node_map: HashMap<V, NodeIndex>,
     pre_capillaries: HashSet<V>,
     post_capillaries: HashSet<V>,
+    connector: Option<SimConnector>,
     depth: u8,
 }
 
@@ -26,6 +28,7 @@ impl<V: BloodVessel> ClosedCirculationManager<V> {
             node_map: circulation.node_map,
             pre_capillaries: circulation.pre_capillaries,
             post_capillaries: circulation.post_capillaries,
+            connector: None,
             depth: circulation.depth,
         }
     }
@@ -51,18 +54,19 @@ impl<V: BloodVessel> ClosedCirculationManager<V> {
 }
 
 impl<V: BloodVessel> ClosedCircConnector<V> for ClosedCirculationManager<V> {
-    /// Retrieves the SubstanceStore for the given vessel
     fn composition(&self, vessel: V) -> &SubstanceStore {
         let node_idx = self.node_map.get(&vessel).unwrap();
         &self.graph[*node_idx].composition
     }
 
-    /// Retrieves a mutable SubstanceStore for the given vessel
     fn composition_mut(&mut self, vessel: V) -> &mut SubstanceStore {
         let node_idx = self.node_map.get(&vessel).unwrap();
         &mut self.graph[*node_idx].composition
     }
 
+    fn connector(&mut self) -> &mut SimConnector {
+        self.connector.as_mut().unwrap()
+    }
 }
 
 impl<V: BloodVessel> ClosedCircSimConnector<V> for ClosedCirculationManager<V> {
@@ -112,7 +116,6 @@ impl<V: BloodVessel> ClosedCircSimConnector<V> for ClosedCirculationManager<V> {
     fn upstream(&self, vessel: V) -> ClosedCircVesselIter<V> {
         self.vessel_connections(vessel, Direction::Incoming)
     }
-
 }
 
 #[cfg(test)]

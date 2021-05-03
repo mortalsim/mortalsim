@@ -5,8 +5,8 @@ use crate::event::Event;
 use super::super::super::BloodVessel;
 
 pub struct ClosedCircInitializer<V: BloodVessel> {
-    vessel_connections: HashSet<V>,
-    substance_notifies: HashMap<V, HashMap<Substance, MolarConcentration>>
+    pub(crate) vessel_connections: HashSet<V>,
+    pub(crate) substance_notifies: HashMap<V, HashMap<Substance, MolarConcentration>>
 }
 
 impl<V: BloodVessel> ClosedCircInitializer<V> {
@@ -29,15 +29,15 @@ impl<V: BloodVessel> ClosedCircInitializer<V> {
 }
 
 pub struct ClosedCircComponentInitializer<V: BloodVessel> {
-    init: SimComponentInitializer,
-    cc_init: ClosedCircInitializer<V>,
+    pub initializer: SimComponentInitializer,
+    pub cc_initializer: ClosedCircInitializer<V>,
 }
 
 impl<V: BloodVessel> ClosedCircComponentInitializer<V> {
     pub fn new() -> ClosedCircComponentInitializer<V> {
         ClosedCircComponentInitializer {
-            init: SimComponentInitializer::new(),
-            cc_init: ClosedCircInitializer::new(),
+            initializer: SimComponentInitializer::new(),
+            cc_initializer: ClosedCircInitializer::new(),
         }
     }
 }

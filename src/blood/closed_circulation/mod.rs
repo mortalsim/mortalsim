@@ -9,7 +9,7 @@ mod graph;
 mod manager;
 
 pub use system::ClosedCirculatorySystem;
-pub use component::{ClosedCircSimComponent, ClosedCircComponentInitializer, ClosedCircConnector, ClosedCircSimConnector};
+pub use component::{ClosedCircSimComponent, ClosedCircComponentInitializer, ClosedCircInitializer, ClosedCircConnector, ClosedCircSimConnector};
 pub use graph::{BloodEdge, BloodNode};
 pub use manager::ClosedCirculationManager;
 pub use organism::{ClosedCirculationOrganism, ClosedCirculationSimOrganism};

@@ -3,12 +3,12 @@ use std::sync::Mutex;
 use std::any::{Any, TypeId};
 use anyhow::Result;
 use petgraph::graph::{Graph, NodeIndex};
-use crate::core::sim::{SimOrganism, Organism};
-use crate::substance::{SubstanceStore, Time};
+use crate::core::sim::{SimOrganism, Organism, SimConnector};
+use crate::substance::{SubstanceStore, Time, Substance, MolarConcentration};
 use crate::event::Event;
 use crate::util::IdType;
 use super::super::BloodVessel;
-use super::{BloodNode, ClosedCirculationManager, ClosedCircComponentInitializer, ClosedCircSimComponent};
+use super::{BloodNode, ClosedCirculationManager, ClosedCircComponentInitializer, ClosedCircInitializer, ClosedCircSimComponent};
 
 lazy_static! {
     static ref COMPONENT_REGISTRY: Mutex<HashMap<TypeId, HashMap<&'static str, Box<dyn Any + Send>>>> = Mutex::new(HashMap::new());
@@ -40,11 +40,14 @@ pub trait ClosedCirculationSimOrganism: SimOrganism {}
 pub struct ClosedCirculationOrganism<V: BloodVessel> {
     organism: Organism,
     blood_manager: ClosedCirculationManager<V>,
-    active_components: HashMap<&'static str, CcComponentContext<V>>,
+    blood_index_map: HashMap<&'static str, (HashSet<V>, HashMap<V, Vec<Substance>>)>,
+    blood_notify_map: HashMap<V, HashMap<Substance, Vec<(MolarConcentration, &'static str)>>>,
+    active_components: HashMap<&'static str, Box<dyn ClosedCircSimComponent<VesselType = V>>>,
+    connector_map: HashMap<&'static str, SimConnector>,
 }
 
 impl<V: BloodVessel + 'static> ClosedCirculationOrganism<V> {
-    fn init_cc_components(&mut self, component_names: HashSet<&'static str>) -> HashSet<&'static str> {
+    fn init_components(&mut self, component_names: HashSet<&'static str>) {
         let mut registry = COMPONENT_REGISTRY.lock().unwrap();
         let vessel_registry: &mut HashMap<&'static str, Box<dyn Any + Send>> = registry.entry(TypeId::of::<V>()).or_insert(HashMap::new());
 
@@ -52,33 +55,70 @@ impl<V: BloodVessel + 'static> ClosedCirculationOrganism<V> {
 
         // Initialize each component
         for component_name in component_names.into_iter() {
-            log::debug!("Initializing component \"{}\" on Sim", component_name);
+            log::debug!("Initializing component \"{}\" on ClosedCirculation", component_name);
             match vessel_registry.get_mut(component_name) {
                 None => {
                     remaining_components.insert(component_name);
                 },
                 Some(factory_box) => {
                     let factory = factory_box.downcast_mut::<Box<dyn FnMut() -> Box<dyn ClosedCircSimComponent<VesselType = V>>>>().unwrap();
-                    let mut ctx = CcComponentContext {
-                        component: factory(),
-                        node_indices: Vec::new(),
-                    };
+                    let mut component = factory();
+                    let mut ccc_initializer = ClosedCircComponentInitializer::new();
+                    component.init(&mut ccc_initializer);
+                    
+                    self.active_components.insert(component_name, component);
 
-                    self.setup_component_io(&mut ctx);
-                    self.active_components.insert(component_name, ctx);
+                    // Need to create a SimConnector for each of our closed circ components so they
+                    // have access to the base sim capabilities as well
+                    let mut connector = SimConnector::new();
+
+                    // perform base organism component portion setup
+                    self.organism.setup_component(component_name, ccc_initializer.initializer, &mut connector);
+                    self.connector_map.insert(component_name, connector);
+
+                    // perform closed circulation component portion setup
+                    self.setup_component(component_name, ccc_initializer.cc_initializer);
                 }
             }
         }
-
-        // TODO: Any finishing initializations
-        remaining_components
+        
+        // Remaining components should be generic SimComponents
+        // so we let the base organism handle those
+        self.init_base_components(remaining_components);
     }
 
-    fn setup_component_io(&mut self, ctx: &mut CcComponentContext<V>) {
-        let mut initializer = ClosedCircComponentInitializer::new();
-        ctx.component.init(&mut initializer);
+    pub(crate) fn init_base_components(&mut self, component_names: HashSet<&'static str>) {
+        self.organism.init_components(component_names);
+    }
 
-        // TODO: Process initialization
+    fn setup_component(&mut self, component_name: &'static str, initializer: ClosedCircInitializer<V>) {
+        let vessel_connections = initializer.vessel_connections;
+        let mut component_vessel_map = HashMap::new();
+        for (vessel, substance_map) in initializer.substance_notifies {
+            let mut substance_list = Vec::new();
+            for (substance, threshold) in substance_map {
+                substance_list.push(substance);
+                let vsubstance_map = self.blood_notify_map.entry(vessel).or_insert(HashMap::new());
+                let notify_list = vsubstance_map.entry(substance).or_insert(Vec::new());
+                notify_list.push((threshold, component_name));
+            }
+            component_vessel_map.insert(vessel, substance_list);
+        }
+
+        self.blood_index_map.insert(component_name, (vessel_connections, component_vessel_map));
+    }
+
+    fn execute_time_step(&mut self) {
+        self.organism.execute_events();
+        let update_list = self.organism.update_list();
+    }
+
+    pub(crate) fn advance_time(&mut self) {
+        self.organism.advance_time();
+    }
+    
+    pub(crate) fn advance_time_by(&mut self, time_step: Time) {
+        self.organism.advance_time_by(time_step);
     }
 }
 
@@ -87,6 +127,15 @@ impl<V: BloodVessel + 'static> SimOrganism for ClosedCirculationOrganism<V> {
     /// Returns the current simulation time
     fn time(&self) -> Time {
         self.organism.time()
+    }
+
+    fn has_component(&self, component_name: &'static str) -> bool {
+        if self.active_components.contains_key(component_name) {
+            true
+        }
+        else {
+            self.organism.has_component(component_name)
+        }
     }
 
     /// Retrieves the set of names of components which are active on this Sim
@@ -99,7 +148,7 @@ impl<V: BloodVessel + 'static> SimOrganism for ClosedCirculationOrganism<V> {
     /// ### Arguments
     /// * `component_names` - Set of components to add
     fn add_components(&mut self, component_names: HashSet<&'static str>) {
-        self.init_cc_components(component_names);
+        self.init_components(component_names);
     }
 
     /// Removes a component from this Sim. Panics if any of the component names
@@ -116,7 +165,8 @@ impl<V: BloodVessel + 'static> SimOrganism for ClosedCirculationOrganism<V> {
     /// 
     /// If there are no Events or listeners in the queue, time will remain unchanged
     fn advance(&mut self) {
-        self.organism.advance()
+        self.advance_time();
+        self.execute_time_step();
     }
 
     /// Advances simulation time by the provided time step
@@ -127,9 +177,9 @@ impl<V: BloodVessel + 'static> SimOrganism for ClosedCirculationOrganism<V> {
     /// ### Arguments
     /// * `time_step` - Amount of time to advance by
     fn advance_by(&mut self, time_step: Time) {
-        self.organism.advance_by(time_step)
+        self.advance_time_by(time_step);
+        self.execute_time_step();
     }
-
 
     /// Schedules an `Event` for future emission on this simulation
     /// 

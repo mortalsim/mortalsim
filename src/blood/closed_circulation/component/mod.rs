@@ -1,6 +1,6 @@
 mod initializer;
 mod connector;
-pub use initializer::ClosedCircComponentInitializer;
+pub use initializer::{ClosedCircComponentInitializer, ClosedCircInitializer};
 pub use connector::{ClosedCircConnector, ClosedCircSimConnector};
 use crate::core::sim::{SimComponent, SimComponentInitializer, SimConnector};
 use super::super::BloodVessel;

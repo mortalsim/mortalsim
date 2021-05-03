@@ -11,6 +11,9 @@ pub trait ClosedCircConnector<V: BloodVessel> {
 
     /// Retrieves a mutable SubstanceStore for the given vessel
     fn composition_mut(&mut self, vessel: V) -> &mut SubstanceStore;
+
+    // Retrieves the SimConnector portion of this connector
+    fn connector(&mut self) -> &mut SimConnector;
 }
 
 pub trait ClosedCircSimConnector<V: BloodVessel>: ClosedCircConnector<V> {
