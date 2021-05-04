@@ -427,6 +427,7 @@ impl Organism {
     fn update(&mut self, update_list: Vec<(TypeId, Vec<&'static str>)>) {
         for (type_id, notify_list) in update_list {
             for component_name in notify_list {
+                // TODO: This won't work when connectors are managed elsewhere
                 let mut connector = self.connector_map.remove(component_name).unwrap();
                 connector = self.prepare_connector(connector, &type_id);
 

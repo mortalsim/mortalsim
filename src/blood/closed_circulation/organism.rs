@@ -30,11 +30,6 @@ fn register_component<V: BloodVessel + 'static>(component_name: &'static str, fa
     vessel_registry.insert(component_name, Box::new(factory));
 }
 
-struct CcComponentContext<V: BloodVessel> {
-    component: Box<dyn ClosedCircSimComponent<VesselType = V>>,
-    node_indices: Vec<NodeIndex>,
-}
-
 pub trait ClosedCirculationSimOrganism: SimOrganism {}
 
 pub struct ClosedCirculationOrganism<V: BloodVessel> {
@@ -159,7 +154,6 @@ impl<V: BloodVessel + 'static> SimOrganism for ClosedCirculationOrganism<V> {
     fn remove_components(&mut self, component_names: HashSet<&'static str>) {
         self.organism.remove_components(component_names)
     }
-
 
     /// Advances simulation time to the next `Event` or listener in the queue, if any.
     /// 
