@@ -94,6 +94,8 @@ pub struct Organism {
     connector_map: HashMap<&'static str, SimConnector>,
     transformer_id_map: HashMap<&'static str, Vec<IdType>>,
     transformer_type_map: HashMap<IdType, TypeId>,
+    /// Map of pending updates for each component
+    notify_map: HashMap<&'static str, HashSet<TypeId>>,
 }
 
 impl fmt::Debug for Organism {
@@ -119,6 +121,7 @@ impl Organism {
             connector_map: HashMap::new(),
             transformer_id_map: HashMap::new(),
             transformer_type_map: HashMap::new(),
+            notify_map: HashMap::new(),
         }
     }
 
@@ -322,12 +325,6 @@ impl Organism {
     }
 
     fn execute_time_step(&mut self) {
-        self.execute_events();
-        let update_list = self.update_list();
-        self.update(update_list);
-    }
-
-    pub(crate) fn execute_events(&mut self) {
         // Keep going until no more events / listeners are left to deal with
         loop {
             let next_events = self.time_manager.next_events();
@@ -352,48 +349,91 @@ impl Organism {
                 break;
             }
         }
-    }
 
-    pub(crate) fn update_list(&mut self) -> Vec<(TypeId, Vec<&'static str>)> {
-        let mut list = Vec::new();
+        let mut notify_map = HashMap::new();
+        
+        // Now set the notify map for each component notification
         for type_id in self.state.get_tainted().clone() {
-            let notify_list = match self.component_notifications.get(&type_id) {
-                None => Vec::new(),
+            match self.component_notifications.get(&type_id) {
+                None => {},
                 Some(notify_list) => {
-                    notify_list.iter().map(|(_, cname)| {*cname}).collect()
+                    for (_, component_name) in notify_list {
+                        notify_map.entry(*component_name).or_insert(HashSet::new()).insert(type_id);
+                    }
                 }
             };
-            list.push((type_id, notify_list));
         }
 
         // Make sure we clear state taint so these updates are effectively
         // marked as "completed"
         self.state.clear_taint();
 
-        list
+        // Update locally managed components
+        self.update_components(notify_map);
     }
 
-    pub(crate) fn prepare_connector(&mut self, mut connector: SimConnector, trigger_type: &TypeId) -> SimConnector {
+    fn update_components(&mut self, notify_map: HashMap<&'static str, HashSet<TypeId>>) {
+        for (component_name, notify_set) in notify_map {
+            // Need to remove the connector to avoid multiple mutable borrows of self
+            match self.connector_map.remove(component_name) {
+                Some(mut connector) => {
+                    self.prepare_connector(component_name, &mut connector);
+                    
+                    // Execute component logic
+                    self.active_components.get_mut(component_name).unwrap().run(&mut connector);
+
+                    // Process the results
+                    self.process_connector(&mut connector);
+
+                    // Insert the connector back into our map
+                    self.connector_map.insert(component_name, connector);
+                }
+                None => {
+                    // This component is not managed internally, so we need to
+                    // add it to the notify map field for someone else to update
+                    match self.notify_map.get_mut(component_name) {
+                        Some(set) => {
+                            set.extend(notify_set)
+                        }
+                        None => {
+                            self.notify_map.insert(component_name, notify_set);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    pub(crate) fn pending_updates<'a>(&'a mut self) -> impl Iterator<Item = &'static str> + 'a {
+        self.notify_map.keys().map(|n| { *n })
+    }
+
+    pub(crate) fn clear_notifications(&mut self) {
+        self.notify_map.clear()
+    }
+
+    pub(crate) fn prepare_connector(&mut self, component_name: &'static str, connector: &mut SimConnector) {
         // Update connector before component execution
-        connector.trigger_event = self.state.get_state_ref(trigger_type);
+        connector.trigger_events = {
+            let notify_ids = self.notify_map.remove(component_name).unwrap_or(HashSet::new());
+            notify_ids.iter().map(|id| { self.state.get_state_ref(id).unwrap() }).collect()
+        };
         connector.sim_time = self.time_manager.get_time();
         connector.local_state.merge_tainted(&self.state);
-        connector
     }
 
-    pub(crate) fn process_connector(&mut self, mut connector: SimConnector) -> SimConnector {
+    pub(crate) fn process_connector(&mut self, connector: &mut SimConnector) {
 
         // Unschedule any requested events
         if connector.unschedule_all {
-            for (_, id_map) in connector.scheduled_events.iter_mut() {
+            for (_, id_map) in connector.scheduled_events.drain() {
                 for (schedule_id, _) in id_map {
-                    self.time_manager.unschedule_event(schedule_id).unwrap();
+                    self.time_manager.unschedule_event(&schedule_id).unwrap();
                 }
             }
-            connector.scheduled_events.drain();
         }
         else {
-            for schedule_id in connector.pending_unschedules {
+            for schedule_id in connector.pending_unschedules.drain(..) {
                 self.time_manager.unschedule_event(&schedule_id).unwrap();
                 let type_id = connector.schedule_id_type_map.remove(&schedule_id).unwrap();
                 connector.scheduled_events.remove(&type_id).unwrap();
@@ -401,7 +441,7 @@ impl Organism {
         }
 
         // Schedule any new events
-        for (wait_time, evt) in connector.pending_schedules {
+        for (wait_time, evt) in connector.pending_schedules.drain(..) {
             let type_id = evt.type_id();
             let schedule_id = self.time_manager.schedule_event(wait_time, evt);
             connector.schedule_id_type_map.insert(schedule_id, type_id);
@@ -416,37 +456,6 @@ impl Organism {
                 }
             }
         }
-
-        // Replace our moved vectors with new ones
-        connector.pending_unschedules = Vec::new();
-        connector.pending_schedules = Vec::new();
-        connector
-    }
-
-    /// Private method for updating locally managed components
-    fn update(&mut self, update_list: Vec<(TypeId, Vec<&'static str>)>) {
-        for (type_id, notify_list) in update_list {
-            for component_name in notify_list {
-                // TODO: This won't work when connectors are managed elsewhere
-                let mut connector = self.connector_map.remove(component_name).unwrap();
-                connector = self.prepare_connector(connector, &type_id);
-
-                // Execute component logic
-                self.active_components.get_mut(component_name).unwrap().run(&mut connector);
-                connector = self.process_connector(connector);
-
-                // Insert the context back into the connector map
-                self.connector_map.insert(component_name, connector);
-            }
-        }
-    }
-
-    pub(crate) fn advance_time(&mut self) {
-        self.time_manager.advance();
-    }
-    
-    pub(crate) fn advance_time_by(&mut self, time_step: Time) {
-        self.time_manager.advance_by(time_step);
     }
 }
 
@@ -494,7 +503,7 @@ impl SimOrganism for Organism {
     /// 
     /// If there are no Events or listeners in the queue, time will remain unchanged
     fn advance(&mut self) {
-        self.advance_time();
+        self.time_manager.advance();
         self.execute_time_step();
     }
 
@@ -506,7 +515,7 @@ impl SimOrganism for Organism {
     /// ### Arguments
     /// * `time_step` - Amount of time to advance by
     fn advance_by(&mut self, time_step: Time) {
-        self.advance_time_by(time_step);
+        self.time_manager.advance_by(time_step);
         self.execute_time_step();
     }
 

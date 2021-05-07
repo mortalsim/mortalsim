@@ -5,7 +5,7 @@ pub type HumanCirculatorySystem = ClosedCirculatorySystem<HumanBloodVessel>;
 
 pub const HUMAN_CIRCULATION_FILEPATH: &str = "config/circulation/human_circulation.json";
 
-#[derive(Debug, Display, Hash, Clone, Copy, PartialEq, Eq, EnumString)]
+#[derive(Debug, Display, Hash, Clone, Copy, PartialEq, Eq, EnumString, IntoStaticStr)]
 pub enum HumanBloodVessel {
     Aorta,
     RightBraciocephalicArtery,

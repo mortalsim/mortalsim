@@ -104,16 +104,14 @@ impl<V: BloodVessel + 'static> ClosedCirculationOrganism<V> {
     }
 
     fn execute_time_step(&mut self) {
-        self.organism.execute_events();
-        let update_list = self.organism.update_list();
-    }
-
-    pub(crate) fn advance_time(&mut self) {
-        self.organism.advance_time();
-    }
-    
-    pub(crate) fn advance_time_by(&mut self, time_step: Time) {
-        self.organism.advance_time_by(time_step);
+        let pending_updates: Vec<&str> = self.organism.pending_updates().collect();
+        for component_name in pending_updates {
+            if self.connector_map.contains_key(component_name) {
+                self.blood_manager.set_active_connector(self.connector_map.remove(component_name).unwrap());
+                self.active_components.get_mut(component_name).unwrap().run(&mut self.blood_manager);
+                self.connector_map.insert(component_name, self.blood_manager.take_active_connector().unwrap());
+            }
+        }
     }
 }
 
@@ -159,7 +157,7 @@ impl<V: BloodVessel + 'static> SimOrganism for ClosedCirculationOrganism<V> {
     /// 
     /// If there are no Events or listeners in the queue, time will remain unchanged
     fn advance(&mut self) {
-        self.advance_time();
+        self.organism.advance();
         self.execute_time_step();
     }
 
@@ -171,7 +169,7 @@ impl<V: BloodVessel + 'static> SimOrganism for ClosedCirculationOrganism<V> {
     /// ### Arguments
     /// * `time_step` - Amount of time to advance by
     fn advance_by(&mut self, time_step: Time) {
-        self.advance_time_by(time_step);
+        self.organism.advance_by(time_step);
         self.execute_time_step();
     }
 

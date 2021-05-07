@@ -13,7 +13,7 @@ pub struct SimConnector {
     /// State specific to the connected component
     pub(crate) local_state: SimState,
     /// Holds a shared reference to the Event which triggered component execution
-    pub(crate) trigger_event: Option<Arc<dyn Event>>,
+    pub(crate) trigger_events: Vec<Arc<dyn Event>>,
     /// Map of scheduled event identifiers
     pub(crate) scheduled_events: HashMap<TypeId, HashMap<IdType, Time>>,
     /// Map of scheduled ids to event types
@@ -39,7 +39,7 @@ impl SimConnector {
     pub fn new() -> SimConnector {
         SimConnector {
             local_state: SimState::new(),
-            trigger_event: None,
+            trigger_events: Vec::new(),
             scheduled_events: HashMap::new(),
             schedule_id_type_map: HashMap::new(),
             pending_schedules: Vec::new(),
@@ -121,13 +121,8 @@ impl SimConnector {
         }
     }
     
-    /// Retrieves the current `Event` object which triggered the current `run`
-    pub fn get_trigger_event(&self) -> Option<&dyn Event> {
-        match &self.trigger_event {
-            None => None,
-            Some(evt) => {
-                Some(&**evt)
-            }
-        }
+    /// Retrieves the `Event` object(s) which triggered the current `run`
+    pub fn trigger_events<'a>(&'a self) -> impl Iterator<Item = &Arc<dyn Event>> + 'a {
+        self.trigger_events.iter()
     }
 }

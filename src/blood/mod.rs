@@ -9,7 +9,7 @@ pub use closed_circulation::ClosedCirculationManager;
 
 /// Blood vessel identifier trait. Intended to be implemented by enums for various types of
 /// simulated blood circulation systems (human, dog, cat, etc.)
-pub trait BloodVessel: FromStr + Hash + Clone + Copy + PartialEq + Eq + fmt::Debug + fmt::Display {
+pub trait BloodVessel: FromStr + Hash + Clone + Copy + Eq + fmt::Debug + fmt::Display + Send + Sync + Into<&'static str> {
     fn source() -> Self;
     fn sink() -> Self;
 }

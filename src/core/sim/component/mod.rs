@@ -33,6 +33,7 @@ pub trait SimComponent {
 
 #[cfg(test)]
 pub mod test {
+    use std::sync::Arc;
     use crate::event::Event;
     use crate::event::test::{TestEventA, TestEventB};
     use super::SimComponent;
@@ -59,14 +60,7 @@ pub mod test {
             let evt_a = connector.get::<TestEventA>().unwrap();
             assert_eq!(evt_a.len, Length::new::<meter>(3.0));
 
-            match connector.get_trigger_event() {
-                None => {
-                    log::debug!("No trigger event");
-                },
-                Some(evt) => {
-                    log::debug!("Trigger event: {:?}", evt);
-                }
-            }
+            log::debug!("Trigger Events: {:?}", connector.trigger_events().collect::<Vec<&Arc<dyn Event>>>());
         }
     }
     
@@ -85,14 +79,7 @@ pub mod test {
             let evt_a = connector.get::<TestEventA>().unwrap();
             assert_eq!(evt_a.len, Length::new::<meter>(3.0));
 
-            match connector.get_trigger_event() {
-                None => {
-                    print!("No trigger event");
-                },
-                Some(evt) => {
-                    print!("Trigger event: {:?}", evt);
-                }
-            }
+            log::debug!("Trigger Events: {:?}", connector.trigger_events().collect::<Vec<&Arc<dyn Event>>>());
         }
     }
 }

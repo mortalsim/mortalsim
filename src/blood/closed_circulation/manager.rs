@@ -7,8 +7,10 @@ use std::string;
 use std::any::{Any, TypeId};
 use petgraph::Direction;
 use petgraph::graph::{Graph, NodeIndex, Neighbors};
-use crate::core::sim::{SimConnector, Organism};
+use uom::si::molar_concentration::mole_per_liter;
+use crate::core::sim::{SimConnector, Organism, SimComponent, SimComponentInitializer};
 use crate::substance::{SubstanceStore, Volume, Substance, MolarConcentration};
+use crate::event::{BloodCompositionChange, BloodVolumeRatioChange};
 use super::super::{BloodVessel, BloodVesselType, VesselIter};
 use super::{BloodNode, BloodEdge, ClosedCirculatorySystem, ClosedCircVesselIter,
     ClosedCircConnector, ClosedCircSimConnector, ClosedCircSimComponent,
@@ -105,6 +107,33 @@ impl<V: BloodVessel + 'static> ClosedCirculationManager<V> {
         });
     }
 
+    pub(crate) fn update(&mut self, update_list: impl Iterator<Item = &'static str>, organism: &mut Organism) -> impl Iterator<Item = &'static str> {
+        let mut remaining_components = Vec::new();
+        for component_name in update_list {
+            match self.active_components.remove(component_name) {
+                None => {
+                    remaining_components.push(component_name);
+                },
+                Some(mut component) => {
+                    let mut connector = self.connector_map.remove(component_name).unwrap();
+
+                    // Run the circulation component
+                    self.set_active_connector(connector);
+                    component.run(self);
+                    connector = self.take_active_connector().unwrap();
+
+                    // Process the base connector portion
+                    organism.process_connector(&mut connector);
+
+                    // Insert the connector and component back into their maps
+                    self.connector_map.insert(component_name, connector);
+                    self.active_components.insert(component_name, component);
+                }
+            }
+        }
+        remaining_components.into_iter()
+    }
+
     pub(crate) fn set_active_connector(&mut self, connector: SimConnector) {
         // Update connector before component execution
         self.connector = Some(connector)
@@ -134,6 +163,21 @@ impl<V: BloodVessel + 'static> ClosedCirculationManager<V> {
     }
 }
 
+impl<V: BloodVessel> SimComponent for ClosedCirculationManager<V> {
+    fn init(&mut self, initializer: &mut SimComponentInitializer) {
+        initializer.notify_prioritized(100, BloodCompositionChange {
+            vessel_id: V::source().into(),
+            substance: Substance::H2O,
+            previous_value: MolarConcentration::new::<mole_per_liter>(0.0),
+            new_value: MolarConcentration::new::<mole_per_liter>(0.0),
+        });
+    }
+
+    fn run(&mut self, connector: &mut SimConnector) {
+
+    }
+}
+
 impl<V: BloodVessel> ClosedCircConnector<V> for ClosedCirculationManager<V> {
     fn composition(&self, vessel: V) -> &SubstanceStore {
         let node_idx = self.node_map.get(&vessel).unwrap();
@@ -144,58 +188,44 @@ impl<V: BloodVessel> ClosedCircConnector<V> for ClosedCirculationManager<V> {
         let node_idx = self.node_map.get(&vessel).unwrap();
         &mut self.graph[*node_idx].composition
     }
-
-    fn connector(&mut self) -> &mut SimConnector {
-        self.connector.as_mut().unwrap()
-    }
 }
 
 impl<V: BloodVessel + 'static> ClosedCircSimConnector<V> for ClosedCirculationManager<V> {
-    /// Retrieves the maximum depth of the circulation tree (from root to capillary)
     fn depth(&self) -> u32 {
         self.depth as u32
     }
 
-    /// Returns the BloodVesselType for the given vessel. Panics if the vessel is invalid
     fn vessel_type(&self, vessel: V) -> BloodVesselType {
         let node_idx = self.node_map.get(&vessel).unwrap();
         self.graph[*node_idx].vessel_type
     }
 
-    /// Determines whether the given vessel is a pre-capillary vessel
-    /// (Artery with no more downstream arteries, only veins)
     fn is_pre_capillary(&self, vessel: &V) -> bool {
         self.pre_capillaries.contains(vessel)
     }
     
-    /// Determines whether the given vessel is a post-capillary vessel
-    /// (Vein with no more upstream veins, only arteries)
     fn is_post_capillary(&self, vessel: &V) -> bool {
         self.post_capillaries.contains(vessel)
     }
 
-    /// Retrieves an iterator of pre-capillary vessels
-    /// (Arteries with no more downstream arteries, only veins)
     fn pre_capillaries(&self) -> VesselIter<V> {
         self.pre_capillaries.iter().into()
     }
     
-    /// Retrieves an iterator of post-capillary vessels
-    /// (Veins with no more upstream veins, only arteries)
     fn post_capillaries(&self) -> VesselIter<V> {
         self.post_capillaries.iter().into()
     }
 
-    /// Retrieves an iterator over all downstream vessels from
-    /// the provided vessel
     fn downstream(&self, vessel: V) -> ClosedCircVesselIter<V> {
         self.vessel_connections(vessel, Direction::Outgoing)
     }
     
-    /// Retrieves an iterator over all upstream vessels from
-    /// the provided vessel
     fn upstream(&self, vessel: V) -> ClosedCircVesselIter<V> {
         self.vessel_connections(vessel, Direction::Incoming)
+    }
+
+    fn connector(&mut self) -> &mut SimConnector {
+        self.connector.as_mut().unwrap()
     }
 }
 
