@@ -104,11 +104,19 @@ impl SubstanceStore {
         self.volume = volume;
     }
     
+    /// Scales the store's volume by the given factor
+    /// 
+    /// ### Arguments
+    /// * `factor` - factor to multiply the current volume by
+    pub(crate) fn scale_volume(&mut self, factor: f32) {
+        self.volume.value = self.volume.value * (factor as f64);
+    }
+    
     /// Retrieves the volume of this store
     /// 
     /// Returns the volume of this SubstanceStore
-    pub fn get_volume(&mut self) -> &Volume {
-        &self.volume
+    pub fn volume(&self) -> Volume {
+        self.volume
     }
 
     /// Clears tainted flags from any substances in this store

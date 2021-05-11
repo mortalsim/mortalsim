@@ -14,6 +14,22 @@ pub trait Event: DowncastSync + Debug {
 }
 impl_downcast!(sync Event);
 
+pub struct EventIterator<'a, E: Event> {
+    evt_list: Option<Vec::<Arc<E>>>,
+    iter_ref: Option<&'a Vec::<Arc<E>>>,
+}
+
+// impl<'a, E: Event> Iterator for EventIterator<'a, E> {
+//     type Item = Arc<E>;
+
+//     fn next(&mut self) -> Option<Self::Item> {
+//         if self.evt_list.is_some() {
+//             self.
+//         }
+//     }
+// }
+
+
 #[cfg(test)]
 pub mod test {
 

@@ -6,8 +6,10 @@ use std::rc::Rc;
 use std::cell::{Ref, RefCell};
 use uuid::Uuid;
 use anyhow::Result;
+use either::Either;
 use super::sim_state::SimState;
 use super::component::{SimComponentInitializer, SimConnector, SimComponent};
+use super::extension::SimExtension;
 use super::time_manager::{Time, TimeManager};
 use crate::event::Event;
 use crate::core::hub::event_transformer::{EventTransformer, TransformerItem};
@@ -91,6 +93,8 @@ pub struct Organism {
     state: SimState,
     event_transformers: HashMap<TypeId, Vec<Box<dyn EventTransformer>>>,
     component_notifications: HashMap<TypeId, Vec<(i32, &'static str)>>,
+    extension_notifications: HashMap<Uuid, HashMap<TypeId, Vec<Arc<dyn Event>>>>,
+    extension_type_map: HashMap<TypeId, HashSet<Uuid>>,
     connector_map: HashMap<&'static str, SimConnector>,
     transformer_id_map: HashMap<&'static str, Vec<IdType>>,
     transformer_type_map: HashMap<IdType, TypeId>,
@@ -118,6 +122,8 @@ impl Organism {
             state: initial_state,
             event_transformers: HashMap::new(),
             component_notifications: HashMap::new(),
+            extension_notifications: HashMap::new(),
+            extension_type_map: HashMap::new(),
             connector_map: HashMap::new(),
             transformer_id_map: HashMap::new(),
             transformer_type_map: HashMap::new(),
@@ -342,6 +348,8 @@ impl Organism {
                     }
                     // Set it on the sim's state
                     self.state.put_state(evt.type_id(), evt.into());
+
+                    // Stage it up for any listening extensions
                 }
             }
             else {
@@ -390,7 +398,7 @@ impl Organism {
                 }
                 None => {
                     // This component is not managed internally, so we need to
-                    // add it to the notify map field for someone else to update
+                    // add it to the notify map field for an extension to update
                     match self.notify_map.get_mut(component_name) {
                         Some(set) => {
                             set.extend(notify_set)
@@ -455,6 +463,26 @@ impl Organism {
                     map.insert(schedule_id, wait_time);
                 }
             }
+        }
+    }
+
+    pub(crate) fn notify_extension<E: Event>(&mut self, extension_id: Uuid) {
+        let ext_notify_map = self.extension_notifications.entry(extension_id).or_insert(HashMap::new());
+        ext_notify_map.insert(TypeId::of::<E>(), Vec::new());
+        self.extension_type_map.entry(TypeId::of::<E>()).or_insert(HashSet::new()).insert(extension_id);
+    }
+    
+    pub(crate) fn extension_events<'a, E: Event>(&'a mut self, extension_id: &Uuid) -> impl Iterator<Item = Arc<E>> + 'a {
+        match self.extension_notifications.get_mut(extension_id) {
+            Some(notifications) => {
+                match notifications.get_mut(&TypeId::of::<E>()) {
+                    Some(evt_list) => {
+                        Either::Left(evt_list.drain(..).map(|e| { e.downcast_arc::<E>().unwrap() }))
+                    },
+                    None => Either::Right(std::iter::empty())
+                }
+            },
+            None => Either::Right(std::iter::empty())
         }
     }
 }

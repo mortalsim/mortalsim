@@ -1,30 +1,28 @@
 use crate::blood::BloodVessel;
-use crate::substance::{Substance, MolarConcentration, Volume, Ratio};
+use crate::substance::{Substance, AmountOfSubstance, MolarConcentration, Volume};
 use super::Event;
 
 #[derive(Debug)]
-pub struct BloodCompositionChange {
-    pub vessel_id: &'static str,
+pub struct BloodCompositionChange<V: BloodVessel> {
+    pub vessel: V,
     pub substance: Substance,
-    pub previous_value: MolarConcentration,
-    pub new_value: MolarConcentration,
+    pub change: MolarConcentration,
 }
 
-impl Event for BloodCompositionChange {
+impl<V: BloodVessel + 'static> Event for BloodCompositionChange<V> {
     fn event_name(&self) -> &str {
         "BloodCompositionChange"
     }
 }
 
 #[derive(Debug)]
-pub struct BloodVolumeRatioChange {
-    pub vessel_id: &'static str,
-    pub previous_value: Ratio,
-    pub new_value: Ratio,
+pub struct BloodVolumeChange<V: BloodVessel> {
+    pub vessel: V,
+    pub change: Volume,
 }
 
-impl Event for BloodVolumeRatioChange {
+impl<V: BloodVessel + 'static> Event for BloodVolumeChange<V> {
     fn event_name(&self) -> &str {
-        "BloodVolumeRatioChange"
+        "BloodVolumeChange"
     }
 }

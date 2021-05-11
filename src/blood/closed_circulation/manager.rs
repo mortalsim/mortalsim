@@ -5,12 +5,16 @@ use std::collections::hash_set;
 use std::rc::Rc;
 use std::string;
 use std::any::{Any, TypeId};
+use uuid::Uuid;
 use petgraph::Direction;
 use petgraph::graph::{Graph, NodeIndex, Neighbors};
 use uom::si::molar_concentration::mole_per_liter;
+use uom::si::ratio::{Ratio, ratio};
+use uom::si::amount_of_substance::mole;
 use crate::core::sim::{SimConnector, Organism, SimComponent, SimComponentInitializer};
-use crate::substance::{SubstanceStore, Volume, Substance, MolarConcentration};
-use crate::event::{BloodCompositionChange, BloodVolumeRatioChange};
+use crate::core::sim::extension::SimExtension;
+use crate::substance::{SubstanceStore, Volume, Substance, MolarConcentration, AmountOfSubstance};
+use crate::event::{BloodCompositionChange, BloodVolumeChange};
 use super::super::{BloodVessel, BloodVesselType, VesselIter};
 use super::{BloodNode, BloodEdge, ClosedCirculatorySystem, ClosedCircVesselIter,
     ClosedCircConnector, ClosedCircSimConnector, ClosedCircSimComponent,
@@ -22,6 +26,7 @@ struct ComponentContext<V: BloodVessel> {
 }
 
 pub struct ClosedCirculationManager<V: BloodVessel> {
+    manager_id: Uuid,
     graph: Graph<BloodNode<V>, BloodEdge>,
     node_map: HashMap<V, NodeIndex>,
     pre_capillaries: HashSet<V>,
@@ -38,6 +43,7 @@ impl<V: BloodVessel + 'static> ClosedCirculationManager<V> {
     /// Creates a ClosedCirculationManager from a Graph representing the circulatory structure
     pub fn new(circulation: ClosedCirculatorySystem<V>) -> ClosedCirculationManager<V> {
         ClosedCirculationManager {
+            manager_id: Uuid::new_v4(),
             graph: circulation.graph,
             node_map: circulation.node_map,
             pre_capillaries: circulation.pre_capillaries,
@@ -83,6 +89,10 @@ impl<V: BloodVessel + 'static> ClosedCirculationManager<V> {
                 }
             }
         }
+
+        // Set up event notifications for this extension
+        organism.notify_extension::<BloodCompositionChange<V>>(self.manager_id);
+        organism.notify_extension::<BloodVolumeChange<V>>(self.manager_id);
         
         remaining_components
     }
@@ -108,6 +118,34 @@ impl<V: BloodVessel + 'static> ClosedCirculationManager<V> {
     }
 
     pub(crate) fn update(&mut self, update_list: impl Iterator<Item = &'static str>, organism: &mut Organism) -> impl Iterator<Item = &'static str> {
+
+        // Process any blood composition change events
+        for evt in organism.extension_events::<BloodCompositionChange<V>>(&self.manager_id) {
+            // Remove the index from the map so we have ownership of it
+            let node_idx = self.node_map.remove(&evt.vessel).unwrap();
+
+            // Get the BloodNode out of the graph and update its concentration
+            let node = &mut self.graph[node_idx];
+            let cur_amt = node.composition.concentration_of(&evt.substance).unwrap_or(MolarConcentration::new::<mole_per_liter>(0.0));
+            node.composition.set_concentration(evt.substance, cur_amt + evt.change);
+
+            // Insert the node index back into the map
+            self.node_map.insert(evt.vessel, node_idx);
+        }
+
+        // Process any blood volume change events
+        for evt in organism.extension_events::<BloodVolumeChange<V>>(&self.manager_id) {
+            // Remove the index from the map so we have ownership of it
+            let node_idx = self.node_map.remove(&evt.vessel).unwrap();
+
+            // Get the BloodNode out of the graph and update its concentration
+            let node = &mut self.graph[node_idx];
+            node.composition.set_volume(node.composition.volume() + evt.change);
+
+            // Insert the node index back into the map
+            self.node_map.insert(evt.vessel, node_idx);
+        }
+
         let mut remaining_components = Vec::new();
         for component_name in update_list {
             match self.active_components.remove(component_name) {
@@ -163,20 +201,43 @@ impl<V: BloodVessel + 'static> ClosedCirculationManager<V> {
     }
 }
 
-impl<V: BloodVessel> SimComponent for ClosedCirculationManager<V> {
-    fn init(&mut self, initializer: &mut SimComponentInitializer) {
-        initializer.notify_prioritized(100, BloodCompositionChange {
-            vessel_id: V::source().into(),
-            substance: Substance::H2O,
-            previous_value: MolarConcentration::new::<mole_per_liter>(0.0),
-            new_value: MolarConcentration::new::<mole_per_liter>(0.0),
-        });
+impl<V: BloodVessel + 'static> SimExtension for ClosedCirculationManager<V> {
+    fn notify_events(&self) -> Vec<TypeId> {
+        vec!(TypeId::of::<BloodCompositionChange<V>>(), TypeId::of::<BloodVolumeChange<V>>())
     }
-
-    fn run(&mut self, connector: &mut SimConnector) {
-
+    fn connectors(&mut self) -> Vec<(&'static str, &mut SimConnector)> {
+        self.connector_map.iter_mut().map(|x| (*x.0, x.1)).collect()
     }
 }
+
+
+// impl<V: BloodVessel + 'static> SimComponent for ClosedCirculationManager<V> 
+// where <V as std::str::FromStr>::Err: std::fmt::Debug {
+//     fn init(&mut self, initializer: &mut SimComponentInitializer) {
+//         // Insert dummy defaults which we'll never use
+//         initializer.notify_prioritized(100, BloodCompositionChange {
+//             vessel: V::source(),
+//             substance: Substance::H2O,
+//             previous_value: MolarConcentration::new::<mole_per_liter>(0.0),
+//             new_value: MolarConcentration::new::<mole_per_liter>(0.0),
+//         });
+//         initializer.notify_prioritized(100, BloodVolumeRatioChange {
+//             vessel: V::source(),
+//             previous_value: 0.0,
+//             new_value: 0.0,
+//         });
+//     }
+
+//     fn run(&mut self, connector: &mut SimConnector) {
+//         for trigger in connector.trigger_events() {
+//             match trigger.clone().downcast_arc::<BloodCompositionChange<V>>() {
+//                 Ok(change_evt) => {
+
+//                 }
+//             }
+//         }
+//     }
+// }
 
 impl<V: BloodVessel> ClosedCircConnector<V> for ClosedCirculationManager<V> {
     fn composition(&self, vessel: V) -> &SubstanceStore {
