@@ -4,8 +4,7 @@ use std::fmt;
 use std::str::FromStr;
 
 mod closed_circulation;
-pub use closed_circulation::ClosedCirculatorySystem;
-pub use closed_circulation::ClosedCirculationManager;
+pub use closed_circulation::{ClosedCirculatorySystem, ClosedCirculationManager, ClosedCircInitializer, ClosedCircConnector, ClosedCircSimComponent};
 
 /// Blood vessel identifier trait. Intended to be implemented by enums for various types of
 /// simulated blood circulation systems (human, dog, cat, etc.)

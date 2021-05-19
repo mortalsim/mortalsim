@@ -9,9 +9,9 @@ use crate::core::hub::event_transformer::{EventTransformer, TransformerItem};
 use crate::event::Event;
 use crate::util::id_gen::IdType;
 use super::{SimComponent, SimConnector};
-use super::super::SimOrganism;
+use super::super::Sim;
 
-pub struct SimComponentInitializer<T> {
+pub struct SimComponentInitializer {
     pub(crate) input_events: HashSet<TypeId>,
     pub(crate) output_events: HashSet<TypeId>,
     pub(crate) pending_notifies: Vec<(i32, Box<dyn Event>)>,
@@ -19,9 +19,9 @@ pub struct SimComponentInitializer<T> {
     pub(crate) initial_outputs: Vec<Box<dyn Event>>,
 }
 
-impl<T> SimComponentInitializer<T> {
-    pub fn new() -> SimComponentInitializer<T> {
-        SimComponentInitializer::<T> {
+impl SimComponentInitializer {
+    pub fn new() -> SimComponentInitializer {
+        SimComponentInitializer {
             input_events: HashSet::new(),
             output_events: HashSet::new(),
             pending_notifies: Vec::new(),

@@ -56,7 +56,7 @@ impl SubstanceStore {
     /// ### Arguments
     /// * `substance` - Substance to retrieve
     /// 
-    /// Returns the amount of that substance, or 0.0 mol/L if it is not present
+    /// Returns the amount of that substance, or None if it is not present
     pub fn concentration_of(&self, substance: &Substance) -> Option<MolarConcentration> {
         match self.composition.get(substance) {
             None => None,

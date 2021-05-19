@@ -11,7 +11,7 @@ use petgraph::graph::{Graph, NodeIndex, Neighbors};
 use uom::si::molar_concentration::mole_per_liter;
 use uom::si::ratio::{Ratio, ratio};
 use uom::si::amount_of_substance::mole;
-use crate::core::sim::{SimConnector, Organism, SimComponent, SimComponentInitializer};
+use crate::core::sim::{SimConnector, CoreSim, SimComponent, SimComponentInitializer};
 use crate::core::sim::extension::SimExtension;
 use crate::substance::{SubstanceStore, Volume, Substance, MolarConcentration, AmountOfSubstance};
 use crate::event::{BloodCompositionChange, BloodVolumeChange};
@@ -29,6 +29,7 @@ pub struct ClosedCirculationManager<V: BloodVessel> {
     manager_id: Uuid,
     graph: Graph<BloodNode<V>, BloodEdge>,
     node_map: HashMap<V, NodeIndex>,
+    tmp_store_map: Option<HashMap<V, SubstanceStore>>,
     pre_capillaries: HashSet<V>,
     post_capillaries: HashSet<V>,
     connector: Option<SimConnector>,
@@ -46,6 +47,7 @@ impl<V: BloodVessel + 'static> ClosedCirculationManager<V> {
             manager_id: Uuid::new_v4(),
             graph: circulation.graph,
             node_map: circulation.node_map,
+            tmp_store_map: Some(HashMap::new()),
             pre_capillaries: circulation.pre_capillaries,
             post_capillaries: circulation.post_capillaries,
             connector: None,
@@ -57,7 +59,7 @@ impl<V: BloodVessel + 'static> ClosedCirculationManager<V> {
         }
     }
 
-    fn init_components(&mut self, component_names: HashSet<&'static str>, mut organism: Organism) -> HashSet<&'static str> {
+    fn init_components(&mut self, component_names: HashSet<&'static str>, mut organism: CoreSim) -> HashSet<&'static str> {
         let mut registry = COMPONENT_REGISTRY.lock().unwrap();
         let vessel_registry: &mut HashMap<&'static str, Box<dyn Any + Send>> = registry.entry(TypeId::of::<V>()).or_insert(HashMap::new());
 
@@ -117,7 +119,7 @@ impl<V: BloodVessel + 'static> ClosedCirculationManager<V> {
         });
     }
 
-    pub(crate) fn update(&mut self, update_list: impl Iterator<Item = &'static str>, organism: &mut Organism) -> impl Iterator<Item = &'static str> {
+    pub(crate) fn update(&mut self, update_list: impl Iterator<Item = &'static str>, organism: &mut CoreSim) -> impl Iterator<Item = &'static str> {
 
         // Process any blood composition change events
         for evt in organism.extension_events::<BloodCompositionChange<V>>(&self.manager_id) {
@@ -156,9 +158,9 @@ impl<V: BloodVessel + 'static> ClosedCirculationManager<V> {
                     let mut connector = self.connector_map.remove(component_name).unwrap();
 
                     // Run the circulation component
-                    self.set_active_connector(connector);
+                    self.connector = Some(connector);
                     component.run(self);
-                    connector = self.take_active_connector().unwrap();
+                    connector = self.connector.take().unwrap();
 
                     // Process the base connector portion
                     organism.process_connector(&mut connector);
@@ -172,13 +174,17 @@ impl<V: BloodVessel + 'static> ClosedCirculationManager<V> {
         remaining_components.into_iter()
     }
 
-    pub(crate) fn set_active_connector(&mut self, connector: SimConnector) {
-        // Update connector before component execution
-        self.connector = Some(connector)
+    pub(crate) fn prepare_connector(&mut self, connector: &mut ClosedCircConnector<V>) {
+        for vessel in connector.vessel_connections.iter() {
+            let node_idx = self.node_map.get(&vessel).unwrap();
+            // TODO: Cloning composition is relatively slow, but dealing with references
+            // here is a pain, so we can optimize this later
+            connector.stores.insert(*vessel, self.graph[*node_idx].composition.clone());
+        }
     }
 
-    pub(crate) fn take_active_connector(&mut self) -> Option<SimConnector> {
-        self.connector.take()
+    pub(crate) fn process_connector(&mut self, _connector: &mut ClosedCircConnector<V>) {
+        // ... Nothing to do here for now
     }
 
     /// Internal function for retrieving a vessel connection iterator
@@ -210,50 +216,14 @@ impl<V: BloodVessel + 'static> SimExtension for ClosedCirculationManager<V> {
     }
 }
 
-
-// impl<V: BloodVessel + 'static> SimComponent for ClosedCirculationManager<V> 
-// where <V as std::str::FromStr>::Err: std::fmt::Debug {
-//     fn init(&mut self, initializer: &mut SimComponentInitializer) {
-//         // Insert dummy defaults which we'll never use
-//         initializer.notify_prioritized(100, BloodCompositionChange {
-//             vessel: V::source(),
-//             substance: Substance::H2O,
-//             previous_value: MolarConcentration::new::<mole_per_liter>(0.0),
-//             new_value: MolarConcentration::new::<mole_per_liter>(0.0),
-//         });
-//         initializer.notify_prioritized(100, BloodVolumeRatioChange {
-//             vessel: V::source(),
-//             previous_value: 0.0,
-//             new_value: 0.0,
-//         });
-//     }
-
-//     fn run(&mut self, connector: &mut SimConnector) {
-//         for trigger in connector.trigger_events() {
-//             match trigger.clone().downcast_arc::<BloodCompositionChange<V>>() {
-//                 Ok(change_evt) => {
-
-//                 }
-//             }
-//         }
-//     }
-// }
-
-impl<V: BloodVessel> ClosedCircConnector<V> for ClosedCirculationManager<V> {
-    fn composition(&self, vessel: V) -> &SubstanceStore {
-        let node_idx = self.node_map.get(&vessel).unwrap();
-        &self.graph[*node_idx].composition
-    }
-
-    fn composition_mut(&mut self, vessel: V) -> &mut SubstanceStore {
-        let node_idx = self.node_map.get(&vessel).unwrap();
-        &mut self.graph[*node_idx].composition
-    }
-}
-
 impl<V: BloodVessel + 'static> ClosedCircSimConnector<V> for ClosedCirculationManager<V> {
     fn depth(&self) -> u32 {
         self.depth as u32
+    }
+
+    fn blood_store(&self, vessel: &V) -> Option<&SubstanceStore> {
+        let node_idx = self.node_map.get(vessel)?;
+        Some(&self.graph[*node_idx].composition)
     }
 
     fn vessel_type(&self, vessel: V) -> BloodVesselType {

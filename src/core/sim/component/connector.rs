@@ -6,7 +6,7 @@ use uom::si::time::second;
 use crate::util::id_gen::IdType;
 use crate::core::sim::{SimState, Time};
 use crate::event::Event;
-use super::super::SimOrganism;
+use super::super::Sim;
 
 /// Provides methods for `Sim` components to interact with the simulation
 pub struct SimConnector {

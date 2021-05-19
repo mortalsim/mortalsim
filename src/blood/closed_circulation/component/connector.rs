@@ -1,21 +1,37 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use anyhow::Result;
 use crate::core::sim::SimConnector;
-use crate::substance::SubstanceStore;
+use crate::substance::{Substance, SubstanceStore, MolarConcentration};
 use super::super::super::{BloodVessel, BloodVesselType, VesselIter};
-use super::super::{BloodNode, ClosedCirculationManager, ClosedCircVesselIter};
+use super::super::{BloodNode, ClosedCirculationManager, ClosedCircVesselIter, ClosedCircInitializer};
 
-pub trait ClosedCircConnector<V: BloodVessel> {
-    /// Retrieves the SubstanceStore for the given vessel
-    fn composition(&self, vessel: V) -> &SubstanceStore;
-
-    /// Retrieves a mutable SubstanceStore for the given vessel
-    fn composition_mut(&mut self, vessel: V) -> &mut SubstanceStore;
+pub struct ClosedCircConnector<V: BloodVessel> {
+    pub(crate) stores: HashMap<V, SubstanceStore>,
+    pub(crate) vessel_connections: HashSet<V>,
+    pub(crate) substance_notifies: HashMap<V, HashMap<Substance, MolarConcentration>>
 }
 
-pub trait ClosedCircSimConnector<V: BloodVessel>: ClosedCircConnector<V> {
+impl<V: BloodVessel> ClosedCircConnector<V> {
+    fn new(initializer: ClosedCircInitializer<V>) -> ClosedCircConnector<V> {
+        ClosedCircConnector {
+            stores: HashMap::new(),
+            vessel_connections: initializer.vessel_connections,
+            substance_notifies: initializer.substance_notifies,
+        }
+    }
+
+    /// Retrieves the SubstanceStore for the given vessel
+    fn blood_store(&self, vessel: &V) -> Option<&SubstanceStore> {
+        self.stores.get(vessel)
+    }
+}
+
+pub trait ClosedCircSimConnector<V: BloodVessel> {
     /// Retrieves the maximum depth of the circulation tree (from root to capillary)
     fn depth(&self) -> u32;
+
+    /// Retrieves the SubstanceStore for the given vessel
+    fn blood_store(&self, vessel: &V) -> Option<&SubstanceStore>;
 
     /// Returns the BloodVesselType for the given vessel. Panics if the vessel is invalid
     fn vessel_type(&self, vessel: V) -> BloodVesselType;

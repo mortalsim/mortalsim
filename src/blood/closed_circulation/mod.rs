@@ -4,7 +4,6 @@ use std::any::{Any, TypeId};
 use petgraph::graph::{Graph, Neighbors};
 use super::{BloodVessel};
 
-mod organism;
 mod system;
 mod component;
 mod graph;
@@ -14,14 +13,13 @@ pub use system::ClosedCirculatorySystem;
 pub use component::{ClosedCircSimComponent, ClosedCircComponentInitializer, ClosedCircInitializer, ClosedCircConnector, ClosedCircSimConnector};
 pub use graph::{BloodEdge, BloodNode};
 pub use manager::ClosedCirculationManager;
-pub use organism::{ClosedCirculationOrganism, ClosedCirculationSimOrganism};
 
 lazy_static! {
     static ref COMPONENT_REGISTRY: Mutex<HashMap<TypeId, HashMap<&'static str, Box<dyn Any + Send>>>> = Mutex::new(HashMap::new());
 }
 
 /// Registers a Sim component which interacts with an organism's closed circulatory system. By default, the component will be
-/// added to all newly created ClosedCirculationSimOrganism objects
+/// added to all newly created ClosedCirculationSim objects
 ///
 /// ### Arguments
 /// * `component_name` - String name for the component

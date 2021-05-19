@@ -30,12 +30,12 @@ fn register_component(component_name: &'static str, factory: impl FnMut() -> Box
     COMPONENT_REGISTRY.lock().unwrap().insert(component_name, Box::new(factory));
 }
 
-pub trait SimOrganism {
+pub trait Sim {
     /// Returns the current simulation time
     fn time(&self) -> Time;
     
     /// Determines if the given component name corresponds to an active component
-    /// on this SimOrganism
+    /// on this Sim
     fn has_component(&self, component_name: &'static str) -> bool;
 
     /// Retrieves the set of names of components which are active on this Sim
@@ -86,7 +86,7 @@ pub trait SimOrganism {
     fn unschedule_event(&mut self, schedule_id: &IdType) -> Result<()>;
 }
 
-pub struct Organism {
+pub struct CoreSim {
     sim_id: Uuid,
     active_components: HashMap<&'static str, Box<dyn SimComponent>>,
     time_manager: TimeManager,
@@ -102,7 +102,7 @@ pub struct Organism {
     notify_map: HashMap<&'static str, HashSet<TypeId>>,
 }
 
-impl fmt::Debug for Organism {
+impl fmt::Debug for CoreSim {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "Simulation<{:?}> {{ time: {:?}, active_components: {:?}, state: {:?} }}",
             self.time_manager.get_time(),
@@ -112,10 +112,10 @@ impl fmt::Debug for Organism {
     }
 }
 
-impl Organism {
+impl CoreSim {
     /// Internal function for creating a Sim object with initial SimState
-    fn get_object(initial_state: SimState) -> Organism {
-        Organism {
+    fn get_object(initial_state: SimState) -> CoreSim {
+        CoreSim {
             sim_id: Uuid::new_v4(),
             active_components: HashMap::new(),
             time_manager: TimeManager::new(),
@@ -133,7 +133,7 @@ impl Organism {
 
     /// Creates a Sim with the default set of components which is equal to all registered
     /// components at the time of execution.
-    pub fn new() -> Organism {
+    pub fn new() -> CoreSim {
         let mut sim = Self::get_object(SimState::new());
         let component_set = COMPONENT_REGISTRY.lock().unwrap().keys().cloned().collect();
         sim.setup(component_set);
@@ -146,7 +146,7 @@ impl Organism {
     /// * `component_set` - Set of components to add on initialization
     /// 
     /// Returns a new Sim object
-    pub fn new_custom(component_set: HashSet<&'static str>) -> Organism {
+    pub fn new_custom(component_set: HashSet<&'static str>) -> CoreSim {
         let mut sim = Self::get_object(SimState::new());
         sim.setup(component_set);
         sim
@@ -158,7 +158,7 @@ impl Organism {
     /// * `initial_state` - Initial SimState for the Sim
     /// 
     /// Returns a new Sim object
-    pub fn new_with_state(initial_state: SimState) -> Organism {
+    pub fn new_with_state(initial_state: SimState) -> CoreSim {
         let mut sim = Self::get_object(initial_state);
         let component_set = COMPONENT_REGISTRY.lock().unwrap().keys().cloned().collect();
         sim.setup(component_set);
@@ -172,7 +172,7 @@ impl Organism {
     /// * `initial_state` - Initial SimState for the Sim
     /// 
     /// Returns a new Sim object
-    pub fn new_custom_with_state(component_set: HashSet<&'static str>, initial_state: SimState) -> Organism {
+    pub fn new_custom_with_state(component_set: HashSet<&'static str>, initial_state: SimState) -> CoreSim {
         let mut sim = Self::get_object(initial_state);
         sim.setup(component_set);
         sim
@@ -487,7 +487,7 @@ impl Organism {
     }
 }
 
-impl SimOrganism for Organism {
+impl Sim for CoreSim {
 
     /// Returns the current simulation time
     fn time(&self) -> Time {
@@ -495,7 +495,7 @@ impl SimOrganism for Organism {
     }
 
     /// Determines if the given component name corresponds to an active component
-    /// on this SimOrganism
+    /// on this Sim
     fn has_component(&self, component_name: &'static str) -> bool {
         return self.active_components.contains_key(component_name)
     }
