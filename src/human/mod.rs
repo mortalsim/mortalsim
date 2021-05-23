@@ -1,7 +1,9 @@
 use std::sync::Arc;
 use crate::blood::{ClosedCirculationManager, ClosedCirculatorySystem};
-use crate::core::sim::Organism;
+use crate::core::sim::CoreSim;
 mod circulation;
+mod sim;
+mod component;
 
 pub use circulation::{HumanBloodVessel, HumanCirculatorySystem, HUMAN_CIRCULATION_FILEPATH};
 pub type HumanClosedCirculationManager = ClosedCirculationManager<HumanBloodVessel>;

@@ -200,12 +200,11 @@ impl CoreSim {
                 Some(factory) => {
                     let mut component = factory();
                     let mut initializer = SimComponentInitializer::new();
-                    let mut connector = SimConnector::new();
                     component.init(&mut initializer);
                     
                     self.active_components.insert(component_name, component);
 
-                    self.setup_component(component_name, initializer, &mut connector);
+                    let connector = self.setup_component(component_name, initializer);
                     self.connector_map.insert(component_name, connector);
                 }
             }
@@ -213,7 +212,8 @@ impl CoreSim {
     }
 
     /// handles internal registrations and initial outputs for components
-    pub(crate) fn setup_component(&mut self, component_name: &'static str, initializer: SimComponentInitializer, connector: &mut SimConnector) {
+    pub(crate) fn setup_component(&mut self, component_name: &'static str, initializer: SimComponentInitializer) -> SimConnector {
+        let mut connector = SimConnector::new();
         let mut transformer_ids = Vec::new();
         for transformer in initializer.pending_transforms {
             transformer_ids.push(self.insert_transformer(transformer));
@@ -235,6 +235,7 @@ impl CoreSim {
 
         // Clear taint
         connector.local_state.clear_taint();
+        connector
     }
 
     fn insert_transformer(&mut self, transformer: Box<dyn EventTransformer>) -> IdType {

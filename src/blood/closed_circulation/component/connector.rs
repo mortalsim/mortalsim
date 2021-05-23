@@ -12,7 +12,7 @@ pub struct ClosedCircConnector<V: BloodVessel> {
 }
 
 impl<V: BloodVessel> ClosedCircConnector<V> {
-    fn new(initializer: ClosedCircInitializer<V>) -> ClosedCircConnector<V> {
+    pub fn new(initializer: ClosedCircInitializer<V>) -> ClosedCircConnector<V> {
         ClosedCircConnector {
             stores: HashMap::new(),
             vessel_connections: initializer.vessel_connections,
@@ -21,7 +21,7 @@ impl<V: BloodVessel> ClosedCircConnector<V> {
     }
 
     /// Retrieves the SubstanceStore for the given vessel
-    fn blood_store(&self, vessel: &V) -> Option<&SubstanceStore> {
+    pub fn blood_store(&self, vessel: &V) -> Option<&SubstanceStore> {
         self.stores.get(vessel)
     }
 }

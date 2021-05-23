@@ -59,7 +59,7 @@ impl<V: BloodVessel + 'static> ClosedCirculationManager<V> {
         }
     }
 
-    fn init_components(&mut self, component_names: HashSet<&'static str>, mut organism: CoreSim) -> HashSet<&'static str> {
+    pub(crate) fn init_components(&mut self, component_names: HashSet<&'static str>, core: &mut CoreSim) -> HashSet<&'static str> {
         let mut registry = COMPONENT_REGISTRY.lock().unwrap();
         let vessel_registry: &mut HashMap<&'static str, Box<dyn Any + Send>> = registry.entry(TypeId::of::<V>()).or_insert(HashMap::new());
 
@@ -80,10 +80,8 @@ impl<V: BloodVessel + 'static> ClosedCirculationManager<V> {
                     
                     self.active_components.insert(component_name, component);
 
-                    let mut connector = SimConnector::new();
-
-                    // perform base organism component portion setup
-                    organism.setup_component(component_name, ccc_initializer.initializer, &mut connector);
+                    // perform base core component portion setup
+                    let connector = core.setup_component(component_name, ccc_initializer.initializer);
                     self.connector_map.insert(component_name, connector);
 
                     // perform closed circulation component portion setup
@@ -93,16 +91,16 @@ impl<V: BloodVessel + 'static> ClosedCirculationManager<V> {
         }
 
         // Set up event notifications for this extension
-        organism.notify_extension::<BloodCompositionChange<V>>(self.manager_id);
-        organism.notify_extension::<BloodVolumeChange<V>>(self.manager_id);
+        core.notify_extension::<BloodCompositionChange<V>>(self.manager_id);
+        core.notify_extension::<BloodVolumeChange<V>>(self.manager_id);
         
         remaining_components
     }
 
-    fn setup_component(&mut self, component_name: &'static str, initializer: ClosedCircInitializer<V>) {
-        let vessel_connections = initializer.vessel_connections;
+    pub(crate) fn setup_component(&mut self, component_name: &'static str, mut initializer: ClosedCircInitializer<V>) -> ClosedCircConnector<V> {
+
         let mut component_vessel_map = HashMap::new();
-        for (vessel, substance_map) in initializer.substance_notifies {
+        for (vessel, substance_map) in initializer.substance_notifies.drain() {
             let mut substance_list = Vec::new();
             for (substance, threshold) in substance_map {
                 substance_list.push(substance);
@@ -114,9 +112,10 @@ impl<V: BloodVessel + 'static> ClosedCirculationManager<V> {
         }
 
         self.component_context_map.insert(component_name, ComponentContext {
-            connected_vessels: vessel_connections,
+            connected_vessels: initializer.vessel_connections.clone(),
             substance_notify_map: component_vessel_map,
         });
+        ClosedCircConnector::new(initializer)
     }
 
     pub(crate) fn update(&mut self, update_list: impl Iterator<Item = &'static str>, organism: &mut CoreSim) -> impl Iterator<Item = &'static str> {

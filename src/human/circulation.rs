@@ -1,7 +1,7 @@
-use crate::blood::BloodVessel;
-use crate::blood::ClosedCirculatorySystem;
+use crate::blood::{BloodVessel, ClosedCirculatorySystem, ClosedCirculationManager};
 
 pub type HumanCirculatorySystem = ClosedCirculatorySystem<HumanBloodVessel>;
+pub type HumanBloodManager = ClosedCirculationManager<HumanBloodVessel>;
 
 pub const HUMAN_CIRCULATION_FILEPATH: &str = "config/circulation/human_circulation.json";
 
