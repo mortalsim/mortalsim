@@ -5,6 +5,15 @@ pub type HumanBloodManager = ClosedCirculationManager<HumanBloodVessel>;
 
 pub const HUMAN_CIRCULATION_FILEPATH: &str = "config/circulation/human_circulation.json";
 
+impl HumanCirculatorySystem {
+    pub fn new() -> HumanCirculatorySystem {
+        match HumanCirculatorySystem::from_json_file(HUMAN_CIRCULATION_FILEPATH) {
+            Err(err) => panic!("Error loading Human Circulatory System from '{}': {}", HUMAN_CIRCULATION_FILEPATH, err),
+            Ok(circ) => circ
+        }
+    }
+}
+
 #[derive(Debug, Display, Hash, Clone, Copy, PartialEq, Eq, EnumString, IntoStaticStr)]
 pub enum HumanBloodVessel {
     Aorta,

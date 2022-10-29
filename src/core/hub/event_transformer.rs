@@ -165,9 +165,9 @@ mod tests {
         });
 
         let mut evt = TestEventA::new(Length::new::<meter>(5.0));
+        assert_eq!(evt.len, Length::new::<meter>(5.0));
 
         listener.transform(&mut evt);
-        
         assert_eq!(evt.len, Length::new::<meter>(10.0));
     }
     

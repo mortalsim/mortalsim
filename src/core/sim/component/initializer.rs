@@ -47,6 +47,7 @@ impl SimComponentInitializer {
     /// * `default` - Default `Event` value when one isn't provided by another component
     pub fn notify_prioritized<E: Event>(&mut self, priority: i32, default: E) {
         let type_key = TypeId::of::<E>();
+
         // If this event type has already been registered as an output, panic
         if self.output_events.contains(&type_key) {
             panic!("Components cannot register notifications for Events they are producing! This could cause an infinite loop.")

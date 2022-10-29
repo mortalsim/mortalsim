@@ -7,7 +7,8 @@ use crate::core::sim::{Sim, CoreSim, SimConnector};
 use crate::substance::{SubstanceStore, Time, Substance, MolarConcentration};
 use crate::event::Event;
 use crate::util::IdType;
-use crate::blood::{BloodVessel, ClosedCircInitializer, ClosedCircConnector};
+use crate::blood::{BloodVessel, ClosedCircInitializer, ClosedCircConnector, ClosedCirculatorySystem};
+use super::{HUMAN_CIRCULATION_FILEPATH, HumanCirculatorySystem};
 use super::circulation::HumanBloodManager;
 use super::component::{HumanSimComponent, HumanSimConnector, HumanComponentInitializer};
 
@@ -34,6 +35,16 @@ pub struct HumanSim {
 }
 
 impl HumanSim {
+    /// Creates a new `HumanSim` object
+    pub fn new() -> HumanSim {
+        HumanSim {
+            core: CoreSim::new(),
+            blood_manager: HumanBloodManager::new(HumanCirculatorySystem::new()),
+            active_components: HashMap::new(),
+            connector_map: HashMap::new()
+        }
+    }
+
     fn init_components(&mut self, component_names: HashSet<&'static str>) {
         let mut registry = COMPONENT_REGISTRY.lock().unwrap();
 
@@ -157,5 +168,20 @@ impl Sim for HumanSim {
     /// Returns an Err Result if the provided ID is invalid
     fn unschedule_event(&mut self, schedule_id: &IdType) -> Result<()> {
         self.core.unschedule_event(schedule_id)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::HumanSim;
+    use crate::core::sim::{Time, Sim};
+    use uom::si::time::second;
+
+    #[test]
+    fn test_human_sim() {
+        let mut sim = HumanSim::new();
+        assert_eq!(sim.time(), Time::new::<second>(0.0));
+        sim.advance_by(Time::new::<second>(1.0));
+        assert_eq!(sim.time(), Time::new::<second>(1.0));
     }
 }

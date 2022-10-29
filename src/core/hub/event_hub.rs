@@ -337,7 +337,6 @@ mod tests {
     use uom::si::f64::AmountOfSubstance;
     use uom::si::length::meter;
     use uom::si::amount_of_substance::mole;
-    use simple_logger::SimpleLogger;
     use super::EventHub;
     use crate::event::Event;
     use crate::event::test::TestEventA;

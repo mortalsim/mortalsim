@@ -33,7 +33,11 @@ pub struct ClosedCirculatorySystem<V: BloodVessel> {
 impl<T: BloodVessel> ClosedCirculatorySystem<T> {
     /// Loads a circulation graph and corresponding vessel->idx map from the given file
     pub fn from_json_file(filename: &str) -> Result<ClosedCirculatorySystem<T>> {
-        let contents = fs::read_to_string(filename).unwrap();
+        let contents = match fs::read_to_string(filename) {
+            Err(err) => panic!("Error loading Circulatory System file '{}': {}", filename, err),
+            Ok(contents) => contents
+        };
+
         let circ_json: Value = serde_json::from_str(&contents)?;
         Ok(Self::from_json_value(&circ_json))
     }

@@ -24,7 +24,7 @@ pub struct SimConnector {
     pub(crate) pending_unschedules: Vec<IdType>,
     /// Copy of the current simulation time
     pub(crate) sim_time: Time,
-    /// Whether all currently scheduled events should be unscheduled
+    /// Whether to indicate to the parent Sim that all currently scheduled events should be unscheduled
     pub(crate) unschedule_all: bool,
 }
 
@@ -58,7 +58,7 @@ impl SimConnector {
         self.pending_schedules.push((wait_time, Box::new(evt)))
     }
     
-    /// Whether to unschedule all currently scheduled `Event` objects (default is true)
+    /// Whether to unschedule all previously scheduled `Event` objects (default is true)
     /// Set to `false` in order to manually specify which `Event` objects to unschedule
     /// using `unschedule_event`
     pub fn unschedule_all(&mut self, setting: bool) {
