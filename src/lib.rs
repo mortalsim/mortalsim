@@ -16,7 +16,7 @@ mod tmp;
 
 pub mod substance;
 pub mod event;
-pub mod blood;
+pub mod closed_circulation;
 pub mod human;
 
 #[cfg(test)]

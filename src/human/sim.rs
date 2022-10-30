@@ -7,7 +7,7 @@ use crate::core::sim::{Sim, CoreSim, SimConnector};
 use crate::substance::{SubstanceStore, Time, Substance, MolarConcentration};
 use crate::event::Event;
 use crate::util::IdType;
-use crate::blood::{BloodVessel, ClosedCircInitializer, ClosedCircConnector, ClosedCirculatorySystem};
+use crate::closed_circulation::{BloodVessel, ClosedCircInitializer, ClosedCircConnector, ClosedCirculatorySystem};
 use super::{HUMAN_CIRCULATION_FILEPATH, HumanCirculatorySystem};
 use super::circulation::HumanBloodManager;
 use super::component::{HumanSimComponent, HumanSimConnector, HumanComponentInitializer};

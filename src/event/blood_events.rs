@@ -1,4 +1,4 @@
-use crate::blood::BloodVessel;
+use crate::closed_circulation::BloodVessel;
 use crate::substance::{Substance, AmountOfSubstance, MolarConcentration, Volume};
 use super::Event;
 

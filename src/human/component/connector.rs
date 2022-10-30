@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 use anyhow::Result;
 use crate::core::sim::SimConnector;
-use crate::blood::ClosedCircConnector;
+use crate::closed_circulation::ClosedCircConnector;
 use crate::substance::{Substance, SubstanceStore, MolarConcentration};
 use super::initializer::HumanComponentInitializer;
 use super::super::HumanBloodVessel;

@@ -1,7 +1,7 @@
-use crate::blood::{BloodVessel, ClosedCirculatorySystem, ClosedCirculationManager};
+use crate::closed_circulation::{BloodVessel, ClosedCirculatorySystem, ClosedCirculationSim};
 
 pub type HumanCirculatorySystem = ClosedCirculatorySystem<HumanBloodVessel>;
-pub type HumanBloodManager = ClosedCirculationManager<HumanBloodVessel>;
+pub type HumanBloodManager = ClosedCirculationSim<HumanBloodVessel>;
 
 pub const HUMAN_CIRCULATION_FILEPATH: &str = "config/circulation/human_circulation.json";
 
@@ -112,11 +112,4 @@ pub enum HumanBloodVessel {
     LeftPosteriorTibialVein,
 }
 
-impl BloodVessel for HumanBloodVessel {
-    fn source() -> HumanBloodVessel {
-        Self::Aorta
-    }
-    fn sink() -> HumanBloodVessel {
-        Self::VenaCava
-    }
-}
+impl BloodVessel for HumanBloodVessel {}
