@@ -66,7 +66,7 @@ impl HumanSim {
                     self.active_components.insert(component_name, component);
 
                     let connector = self.core.setup_component(component_name, human_initializer.initializer);
-                    let cc_connector = self.blood_manager.setup_component(component_name, human_initializer.ccc_initializer);
+                    let cc_connector = self.blood_manager.setup_component(component_name, human_initializer.cc_initializer);
 
                     let human_connector = HumanSimConnector::new(connector, cc_connector);
                     self.connector_map.insert(component_name, human_connector);

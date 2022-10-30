@@ -90,14 +90,14 @@ impl SimComponentInitializer {
 //         let mut hub = self.hub.borrow_mut();
 //         for listener_id in self.listener_ids.iter_mut() {
 //             match hub.off(*listener_id) {
-//                 Err(err) => panic!(err),
+//                 Err(err) => panic!("{}", err),
 //                 Ok(_) => {}
 //             }
 //         }
 
 //         for transformer_id in self.transformer_ids.iter_mut() {
 //             match hub.unset_transform(*transformer_id) {
-//                 Err(err) => panic!(err),
+//                 Err(err) => panic!("{}", err),
 //                 Ok(_) => {}
 //             }
 //         }

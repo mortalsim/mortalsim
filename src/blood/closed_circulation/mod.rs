@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 use std::sync::Mutex;
 use std::any::{Any, TypeId};
-use petgraph::graph::{Graph, Neighbors};
 use super::{BloodVessel};
 
 mod system;
@@ -9,10 +8,10 @@ mod component;
 mod graph;
 mod manager;
 
-pub use system::ClosedCirculatorySystem;
-pub use component::{ClosedCircSimComponent, ClosedCircComponentInitializer, ClosedCircInitializer, ClosedCircConnector, ClosedCircSimConnector};
+pub use system::{ClosedCirculatorySystem, ClosedCircVesselIter};
+pub use component::{ClosedCircSimComponent, ClosedCircInitializer, ClosedCircConnector};
 pub use graph::{BloodEdge, BloodNode};
-pub use manager::ClosedCirculationManager;
+pub use manager::{ClosedCirculationManager};
 
 lazy_static! {
     static ref COMPONENT_REGISTRY: Mutex<HashMap<TypeId, HashMap<&'static str, Box<dyn Any + Send>>>> = Mutex::new(HashMap::new());
@@ -32,16 +31,4 @@ fn register_component<V: BloodVessel + 'static>(component_name: &'static str, fa
 
     // Gotta box it into an Any since we have different structs based on the BloodVessel type
     vessel_registry.insert(component_name, Box::new(factory));
-}
-
-pub struct ClosedCircVesselIter<'a, 'b, V: BloodVessel> {
-    graph: &'a Graph<BloodNode<V>, BloodEdge>,
-    idx_iter: Option<Neighbors<'b, BloodEdge>>,
-}
-
-impl<'a, 'b, V: BloodVessel> Iterator for ClosedCircVesselIter<'a, 'b, V> {
-    type Item = V;
-    fn next(&mut self) -> Option<V> {
-        Some(self.graph[self.idx_iter.as_mut()?.next()?].vessel)
-    }
 }

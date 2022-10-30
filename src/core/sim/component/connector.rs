@@ -24,7 +24,7 @@ pub struct SimConnector {
     pub(crate) pending_unschedules: Vec<IdType>,
     /// Copy of the current simulation time
     pub(crate) sim_time: Time,
-    /// Whether to indicate to the parent Sim that all currently scheduled events should be unscheduled
+    /// Whether to indicate to the parent Sim that all previously scheduled events should be unscheduled
     pub(crate) unschedule_all: bool,
 }
 

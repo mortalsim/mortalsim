@@ -7,14 +7,14 @@ use super::super::HumanBloodVessel;
 
 pub struct HumanComponentInitializer {
     pub(crate) initializer: SimComponentInitializer,
-    pub(crate) ccc_initializer: ClosedCircInitializer<HumanBloodVessel>,
+    pub(crate) cc_initializer: ClosedCircInitializer<HumanBloodVessel>,
 }
 
 impl HumanComponentInitializer {
     pub fn new() -> HumanComponentInitializer {
         HumanComponentInitializer {
             initializer: SimComponentInitializer::new(),
-            ccc_initializer: ClosedCircInitializer::new(),
+            cc_initializer: ClosedCircInitializer::new(),
         }
     }
 }

@@ -6,7 +6,8 @@ use super::super::super::BloodVessel;
 
 pub struct ClosedCircInitializer<V: BloodVessel> {
     pub(crate) vessel_connections: HashSet<V>,
-    pub(crate) substance_notifies: HashMap<V, HashMap<Substance, MolarConcentration>>
+    pub(crate) substance_notifies: HashMap<V, HashMap<Substance, MolarConcentration>>,
+    pub(crate) any_substance_notifies: HashSet<V>,
 }
 
 impl<V: BloodVessel> ClosedCircInitializer<V> {
@@ -14,6 +15,7 @@ impl<V: BloodVessel> ClosedCircInitializer<V> {
         ClosedCircInitializer {
             vessel_connections: HashSet::new(),
             substance_notifies: HashMap::new(),
+            any_substance_notifies: HashSet::new(),
         }
     }
 
@@ -22,22 +24,13 @@ impl<V: BloodVessel> ClosedCircInitializer<V> {
         let substance_map = self.substance_notifies.entry(vessel).or_insert(HashMap::new());
         substance_map.insert(substance, threshold);
     }
+    
+    pub fn notify_any_composition_change(&mut self, vessel: V) {
+        self.vessel_connections.insert(vessel);
+        self.any_substance_notifies.insert(vessel);
+    }
 
     pub fn attach_vessel(&mut self, vessel: V) {
         self.vessel_connections.insert(vessel);
-    }
-}
-
-pub struct ClosedCircComponentInitializer<V: BloodVessel> {
-    pub initializer: SimComponentInitializer,
-    pub cc_initializer: ClosedCircInitializer<V>,
-}
-
-impl<V: BloodVessel> ClosedCircComponentInitializer<V> {
-    pub fn new() -> ClosedCircComponentInitializer<V> {
-        ClosedCircComponentInitializer {
-            initializer: SimComponentInitializer::new(),
-            cc_initializer: ClosedCircInitializer::new(),
-        }
     }
 }

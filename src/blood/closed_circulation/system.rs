@@ -10,11 +10,23 @@ use serde::{Serialize, Deserialize};
 use serde_json::Value;
 use petgraph::Direction;
 use petgraph::visit::EdgeRef;
-use petgraph::graph::{Graph, NodeIndex, EdgeIndex};
+use petgraph::graph::{Graph, Neighbors, NodeIndex, EdgeIndex};
 use petgraph::dot::{Dot, Config};
 use super::super::{BloodVessel, BloodVesselType};
 use super::super::BloodVesselType::{Vein, Artery};
 use super::graph::{BloodNode, BloodEdge};
+
+pub struct ClosedCircVesselIter<'a, 'b, V: BloodVessel> {
+    graph: &'a Graph<BloodNode<V>, BloodEdge>,
+    idx_iter: Option<Neighbors<'b, BloodEdge>>,
+}
+
+impl<'a, 'b, V: BloodVessel> Iterator for ClosedCircVesselIter<'a, 'b, V> {
+    type Item = V;
+    fn next(&mut self) -> Option<V> {
+        Some(self.graph[self.idx_iter.as_mut()?.next()?].vessel)
+    }
+}
 
 #[derive(Clone)]
 pub struct ClosedCirculatorySystem<V: BloodVessel> {
@@ -27,7 +39,7 @@ pub struct ClosedCirculatorySystem<V: BloodVessel> {
     /// Mapping from vessel id to node index for rapid lookup
     pub post_capillaries: HashSet<V>,
     /// Maximum depth of the circulation from root node to capillary
-    pub depth: u8,
+    pub depth: u32,
 }
 
 impl<T: BloodVessel> ClosedCirculatorySystem<T> {
@@ -77,7 +89,7 @@ impl<T: BloodVessel> ClosedCirculatorySystem<T> {
     }
 
     /// Recursive function which adds BloodNodes to the circulation graph based on the JSON definition
-    fn add_vessels(&mut self, vessel: &Value, vessel_idx: NodeIndex, vessel_type: BloodVesselType, depth: u8) {
+    fn add_vessels(&mut self, vessel: &Value, vessel_idx: NodeIndex, vessel_type: BloodVesselType, depth: u32) {
         let links = &vessel["links"];
 
         // Set the depth to the maximum
@@ -158,6 +170,24 @@ impl<T: BloodVessel> ClosedCirculatorySystem<T> {
             let outgoing_count = outgoing_edges.len() as f32;
             for edge_id in outgoing_edges {
                 self.graph[edge_id].outgoing_pct = 1.0 / outgoing_count;
+            }
+        }
+    }
+
+    /// function for retrieving a vessel connection iterator (upstream or downstream)
+    pub fn vessel_connections(&self, vessel: T, dir: Direction) -> ClosedCircVesselIter<T> {
+        match self.node_map.get(&vessel) {
+            Some(node_idx) => {
+                ClosedCircVesselIter {
+                    graph: &self.graph,
+                    idx_iter: Some(self.graph.neighbors_directed(node_idx.clone(), dir))
+                }
+            },
+            None => {
+                ClosedCircVesselIter {
+                    graph: &self.graph,
+                    idx_iter: None
+                }
             }
         }
     }
