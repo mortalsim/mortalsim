@@ -9,7 +9,6 @@ use anyhow::Result;
 use either::Either;
 use super::sim_state::SimState;
 use super::component::{SimComponentInitializer, SimConnector, SimComponent};
-use super::extension::SimExtension;
 use super::time_manager::{Time, TimeManager};
 use crate::event::Event;
 use crate::core::hub::event_transformer::{EventTransformer, TransformerItem};
@@ -32,7 +31,7 @@ fn register_component(component_name: &'static str, factory: impl FnMut() -> Box
 
 pub trait Sim {
     /// Returns the current simulation time
-    fn time(&self) -> Time;
+    fn get_time(&self) -> Time;
     
     /// Determines if the given component name corresponds to an active component
     /// on this Sim
@@ -491,7 +490,7 @@ impl CoreSim {
 impl Sim for CoreSim {
 
     /// Returns the current simulation time
-    fn time(&self) -> Time {
+    fn get_time(&self) -> Time {
         self.time_manager.get_time()
     }
 

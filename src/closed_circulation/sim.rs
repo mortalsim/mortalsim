@@ -12,7 +12,6 @@ use uom::si::molar_concentration::mole_per_liter;
 use uom::si::ratio::{Ratio, ratio};
 use uom::si::amount_of_substance::mole;
 use crate::core::sim::{SimConnector, CoreSim, SimComponent, SimComponentInitializer};
-use crate::core::sim::extension::SimExtension;
 use crate::substance::{SubstanceStore, Volume, Substance, MolarConcentration, AmountOfSubstance};
 use crate::event::{BloodCompositionChange, BloodVolumeChange};
 use super::vessel::{BloodVessel, BloodVesselType, VesselIter};
@@ -182,15 +181,6 @@ impl<V: BloodVessel + 'static> ClosedCirculationSim<V> {
         // ... Nothing to do here for now
     }
 
-}
-
-impl<V: BloodVessel + 'static> SimExtension for ClosedCirculationSim<V> {
-    fn notify_events(&self) -> Vec<TypeId> {
-        vec!(TypeId::of::<BloodCompositionChange<V>>(), TypeId::of::<BloodVolumeChange<V>>())
-    }
-    fn connectors(&mut self) -> Vec<(&'static str, &mut SimConnector)> {
-        self.connector_map.iter_mut().map(|(n, (sc, _))| (*n, sc)).collect()
-    }
 }
 
 // impl<V: BloodVessel + 'static> ClosedCircSimConnector<V> for ClosedCirculationSim<V> {

@@ -94,8 +94,8 @@ impl HumanSim {
 impl Sim for HumanSim {
 
     /// Returns the current simulation time
-    fn time(&self) -> Time {
-        self.core.time()
+    fn get_time(&self) -> Time {
+        self.core.get_time()
     }
 
     fn has_component(&self, component_name: &'static str) -> bool {
@@ -180,8 +180,8 @@ mod tests {
     #[test]
     fn test_human_sim() {
         let mut sim = HumanSim::new();
-        assert_eq!(sim.time(), Time::new::<second>(0.0));
+        assert_eq!(sim.get_time(), Time::new::<second>(0.0));
         sim.advance_by(Time::new::<second>(1.0));
-        assert_eq!(sim.time(), Time::new::<second>(1.0));
+        assert_eq!(sim.get_time(), Time::new::<second>(1.0));
     }
 }
