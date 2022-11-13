@@ -3,7 +3,7 @@ use std::sync::Mutex;
 use std::any::{Any, TypeId};
 use anyhow::Result;
 use petgraph::graph::{Graph, NodeIndex};
-use crate::core::sim::{Sim, CoreSim, SimConnector};
+use crate::core::sim::{Sim, CoreSim, SimConnector, SimComponent};
 use crate::substance::{SubstanceStore, Time, Substance, MolarConcentration};
 use crate::event::Event;
 use crate::util::IdType;
@@ -22,7 +22,7 @@ lazy_static! {
 /// ### Arguments
 /// * `component_name` - String name for the component
 /// * `factory`        - Factory function which creates an instance of the component
-fn register_component(component_name: &'static str, factory: impl FnMut() -> Box<dyn HumanSimComponent> + Send + 'static) {
+pub fn register_component(component_name: &'static str, factory: impl FnMut() -> Box<dyn HumanSimComponent> + Send + 'static) {
     log::debug!("Registering human component: {}", component_name);
     COMPONENT_REGISTRY.lock().unwrap().insert(component_name, Box::new(factory));
 }
@@ -61,24 +61,25 @@ impl HumanSim {
                 Some(factory) => {
                     let mut component = factory();
                     let mut human_initializer = HumanComponentInitializer::new();
-                    component.init(&mut human_initializer);
+                    component.init(&mut human_initializer.initializer);
 
                     self.active_components.insert(component_name, component);
 
-                    let connector = self.core.setup_component(component_name, human_initializer.initializer);
+                    self.core.setup_component(component_name, component.as_sim_component(), human_initializer.initializer);
                     let cc_connector = self.blood_manager.setup_component(component_name, human_initializer.cc_initializer);
 
-                    let human_connector = HumanSimConnector::new(connector, cc_connector);
+                    let human_connector = HumanSimConnector::new(SimConnector::new(), cc_connector);
                     self.connector_map.insert(component_name, human_connector);
                 }
             }
         }
 
         // Initialize any blood components
-        remaining_components = self.blood_manager.init_components(remaining_components, &mut self.core);
-        
-        // All remaining components should be core components
-        self.core.init_components(remaining_components);
+        self.blood_manager.init_components(remaining_components, &mut self.core);
+
+        for (name, component) in self.active_components.iter_mut() {
+            self.core.init_component(name, component.as_sim_component());
+        }
     }
 
     fn execute_time_step(&mut self) {

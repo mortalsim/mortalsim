@@ -5,7 +5,7 @@ pub use connector::{ClosedCircConnector};
 use crate::core::sim::{SimComponent, SimComponentInitializer, SimConnector};
 use super::vessel::BloodVessel;
 
-pub trait ClosedCircSimComponent {
+pub trait ClosedCircSimComponent: SimComponent {
     type VesselType: BloodVessel;
 
     /// Initializes the component. Should register any `Event` objects to listen for
@@ -13,19 +13,20 @@ pub trait ClosedCircSimComponent {
     /// 
     /// ### Arguments
     /// * `initializer` - Helper object for initializing the component
-    fn init(&mut self, initializer: &mut SimComponentInitializer, cc_initializer: &mut ClosedCircInitializer<Self::VesselType>);
+    fn init_cc(&mut self, cc_initializer: &mut ClosedCircInitializer<Self::VesselType>);
     
-    /// Runs an iteration of this component. Will be called anytime a `notify` registered
-    /// `Event` changes on `Sim` state. All module logic should ideally occur within this
-    /// call and all resulting `Event` objects scheduled for future emission.
+    /// Retrieves the SimComponent portion of this component
     /// 
-    /// Note that all `Event`s previously scheduled by this component which have not yet
-    /// occurred will be unscheduled before `run` is executed.
+    /// ### returns
+    /// this object as a SimComponent
+    fn as_sim_component(&mut self) -> &mut dyn SimComponent;
+    
+    /// Used by the HumanSim to retrieve a mutable reference to this component's
+    /// ClosedCircConnector, which tracks component interactions
     /// 
-    /// ### Arguments
-    /// * `connector` - Helper object for the component to interact with the rest of
-    ///                 the simulation
-    fn run(&mut self, connector: &mut SimConnector, cc_connector: &mut ClosedCircConnector<Self::VesselType>);
+    /// ### returns
+    /// SimConnector to interact with the rest of the simulation
+    fn get_cc_sim_connector(&mut self) -> &mut ClosedCircConnector<Self::VesselType>;
 }
 
 #[cfg(test)]

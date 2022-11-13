@@ -11,8 +11,6 @@ pub struct BloodNode<T: BloodVessel> {
     pub vessel: T,
     /// Whether it's an Artery or a Vein
     pub vessel_type: BloodVesselType,
-    /// Current substance composition of the blood in the vessel
-    pub composition: SubstanceStore,
 }
 
 impl<T: BloodVessel> BloodNode<T> {
@@ -20,7 +18,6 @@ impl<T: BloodVessel> BloodNode<T> {
         BloodNode {
             vessel: vessel,
             vessel_type: vessel_type,
-            composition: SubstanceStore::new(Volume::new::<liter>(1.0)),
         }
     }
 }

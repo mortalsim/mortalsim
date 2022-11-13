@@ -15,7 +15,6 @@ use crate::core::hub::event_listener::{EventListener, ListenerItem, GenericListe
 use crate::core::hub::event_transformer::{EventTransformer, TransformerItem};
 use crate::event::Event;
 
-
 /// Pub/Sub router for Event objects. Handles Event dispatch and transformation.
 pub struct EventHub<'a> {
     /// Id for this EventHub

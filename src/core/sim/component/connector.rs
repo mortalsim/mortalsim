@@ -31,11 +31,6 @@ pub struct SimConnector {
 impl SimConnector {
     
     /// Creates a new SimConnector
-    /// 
-    /// ### Arguments
-    /// * `time_manager` - Reference to the `Sim` object's `TimeManager` instance
-    /// 
-    /// returns the newly constructed SimConnector
     pub fn new() -> SimConnector {
         SimConnector {
             local_state: SimState::new(),

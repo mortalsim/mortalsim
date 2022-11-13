@@ -1,9 +1,18 @@
-use crate::closed_circulation::{BloodVessel, ClosedCirculatorySystem, ClosedCirculationSim};
+use std::collections::HashSet;
+use crate::closed_circulation::{BloodVessel, ClosedCirculatorySystem, ClosedCirculationSim, VesselIter};
 
 pub type HumanCirculatorySystem = ClosedCirculatorySystem<HumanBloodVessel>;
 pub type HumanBloodManager = ClosedCirculationSim<HumanBloodVessel>;
 
 pub const HUMAN_CIRCULATION_FILEPATH: &str = "config/circulation/human_circulation.json";
+
+lazy_static! {
+    static ref START_VESSELS: HashSet<HumanBloodVessel> = {
+        let mut vessel_list = HashSet::new();
+        vessel_list.insert(HumanBloodVessel::Aorta);
+        vessel_list
+    };
+}
 
 impl HumanCirculatorySystem {
     pub fn new() -> HumanCirculatorySystem {
@@ -112,4 +121,8 @@ pub enum HumanBloodVessel {
     LeftPosteriorTibialVein,
 }
 
-impl BloodVessel for HumanBloodVessel {}
+impl BloodVessel for HumanBloodVessel {
+    fn start_vessels<'a>() -> VesselIter<'a, Self> {
+        VesselIter { iter: START_VESSELS.iter() }
+    }
+}

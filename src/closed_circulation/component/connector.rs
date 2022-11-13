@@ -1,43 +1,39 @@
 use std::collections::{HashMap, HashSet};
+use std::rc::Rc;
 use anyhow::Result;
 use petgraph::Direction;
+use uom::si::volume::liter;
+use crate::substance::Volume;
 use crate::core::sim::SimConnector;
 use crate::substance::{Substance, SubstanceStore, MolarConcentration};
 use super::super::vessel::{BloodVessel, BloodVesselType, VesselIter};
 use super::super::{BloodNode, ClosedCirculationSim, ClosedCircVesselIter, ClosedCirculatorySystem, ClosedCircInitializer};
 
 pub struct ClosedCircConnector<V: BloodVessel> {
-    pub(crate) system: Option<ClosedCirculatorySystem<V>>,
-    pub(crate) stores: HashMap<V, SubstanceStore>,
-    pub(crate) vessel_connections: HashSet<V>,
-    pub(crate) substance_notifies: HashMap<V, HashMap<Substance, MolarConcentration>>
+    pub(crate) system: Rc<ClosedCirculatorySystem<V>>,
+    pub(crate) vessel_connections: HashMap<V, SubstanceStore>,
+    pub(crate) substance_notifies: HashMap<V, HashMap<Substance, MolarConcentration>>,
 }
 
 impl<V: BloodVessel> ClosedCircConnector<V> {
-    pub fn new(initializer: ClosedCircInitializer<V>) -> ClosedCircConnector<V> {
+    pub fn new(system: Rc<ClosedCirculatorySystem<V>>, initializer: ClosedCircInitializer<V>) -> ClosedCircConnector<V> {
         ClosedCircConnector {
-            system: None,
-            stores: HashMap::new(),
+            system: system,
             vessel_connections: initializer.vessel_connections,
             substance_notifies: initializer.substance_notifies,
         }
     }
 
     fn get_system(&self) -> &ClosedCirculatorySystem<V> {
-        match &self.system {
-            None => panic!("ClosedCirculatorySystem not set for ClosedCircConnector before execution!"),
-            Some(v) => v
-        }
-    }
+        self.system.as_ref()
+    }    
 
     pub fn depth(&self) -> u32 {
         self.get_system().depth as u32
     }
 
     pub fn blood_store(&self, vessel: &V) -> Option<&SubstanceStore> {
-        let system = self.get_system();
-        let node_idx = system.node_map.get(vessel)?;
-        Some(&system.graph[*node_idx].composition)
+        self.vessel_connections.get(vessel)
     }
 
     pub fn vessel_type(&self, vessel: V) -> BloodVesselType {

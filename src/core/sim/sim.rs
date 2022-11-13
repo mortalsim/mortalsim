@@ -180,7 +180,17 @@ impl CoreSim {
     /// Attaches emitted events to this Sim's canonical state
     /// and initializes components
     fn setup(&mut self, component_set: HashSet<&'static str>) {
-        self.init_components(component_set);
+
+        for component_name in component_set {
+            log::debug!("Initializing component \"{}\" on Sim", component_name);
+            match COMPONENT_REGISTRY.lock().unwrap().get_mut(component_name) {
+                None => panic!("Invalid component name provided: \"{}\"", component_name),
+                Some(factory) => {
+                    self.active_components.insert(component_name, factory());
+                }
+            }
+        }
+        self.init_components(&mut self.active_components);
     }
 
     /// Internal function for initializing components on this Sim. If a component which has
@@ -189,30 +199,32 @@ impl CoreSim {
     ///
     /// ### Arguments
     /// * `component_names` - Set of component names to initialize
-    pub(crate) fn init_components(&mut self, component_names: HashSet<&'static str>) {
+    fn init_components(&mut self, component_map: &mut HashMap<&'static str, Box<dyn SimComponent>>) {
 
         // Initialize each component
-        for component_name in component_names.into_iter() {
-            log::debug!("Initializing component \"{}\" on Sim", component_name);
-            match COMPONENT_REGISTRY.lock().unwrap().get_mut(component_name) {
-                None => panic!("Invalid component name provided: \"{}\"", component_name),
-                Some(factory) => {
-                    let mut component = factory();
-                    let mut initializer = SimComponentInitializer::new();
-                    component.init(&mut initializer);
-                    
-                    self.active_components.insert(component_name, component);
-
-                    let connector = self.setup_component(component_name, initializer);
-                    self.connector_map.insert(component_name, connector);
-                }
-            }
+        for (component_name, component) in component_map {
+            let mut initializer = SimComponentInitializer::new();
+            component.init(&mut initializer);
+            
+            self.setup_component(component_name, component.as_mut(), initializer);
         }
+    }
+    
+    /// Internal function for initializing components on this Sim. If a component which has
+    /// already been initialized is initialized again, it will be replaced by a new instance.
+    /// Panics if any provided component name is invalid.
+    ///
+    /// ### Arguments
+    /// * `component_names` - Set of component names to initialize
+    pub(crate) fn init_component(&mut self, component_name: &'static str, component: &mut dyn SimComponent) {
+        let mut initializer = SimComponentInitializer::new();
+        component.init(&mut initializer);
+        
+        self.setup_component(component_name, component, initializer);
     }
 
     /// handles internal registrations and initial outputs for components
-    pub(crate) fn setup_component(&mut self, component_name: &'static str, initializer: SimComponentInitializer) -> SimConnector {
-        let mut connector = SimConnector::new();
+    pub(crate) fn setup_component(&mut self, component_name: &'static str, component: &mut dyn SimComponent, initializer: SimComponentInitializer) {
         let mut transformer_ids = Vec::new();
         for transformer in initializer.pending_transforms {
             transformer_ids.push(self.insert_transformer(transformer));
@@ -221,7 +233,7 @@ impl CoreSim {
         
         for (priority, evt) in initializer.pending_notifies {
             let type_id = evt.type_id();
-            connector.local_state.put_state(type_id, evt.into());
+            component.get_sim_connector().local_state.put_state(type_id, evt.into());
             match self.component_notifications.get_mut(&type_id) {
                 None => {
                     self.component_notifications.insert(type_id, vec![(priority, component_name)]);
@@ -233,8 +245,7 @@ impl CoreSim {
         }
 
         // Clear taint
-        connector.local_state.clear_taint();
-        connector
+        component.get_sim_connector().local_state.clear_taint();
     }
 
     fn insert_transformer(&mut self, transformer: Box<dyn EventTransformer>) -> IdType {
@@ -330,7 +341,19 @@ impl CoreSim {
         }
     }
 
-    fn execute_time_step(&mut self) {
+    /// Processes a time advance if this is a top level Sim
+    fn do_advance(&mut self) {
+        let mut components = HashMap::new();
+        for (name, component) in self.active_components.drain() {
+            components.insert(name, component);
+        }
+
+        self.execute_time_step(&mut components);
+
+        self.active_components = components;
+    }
+
+    fn execute_time_step(&mut self, component_map: &mut HashMap<&'static str, Box<dyn SimComponent>>) {
         // Keep going until no more events / listeners are left to deal with
         loop {
             let next_events = self.time_manager.next_events();
@@ -377,38 +400,32 @@ impl CoreSim {
         self.state.clear_taint();
 
         // Update locally managed components
-        self.update_components(notify_map);
+        self.update_components(component_map, notify_map);
     }
 
-    fn update_components(&mut self, notify_map: HashMap<&'static str, HashSet<TypeId>>) {
+    fn update_components(&mut self, component_map: &mut HashMap<&'static str, Box<dyn SimComponent>>, notify_map: HashMap<&'static str, HashSet<TypeId>>) {
         for (component_name, notify_set) in notify_map {
+            let component = component_map.get(component_name).unwrap();
+
             // Need to remove the connector to avoid multiple mutable borrows of self
-            match self.connector_map.remove(component_name) {
-                Some(mut connector) => {
-                    self.prepare_connector(component_name, &mut connector);
-                    
-                    // Execute component logic
-                    self.active_components.get_mut(component_name).unwrap().run(&mut connector);
+            self.prepare_connector(component_name, component.get_sim_connector());
+            
+            // Execute component logic
+            component.run();
 
-                    // Process the results
-                    self.process_connector(&mut connector);
+            // Process the results
+            self.process_connector(component.get_sim_connector());
 
-                    // Insert the connector back into our map
-                    self.connector_map.insert(component_name, connector);
-                }
-                None => {
-                    // This component is not managed internally, so we need to
-                    // add it to the notify map field for an extension to update
-                    match self.notify_map.get_mut(component_name) {
-                        Some(set) => {
-                            set.extend(notify_set)
-                        }
-                        None => {
-                            self.notify_map.insert(component_name, notify_set);
-                        }
-                    }
-                }
-            }
+            // // This component is not managed internally, so we need to
+            // // add it to the notify map field for an extension to update
+            // match self.notify_map.get_mut(component_name) {
+            //     Some(set) => {
+            //         set.extend(notify_set)
+            //     }
+            //     None => {
+            //         self.notify_map.insert(component_name, notify_set);
+            //     }
+            // }
         }
     }
 
@@ -510,7 +527,30 @@ impl Sim for CoreSim {
     /// ### Arguments
     /// * `component_names` - Set of components to add
     fn add_components(&mut self, component_names: HashSet<&'static str>) {
-        self.init_components(component_names);
+
+        let new_component_map = HashMap::new();
+
+        for component_name in component_names {
+            if self.active_components.contains_key(component_name) {
+                // Ignore components which already exist on the sim
+                continue;
+            }
+            log::debug!("Initializing component \"{}\" on Sim", component_name);
+            match COMPONENT_REGISTRY.lock().unwrap().get_mut(component_name) {
+                None => panic!("Invalid component name provided: \"{}\"", component_name),
+                Some(factory) => {
+                    new_component_map.insert(component_name, factory());
+                }
+            }
+        }
+
+        // Initialize the new components
+        self.init_components(&mut new_component_map);
+
+        // Insert the new components into the active component map
+        for (component_name, component) in new_component_map.into_iter() {
+            self.active_components.insert(component_name, component);
+        }
     }
 
     /// Removes a component from this Sim. Panics if any of the component names
@@ -526,13 +566,12 @@ impl Sim for CoreSim {
         }
     }
 
-
     /// Advances simulation time to the next `Event` or listener in the queue, if any.
     /// 
     /// If there are no Events or listeners in the queue, time will remain unchanged
     fn advance(&mut self) {
         self.time_manager.advance();
-        self.execute_time_step();
+        self.do_advance();
     }
 
     /// Advances simulation time by the provided time step
@@ -544,7 +583,7 @@ impl Sim for CoreSim {
     /// * `time_step` - Amount of time to advance by
     fn advance_by(&mut self, time_step: Time) {
         self.time_manager.advance_by(time_step);
-        self.execute_time_step();
+        self.do_advance();
     }
 
 

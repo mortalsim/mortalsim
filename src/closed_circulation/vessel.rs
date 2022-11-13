@@ -3,7 +3,9 @@ use std::collections::hash_set;
 use std::fmt;
 use std::str::FromStr;
 
-pub trait BloodVessel: FromStr + Hash + Clone + Copy + Eq + fmt::Debug + fmt::Display + Send + Sync + Into<&'static str> {}
+pub trait BloodVessel: FromStr + Hash + Clone + Copy + Eq + fmt::Debug + fmt::Display + Send + Sync + Into<&'static str> {
+    fn start_vessels<'a>() -> VesselIter<'a, Self>;
+}
 
 /// Type of a blood vessel
 #[derive(Debug, Clone, Copy, Hash, PartialEq)]

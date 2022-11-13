@@ -16,7 +16,7 @@ pub struct SubstanceStore {
     volume: Volume,
     /// Data structure containing the internal substance concentration
     composition: HashMap<Substance, MolarConcentration>,
-    /// Keep track of any Events which have been tainted
+    /// Keep track of any Substances which have been tainted
     tainted_substances: HashSet<Substance>,
 }
 

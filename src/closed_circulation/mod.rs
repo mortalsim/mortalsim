@@ -12,7 +12,7 @@ pub use system::{ClosedCirculatorySystem, ClosedCircVesselIter};
 pub use component::{ClosedCircSimComponent, ClosedCircInitializer, ClosedCircConnector};
 pub use graph::{BloodEdge, BloodNode};
 pub use sim::{ClosedCirculationSim};
-pub use vessel::{BloodVessel};
+pub use vessel::{BloodVessel, VesselIter};
 
 lazy_static! {
     static ref COMPONENT_REGISTRY: Mutex<HashMap<TypeId, HashMap<&'static str, Box<dyn Any + Send>>>> = Mutex::new(HashMap::new());
