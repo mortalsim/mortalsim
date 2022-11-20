@@ -12,12 +12,10 @@ use crate::substance::Substance;
 pub struct SubstanceStore {
     /// Id for this SubstanceStore
     store_id: Uuid,
-    /// Substance volume
-    volume: Volume,
     /// Data structure containing the internal substance concentration
     composition: HashMap<Substance, MolarConcentration>,
-    /// Keep track of any Substances which have been tainted
-    tainted_substances: HashSet<Substance>,
+    /// Keep track of any Substances which are changing
+    changing_substances: HashMap<Substance, Arc<>,
 }
 
 impl fmt::Debug for SubstanceStore {
@@ -35,7 +33,6 @@ impl SubstanceStore {
     pub fn new(volume: Volume) -> SubstanceStore {
         SubstanceStore {
             store_id: Uuid::new_v4(),
-            volume: volume,
             composition: HashMap::new(),
             tainted_substances: HashSet::new(),
         }

@@ -1,6 +1,6 @@
 use std::collections::{HashSet, HashMap};
 use crate::substance::{Substance, MolarConcentration, Volume, SubstanceStore};
-use crate::core::sim::SimComponentInitializer;
+use crate::core::sim::SimModuleInitializer;
 use crate::event::Event;
 use super::super::vessel::BloodVessel;
 

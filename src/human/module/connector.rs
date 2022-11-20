@@ -3,7 +3,7 @@ use anyhow::Result;
 use crate::core::sim::SimConnector;
 use crate::closed_circulation::ClosedCircConnector;
 use crate::substance::{Substance, SubstanceStore, MolarConcentration};
-use super::initializer::HumanComponentInitializer;
+use super::initializer::HumanModuleInitializer;
 use super::super::HumanBloodVessel;
 
 pub struct HumanSimConnector {

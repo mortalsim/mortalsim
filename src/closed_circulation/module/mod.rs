@@ -2,27 +2,27 @@ mod initializer;
 mod connector;
 pub use initializer::{ClosedCircInitializer};
 pub use connector::{ClosedCircConnector};
-use crate::core::sim::{SimComponent, SimComponentInitializer, SimConnector};
+use crate::core::sim::{SimModule, SimModuleInitializer, SimConnector};
 use super::vessel::BloodVessel;
 
-pub trait ClosedCircSimComponent: SimComponent {
+pub trait ClosedCircSimModule: SimModule {
     type VesselType: BloodVessel;
 
-    /// Initializes the component. Should register any `Event` objects to listen for
+    /// Initializes the module. Should register any `Event` objects to listen for
     /// and set initial state.
     /// 
     /// ### Arguments
-    /// * `initializer` - Helper object for initializing the component
+    /// * `initializer` - Helper object for initializing the module
     fn init_cc(&mut self, cc_initializer: &mut ClosedCircInitializer<Self::VesselType>);
     
-    /// Retrieves the SimComponent portion of this component
+    /// Retrieves the SimModule portion of this module
     /// 
     /// ### returns
-    /// this object as a SimComponent
-    fn as_sim_component(&mut self) -> &mut dyn SimComponent;
+    /// this object as a SimModule
+    fn as_sim_module(&mut self) -> &mut dyn SimModule;
     
-    /// Used by the HumanSim to retrieve a mutable reference to this component's
-    /// ClosedCircConnector, which tracks component interactions
+    /// Used by the HumanSim to retrieve a mutable reference to this module's
+    /// ClosedCircConnector, which tracks module interactions
     /// 
     /// ### returns
     /// SimConnector to interact with the rest of the simulation
@@ -37,8 +37,8 @@ pub mod test {
     use crate::substance::{Substance, MolarConcentration};
     use crate::substance::Time;
     use super::BloodVessel;
-    use super::ClosedCircSimComponent;
-    use super::{SimComponentInitializer, SimConnector, ClosedCircInitializer, ClosedCircConnector};
+    use super::ClosedCircSimModule;
+    use super::{SimModuleInitializer, SimConnector, ClosedCircInitializer, ClosedCircConnector};
     use uom::si::f64::{Length, AmountOfSubstance};
     use uom::si::length::meter;
     use uom::si::amount_of_substance::mole;
@@ -59,17 +59,17 @@ pub mod test {
 
     impl BloodVessel for TestBloodVessel {}
 
-    pub struct TestCircComponentA {}
-    impl TestCircComponentA {
-        pub fn factory() -> Box<dyn ClosedCircSimComponent<VesselType = TestBloodVessel>> {
-            Box::new(TestCircComponentA {})
+    pub struct TestCircModuleA {}
+    impl TestCircModuleA {
+        pub fn factory() -> Box<dyn ClosedCircSimModule<VesselType = TestBloodVessel>> {
+            Box::new(TestCircModuleA {})
         }
     }
 
-    impl ClosedCircSimComponent for TestCircComponentA {
+    impl ClosedCircSimModule for TestCircModuleA {
         type VesselType = TestBloodVessel;
 
-        fn init(&mut self, initializer: &mut SimComponentInitializer, cc_initializer: &mut ClosedCircInitializer<TestBloodVessel>) {
+        fn init(&mut self, initializer: &mut SimModuleInitializer, cc_initializer: &mut ClosedCircInitializer<TestBloodVessel>) {
             initializer.notify(TestEventA::new(Length::new::<meter>(1.0)));
             initializer.notify(TestEventB::new(AmountOfSubstance::new::<mole>(1.0)));
             initializer.transform(|evt: &mut TestEventA| {

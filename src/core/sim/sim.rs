@@ -8,7 +8,7 @@ use uuid::Uuid;
 use anyhow::Result;
 use either::Either;
 use super::sim_state::SimState;
-use super::component::{SimComponentInitializer, SimConnector, SimComponent};
+use super::module::{SimModuleInitializer, SimConnector, SimModule};
 use super::time_manager::{Time, TimeManager};
 use crate::event::Event;
 use crate::core::hub::event_transformer::{EventTransformer, TransformerItem};
@@ -16,42 +16,42 @@ use crate::core::hub::EventHub;
 use crate::util::id_gen::{IdType, InvalidIdError};
 
 lazy_static! {
-    static ref COMPONENT_REGISTRY: Mutex<HashMap<&'static str, Box<dyn FnMut() -> Box<dyn SimComponent> + Send>>> = Mutex::new(HashMap::new());
+    static ref COMPONENT_REGISTRY: Mutex<HashMap<&'static str, Box<dyn FnMut() -> Box<dyn SimModule> + Send>>> = Mutex::new(HashMap::new());
 }
 
-/// Registers a Sim component. By default, the component will be added to all newly created Sim objects
+/// Registers a Sim module. By default, the module will be added to all newly created Sim objects
 ///
 /// ### Arguments
-/// * `component_name` - String name for the component
-/// * `factory`        - Factory function which creates an instance of the component
-fn register_component(component_name: &'static str, factory: impl FnMut() -> Box<dyn SimComponent> + Send + 'static) {
-    log::debug!("Registering component {}", component_name);
-    COMPONENT_REGISTRY.lock().unwrap().insert(component_name, Box::new(factory));
+/// * `module_name` - String name for the module
+/// * `factory`        - Factory function which creates an instance of the module
+fn register_module(module_name: &'static str, factory: impl FnMut() -> Box<dyn SimModule> + Send + 'static) {
+    log::debug!("Registering module {}", module_name);
+    COMPONENT_REGISTRY.lock().unwrap().insert(module_name, Box::new(factory));
 }
 
 pub trait Sim {
     /// Returns the current simulation time
     fn get_time(&self) -> Time;
     
-    /// Determines if the given component name corresponds to an active component
+    /// Determines if the given module name corresponds to an active module
     /// on this Sim
-    fn has_component(&self, component_name: &'static str) -> bool;
+    fn has_module(&self, module_name: &'static str) -> bool;
 
-    /// Retrieves the set of names of components which are active on this Sim
-    fn active_components(&self) -> HashSet<&'static str>;
+    /// Retrieves the set of names of modules which are active on this Sim
+    fn active_modules(&self) -> HashSet<&'static str>;
 
-    /// Adds components to this Sim. Panics if any component names are invalid
+    /// Adds modules to this Sim. Panics if any module names are invalid
     ///
     /// ### Arguments
-    /// * `component_names` - Set of components to add
-    fn add_components(&mut self, component_names: HashSet<&'static str>);
+    /// * `module_names` - Set of modules to add
+    fn add_modules(&mut self, module_names: HashSet<&'static str>);
 
-    /// Removes a component from this Sim. Panics if any of the component names
+    /// Removes a module from this Sim. Panics if any of the module names
     /// are invalid.
     ///
     /// ### Arguments
-    /// * `component_names` - Set of components to remove
-    fn remove_components(&mut self, component_names: HashSet<&'static str>);
+    /// * `module_names` - Set of modules to remove
+    fn remove_modules(&mut self, module_names: HashSet<&'static str>);
 
     /// Advances simulation time to the next `Event` or listener in the queue, if any.
     /// 
@@ -87,26 +87,26 @@ pub trait Sim {
 
 pub struct CoreSim {
     sim_id: Uuid,
-    active_components: HashMap<&'static str, Box<dyn SimComponent>>,
+    active_modules: HashMap<&'static str, Box<dyn SimModule>>,
     time_manager: TimeManager,
     state: SimState,
     event_transformers: HashMap<TypeId, Vec<Box<dyn EventTransformer>>>,
-    component_notifications: HashMap<TypeId, Vec<(i32, &'static str)>>,
+    module_notifications: HashMap<TypeId, Vec<(i32, &'static str)>>,
     extension_notifications: HashMap<Uuid, HashMap<TypeId, Vec<Arc<dyn Event>>>>,
     extension_type_map: HashMap<TypeId, HashSet<Uuid>>,
     connector_map: HashMap<&'static str, SimConnector>,
     transformer_id_map: HashMap<&'static str, Vec<IdType>>,
     transformer_type_map: HashMap<IdType, TypeId>,
-    /// Map of pending updates for each component
+    /// Map of pending updates for each module
     notify_map: HashMap<&'static str, HashSet<TypeId>>,
 }
 
 impl fmt::Debug for CoreSim {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Simulation<{:?}> {{ time: {:?}, active_components: {:?}, state: {:?} }}",
+        write!(f, "Simulation<{:?}> {{ time: {:?}, active_modules: {:?}, state: {:?} }}",
             self.time_manager.get_time(),
             self.sim_id,
-            self.active_components.keys(),
+            self.active_modules.keys(),
             self.state)
     }
 }
@@ -116,11 +116,11 @@ impl CoreSim {
     fn get_object(initial_state: SimState) -> CoreSim {
         CoreSim {
             sim_id: Uuid::new_v4(),
-            active_components: HashMap::new(),
+            active_modules: HashMap::new(),
             time_manager: TimeManager::new(),
             state: initial_state,
             event_transformers: HashMap::new(),
-            component_notifications: HashMap::new(),
+            module_notifications: HashMap::new(),
             extension_notifications: HashMap::new(),
             extension_type_map: HashMap::new(),
             connector_map: HashMap::new(),
@@ -130,24 +130,24 @@ impl CoreSim {
         }
     }
 
-    /// Creates a Sim with the default set of components which is equal to all registered
-    /// components at the time of execution.
+    /// Creates a Sim with the default set of modules which is equal to all registered
+    /// modules at the time of execution.
     pub fn new() -> CoreSim {
         let mut sim = Self::get_object(SimState::new());
-        let component_set = COMPONENT_REGISTRY.lock().unwrap().keys().cloned().collect();
-        sim.setup(component_set);
+        let module_set = COMPONENT_REGISTRY.lock().unwrap().keys().cloned().collect();
+        sim.setup(module_set);
         sim
     }
     
-    /// Creates a Sim with custom components.
+    /// Creates a Sim with custom modules.
     ///
     /// ### Arguments
-    /// * `component_set` - Set of components to add on initialization
+    /// * `module_set` - Set of modules to add on initialization
     /// 
     /// Returns a new Sim object
-    pub fn new_custom(component_set: HashSet<&'static str>) -> CoreSim {
+    pub fn new_custom(module_set: HashSet<&'static str>) -> CoreSim {
         let mut sim = Self::get_object(SimState::new());
-        sim.setup(component_set);
+        sim.setup(module_set);
         sim
     }
     
@@ -159,93 +159,93 @@ impl CoreSim {
     /// Returns a new Sim object
     pub fn new_with_state(initial_state: SimState) -> CoreSim {
         let mut sim = Self::get_object(initial_state);
-        let component_set = COMPONENT_REGISTRY.lock().unwrap().keys().cloned().collect();
-        sim.setup(component_set);
+        let module_set = COMPONENT_REGISTRY.lock().unwrap().keys().cloned().collect();
+        sim.setup(module_set);
         sim
     }
     
     /// Creates a custom Sim with initial State
     ///
     /// ### Arguments
-    /// * `component_set` - Set of components to add on initialization
+    /// * `module_set` - Set of modules to add on initialization
     /// * `initial_state` - Initial SimState for the Sim
     /// 
     /// Returns a new Sim object
-    pub fn new_custom_with_state(component_set: HashSet<&'static str>, initial_state: SimState) -> CoreSim {
+    pub fn new_custom_with_state(module_set: HashSet<&'static str>, initial_state: SimState) -> CoreSim {
         let mut sim = Self::get_object(initial_state);
-        sim.setup(component_set);
+        sim.setup(module_set);
         sim
     }
     
     /// Attaches emitted events to this Sim's canonical state
-    /// and initializes components
-    fn setup(&mut self, component_set: HashSet<&'static str>) {
+    /// and initializes modules
+    fn setup(&mut self, module_set: HashSet<&'static str>) {
 
-        for component_name in component_set {
-            log::debug!("Initializing component \"{}\" on Sim", component_name);
-            match COMPONENT_REGISTRY.lock().unwrap().get_mut(component_name) {
-                None => panic!("Invalid component name provided: \"{}\"", component_name),
+        for module_name in module_set {
+            log::debug!("Initializing module \"{}\" on Sim", module_name);
+            match COMPONENT_REGISTRY.lock().unwrap().get_mut(module_name) {
+                None => panic!("Invalid module name provided: \"{}\"", module_name),
                 Some(factory) => {
-                    self.active_components.insert(component_name, factory());
+                    self.active_modules.insert(module_name, factory());
                 }
             }
         }
-        self.init_components(&mut self.active_components);
+        self.init_modules(&mut self.active_modules);
     }
 
-    /// Internal function for initializing components on this Sim. If a component which has
+    /// Internal function for initializing modules on this Sim. If a module which has
     /// already been initialized is initialized again, it will be replaced by a new instance.
-    /// Panics if any provided component name is invalid.
+    /// Panics if any provided module name is invalid.
     ///
     /// ### Arguments
-    /// * `component_names` - Set of component names to initialize
-    fn init_components(&mut self, component_map: &mut HashMap<&'static str, Box<dyn SimComponent>>) {
+    /// * `module_names` - Set of module names to initialize
+    fn init_modules(&mut self, module_map: &mut HashMap<&'static str, Box<dyn SimModule>>) {
 
-        // Initialize each component
-        for (component_name, component) in component_map {
-            let mut initializer = SimComponentInitializer::new();
-            component.init(&mut initializer);
+        // Initialize each module
+        for (module_name, module) in module_map {
+            let mut initializer = SimModuleInitializer::new();
+            module.init(&mut initializer);
             
-            self.setup_component(component_name, component.as_mut(), initializer);
+            self.setup_module(module_name, module.as_mut(), initializer);
         }
     }
     
-    /// Internal function for initializing components on this Sim. If a component which has
+    /// Internal function for initializing modules on this Sim. If a module which has
     /// already been initialized is initialized again, it will be replaced by a new instance.
-    /// Panics if any provided component name is invalid.
+    /// Panics if any provided module name is invalid.
     ///
     /// ### Arguments
-    /// * `component_names` - Set of component names to initialize
-    pub(crate) fn init_component(&mut self, component_name: &'static str, component: &mut dyn SimComponent) {
-        let mut initializer = SimComponentInitializer::new();
-        component.init(&mut initializer);
+    /// * `module_names` - Set of module names to initialize
+    pub(crate) fn init_module(&mut self, module_name: &'static str, module: &mut dyn SimModule) {
+        let mut initializer = SimModuleInitializer::new();
+        module.init(&mut initializer);
         
-        self.setup_component(component_name, component, initializer);
+        self.setup_module(module_name, module, initializer);
     }
 
-    /// handles internal registrations and initial outputs for components
-    pub(crate) fn setup_component(&mut self, component_name: &'static str, component: &mut dyn SimComponent, initializer: SimComponentInitializer) {
+    /// handles internal registrations and initial outputs for modules
+    pub(crate) fn setup_module(&mut self, module_name: &'static str, module: &mut dyn SimModule, initializer: SimModuleInitializer) {
         let mut transformer_ids = Vec::new();
         for transformer in initializer.pending_transforms {
             transformer_ids.push(self.insert_transformer(transformer));
         }
-        self.transformer_id_map.insert(component_name, transformer_ids);
+        self.transformer_id_map.insert(module_name, transformer_ids);
         
         for (priority, evt) in initializer.pending_notifies {
             let type_id = evt.type_id();
-            component.get_sim_connector().local_state.put_state(type_id, evt.into());
-            match self.component_notifications.get_mut(&type_id) {
+            module.get_sim_connector().local_state.put_state(type_id, evt.into());
+            match self.module_notifications.get_mut(&type_id) {
                 None => {
-                    self.component_notifications.insert(type_id, vec![(priority, component_name)]);
+                    self.module_notifications.insert(type_id, vec![(priority, module_name)]);
                 }
                 Some(list) => {
-                    list.push((priority, component_name));
+                    list.push((priority, module_name));
                 }
             }
         }
 
         // Clear taint
-        component.get_sim_connector().local_state.clear_taint();
+        module.get_sim_connector().local_state.clear_taint();
     }
 
     fn insert_transformer(&mut self, transformer: Box<dyn EventTransformer>) -> IdType {
@@ -343,17 +343,17 @@ impl CoreSim {
 
     /// Processes a time advance if this is a top level Sim
     fn do_advance(&mut self) {
-        let mut components = HashMap::new();
-        for (name, component) in self.active_components.drain() {
-            components.insert(name, component);
+        let mut modules = HashMap::new();
+        for (name, module) in self.active_modules.drain() {
+            modules.insert(name, module);
         }
 
-        self.execute_time_step(&mut components);
+        self.execute_time_step(&mut modules);
 
-        self.active_components = components;
+        self.active_modules = modules;
     }
 
-    fn execute_time_step(&mut self, component_map: &mut HashMap<&'static str, Box<dyn SimComponent>>) {
+    fn execute_time_step(&mut self, module_map: &mut HashMap<&'static str, Box<dyn SimModule>>) {
         // Keep going until no more events / listeners are left to deal with
         loop {
             let next_events = self.time_manager.next_events();
@@ -383,13 +383,13 @@ impl CoreSim {
 
         let mut notify_map = HashMap::new();
         
-        // Now set the notify map for each component notification
+        // Now set the notify map for each module notification
         for type_id in self.state.get_tainted().clone() {
-            match self.component_notifications.get(&type_id) {
+            match self.module_notifications.get(&type_id) {
                 None => {},
                 Some(notify_list) => {
-                    for (_, component_name) in notify_list {
-                        notify_map.entry(*component_name).or_insert(HashSet::new()).insert(type_id);
+                    for (_, module_name) in notify_list {
+                        notify_map.entry(*module_name).or_insert(HashSet::new()).insert(type_id);
                     }
                 }
             };
@@ -399,31 +399,31 @@ impl CoreSim {
         // marked as "completed"
         self.state.clear_taint();
 
-        // Update locally managed components
-        self.update_components(component_map, notify_map);
+        // Update locally managed modules
+        self.update_modules(module_map, notify_map);
     }
 
-    fn update_components(&mut self, component_map: &mut HashMap<&'static str, Box<dyn SimComponent>>, notify_map: HashMap<&'static str, HashSet<TypeId>>) {
-        for (component_name, notify_set) in notify_map {
-            let component = component_map.get(component_name).unwrap();
+    fn update_modules(&mut self, module_map: &mut HashMap<&'static str, Box<dyn SimModule>>, notify_map: HashMap<&'static str, HashSet<TypeId>>) {
+        for (module_name, notify_set) in notify_map {
+            let module = module_map.get(module_name).unwrap();
 
             // Need to remove the connector to avoid multiple mutable borrows of self
-            self.prepare_connector(component_name, component.get_sim_connector());
+            self.prepare_connector(module_name, module.get_sim_connector());
             
-            // Execute component logic
-            component.run();
+            // Execute module logic
+            module.run();
 
             // Process the results
-            self.process_connector(component.get_sim_connector());
+            self.process_connector(module.get_sim_connector());
 
-            // // This component is not managed internally, so we need to
+            // // This module is not managed internally, so we need to
             // // add it to the notify map field for an extension to update
-            // match self.notify_map.get_mut(component_name) {
+            // match self.notify_map.get_mut(module_name) {
             //     Some(set) => {
             //         set.extend(notify_set)
             //     }
             //     None => {
-            //         self.notify_map.insert(component_name, notify_set);
+            //         self.notify_map.insert(module_name, notify_set);
             //     }
             // }
         }
@@ -437,10 +437,10 @@ impl CoreSim {
         self.notify_map.clear()
     }
 
-    pub(crate) fn prepare_connector(&mut self, component_name: &'static str, connector: &mut SimConnector) {
-        // Update connector before component execution
+    pub(crate) fn prepare_connector(&mut self, module_name: &'static str, connector: &mut SimConnector) {
+        // Update connector before module execution
         connector.trigger_events = {
-            let notify_ids = self.notify_map.remove(component_name).unwrap_or(HashSet::new());
+            let notify_ids = self.notify_map.remove(module_name).unwrap_or(HashSet::new());
             notify_ids.iter().map(|id| { self.state.get_state_ref(id).unwrap() }).collect()
         };
         connector.sim_time = self.time_manager.get_time();
@@ -511,57 +511,57 @@ impl Sim for CoreSim {
         self.time_manager.get_time()
     }
 
-    /// Determines if the given component name corresponds to an active component
+    /// Determines if the given module name corresponds to an active module
     /// on this Sim
-    fn has_component(&self, component_name: &'static str) -> bool {
-        return self.active_components.contains_key(component_name)
+    fn has_module(&self, module_name: &'static str) -> bool {
+        return self.active_modules.contains_key(module_name)
     }
 
-    /// Retrieves the set of names of components which are active on this Sim
-    fn active_components(&self) -> HashSet<&'static str> {
-        self.active_components.keys().cloned().collect()
+    /// Retrieves the set of names of modules which are active on this Sim
+    fn active_modules(&self) -> HashSet<&'static str> {
+        self.active_modules.keys().cloned().collect()
     }
 
-    /// Adds components to this Sim. Panics if any component names are invalid
+    /// Adds modules to this Sim. Panics if any module names are invalid
     ///
     /// ### Arguments
-    /// * `component_names` - Set of components to add
-    fn add_components(&mut self, component_names: HashSet<&'static str>) {
+    /// * `module_names` - Set of modules to add
+    fn add_modules(&mut self, module_names: HashSet<&'static str>) {
 
-        let new_component_map = HashMap::new();
+        let new_module_map = HashMap::new();
 
-        for component_name in component_names {
-            if self.active_components.contains_key(component_name) {
-                // Ignore components which already exist on the sim
+        for module_name in module_names {
+            if self.active_modules.contains_key(module_name) {
+                // Ignore modules which already exist on the sim
                 continue;
             }
-            log::debug!("Initializing component \"{}\" on Sim", component_name);
-            match COMPONENT_REGISTRY.lock().unwrap().get_mut(component_name) {
-                None => panic!("Invalid component name provided: \"{}\"", component_name),
+            log::debug!("Initializing module \"{}\" on Sim", module_name);
+            match COMPONENT_REGISTRY.lock().unwrap().get_mut(module_name) {
+                None => panic!("Invalid module name provided: \"{}\"", module_name),
                 Some(factory) => {
-                    new_component_map.insert(component_name, factory());
+                    new_module_map.insert(module_name, factory());
                 }
             }
         }
 
-        // Initialize the new components
-        self.init_components(&mut new_component_map);
+        // Initialize the new modules
+        self.init_modules(&mut new_module_map);
 
-        // Insert the new components into the active component map
-        for (component_name, component) in new_component_map.into_iter() {
-            self.active_components.insert(component_name, component);
+        // Insert the new modules into the active module map
+        for (module_name, module) in new_module_map.into_iter() {
+            self.active_modules.insert(module_name, module);
         }
     }
 
-    /// Removes a component from this Sim. Panics if any of the component names
+    /// Removes a module from this Sim. Panics if any of the module names
     /// are invalid.
     ///
     /// ### Arguments
-    /// * `component_names` - Set of components to remove
-    fn remove_components(&mut self, component_names: HashSet<&'static str>) {
-        for component_name in component_names {
-            if self.active_components.remove(component_name).is_none() {
-                panic!("Invalid component name \"{}\" provided for removal", component_name);
+    /// * `module_names` - Set of modules to remove
+    fn remove_modules(&mut self, module_names: HashSet<&'static str>) {
+        for module_name in module_names {
+            if self.active_modules.remove(module_name).is_none() {
+                panic!("Invalid module name \"{}\" provided for removal", module_name);
             }
         }
     }

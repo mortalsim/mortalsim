@@ -1,5 +1,5 @@
 
-/// Internal version struct for crate components
+/// Internal version struct for crate modules
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Version {
     major: u8,

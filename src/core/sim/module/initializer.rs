@@ -8,10 +8,10 @@ use crate::core::hub::EventHub;
 use crate::core::hub::event_transformer::{EventTransformer, TransformerItem};
 use crate::event::Event;
 use crate::util::id_gen::IdType;
-use super::{SimComponent, SimConnector};
+use super::{SimModule, SimConnector};
 use super::super::Sim;
 
-pub struct SimComponentInitializer {
+pub struct SimModuleInitializer {
     pub(crate) input_events: HashSet<TypeId>,
     pub(crate) output_events: HashSet<TypeId>,
     pub(crate) pending_notifies: Vec<(i32, Box<dyn Event>)>,
@@ -19,9 +19,9 @@ pub struct SimComponentInitializer {
     pub(crate) initial_outputs: Vec<Box<dyn Event>>,
 }
 
-impl SimComponentInitializer {
-    pub fn new() -> SimComponentInitializer {
-        SimComponentInitializer {
+impl SimModuleInitializer {
+    pub fn new() -> SimModuleInitializer {
+        SimModuleInitializer {
             input_events: HashSet::new(),
             output_events: HashSet::new(),
             pending_notifies: Vec::new(),
@@ -30,27 +30,27 @@ impl SimComponentInitializer {
         }
     }
 
-    /// Registers the corresponding `SimComponent` to `run` whenever the
+    /// Registers the corresponding `SimModule` to `run` whenever the
     /// provided `Event` is modified on the `Sim`.
     /// 
     /// ### Arguments
-    /// * `default` - Default `Event` value when one isn't provided by another component
+    /// * `default` - Default `Event` value when one isn't provided by another module
     pub fn notify<E: Event>(&mut self, default: E) {
         self.notify_prioritized::<E>(0, default);
     }
     
-    /// Registers the corresponding `SimComponent` to `run` whenever the
+    /// Registers the corresponding `SimModule` to `run` whenever the
     /// provided `Event` is modified on the `Sim` with a given priority value.
     /// 
     /// ### Arguments
     /// * `priority` - Notify order priority for this registration
-    /// * `default` - Default `Event` value when one isn't provided by another component
+    /// * `default` - Default `Event` value when one isn't provided by another module
     pub fn notify_prioritized<E: Event>(&mut self, priority: i32, default: E) {
         let type_key = TypeId::of::<E>();
 
         // If this event type has already been registered as an output, panic
         if self.output_events.contains(&type_key) {
-            panic!("Components cannot register notifications for Events they are producing! This could cause an infinite loop.")
+            panic!("Modules cannot register notifications for Events they are producing! This could cause an infinite loop.")
         }
 
         self.pending_notifies.push((priority,Box::new(default)))
@@ -85,7 +85,7 @@ impl SimComponentInitializer {
 }
 
 // Unset any listeners & transformers when this object drops
-// impl<'a> Drop for SimComponentInitializer<'a> {
+// impl<'a> Drop for SimModuleInitializer<'a> {
 //     fn drop(&mut self) {
 //         let mut hub = self.hub.borrow_mut();
 //         for listener_id in self.listener_ids.iter_mut() {

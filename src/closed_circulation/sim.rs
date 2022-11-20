@@ -10,17 +10,17 @@ use petgraph::Direction;
 use petgraph::graph::{Graph, NodeIndex, Neighbors};
 use uom::si::molar_concentration::mole_per_liter;
 use uom::si::amount_of_substance::mole;
-use crate::core::sim::{SimConnector, CoreSim, SimComponent, SimComponentInitializer};
+use crate::core::sim::{SimConnector, CoreSim, SimModule, SimModuleInitializer};
 use crate::substance::{SubstanceStore, Volume, Substance, MolarConcentration, AmountOfSubstance};
 use crate::event::{BloodCompositionChange, BloodVolumeChange};
 use super::vessel::{BloodVessel, BloodVesselType, VesselIter};
 use super::{BloodNode, BloodEdge, ClosedCirculatorySystem, ClosedCircVesselIter,
-    ClosedCircConnector, ClosedCircSimComponent,
+    ClosedCircConnector, ClosedCircSimModule,
     ClosedCircInitializer, COMPONENT_REGISTRY};
 
 pub struct ClosedCirculationSim<V: BloodVessel + 'static> {
     manager_id: Uuid,
-    active_components: HashMap<&'static str, Box<dyn ClosedCircSimComponent<VesselType = V>>>,
+    active_modules: HashMap<&'static str, Box<dyn ClosedCircSimModule<VesselType = V>>>,
     system: Rc<ClosedCirculatorySystem<V>>,
     blood_notify_map: HashMap<V, HashMap<Substance, Vec<(MolarConcentration, &'static str)>>>,
     composition_map: HashMap<V, SubstanceStore>,
@@ -31,7 +31,7 @@ impl<V: BloodVessel + 'static> ClosedCirculationSim<V> {
     pub fn new(system: ClosedCirculatorySystem<V>) -> ClosedCirculationSim<V> {
         ClosedCirculationSim {
             manager_id: Uuid::new_v4(),
-            active_components: HashMap::new(),
+            active_modules: HashMap::new(),
             system: Rc::new(system),
             blood_notify_map: HashMap::new(),
             composition_map: HashMap::new(),
@@ -42,35 +42,35 @@ impl<V: BloodVessel + 'static> ClosedCirculationSim<V> {
         self.system.as_ref()
     }
 
-    pub(crate) fn init_components(&mut self, component_names: HashSet<&'static str>) {
+    pub(crate) fn init_modules(&mut self, module_names: HashSet<&'static str>) {
         let mut registry = COMPONENT_REGISTRY.lock().unwrap();
         let vessel_registry: &mut HashMap<&'static str, Box<dyn Any + Send>> = registry.entry(TypeId::of::<V>()).or_insert(HashMap::new());
 
-        let mut remaining_components = HashSet::new();
+        let mut remaining_modules = HashSet::new();
 
-        // Initialize each component
-        for component_name in component_names.into_iter() {
-            match vessel_registry.get_mut(component_name) {
+        // Initialize each module
+        for module_name in module_names.into_iter() {
+            match vessel_registry.get_mut(module_name) {
                 None => {
-                    remaining_components.insert(component_name);
+                    remaining_modules.insert(module_name);
                 },
                 Some(factory_box) => {
-                    log::debug!("Initializing component \"{}\" on ClosedCirculation", component_name);
-                    let factory = factory_box.downcast_mut::<Box<dyn FnMut() -> Box<dyn ClosedCircSimComponent<VesselType = V>>>>().unwrap();
-                    let mut component = factory();
+                    log::debug!("Initializing module \"{}\" on ClosedCirculation", module_name);
+                    let factory = factory_box.downcast_mut::<Box<dyn FnMut() -> Box<dyn ClosedCircSimModule<VesselType = V>>>>().unwrap();
+                    let mut module = factory();
                     let mut cc_initializer = ClosedCircInitializer::new();
-                    component.init_cc(&mut cc_initializer);
+                    module.init_cc(&mut cc_initializer);
                     
-                    // perform closed circulation component portion setup
-                    self.setup_component(component_name, cc_initializer);
+                    // perform closed circulation module portion setup
+                    self.setup_module(module_name, cc_initializer);
                     
-                    self.active_components.insert(component_name, component);
+                    self.active_modules.insert(module_name, module);
                 }
             }
         }
     }
 
-    pub(crate) fn setup_component(&mut self, component_name: &'static str, cc_initializer: ClosedCircInitializer<V>) -> ClosedCircConnector<V> {
+    pub(crate) fn setup_module(&mut self, module_name: &'static str, cc_initializer: ClosedCircInitializer<V>) -> ClosedCircConnector<V> {
 
         let mut cc_connector = ClosedCircConnector::new(self.system.clone(), cc_initializer);
 
@@ -80,7 +80,7 @@ impl<V: BloodVessel + 'static> ClosedCirculationSim<V> {
                 substance_list.push(substance);
                 let vsubstance_map = self.blood_notify_map.entry(vessel).or_insert(HashMap::new());
                 let notify_list = vsubstance_map.entry(substance).or_insert(Vec::new());
-                notify_list.push((threshold, component_name));
+                notify_list.push((threshold, module_name));
             }
         }
         cc_connector
@@ -115,23 +115,23 @@ impl<V: BloodVessel + 'static> ClosedCirculationSim<V> {
         //     self.get_system_mut().node_map.insert(evt.vessel, node_idx);
         // }
 
-        for component_name in update_list {
-            let component = self.active_components.remove(component_name).unwrap();
+        for module_name in update_list {
+            let module = self.active_modules.remove(module_name).unwrap();
 
-            // Insert the component back into its map
-            self.active_components.insert(component_name, component);
+            // Insert the module back into its map
+            self.active_modules.insert(module_name, module);
         }
     }
 
-    pub(crate) fn prepare_component(&mut self, component: &mut dyn ClosedCircSimComponent<VesselType = V>) {
-        let cc_connector = component.get_cc_sim_connector();
+    pub(crate) fn prepare_module(&mut self, module: &mut dyn ClosedCircSimModule<VesselType = V>) {
+        let cc_connector = module.get_cc_sim_connector();
 
         for (vessel, store) in cc_connector.vessel_connections.iter() {
             store.merge_all(self.composition_map.get(vessel).unwrap());
         }
     }
 
-    pub(crate) fn process_component(&mut self, _connector: &mut ClosedCircConnector<V>) {
+    pub(crate) fn process_module(&mut self, _connector: &mut ClosedCircConnector<V>) {
         // ... Nothing to do here for now
     }
 

@@ -15,5 +15,18 @@ pub use version::Version;
 /// * `d` - duration
 /// * `a` - amplitude
 fn bound_sigmoid(t: &f64, d: &f64, a: &f64) -> f64 {
-    return a / (1.0 + f64::powf(E, ((4.0 * E) / d) * t - 2.0 * E))
+    return a / (1.0 + f64::exp(-((2.0 * f64::exp(2)) / d) * t - f64::exp(2)))
+}
+
+/// A linear function with additional bounds to define function shape
+/// 
+/// ### Arguments
+/// * `t` - time
+/// * `d` - duration
+/// * `a` - amplitude
+fn bound_linear(t: &f64, d: &f64, a: &f64) -> f64 {
+    if t < d {
+        return a/
+    }
+    return a / (1.0 + f64::exp(-((2.0 * f64::exp(2)) / d) * t - f64::exp(2)))
 }

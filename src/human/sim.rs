@@ -3,34 +3,34 @@ use std::sync::Mutex;
 use std::any::{Any, TypeId};
 use anyhow::Result;
 use petgraph::graph::{Graph, NodeIndex};
-use crate::core::sim::{Sim, CoreSim, SimConnector, SimComponent};
+use crate::core::sim::{Sim, CoreSim, SimConnector, SimModule};
 use crate::substance::{SubstanceStore, Time, Substance, MolarConcentration};
 use crate::event::Event;
 use crate::util::IdType;
 use crate::closed_circulation::{BloodVessel, ClosedCircInitializer, ClosedCircConnector, ClosedCirculatorySystem};
 use super::{HUMAN_CIRCULATION_FILEPATH, HumanCirculatorySystem};
 use super::circulation::HumanBloodManager;
-use super::component::{HumanSimComponent, HumanSimConnector, HumanComponentInitializer};
+use super::module::{HumanSimModule, HumanSimConnector, HumanModuleInitializer};
 
 lazy_static! {
-    static ref COMPONENT_REGISTRY: Mutex<HashMap<&'static str, Box<dyn FnMut() -> Box<dyn HumanSimComponent> + Send>>> = Mutex::new(HashMap::new());
+    static ref COMPONENT_REGISTRY: Mutex<HashMap<&'static str, Box<dyn FnMut() -> Box<dyn HumanSimModule> + Send>>> = Mutex::new(HashMap::new());
 }
 
-/// Registers a Sim component which interacts with a Human simulation. By default, the component will be
+/// Registers a Sim module which interacts with a Human simulation. By default, the module will be
 /// added to all newly created Human objects
 ///
 /// ### Arguments
-/// * `component_name` - String name for the component
-/// * `factory`        - Factory function which creates an instance of the component
-pub fn register_component(component_name: &'static str, factory: impl FnMut() -> Box<dyn HumanSimComponent> + Send + 'static) {
-    log::debug!("Registering human component: {}", component_name);
-    COMPONENT_REGISTRY.lock().unwrap().insert(component_name, Box::new(factory));
+/// * `module_name` - String name for the module
+/// * `factory`        - Factory function which creates an instance of the module
+pub fn register_module(module_name: &'static str, factory: impl FnMut() -> Box<dyn HumanSimModule> + Send + 'static) {
+    log::debug!("Registering human module: {}", module_name);
+    COMPONENT_REGISTRY.lock().unwrap().insert(module_name, Box::new(factory));
 }
 
 pub struct HumanSim {
     core: CoreSim,
     blood_manager: HumanBloodManager,
-    active_components: HashMap<&'static str, Box<dyn HumanSimComponent>>,
+    active_modules: HashMap<&'static str, Box<dyn HumanSimModule>>,
     connector_map: HashMap<&'static str, HumanSimConnector>,
 }
 
@@ -40,52 +40,52 @@ impl HumanSim {
         HumanSim {
             core: CoreSim::new(),
             blood_manager: HumanBloodManager::new(HumanCirculatorySystem::new()),
-            active_components: HashMap::new(),
+            active_modules: HashMap::new(),
             connector_map: HashMap::new()
         }
     }
 
-    fn init_components(&mut self, component_names: HashSet<&'static str>) {
+    fn init_modules(&mut self, module_names: HashSet<&'static str>) {
         let mut registry = COMPONENT_REGISTRY.lock().unwrap();
 
-        let mut remaining_components = HashSet::new();
+        let mut remaining_modules = HashSet::new();
 
-        // Initialize each component
-        for component_name in component_names.into_iter() {
-            log::debug!("Initializing component \"{}\" on HumanSim", component_name);
+        // Initialize each module
+        for module_name in module_names.into_iter() {
+            log::debug!("Initializing module \"{}\" on HumanSim", module_name);
 
-            match registry.get_mut(component_name) {
+            match registry.get_mut(module_name) {
                 None => {
-                    remaining_components.insert(component_name);
+                    remaining_modules.insert(module_name);
                 },
                 Some(factory) => {
-                    let mut component = factory();
-                    let mut human_initializer = HumanComponentInitializer::new();
-                    component.init(&mut human_initializer.initializer);
+                    let mut module = factory();
+                    let mut human_initializer = HumanModuleInitializer::new();
+                    module.init(&mut human_initializer.initializer);
 
-                    self.active_components.insert(component_name, component);
+                    self.active_modules.insert(module_name, module);
 
-                    self.core.setup_component(component_name, component.as_sim_component(), human_initializer.initializer);
-                    let cc_connector = self.blood_manager.setup_component(component_name, human_initializer.cc_initializer);
+                    self.core.setup_module(module_name, module.as_sim_module(), human_initializer.initializer);
+                    let cc_connector = self.blood_manager.setup_module(module_name, human_initializer.cc_initializer);
 
                     let human_connector = HumanSimConnector::new(SimConnector::new(), cc_connector);
-                    self.connector_map.insert(component_name, human_connector);
+                    self.connector_map.insert(module_name, human_connector);
                 }
             }
         }
 
-        // Initialize any blood components
-        self.blood_manager.init_components(remaining_components, &mut self.core);
+        // Initialize any blood modules
+        self.blood_manager.init_modules(remaining_modules, &mut self.core);
 
-        for (name, component) in self.active_components.iter_mut() {
-            self.core.init_component(name, component.as_sim_component());
+        for (name, module) in self.active_modules.iter_mut() {
+            self.core.init_module(name, module.as_sim_module());
         }
     }
 
     fn execute_time_step(&mut self) {
         let pending_updates: Vec<&str> = self.core.pending_updates().collect();
-        for component_name in pending_updates {
-            if self.connector_map.contains_key(component_name) {
+        for module_name in pending_updates {
+            if self.connector_map.contains_key(module_name) {
                 // TODO execution logic
             }
         }
@@ -99,35 +99,35 @@ impl Sim for HumanSim {
         self.core.get_time()
     }
 
-    fn has_component(&self, component_name: &'static str) -> bool {
-        if self.active_components.contains_key(component_name) {
+    fn has_module(&self, module_name: &'static str) -> bool {
+        if self.active_modules.contains_key(module_name) {
             true
         }
         else {
-            self.core.has_component(component_name)
+            self.core.has_module(module_name)
         }
     }
 
-    /// Retrieves the set of names of components which are active on this Sim
-    fn active_components(&self) -> HashSet<&'static str> {
-        self.core.active_components()
+    /// Retrieves the set of names of modules which are active on this Sim
+    fn active_modules(&self) -> HashSet<&'static str> {
+        self.core.active_modules()
     }
 
-    /// Adds components to this Sim. Panics if any component names are invalid
+    /// Adds modules to this Sim. Panics if any module names are invalid
     ///
     /// ### Arguments
-    /// * `component_names` - Set of components to add
-    fn add_components(&mut self, component_names: HashSet<&'static str>) {
-        self.init_components(component_names);
+    /// * `module_names` - Set of modules to add
+    fn add_modules(&mut self, module_names: HashSet<&'static str>) {
+        self.init_modules(module_names);
     }
 
-    /// Removes a component from this Sim. Panics if any of the component names
+    /// Removes a module from this Sim. Panics if any of the module names
     /// are invalid.
     ///
     /// ### Arguments
-    /// * `component_names` - Set of components to remove
-    fn remove_components(&mut self, component_names: HashSet<&'static str>) {
-        self.core.remove_components(component_names)
+    /// * `module_names` - Set of modules to remove
+    fn remove_modules(&mut self, module_names: HashSet<&'static str>) {
+        self.core.remove_modules(module_names)
     }
 
     /// Advances simulation time to the next `Event` or listener in the queue, if any.

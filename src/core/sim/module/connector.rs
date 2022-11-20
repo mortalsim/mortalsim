@@ -8,11 +8,11 @@ use crate::core::sim::{SimState, Time};
 use crate::event::Event;
 use super::super::Sim;
 
-/// Provides methods for `Sim` components to interact with the simulation
+/// Provides methods for `Sim` modules to interact with the simulation
 pub struct SimConnector {
-    /// State specific to the connected component
+    /// State specific to the connected module
     pub(crate) local_state: SimState,
-    /// Holds a shared reference to the Event which triggered component execution
+    /// Holds a shared reference to the Event which triggered module execution
     pub(crate) trigger_events: Vec<Arc<dyn Event>>,
     /// Map of scheduled event identifiers
     pub(crate) scheduled_events: HashMap<TypeId, HashMap<IdType, Time>>,
