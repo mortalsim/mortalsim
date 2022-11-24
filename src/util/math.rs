@@ -1,18 +1,20 @@
-use std::ops::Bound;
+use std::ops::{Div, Mul};
+use ordered_float::NotNan;
+use uom::si::Units;
+use crate::core::sim::Time;
 
-
-/// Mathematical functions characterizing a change from 0 to amplitude
-/// over the given duration
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Copy)]
 pub enum BoundFn {
-    Linear {duration: f64, amplitude: f64},
-    Sigmoid {duration: f64, amplitude: f64},
+    Linear,
+    Sigmoid,
 }
 
+
 impl BoundFn {
-    fn call(&self, t: &f64) -> f64 {
+    pub fn call(&self, t: &f64, d: &f64, a: &f64) -> f64 {
         match self {
-            BoundFn::Linear {duration, amplitude} => bound_linear(t, duration, amplitude),
-            BoundFn::Sigmoid {duration, amplitude} => bound_sigmoid(t, duration, amplitude),
+            BoundFn::Linear => bound_linear(t, d, a),
+            BoundFn::Sigmoid => bound_sigmoid(t, d, a),
         }
     }
 }
@@ -24,7 +26,7 @@ impl BoundFn {
 /// * `t` - time
 /// * `d` - duration
 /// * `a` - amplitude
-fn bound_sigmoid(t: &f64, d: &f64, a: &f64) -> f64 {
+pub fn bound_sigmoid(t: &f64, d: &f64, a: &f64) -> f64 {
     return a / (1.0 + f64::exp(-((2.0 * f64::exp(2.0)) / d) * t - f64::exp(2.0)))
 }
 
@@ -34,7 +36,7 @@ fn bound_sigmoid(t: &f64, d: &f64, a: &f64) -> f64 {
 /// * `t` - time
 /// * `d` - duration
 /// * `a` - amplitude
-fn bound_linear(t: &f64, d: &f64, a: &f64) -> f64 {
+pub fn bound_linear(t: &f64, d: &f64, a: &f64) -> f64 {
     if t < d {
         return a*t/d;
     }

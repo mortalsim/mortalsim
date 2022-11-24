@@ -1,6 +1,8 @@
 
 mod substance;
-mod substance_store;
+mod store;
+mod change;
 pub use substance::Substance;
-pub use substance_store::SubstanceStore;
+pub use store::SubstanceStore;
+pub use change::SubstanceChange;
 pub use uom::si::f64::*;
