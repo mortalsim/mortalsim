@@ -15,7 +15,7 @@ pub enum BloodVesselType {
 }
 
 pub struct VesselIter<'a, V: BloodVessel> {
-    iter: hash_set::Iter<'a, V>
+    pub iter: hash_set::Iter<'a, V>
 }
 
 impl<'a, V: BloodVessel> Iterator for VesselIter<'a, V> {

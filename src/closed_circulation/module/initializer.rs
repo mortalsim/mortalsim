@@ -22,13 +22,13 @@ impl<V: BloodVessel> ClosedCircInitializer<V> {
     }
 
     pub fn notify_composition_change(&mut self, vessel: V, volume: Volume, substance: Substance, threshold: MolarConcentration) {
-        self.vessel_connections.insert(vessel, SubstanceStore::new(volume));
+        self.vessel_connections.insert(vessel, SubstanceStore::new());
         let substance_map = self.substance_notifies.entry(vessel).or_insert(HashMap::new());
         substance_map.insert(substance, threshold);
     }
     
     pub fn attach_vessel(&mut self, vessel: V, volume: Volume) {
-        self.vessel_connections.insert(vessel, SubstanceStore::new(volume));
+        self.vessel_connections.insert(vessel, SubstanceStore::new());
     }
     
     pub fn manage_all_vessels(&mut self) {

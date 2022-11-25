@@ -126,7 +126,7 @@ impl<V: BloodVessel + 'static> ClosedCirculationSim<V> {
     pub(crate) fn prepare_module(&mut self, module: &mut dyn ClosedCircSimModule<VesselType = V>) {
         let cc_connector = module.get_cc_sim_connector();
 
-        for (vessel, store) in cc_connector.vessel_connections.iter() {
+        for (vessel, store) in cc_connector.vessel_connections.iter_mut() {
             store.merge_all(self.composition_map.get(vessel).unwrap());
         }
     }

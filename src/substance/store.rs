@@ -105,7 +105,7 @@ impl SubstanceStore {
     /// * `change_fn` - a function defining the shape of change over time
     /// 
     /// Returns an id corresponding to this change
-    pub fn schedule_change(&mut self, substance: Substance, change: SubstanceChange) -> IdType {
+    pub fn schedule_change(&mut self, substance: Substance, mut change: SubstanceChange) -> IdType {
         if change.start_time.is_none() {
             change.start_time = Some(self.sim_time);
         }
@@ -132,7 +132,10 @@ impl SubstanceStore {
     /// * `sim_time` - the new simulation time
     pub fn advance(&mut self, sim_time: Time) {
         for (substance, change_map) in self.substance_changes.iter_mut() {
-            for (_, change) in change_map.iter_mut() {
+
+            let mut ids_to_remove = Vec::new();
+
+            for (change_id, change) in change_map.iter_mut() {
                 let start_time = change.start_time.unwrap();
                 if start_time < sim_time {
                     // Change we need to add is the function value at the current time
@@ -143,9 +146,13 @@ impl SubstanceStore {
                     self.composition.insert(*substance, new_conc);
                 }
 
-                // if sim_time > change.duration + start_time {
-                    
-                // }
+                if sim_time > change.duration + start_time {
+                    ids_to_remove.push(*change_id);
+                }
+            }
+
+            for change_id in ids_to_remove {
+                change_map.remove(&change_id);
             }
         }
 

@@ -190,7 +190,7 @@ impl CoreSim {
                 }
             }
         }
-        self.init_modules(&mut self.active_modules);
+        // self.init_modules(&mut self.active_modules);
     }
 
     /// Internal function for initializing modules on this Sim. If a module which has
@@ -405,7 +405,7 @@ impl CoreSim {
 
     fn update_modules(&mut self, module_map: &mut HashMap<&'static str, Box<dyn SimModule>>, notify_map: HashMap<&'static str, HashSet<TypeId>>) {
         for (module_name, notify_set) in notify_map {
-            let module = module_map.get(module_name).unwrap();
+            let module = module_map.get_mut(module_name).unwrap();
 
             // Need to remove the connector to avoid multiple mutable borrows of self
             self.prepare_connector(module_name, module.get_sim_connector());
@@ -528,7 +528,7 @@ impl Sim for CoreSim {
     /// * `module_names` - Set of modules to add
     fn add_modules(&mut self, module_names: HashSet<&'static str>) {
 
-        let new_module_map = HashMap::new();
+        let mut new_module_map = HashMap::new();
 
         for module_name in module_names {
             if self.active_modules.contains_key(module_name) {

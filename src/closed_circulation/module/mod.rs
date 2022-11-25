@@ -45,55 +45,55 @@ pub mod test {
     use uom::si::molar_concentration::millimole_per_liter;
     use uom::si::time::second;
 
-    #[derive(Debug, Display, Hash, Clone, Copy, PartialEq, Eq, EnumString, IntoStaticStr)]
-    pub enum TestBloodVessel {
-        Aorta,
-        ThoracicAorta,
-        LeftSubclavianArtery,
-        RightBraciocephalicArtery,
-        LeftCommonCarotidArtery,
-        SuperiorVenaCava,
-        InferiorVenaCava,
-        VenaCava,
-    }
+    // #[derive(Debug, Display, Hash, Clone, Copy, PartialEq, Eq, EnumString, IntoStaticStr)]
+    // pub enum TestBloodVessel {
+    //     Aorta,
+    //     ThoracicAorta,
+    //     LeftSubclavianArtery,
+    //     RightBraciocephalicArtery,
+    //     LeftCommonCarotidArtery,
+    //     SuperiorVenaCava,
+    //     InferiorVenaCava,
+    //     VenaCava,
+    // }
 
-    impl BloodVessel for TestBloodVessel {}
+    // impl BloodVessel for TestBloodVessel {}
 
-    pub struct TestCircModuleA {}
-    impl TestCircModuleA {
-        pub fn factory() -> Box<dyn ClosedCircSimModule<VesselType = TestBloodVessel>> {
-            Box::new(TestCircModuleA {})
-        }
-    }
+    // pub struct TestCircModuleA {}
+    // impl TestCircModuleA {
+    //     pub fn factory() -> Box<dyn ClosedCircSimModule<VesselType = TestBloodVessel>> {
+    //         Box::new(TestCircModuleA {})
+    //     }
+    // }
 
-    impl ClosedCircSimModule for TestCircModuleA {
-        type VesselType = TestBloodVessel;
+    // impl ClosedCircSimModule for TestCircModuleA {
+    //     type VesselType = TestBloodVessel;
 
-        fn init(&mut self, initializer: &mut SimModuleInitializer, cc_initializer: &mut ClosedCircInitializer<TestBloodVessel>) {
-            initializer.notify(TestEventA::new(Length::new::<meter>(1.0)));
-            initializer.notify(TestEventB::new(AmountOfSubstance::new::<mole>(1.0)));
-            initializer.transform(|evt: &mut TestEventA| {
-                evt.len = Length::new::<meter>(3.0);
-            });
+    //     fn init(&mut self, initializer: &mut SimModuleInitializer, cc_initializer: &mut ClosedCircInitializer<TestBloodVessel>) {
+    //         initializer.notify(TestEventA::new(Length::new::<meter>(1.0)));
+    //         initializer.notify(TestEventB::new(AmountOfSubstance::new::<mole>(1.0)));
+    //         initializer.transform(|evt: &mut TestEventA| {
+    //             evt.len = Length::new::<meter>(3.0);
+    //         });
 
-            let threshold = MolarConcentration::new::<millimole_per_liter>(0.1);
-            cc_initializer.notify_composition_change(TestBloodVessel::ThoracicAorta, Substance::GLC, threshold);
-            cc_initializer.attach_vessel(TestBloodVessel::InferiorVenaCava);
-        }
-        fn run(&mut self, connector: &mut SimConnector, circ_connector: &mut ClosedCircConnector<TestBloodVessel>) {
-            let evt_a = connector.get::<TestEventA>().unwrap();
-            assert_eq!(evt_a.len, Length::new::<meter>(3.0));
+    //         let threshold = MolarConcentration::new::<millimole_per_liter>(0.1);
+    //         cc_initializer.notify_composition_change(TestBloodVessel::ThoracicAorta, Substance::GLC, threshold);
+    //         cc_initializer.attach_vessel(TestBloodVessel::InferiorVenaCava);
+    //     }
+    //     fn run(&mut self, connector: &mut SimConnector, circ_connector: &mut ClosedCircConnector<TestBloodVessel>) {
+    //         let evt_a = connector.get::<TestEventA>().unwrap();
+    //         assert_eq!(evt_a.len, Length::new::<meter>(3.0));
 
-            log::debug!("Trigger Events: {:?}", connector.trigger_events().collect::<Vec<&Arc<dyn Event>>>());
+    //         log::debug!("Trigger Events: {:?}", connector.trigger_events().collect::<Vec<&Arc<dyn Event>>>());
 
-            let change = BloodCompositionChange::<TestBloodVessel> {
-                vessel: TestBloodVessel::InferiorVenaCava,
-                substance: Substance::GLC,
-                change: MolarConcentration::new::<millimole_per_liter>(0.1 / circ_connector.depth() as f64),
-            };
+    //         let change = BloodCompositionChange::<TestBloodVessel> {
+    //             vessel: TestBloodVessel::InferiorVenaCava,
+    //             substance: Substance::GLC,
+    //             change: MolarConcentration::new::<millimole_per_liter>(0.1 / circ_connector.depth() as f64),
+    //         };
 
-            connector.schedule_event(Time::new::<second>(1.0), change);
-        }
-    }
+    //         connector.schedule_event(Time::new::<second>(1.0), change);
+    //     }
+    // }
     
 }
