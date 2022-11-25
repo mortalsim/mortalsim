@@ -12,6 +12,10 @@ use crate::util::BoundFn;
 use super::MolarConcentration;
 use super::SubstanceChange;
 
+lazy_static! {
+    static ref ZERO_CONCENTRATION: MolarConcentration = MolarConcentration::new::<millimole_per_liter>(0.0);
+}
+
 /// A storage construct for Substance concentrations in a volume
 pub struct SubstanceStore {
     /// Id for this SubstanceStore
@@ -97,19 +101,101 @@ impl SubstanceStore {
     pub fn merge_all(&mut self, other: &SubstanceStore) {
         self.composition.extend(other.composition.clone());
     }
-    
-    /// Schedule a substance change on this store
+
+    /// Schedule a substance change on this store with a sigmoid
+    /// shape over the given duration.
+    /// 
+    /// Panics if `duration <= 0`
     /// 
     /// ### Arguments
     /// * `substance` - the substance to change
-    /// * `change_fn` - a function defining the shape of change over time
+    /// * `amount`    - total concentration change to take place
+    /// * `duration`  - amount of time over which the change takes place
     /// 
     /// Returns an id corresponding to this change
-    pub fn schedule_change(&mut self, substance: Substance, mut change: SubstanceChange) -> IdType {
-        if change.start_time.is_none() {
-            change.start_time = Some(self.sim_time);
-        }
+    pub fn schedule_change(&mut self, substance: Substance, amount: MolarConcentration, duration: Time) -> IdType {
         let change_id = self.id_gen.get_id();
+        let change = SubstanceChange::new(self.sim_time, amount, duration, BoundFn::Sigmoid);
+        self.substance_changes.entry(substance).or_default().insert(change_id, change);
+
+        change_id
+    }
+    
+    /// Schedule a substance change on this store with a custom
+    /// shape over the given duration.
+    /// 
+    /// Panics if `duration <= 0`
+    /// 
+    /// ### Arguments
+    /// * `substance` - the substance to change
+    /// * `amount`    - total concentration change to take place
+    /// * `duration`  - amount of time over which the change takes place
+    /// * `bound_fn`  - the shape of the function 
+    /// 
+    /// Returns an id corresponding to this change
+    pub fn schedule_change_custom(&mut self, substance: Substance, amount: MolarConcentration, duration: Time, bound_fn: BoundFn) -> IdType {
+        let change_id = self.id_gen.get_id();
+        let change = SubstanceChange::new(self.sim_time, amount, duration, bound_fn);
+        self.substance_changes.entry(substance).or_default().insert(change_id, change);
+
+        change_id
+    }
+    
+    /// Schedule a substance change on this store for a future time
+    /// with a sigmoid shape over the given duration.
+    /// If the `start_time` is less than the current simulation time,
+    /// it will be set to the current simulation time.
+    /// 
+    /// Panics if `duration <= 0`
+    /// 
+    /// ### Arguments
+    /// * `substance` - the substance to change
+    /// * `amount`    - total concentration change to take place
+    /// * `duration`  - amount of time over which the change takes place
+    /// * `bound_fn`  - the shape of the function 
+    /// 
+    /// Returns an id corresponding to this change
+    pub fn schedule_future_change(&mut self, substance: Substance, start_time: Time, amount: MolarConcentration, duration: Time) -> IdType {
+        // Constrain the start time to a minimum of the current sim time
+        let x_start_time = {
+            if start_time < self.sim_time {
+                self.sim_time;
+            }
+            start_time
+        };
+
+        let change_id = self.id_gen.get_id();
+        let change = SubstanceChange::new(x_start_time, amount, duration, BoundFn::Sigmoid);
+        self.substance_changes.entry(substance).or_default().insert(change_id, change);
+
+        change_id
+    }
+    
+    /// Schedule a substance change on this store for a future time
+    /// with a custom shape over the given duration.
+    /// If the `start_time` is less than the current simulation time,
+    /// it will be set to the current simulation time.
+    /// 
+    /// Panics if `duration <= 0`
+    /// 
+    /// ### Arguments
+    /// * `substance` - the substance to change
+    /// * `amount`    - total concentration change to take place
+    /// * `duration`  - amount of time over which the change takes place
+    /// * `bound_fn`  - the shape of the function 
+    /// 
+    /// Returns an id corresponding to this change
+    pub fn schedule_future_change_custom(&mut self, substance: Substance, start_time: Time, amount: MolarConcentration, duration: Time, bound_fn: BoundFn) -> IdType {
+        // Constrain the start time to a minimum of the current sim time
+        let x_start_time = {
+            if start_time < self.sim_time {
+                self.sim_time;
+            }
+            start_time
+        };
+
+        let change_id = self.id_gen.get_id();
+        let change = SubstanceChange::new(x_start_time, amount, duration, bound_fn);
         self.substance_changes.entry(substance).or_default().insert(change_id, change);
 
         change_id
@@ -136,17 +222,16 @@ impl SubstanceStore {
             let mut ids_to_remove = Vec::new();
 
             for (change_id, change) in change_map.iter_mut() {
-                let start_time = change.start_time.unwrap();
-                if start_time < sim_time {
+                if change.start_time < sim_time {
                     // Change we need to add is the function value at the current time
                     // minus the value recorded from the previous time point
-                    let change_val = change.call(sim_time - start_time) - change.previous_val;
-                    let prev_conc = self.composition.get(substance).unwrap();
+                    let change_val = change.call(sim_time - change.start_time) - change.previous_val;
+                    let prev_conc = self.composition.get(substance).unwrap_or(&ZERO_CONCENTRATION);
                     let new_conc = *prev_conc + change_val;
                     self.composition.insert(*substance, new_conc);
                 }
 
-                if sim_time > change.duration + start_time {
+                if sim_time > change.start_time + change.duration {
                     ids_to_remove.push(*change_id);
                 }
             }

@@ -9,11 +9,9 @@ use super::MolarConcentration;
 // otherwise the universe becomes unstable
 use uom::si::molar_concentration::mole_per_cubic_meter;
 
-// TODO: Make this an Event?!
 #[derive(Debug, Clone)]
 pub struct SubstanceChange {
-    pub(crate) start_time: Option<Time>,
-    pub(crate) substance: Substance,
+    pub(crate) start_time: Time,
     pub(crate) amount: MolarConcentration,
     pub(crate) duration: Time,
     pub(crate) bound_fn: BoundFn,
@@ -27,23 +25,10 @@ fn check_duration(duration: Time) {
 }
 
 impl SubstanceChange {
-    pub fn new(substance: Substance, amount: MolarConcentration, duration: Time, bound_fn: BoundFn) -> SubstanceChange {
+    pub fn new(start_time: Time, amount: MolarConcentration, duration: Time, bound_fn: BoundFn) -> SubstanceChange {
         check_duration(duration);
         SubstanceChange {
-            start_time: None,
-            substance,
-            amount,
-            duration,
-            bound_fn,
-            previous_val: MolarConcentration::new::<mole_per_cubic_meter>(0.0),
-        }
-    }
-    
-    pub fn new_future(start_time: Time, substance: Substance, amount: MolarConcentration, duration: Time, bound_fn: BoundFn) -> SubstanceChange {
-        check_duration(duration);
-        SubstanceChange {
-            start_time: Some(start_time),
-            substance,
+            start_time: start_time,
             amount,
             duration,
             bound_fn,
