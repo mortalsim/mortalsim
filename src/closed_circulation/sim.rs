@@ -10,7 +10,7 @@ use petgraph::Direction;
 use petgraph::graph::{Graph, NodeIndex, Neighbors};
 use uom::si::molar_concentration::mole_per_liter;
 use uom::si::amount_of_substance::mole;
-use crate::core::sim::{SimConnector, CoreSim, SimModule, SimModuleInitializer};
+use crate::core::sim::{SimConnector, CoreSim, SimModule, SimModuleInitializer, Time, second};
 use crate::substance::{SubstanceStore, Volume, Substance, MolarConcentration, AmountOfSubstance};
 use crate::event::{BloodCompositionChange, BloodVolumeChange};
 use super::vessel::{BloodVessel, BloodVesselType, VesselIter};
@@ -20,6 +20,7 @@ use super::{BloodNode, BloodEdge, ClosedCirculatorySystem, ClosedCircVesselIter,
 
 pub struct ClosedCirculationSim<V: BloodVessel + 'static> {
     manager_id: Uuid,
+    sim_time: Time,
     active_modules: HashMap<&'static str, Box<dyn ClosedCircSimModule<VesselType = V>>>,
     system: Rc<ClosedCirculatorySystem<V>>,
     blood_notify_map: HashMap<V, HashMap<Substance, Vec<(MolarConcentration, &'static str)>>>,
@@ -31,6 +32,7 @@ impl<V: BloodVessel + 'static> ClosedCirculationSim<V> {
     pub fn new(system: ClosedCirculatorySystem<V>) -> ClosedCirculationSim<V> {
         ClosedCirculationSim {
             manager_id: Uuid::new_v4(),
+            sim_time: Time::new::<second>(0.0),
             active_modules: HashMap::new(),
             system: Rc::new(system),
             blood_notify_map: HashMap::new(),
@@ -38,7 +40,7 @@ impl<V: BloodVessel + 'static> ClosedCirculationSim<V> {
         }
     }
 
-    fn get_system(&self) -> &ClosedCirculatorySystem<V> {
+    fn system(&self) -> &ClosedCirculatorySystem<V> {
         self.system.as_ref()
     }
 
@@ -127,7 +129,7 @@ impl<V: BloodVessel + 'static> ClosedCirculationSim<V> {
         let cc_connector = module.get_cc_sim_connector();
 
         for (vessel, store) in cc_connector.vessel_connections.iter_mut() {
-            store.merge_all(self.composition_map.get(vessel).unwrap());
+            store.merge_from(self.composition_map.get(vessel).unwrap());
         }
     }
 
