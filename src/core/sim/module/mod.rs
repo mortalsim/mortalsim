@@ -40,7 +40,8 @@ pub trait SimModule {
 
 #[cfg(test)]
 pub mod test {
-    use std::sync::Arc;
+    use std::sync::{Arc, Mutex};
+    use crate::core::sim::SimState;
     use crate::event::Event;
     use crate::event::test::{TestEventA, TestEventB};
     use super::SimModule;

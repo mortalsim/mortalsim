@@ -1,4 +1,5 @@
-use std::sync::Arc;
+use std::ptr::null;
+use std::sync::{Arc, Mutex};
 use std::collections::HashMap;
 use std::any::TypeId;
 use anyhow::{Error, Result};
@@ -11,7 +12,7 @@ use super::super::Sim;
 /// Provides methods for `Sim` modules to interact with the simulation
 pub struct SimConnector {
     /// State specific to the connected module
-    pub(crate) local_state: SimState,
+    pub(crate) sim_state: Arc<Mutex<SimState>>,
     /// Holds a shared reference to the Event which triggered module execution
     pub(crate) trigger_events: Vec<Arc<dyn Event>>,
     /// Map of scheduled event identifiers
@@ -26,6 +27,7 @@ pub struct SimConnector {
     pub(crate) sim_time: Time,
     /// Whether to indicate to the parent Sim that all previously scheduled events should be unscheduled
     pub(crate) unschedule_all: bool,
+    pub(crate) tmp_evt: Option<Box<dyn Event>>,
 }
 
 impl SimConnector {
@@ -33,7 +35,8 @@ impl SimConnector {
     /// Creates a new SimConnector
     pub fn new() -> SimConnector {
         SimConnector {
-            local_state: SimState::new(),
+            // Temporary empty state which will be replaced by the canonical state
+            sim_state: Arc::new(Mutex::new(SimState::new())),
             trigger_events: Vec::new(),
             scheduled_events: HashMap::new(),
             schedule_id_type_map: HashMap::new(),
@@ -41,6 +44,7 @@ impl SimConnector {
             pending_unschedules: Vec::new(),
             sim_time: Time::new::<second>(0.0),
             unschedule_all: true,
+            tmp_evt: None,
         }
     }
     
@@ -96,14 +100,9 @@ impl SimConnector {
         self.sim_time
     }
 
-    /// Retrieves the current `Event` object from state
-    pub fn get<E: Event>(&self) -> Option<&E> {
-        self.local_state.get_state::<E>()
-    }
-
     /// Retrieves the current `Event` object from state as an Arc
-    pub fn get_arc<E: Event>(&self) -> Option<Arc<E>> {
-        match self.local_state.get_state_ref(&TypeId::of::<E>()) {
+    pub fn get<E: Event>(&self) -> Option<Arc<E>> {
+        match self.sim_state.lock().unwrap().get_state_ref(&TypeId::of::<E>()) {
             None => None,
             Some(evt_rc) => {
                 match evt_rc.downcast_arc::<E>() {

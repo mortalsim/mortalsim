@@ -1,4 +1,4 @@
-#![ allow( dead_code, unused_imports ) ]
+#![ allow( dead_code, unused_imports, unused_macros ) ]
 
 extern crate uom;
 #[macro_use]

@@ -2,13 +2,11 @@ use std::sync::Arc;
 use std::any::Any;
 use std::collections::{HashMap, HashSet};
 use std::any::TypeId;
-use uuid::Uuid;
 use crate::event::Event;
 use anyhow::{Result, Error};
 
 #[derive(Debug, Clone)]
 pub struct SimState {
-    state_id: Uuid,
     /// Internal storage mechanism for `SimState` objects
     state: HashMap<TypeId, Arc<dyn Event>>,
     /// Keep track of any Events which have been tainted
@@ -19,7 +17,6 @@ impl SimState {
     /// Creates a new `SimState` object
     pub fn new() -> SimState {
         SimState {
-            state_id: Uuid::new_v4(),
             state: HashMap::new(),
             tainted_states: HashSet::new(),
         }
@@ -27,15 +24,17 @@ impl SimState {
 
     /// Retrieves the current `Event` of a given type in this state
     /// 
-    /// returns an `Event` or `None` if no `Event` of this type has been set
-    pub fn get_state<T: Event>(&self) -> Option<&T> {
-        let type_id = TypeId::of::<T>();
+    /// returns an `Arc<E>` or `None` if no `Event` of this type has been set
+    pub fn get_state<E: Event>(&self) -> Option<Arc<E>> {
+        let type_id = TypeId::of::<E>();
         match self.state.get(&type_id) {
             None => None,
-            Some(box_val) => {
-                match box_val.downcast_ref::<T>() {
-                    None => panic!("Something went terribly wrong! An Event is in the wrong SimState TypeId bin!"),
-                    Some(val) => Some(val)
+            Some(evt_rc) => {
+                match evt_rc.clone().downcast_arc::<E>() {
+                    Err(_) => None,
+                    Ok(typed_evt_rc) => {
+                        Some(typed_evt_rc)
+                    }
                 }
             }
         }

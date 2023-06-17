@@ -12,9 +12,10 @@ use uuid::Uuid;
 use uom::si::time::second;
 use uom::fmt::DisplayStyle::*;
 use anyhow::{Result, Error};
-use crate::util::id_gen::{IdType, IdGenerator};
+use crate::util::id_gen::{IdType, IdGenerator, InvalidIdError};
 use crate::event::Event;
 use crate::util::quantity_wrapper::OrderedTime;
+use crate::core::hub::event_transformer::{EventTransformer, TransformerItem};
 
 pub type Time = uom::si::f64::Time;
 
@@ -25,10 +26,14 @@ pub struct TimeManager {
     sim_time: Time,
     /// Sorted map of events to be executed
     event_queue: BTreeMap<OrderedTime, Vec<(IdType, Box<dyn Event>)>>,
+    /// Map of event transformer functions
+    event_transformers: HashMap<TypeId, Vec<Box<dyn EventTransformer>>>,
+    /// Map of event transformer ids to event types for quick lookup
+    transformer_type_map: HashMap<IdType, TypeId>,
     /// Generator for our listener IDs
     id_gen: IdGenerator,
     /// Used to lookup listeners and Event objects for unscheduling
-    id_time_map: HashMap<IdType, OrderedTime>
+    id_time_map: HashMap<IdType, OrderedTime>,
 }
 
 impl<'b> fmt::Debug for TimeManager {
@@ -47,6 +52,8 @@ impl TimeManager {
             manager_id: Uuid::new_v4(),
             sim_time: Time::new::<second>(0.0),
             event_queue: BTreeMap::new(),
+            event_transformers: HashMap::new(),
+            transformer_type_map: HashMap::new(),
             id_gen: IdGenerator::new(),
             id_time_map: HashMap::new()
         }
@@ -147,7 +154,7 @@ impl TimeManager {
         }
     }
 
-    pub(super) fn next_events(&mut self) -> Option<(OrderedTime, Vec<Box<dyn Event>>)> {
+    pub fn next_events(&mut self) -> Option<(OrderedTime, Vec<Box<dyn Event>>)> {
         let mut evt_times = self.event_queue.keys().cloned();
         let next_evt_time = evt_times.next();
 
@@ -156,11 +163,91 @@ impl TimeManager {
             let evt_list = self.event_queue.remove(&evt_time).unwrap();
 
             // Drop the registration token when returning the result vector
-            let result: Vec<Box<dyn Event>> = evt_list.into_iter().map(|(_, evt)| evt).rev().collect();
+            let mut result: Vec<Box<dyn Event>> = evt_list.into_iter().map(|(_, evt)| evt).rev().collect();
+            
+            for evt in result.iter_mut() {
+                // Call any transformers on the event
+                for transformers in self.event_transformers.get_mut(&evt.type_id()).iter_mut() {
+                    for transformer in transformers.iter_mut() {
+                        transformer.transform(evt.as_mut());
+                    }
+                }
+            }
+
             Some((evt_time, result))
         }
         else {
             None
+        }
+    }
+    
+    /// Registers a transformer for a specific Event. 
+    ///
+    /// ### Arguments
+    /// * `handler` - Event transforming function
+    /// 
+    /// Returns the registration ID for the transformer
+    pub fn transform<E: Event>(&mut self, handler: impl FnMut(&mut E) + 'static) -> IdType {
+        self.insert_transformer(Box::new(TransformerItem::new(handler)))
+    }
+    
+    /// Registers a transformer for a specific Event with the given priority. Higher
+    /// priority transformers are executed first.
+    ///
+    /// ### Arguments
+    /// * `handler` - Event transforming function
+    /// * `priority` - Priority of the transformer
+    /// 
+    /// Returns the registration ID for the transformer
+    pub fn transform_prioritized<E: Event>(&mut self, priority: i32, handler: impl FnMut(&mut E) + 'static) -> IdType {
+        self.insert_transformer(Box::new(TransformerItem::new_prioritized(handler, priority)))
+    }
+    
+    pub(super) fn insert_transformer(&mut self, transformer: Box<dyn EventTransformer>) -> IdType {
+        let transformer_id = transformer.transformer_id();
+        let type_key = transformer.type_id();
+
+        match self.event_transformers.get(&type_key) {
+            Some(transformers) => {
+                match transformers.binary_search(&transformer) {
+                    Ok(_) => panic!("Duplicate Transformer id {}", transformer.transformer_id()),
+                    Err(pos) => {
+                        self.event_transformers.get_mut(&type_key).unwrap().insert(pos, transformer);
+                    }
+                }
+            },
+            None => {
+                self.event_transformers.insert(type_key, vec![transformer]);
+            }
+        }
+        
+        // Add the id -> type mapping for quick removal if needed later
+        self.transformer_type_map.insert(transformer_id, type_key);
+
+        transformer_id
+    }
+
+    /// Unregisters a transformer for a specific Event with the given registration ID returned
+    /// from the call to `transform` or `transform_prioritized`.
+    ///
+    /// ### Arguments
+    /// * `transformer_id` - transformer registration ID
+    /// 
+    /// Returns Ok if successful, or Err if the provided ID is invalid.
+    pub fn unset_transform(&mut self, transformer_id: IdType) -> Result<()> {
+        match self.transformer_type_map.get(&transformer_id) {
+            Some(type_key) => {
+                let transformers = self.event_transformers.get_mut(type_key).unwrap();
+                match transformers.iter().position(|l| l.transformer_id() == transformer_id) {
+                    Some(pos) => {
+                        transformers.remove(pos);
+                        self.transformer_type_map.remove(&transformer_id);
+                        Ok(())
+                    },
+                    None => Err(anyhow::Error::new(InvalidIdError::new(format!("{:?}", self), transformer_id)))
+                }
+            },
+            None => Err(anyhow::Error::new(InvalidIdError::new(format!("{:?}", self), transformer_id)))
         }
     }
 }
@@ -179,6 +266,7 @@ mod tests {
     use uom::si::f64::AmountOfSubstance;
     use uom::si::length::meter;
     use uom::si::amount_of_substance::mole;
+    use crate::core::hub::event_transformer::{EventTransformer, TransformerItem};
 
     #[test]
     fn advance_test() {
@@ -244,5 +332,18 @@ mod tests {
             assert_eq!(evt.downcast::<TestEventB>().unwrap().amt, AmountOfSubstance::new::<mole>(123456.0));
         }
         assert_eq!(time_manager.get_time(), Time::new::<second>(6.0));
+    }
+
+    #[test]
+    fn transformer_test() {
+        let mut listener = TransformerItem::new(|evt: &mut TestEventA| {
+            evt.len = Length::new::<meter>(10.0);
+        });
+
+        let mut evt = TestEventA::new(Length::new::<meter>(5.0));
+        assert_eq!(evt.len, Length::new::<meter>(5.0));
+
+        listener.transform(&mut evt);
+        assert_eq!(evt.len, Length::new::<meter>(10.0));
     }
 }

@@ -89,14 +89,9 @@ pub struct CoreSim {
     sim_id: Uuid,
     active_modules: HashMap<&'static str, Box<dyn SimModule>>,
     time_manager: TimeManager,
-    state: SimState,
-    event_transformers: HashMap<TypeId, Vec<Box<dyn EventTransformer>>>,
+    state: Arc<Mutex<SimState>>,
     module_notifications: HashMap<TypeId, Vec<(i32, &'static str)>>,
-    extension_notifications: HashMap<Uuid, HashMap<TypeId, Vec<Arc<dyn Event>>>>,
-    extension_type_map: HashMap<TypeId, HashSet<Uuid>>,
-    connector_map: HashMap<&'static str, SimConnector>,
     transformer_id_map: HashMap<&'static str, Vec<IdType>>,
-    transformer_type_map: HashMap<IdType, TypeId>,
     /// Map of pending updates for each module
     notify_map: HashMap<&'static str, HashSet<TypeId>>,
 }
@@ -118,14 +113,9 @@ impl CoreSim {
             sim_id: Uuid::new_v4(),
             active_modules: HashMap::new(),
             time_manager: TimeManager::new(),
-            state: initial_state,
-            event_transformers: HashMap::new(),
+            state: Arc::new(Mutex::new(initial_state)),
             module_notifications: HashMap::new(),
-            extension_notifications: HashMap::new(),
-            extension_type_map: HashMap::new(),
-            connector_map: HashMap::new(),
             transformer_id_map: HashMap::new(),
-            transformer_type_map: HashMap::new(),
             notify_map: HashMap::new(),
         }
     }
@@ -177,7 +167,7 @@ impl CoreSim {
         sim
     }
     
-    /// Attaches emitted events to this Sim's canonical state
+    /// Attaches identified modules 
     /// and initializes modules
     fn setup(&mut self, module_set: HashSet<&'static str>) {
 
@@ -190,7 +180,6 @@ impl CoreSim {
                 }
             }
         }
-        // self.init_modules(&mut self.active_modules);
     }
 
     /// Internal function for initializing modules on this Sim. If a module which has
@@ -206,7 +195,7 @@ impl CoreSim {
             let mut initializer = SimModuleInitializer::new();
             module.init(&mut initializer);
             
-            self.setup_module(module_name, module.as_mut(), initializer);
+            self.setup_module(module_name, initializer);
         }
     }
     
@@ -220,20 +209,19 @@ impl CoreSim {
         let mut initializer = SimModuleInitializer::new();
         module.init(&mut initializer);
         
-        self.setup_module(module_name, module, initializer);
+        self.setup_module(module_name, initializer);
     }
 
     /// handles internal registrations and initial outputs for modules
-    pub(crate) fn setup_module(&mut self, module_name: &'static str, module: &mut dyn SimModule, initializer: SimModuleInitializer) {
+    pub(crate) fn setup_module(&mut self, module_name: &'static str, initializer: SimModuleInitializer) {
         let mut transformer_ids = Vec::new();
         for transformer in initializer.pending_transforms {
-            transformer_ids.push(self.insert_transformer(transformer));
+            transformer_ids.push(self.time_manager.insert_transformer(transformer));
         }
         self.transformer_id_map.insert(module_name, transformer_ids);
         
         for (priority, evt) in initializer.pending_notifies {
             let type_id = evt.type_id();
-            module.get_sim_connector().local_state.put_state(type_id, evt.into());
             match self.module_notifications.get_mut(&type_id) {
                 None => {
                     self.module_notifications.insert(type_id, vec![(priority, module_name)]);
@@ -243,44 +231,17 @@ impl CoreSim {
                 }
             }
         }
-
-        // Clear taint
-        module.get_sim_connector().local_state.clear_taint();
-    }
-
-    fn insert_transformer(&mut self, transformer: Box<dyn EventTransformer>) -> IdType {
-        let transformer_id = transformer.transformer_id();
-        let type_key = transformer.type_id();
-
-        match self.event_transformers.get(&type_key) {
-            Some(transformers) => {
-                match transformers.binary_search(&transformer) {
-                    Ok(_) => panic!("Duplicate Transformer id {}", transformer.transformer_id()),
-                    Err(pos) => {
-                        self.event_transformers.get_mut(&type_key).unwrap().insert(pos, transformer);
-                    }
-                }
-            },
-            None => {
-                self.event_transformers.insert(type_key, vec![transformer]);
-            }
-        }
-        
-        // Add the id -> type mapping for quick removal if needed later
-        self.transformer_type_map.insert(transformer_id, type_key);
-
-        transformer_id
     }
 
     /// Returns true if the given Event type exists on the Sim's current
     /// state, false otherwise
     pub fn has_state<E: Event>(&self) -> bool {
-        self.state.has_state::<E>()
+        self.state.lock().unwrap().has_state::<E>()
     }
 
     /// Retrieves a current `Event` object from state, if it exists
     pub fn get_state<E: Event>(&self) -> Option<Arc<E>> {
-        match self.state.get_state_ref(&TypeId::of::<E>()) {
+        match self.state.lock().unwrap().get_state_ref(&TypeId::of::<E>()) {
             None => None,
             Some(trait_evt) => {
                 match trait_evt.downcast_arc::<E>() {
@@ -295,65 +256,8 @@ impl CoreSim {
         }
     }
 
-    /// Registers a transformer for a specific Event. 
-    ///
-    /// ### Arguments
-    /// * `handler` - Event transforming function
-    /// 
-    /// Returns the registration ID for the transformer
-    pub fn transform<E: Event>(&mut self, handler: impl FnMut(&mut E) + 'static) -> IdType {
-        self.insert_transformer(Box::new(TransformerItem::new(handler)))
-    }
-    
-    /// Registers a transformer for a specific Event with the given priority. Higher
-    /// priority transformers are executed first.
-    ///
-    /// ### Arguments
-    /// * `handler` - Event transforming function
-    /// * `priority` - Priority of the transformer
-    /// 
-    /// Returns the registration ID for the transformer
-    pub fn transform_prioritized<E: Event>(&mut self, priority: i32, handler: impl FnMut(&mut E) + 'static) -> IdType {
-        self.insert_transformer(Box::new(TransformerItem::new_prioritized(handler, priority)))
-    }
-
-    /// Unregisters a transformer for a specific Event with the given registration ID returned
-    /// from the call to `transform` or `transform_prioritized`.
-    ///
-    /// ### Arguments
-    /// * `transformer_id` - transformer registration ID
-    /// 
-    /// Returns Ok if successful, or Err if the provided ID is invalid.
-    pub fn unset_transform(&mut self, transformer_id: IdType) -> Result<()> {
-        match self.transformer_type_map.get(&transformer_id) {
-            Some(type_key) => {
-                let transformers = self.event_transformers.get_mut(type_key).unwrap();
-                match transformers.iter().position(|l| l.transformer_id() == transformer_id) {
-                    Some(pos) => {
-                        transformers.remove(pos);
-                        self.transformer_type_map.remove(&transformer_id);
-                        Ok(())
-                    },
-                    None => Err(anyhow::Error::new(InvalidIdError::new(format!("{:?}", self), transformer_id)))
-                }
-            },
-            None => Err(anyhow::Error::new(InvalidIdError::new(format!("{:?}", self), transformer_id)))
-        }
-    }
-
     /// Processes a time advance if this is a top level Sim
     fn do_advance(&mut self) {
-        let mut modules = HashMap::new();
-        for (name, module) in self.active_modules.drain() {
-            modules.insert(name, module);
-        }
-
-        self.execute_time_step(&mut modules);
-
-        self.active_modules = modules;
-    }
-
-    fn execute_time_step(&mut self, module_map: &mut HashMap<&'static str, Box<dyn SimModule>>) {
         // Keep going until no more events / listeners are left to deal with
         loop {
             let next_events = self.time_manager.next_events();
@@ -362,17 +266,9 @@ impl CoreSim {
             // based on their scheduled time
             if next_events.is_some() {
                 let (_, evt_list) = next_events.unwrap();
-                for mut evt in evt_list {
-                    // Call any transformers on the event
-                    for transformers in self.event_transformers.get_mut(&evt.type_id()).iter_mut() {
-                        for transformer in transformers.iter_mut() {
-                            transformer.transform(evt.as_mut());
-                        }
-                    }
+                for evt in evt_list {
                     // Set it on the sim's state
-                    self.state.put_state(evt.type_id(), evt.into());
-
-                    // Stage it up for any listening extensions
+                    self.state.lock().unwrap().put_state(evt.type_id(), evt.into());
                 }
             }
             else {
@@ -381,32 +277,36 @@ impl CoreSim {
             }
         }
 
-        let mut notify_map = HashMap::new();
-        
+        self.notify_map.clear();
+
         // Now set the notify map for each module notification
-        for type_id in self.state.get_tainted().clone() {
+        for type_id in self.state.lock().unwrap().get_tainted().clone() {
             match self.module_notifications.get(&type_id) {
                 None => {},
                 Some(notify_list) => {
                     for (_, module_name) in notify_list {
-                        notify_map.entry(*module_name).or_insert(HashSet::new()).insert(type_id);
+                        self.notify_map.entry(*module_name).or_insert(HashSet::new()).insert(type_id);
                     }
                 }
             };
         }
 
-        // Make sure we clear state taint so these updates are effectively
-        // marked as "completed"
-        self.state.clear_taint();
-
-        // Update locally managed modules
-        self.update_modules(module_map, notify_map);
+        // Update locally managed modules (if any)
+        // Have to create a copy so we don't have two mutable references to self
+        if !self.active_modules.is_empty() {
+            let mut tmp_modules = HashMap::new();
+            for (n,m) in self.active_modules.drain() {
+                tmp_modules.insert(n,m);
+            }
+            for (module_name, module) in tmp_modules.iter_mut() {
+                self.update_module(module_name, module);
+            }
+            self.active_modules = tmp_modules;
+        }
     }
 
-    fn update_modules(&mut self, module_map: &mut HashMap<&'static str, Box<dyn SimModule>>, notify_map: HashMap<&'static str, HashSet<TypeId>>) {
-        for (module_name, notify_set) in notify_map {
-            let module = module_map.get_mut(module_name).unwrap();
-
+    fn update_module(&mut self, module_name: &'static str, module: &mut Box<dyn SimModule>) {
+        if self.notify_map.contains_key(module_name) {
             // Need to remove the connector to avoid multiple mutable borrows of self
             self.prepare_connector(module_name, module.get_sim_connector());
             
@@ -415,17 +315,6 @@ impl CoreSim {
 
             // Process the results
             self.process_connector(module.get_sim_connector());
-
-            // // This module is not managed internally, so we need to
-            // // add it to the notify map field for an extension to update
-            // match self.notify_map.get_mut(module_name) {
-            //     Some(set) => {
-            //         set.extend(notify_set)
-            //     }
-            //     None => {
-            //         self.notify_map.insert(module_name, notify_set);
-            //     }
-            // }
         }
     }
 
@@ -441,10 +330,14 @@ impl CoreSim {
         // Update connector before module execution
         connector.trigger_events = {
             let notify_ids = self.notify_map.remove(module_name).unwrap_or(HashSet::new());
-            notify_ids.iter().map(|id| { self.state.get_state_ref(id).unwrap() }).collect()
+            notify_ids.iter().map(|id| { self.state.lock().unwrap().get_state_ref(id).unwrap() }).collect()
         };
         connector.sim_time = self.time_manager.get_time();
-        connector.local_state.merge_tainted(&self.state);
+
+        // If this connector doesn't yet have a reference to the sim state, set it now
+        if !Arc::ptr_eq(&connector.sim_state, &self.state) {
+            connector.sim_state = self.state.clone();
+        }
     }
 
     pub(crate) fn process_connector(&mut self, connector: &mut SimConnector) {
@@ -483,25 +376,25 @@ impl CoreSim {
         }
     }
 
-    pub(crate) fn notify_extension<E: Event>(&mut self, extension_id: Uuid) {
-        let ext_notify_map = self.extension_notifications.entry(extension_id).or_insert(HashMap::new());
-        ext_notify_map.insert(TypeId::of::<E>(), Vec::new());
-        self.extension_type_map.entry(TypeId::of::<E>()).or_insert(HashSet::new()).insert(extension_id);
-    }
+    // pub(crate) fn notify_extension<E: Event>(&mut self, extension_id: Uuid) {
+    //     let ext_notify_map = self.extension_notifications.entry(extension_id).or_insert(HashMap::new());
+    //     ext_notify_map.insert(TypeId::of::<E>(), Vec::new());
+    //     self.extension_type_map.entry(TypeId::of::<E>()).or_insert(HashSet::new()).insert(extension_id);
+    // }
     
-    pub(crate) fn extension_events<'a, E: Event>(&'a mut self, extension_id: &Uuid) -> impl Iterator<Item = Arc<E>> + 'a {
-        match self.extension_notifications.get_mut(extension_id) {
-            Some(notifications) => {
-                match notifications.get_mut(&TypeId::of::<E>()) {
-                    Some(evt_list) => {
-                        Either::Left(evt_list.drain(..).map(|e| { e.downcast_arc::<E>().unwrap() }))
-                    },
-                    None => Either::Right(std::iter::empty())
-                }
-            },
-            None => Either::Right(std::iter::empty())
-        }
-    }
+    // pub(crate) fn extension_events<'a, E: Event>(&'a mut self, extension_id: &Uuid) -> impl Iterator<Item = Arc<E>> + 'a {
+    //     match self.extension_notifications.get_mut(extension_id) {
+    //         Some(notifications) => {
+    //             match notifications.get_mut(&TypeId::of::<E>()) {
+    //                 Some(evt_list) => {
+    //                     Either::Left(evt_list.drain(..).map(|e| { e.downcast_arc::<E>().unwrap() }))
+    //                 },
+    //                 None => Either::Right(std::iter::empty())
+    //             }
+    //         },
+    //         None => Either::Right(std::iter::empty())
+    //     }
+    // }
 }
 
 impl Sim for CoreSim {

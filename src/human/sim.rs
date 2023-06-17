@@ -63,7 +63,7 @@ impl HumanSim {
                     let mut human_initializer = HumanModuleInitializer::new();
                     module.init(&mut human_initializer.initializer);
 
-                    self.core.setup_module(module_name, module.as_sim_module(), human_initializer.initializer);
+                    self.core.setup_module(module_name, human_initializer.initializer);
                     self.active_modules.insert(module_name, module);
 
                     let cc_connector = self.blood_manager.setup_module(module_name, human_initializer.cc_initializer);
