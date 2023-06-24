@@ -27,7 +27,6 @@ pub struct SimConnector {
     pub(crate) sim_time: Time,
     /// Whether to indicate to the parent Sim that all previously scheduled events should be unscheduled
     pub(crate) unschedule_all: bool,
-    pub(crate) tmp_evt: Option<Box<dyn Event>>,
 }
 
 impl SimConnector {
@@ -44,7 +43,6 @@ impl SimConnector {
             pending_unschedules: Vec::new(),
             sim_time: Time::new::<second>(0.0),
             unschedule_all: true,
-            tmp_evt: None,
         }
     }
     

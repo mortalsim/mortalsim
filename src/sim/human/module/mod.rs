@@ -2,10 +2,10 @@ mod initializer;
 mod connector;
 pub use initializer::HumanModuleInitializer;
 pub use connector::HumanSimConnector;
-use crate::core::sim::{SimModule, SimModuleInitializer, SimConnector};
+use crate::core::sim::{SimModule, SimModuleInitializer, SimConnector, CoreSimModule};
 
 
-pub trait HumanSimModule: SimModule {
+pub trait HumanSimModule: CoreSimModule {
 
     /// Initializes the module. Should register any `Event` objects to listen for
     /// and set initial state.
@@ -18,7 +18,7 @@ pub trait HumanSimModule: SimModule {
     /// 
     /// ### returns
     /// this object as a SimModule
-    fn as_sim_module(&mut self) -> &mut dyn SimModule;
+    fn as_core_module(&mut self) -> &mut dyn CoreSimModule;
     
     /// Used by the HumanSim to retrieve a mutable reference to this module's
     /// HumanSimConnector, which tracks module interactions

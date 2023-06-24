@@ -7,6 +7,7 @@ use std::cell::{Ref, RefCell};
 use uuid::Uuid;
 use anyhow::Result;
 use either::Either;
+use super::CoreSimModule;
 use super::sim_state::SimState;
 use super::module::{SimModuleInitializer, SimConnector, SimModule};
 use super::time_manager::{Time, TimeManager};
@@ -16,7 +17,7 @@ use crate::core::hub::EventHub;
 use crate::util::id_gen::{IdType, InvalidIdError};
 
 lazy_static! {
-    static ref COMPONENT_REGISTRY: Mutex<HashMap<&'static str, Box<dyn FnMut() -> Box<dyn SimModule> + Send>>> = Mutex::new(HashMap::new());
+    static ref COMPONENT_REGISTRY: Mutex<HashMap<&'static str, Box<dyn FnMut() -> Box<dyn CoreSimModule> + Send>>> = Mutex::new(HashMap::new());
 }
 
 /// Registers a Sim module. By default, the module will be added to all newly created Sim objects
@@ -24,7 +25,7 @@ lazy_static! {
 /// ### Arguments
 /// * `module_name` - String name for the module
 /// * `factory`        - Factory function which creates an instance of the module
-fn register_module(module_name: &'static str, factory: impl FnMut() -> Box<dyn SimModule> + Send + 'static) {
+fn register_module(module_name: &'static str, factory: impl FnMut() -> Box<dyn CoreSimModule> + Send + 'static) {
     log::debug!("Registering module {}", module_name);
     COMPONENT_REGISTRY.lock().unwrap().insert(module_name, Box::new(factory));
 }
@@ -87,7 +88,7 @@ pub trait Sim {
 
 pub struct CoreSim {
     sim_id: Uuid,
-    active_modules: HashMap<&'static str, Box<dyn SimModule>>,
+    active_modules: HashMap<&'static str, Box<dyn CoreSimModule>>,
     time_manager: TimeManager,
     state: Arc<Mutex<SimState>>,
     module_notifications: HashMap<TypeId, Vec<(i32, &'static str)>>,
@@ -188,7 +189,7 @@ impl CoreSim {
     ///
     /// ### Arguments
     /// * `module_names` - Set of module names to initialize
-    fn init_modules(&mut self, module_map: &mut HashMap<&'static str, Box<dyn SimModule>>) {
+    fn init_modules(&mut self, module_map: &mut HashMap<&'static str, Box<dyn CoreSimModule>>) {
 
         // Initialize each module
         for (module_name, module) in module_map {
@@ -205,7 +206,7 @@ impl CoreSim {
     ///
     /// ### Arguments
     /// * `module_names` - Set of module names to initialize
-    pub(crate) fn init_module(&mut self, module_name: &'static str, module: &mut dyn SimModule) {
+    pub(crate) fn init_module(&mut self, module_name: &'static str, module: &mut dyn CoreSimModule) {
         let mut initializer = SimModuleInitializer::new();
         module.init(&mut initializer);
         
@@ -305,16 +306,16 @@ impl CoreSim {
         }
     }
 
-    fn update_module(&mut self, module_name: &'static str, module: &mut Box<dyn SimModule>) {
+    fn update_module(&mut self, module_name: &'static str, module: &mut Box<dyn CoreSimModule>) {
         if self.notify_map.contains_key(module_name) {
             // Need to remove the connector to avoid multiple mutable borrows of self
-            self.prepare_connector(module_name, module.get_sim_connector());
+            self.prepare_connector(module_name, module.sim_connector());
             
             // Execute module logic
             module.run();
 
             // Process the results
-            self.process_connector(module.get_sim_connector());
+            self.process_connector(module.sim_connector());
         }
     }
 

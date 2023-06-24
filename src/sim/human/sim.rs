@@ -78,7 +78,7 @@ impl HumanSim {
         // self.blood_manager.init_modules(remaining_modules, &mut self.core);
 
         for (name, module) in self.active_modules.iter_mut() {
-            self.core.init_module(name, module.as_sim_module());
+            self.core.init_module(name, module.as_core_module());
         }
     }
 

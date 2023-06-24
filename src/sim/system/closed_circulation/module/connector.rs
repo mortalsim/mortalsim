@@ -4,7 +4,6 @@ use anyhow::Result;
 use petgraph::Direction;
 use uom::si::volume::liter;
 use crate::substance::Volume;
-use crate::core::sim::SimConnector;
 use crate::substance::{Substance, SubstanceStore, MolarConcentration};
 use super::super::vessel::{BloodVessel, BloodVesselType, VesselIter};
 use super::super::{BloodNode, ClosedCirculationSim, ClosedCircVesselIter, ClosedCirculatorySystem, ClosedCircInitializer};

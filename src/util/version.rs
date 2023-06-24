@@ -31,9 +31,9 @@ impl Into<String> for Version {
     }
 }
 
-// impl From<&String> for Version {
-//     fn from(val: &String) -> Self {
-//         let slice: &str = val;
-//         Version::from(slice)
-//     }
-// }
+impl From<&String> for Version {
+    fn from(val: &String) -> Self {
+        let slice: &str = val;
+        Version::from(slice)
+    }
+}

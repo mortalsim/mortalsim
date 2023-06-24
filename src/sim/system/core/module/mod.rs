@@ -11,20 +11,6 @@ pub use initializer::SimModuleInitializer;
 
 /// Trait to be used by any modules for Sim objects
 pub trait SimModule {
-    /// Initializes the module. Should register any `Event` objects to listen for
-    /// and set initial state.
-    /// 
-    /// ### Arguments
-    /// * `initializer` - Helper object for initializing the module
-    fn init(&mut self, initializer: &mut SimModuleInitializer);
-
-    /// Used by the Sim to retrieve a mutable reference to this module's
-    /// SimConnector, which tracks module interactions
-    /// 
-    /// ### returns
-    /// SimConnector to interact with the rest of the simulation
-    fn get_sim_connector(&mut self) -> &mut SimConnector;
-    
     /// Runs an iteration of this module. Will be called anytime a `notify` registered
     /// `Event` changes on `Sim` state. All module logic should ideally occur within this
     /// call and all resulting `Event` objects scheduled for future emission.
@@ -38,13 +24,29 @@ pub trait SimModule {
     fn run(&mut self);
 }
 
+pub trait CoreSimModule : SimModule {
+    /// Initializes the module. Should register any `Event` objects to listen for
+    /// and set initial state.
+    /// 
+    /// ### Arguments
+    /// * `initializer` - Helper object for initializing the module
+    fn init(&mut self, initializer: &mut SimModuleInitializer);
+
+    /// Used by the Sim to retrieve a mutable reference to this module's
+    /// SimConnector, which tracks module interactions
+    /// 
+    /// ### returns
+    /// SimConnector to interact with the rest of the simulation
+    fn sim_connector(&mut self) -> &mut SimConnector;
+}
+
 #[cfg(test)]
 pub mod test {
     use std::sync::{Arc, Mutex};
     use crate::core::sim::SimState;
     use crate::event::Event;
     use crate::event::test::{TestEventA, TestEventB};
-    use super::SimModule;
+    use super::{SimModule, CoreSimModule};
     use super::{SimModuleInitializer, SimConnector};
     use uom::si::f64::{Length, AmountOfSubstance};
     use uom::si::length::meter;
@@ -60,8 +62,8 @@ pub mod test {
             })
         }
     }
-    impl SimModule for TestModuleA {
-        fn get_sim_connector(&mut self) -> &mut SimConnector {
+    impl CoreSimModule for TestModuleA {
+        fn sim_connector(&mut self) -> &mut SimConnector {
             &mut self.connector
         }
         fn init(&mut self, initializer: &mut SimModuleInitializer) {
@@ -71,6 +73,9 @@ pub mod test {
                 evt.len = Length::new::<meter>(3.0);
             });
         }
+    }
+
+    impl SimModule for TestModuleA {
         fn run(&mut self) {
             let evt_a = self.connector.get::<TestEventA>().unwrap();
             assert_eq!(evt_a.len, Length::new::<meter>(3.0));
@@ -88,15 +93,23 @@ pub mod test {
                 connector: SimConnector::new()
             })
         }
+
+        pub fn transform_b(evt: &mut TestEventB) {
+            evt.amt = evt.amt + AmountOfSubstance::new::<mole>(0.0);
+        }
     }
-    impl SimModule for TestModuleB {
-        fn get_sim_connector(&mut self) -> &mut SimConnector {
+    impl CoreSimModule for TestModuleB {
+        fn sim_connector(&mut self) -> &mut SimConnector {
             &mut self.connector
         }
         fn init(&mut self, initializer: &mut SimModuleInitializer) {
             initializer.notify(TestEventA::new(Length::new::<meter>(2.0)));
             initializer.notify(TestEventB::new(AmountOfSubstance::new::<mole>(2.0)));
+            initializer.transform(Self::transform_b);
         }
+    }
+
+    impl SimModule for TestModuleB {
         fn run(&mut self) {
             let evt_a = self.connector.get::<TestEventA>().unwrap();
             assert_eq!(evt_a.len, Length::new::<meter>(3.0));

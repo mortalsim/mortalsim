@@ -19,7 +19,7 @@ impl BoundFn {
     }
 }
 
-/// The mathematical sigmoid / logistic function with additional bounds
+/// A mathematical sigmoid / logistic function with additional bounds
 /// to define function shape
 /// 
 /// ### Arguments
