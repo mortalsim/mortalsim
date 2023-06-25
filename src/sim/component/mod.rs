@@ -7,6 +7,8 @@ use self::registry::ComponentRegistry;
 
 /// Trait to be used by any modules for Sim objects
 pub trait SimComponent {
+  /// The unique id of the component
+  fn id(&self) -> &'static str;
   /// Attaches the module to the ComponentKeeper
   fn attach(self, registry: &mut ComponentRegistry);
   /// Runs an iteration of this module.

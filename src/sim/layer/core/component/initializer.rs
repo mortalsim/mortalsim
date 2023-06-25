@@ -82,23 +82,3 @@ impl CoreComponentInitializer {
         self.initial_outputs.push(Box::new(initial_value))
     }
 }
-
-// Unset any listeners & transformers when this object drops
-// impl<'a> Drop for CoreComponentInitializer<'a> {
-//     fn drop(&mut self) {
-//         let mut hub = self.hub.borrow_mut();
-//         for listener_id in self.listener_ids.iter_mut() {
-//             match hub.off(*listener_id) {
-//                 Err(err) => panic!("{}", err),
-//                 Ok(_) => {}
-//             }
-//         }
-
-//         for transformer_id in self.transformer_ids.iter_mut() {
-//             match hub.unset_transform(*transformer_id) {
-//                 Err(err) => panic!("{}", err),
-//                 Ok(_) => {}
-//             }
-//         }
-//     }
-// }

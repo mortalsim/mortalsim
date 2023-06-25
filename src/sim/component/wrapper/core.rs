@@ -1,16 +1,7 @@
 use super::{super::{SimComponent, ComponentRegistry}, ComponentWrapper};
-use crate::sim::system::core::component::{CoreComponent, CoreComponentInitializer, CoreConnector};
+use crate::sim::layer::core::component::{CoreComponent, CoreComponentInitializer, CoreConnector};
 
-pub struct CoreComponentWrapper<T: CoreComponent + 'static> {
-  name: &'static str,
-  inner: T,
-}
-
-impl<T: CoreComponent> CoreComponentWrapper<T> {
-  pub fn new(name: &'static str, inner: T) -> CoreComponentWrapper<T> {
-    CoreComponentWrapper {name, inner}
-  }
-}
+pub struct CoreComponentWrapper<T: CoreComponent + 'static>(pub T);
 
 impl<T: CoreComponent> ComponentWrapper for CoreComponentWrapper<T> {
   fn is_core_component(&self) -> bool {true}
@@ -18,19 +9,22 @@ impl<T: CoreComponent> ComponentWrapper for CoreComponentWrapper<T> {
 }
 
 impl<T: CoreComponent> SimComponent for CoreComponentWrapper<T> {
+  fn id(&self) -> &'static str {
+      self.0.id()
+  }
   fn attach(self, registry: &mut ComponentRegistry) {
-    registry.add_core_component(self.name, self.inner);
+    registry.add_core_component(self.0);
   }
   fn run(&mut self) {
-      self.inner.run();
+      self.0.run();
   }
 }
 
 impl<T: CoreComponent> CoreComponent for CoreComponentWrapper<T> {
   fn core_init(&mut self, initializer: &mut CoreComponentInitializer) {
-    self.inner.core_init(initializer)
+    self.0.core_init(initializer)
   }
   fn core_connector(&mut self) -> &mut CoreConnector {
-    self.inner.core_connector()
+    self.0.core_connector()
   }
 }

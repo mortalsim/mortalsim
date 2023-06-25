@@ -1,6 +1,6 @@
 
 pub mod component;
-// pub mod sim;
+pub mod core_layer;
 // mod time_manager;
 // mod sim_state;
 // pub use module::{SimModuleInitializer, SimConnector, SimModule, CoreSimModule};

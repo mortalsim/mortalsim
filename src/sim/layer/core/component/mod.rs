@@ -57,8 +57,11 @@ pub mod test {
     }
 
     impl SimComponent for TestComponentA {
+      fn id(&self) -> &'static str {
+        "TestComponentA"
+      }
       fn attach(self, registry: &mut ComponentRegistry) {
-        registry.add_core_component("TestComponentA", self)
+        registry.add_core_component(self)
       }
       fn run(&mut self) {
         let evt_a = self.connector.get::<TestEventA>().unwrap();
@@ -94,8 +97,11 @@ pub mod test {
     }
 
     impl SimComponent for TestComponentB {
+      fn id(&self) -> &'static str {
+        "TestComponentB"
+      }
       fn attach(self, registry: &mut ComponentRegistry) {
-        registry.add_core_component("TestComponentB", self)
+        registry.add_core_component(self)
       }
       fn run(&mut self) {
           let evt_a = self.connector.get::<TestEventA>().unwrap();

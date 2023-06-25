@@ -1,5 +1,5 @@
 pub mod core;
-use crate::sim::system::core::component::CoreComponent;
+use crate::sim::layer::core::component::CoreComponent;
 
 pub trait ComponentWrapper : CoreComponent {
   fn is_core_component(&self) -> bool;
