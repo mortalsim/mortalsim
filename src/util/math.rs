@@ -2,7 +2,6 @@ use std::ops::{Div, Mul};
 use std::f64::consts::E;
 use ordered_float::NotNan;
 use uom::si::Units;
-use crate::core::sim::Time;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Copy)]
 pub enum BoundFn {

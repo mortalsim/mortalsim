@@ -5,12 +5,11 @@ use std::any::TypeId;
 use anyhow::{Error, Result};
 use uom::si::time::second;
 use crate::util::id_gen::IdType;
-use crate::core::sim::{SimState, Time};
+use crate::sim::{SimState, Time};
 use crate::event::Event;
-use super::super::Sim;
 
 /// Provides methods for `Sim` modules to interact with the simulation
-pub struct SimConnector {
+pub struct CoreConnector {
     /// State specific to the connected module
     pub(crate) sim_state: Arc<Mutex<SimState>>,
     /// Holds a shared reference to the Event which triggered module execution
@@ -29,11 +28,11 @@ pub struct SimConnector {
     pub(crate) unschedule_all: bool,
 }
 
-impl SimConnector {
+impl CoreConnector {
     
-    /// Creates a new SimConnector
-    pub fn new() -> SimConnector {
-        SimConnector {
+    /// Creates a new CoreConnector
+    pub fn new() -> CoreConnector {
+        CoreConnector {
             // Temporary empty state which will be replaced by the canonical state
             sim_state: Arc::new(Mutex::new(SimState::new())),
             trigger_events: Vec::new(),

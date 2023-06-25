@@ -12,12 +12,12 @@ extern crate strum_macros;
 
 mod sim;
 // mod hub;
-// mod util;
-// mod tmp;
+mod util;
 mod spark;
 
 // pub mod substance;
-// pub mod event;
+pub mod event;
+pub mod hub;
 // pub mod closed_circulation;
 // pub mod human;
 

@@ -15,7 +15,7 @@ use anyhow::{Result, Error};
 use crate::util::id_gen::{IdType, IdGenerator, InvalidIdError};
 use crate::event::Event;
 use crate::util::quantity_wrapper::OrderedTime;
-use crate::core::hub::event_transformer::{EventTransformer, TransformerItem};
+use crate::hub::event_transformer::{EventTransformer, TransformerItem};
 
 pub type Time = uom::si::f64::Time;
 
@@ -266,7 +266,7 @@ mod tests {
     use uom::si::f64::AmountOfSubstance;
     use uom::si::length::meter;
     use uom::si::amount_of_substance::mole;
-    use crate::core::hub::event_transformer::{EventTransformer, TransformerItem};
+    use crate::hub::event_transformer::{EventTransformer, TransformerItem};
 
     #[test]
     fn advance_test() {

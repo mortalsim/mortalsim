@@ -11,8 +11,8 @@ use core::any::TypeId;
 use uuid::Uuid;
 use anyhow::Result;
 use crate::util::id_gen::{IdType, IdGenerator, InvalidIdError};
-use crate::core::hub::event_listener::{EventListener, ListenerItem, GenericListener};
-use crate::core::hub::event_transformer::{EventTransformer, TransformerItem};
+use super::event_listener::{EventListener, ListenerItem, GenericListener};
+use super::event_transformer::{EventTransformer, TransformerItem};
 use crate::event::Event;
 
 /// Pub/Sub router for Event objects. Handles Event dispatch and transformation.

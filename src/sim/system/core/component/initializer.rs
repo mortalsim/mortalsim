@@ -3,15 +3,14 @@ use std::sync::Arc;
 use std::cell::RefCell;
 use std::any::TypeId;
 use std::collections::HashSet;
-use crate::core::sim::{TimeManager, SimState};
-use crate::core::hub::EventHub;
-use crate::core::hub::event_transformer::{EventTransformer, TransformerItem};
+use crate::sim::{TimeManager, SimState};
+use crate::hub::EventHub;
+use crate::hub::event_transformer::{EventTransformer, TransformerItem};
 use crate::event::Event;
 use crate::util::id_gen::IdType;
-use super::{SimModule, SimConnector};
-use super::super::Sim;
+use super::{SimComponent, CoreConnector};
 
-pub struct SimModuleInitializer {
+pub struct CoreComponentInitializer {
     pub(crate) input_events: HashSet<TypeId>,
     pub(crate) output_events: HashSet<TypeId>,
     pub(crate) pending_notifies: Vec<(i32, Box<dyn Event>)>,
@@ -19,9 +18,9 @@ pub struct SimModuleInitializer {
     pub(crate) initial_outputs: Vec<Box<dyn Event>>,
 }
 
-impl SimModuleInitializer {
-    pub fn new() -> SimModuleInitializer {
-        SimModuleInitializer {
+impl CoreComponentInitializer {
+    pub fn new() -> CoreComponentInitializer {
+        CoreComponentInitializer {
             input_events: HashSet::new(),
             output_events: HashSet::new(),
             pending_notifies: Vec::new(),
@@ -85,7 +84,7 @@ impl SimModuleInitializer {
 }
 
 // Unset any listeners & transformers when this object drops
-// impl<'a> Drop for SimModuleInitializer<'a> {
+// impl<'a> Drop for CoreComponentInitializer<'a> {
 //     fn drop(&mut self) {
 //         let mut hub = self.hub.borrow_mut();
 //         for listener_id in self.listener_ids.iter_mut() {
