@@ -2,12 +2,6 @@ use super::{TimeManager, SimState, Time};
 
 pub mod core;
 
-pub struct LayerConnector {
-  sim_time: Time,
-  time_manager: Option<TimeManager>,
-  sim_state: Option<SimState>,
-}
-
 // use std::collections::HashSet;
 // use anyhow::Result;
 // use crate::{event::Event, util::IdType};

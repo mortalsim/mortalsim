@@ -3,6 +3,7 @@
 pub mod registry;
 pub mod wrapper;
 
+use super::SimConnector;
 use self::registry::ComponentRegistry;
 
 /// Trait to be used by any modules for Sim objects
@@ -18,8 +19,10 @@ pub trait SimComponent {
 /// Trait to outline common methods for all systems that
 /// process `SimComponent`s
 pub trait SimComponentProcessor<T: SimComponent> {
-  /// Prepare a component for their run
-  fn prepare_component(&self, component: &mut T);
+  /// Execute initial setup for a component
+  fn setup_component(&mut self, connector: &mut SimConnector, component: &mut T);
+  /// Prepare a component for their run, and indicate if they should trigger a run
+  fn prepare_component(&mut self, connector: &SimConnector, component: &mut T) -> bool;
   /// Process a component after their run
-  fn process_component(&mut self, component: &mut T);
+  fn process_component(&mut self, connector: &mut SimConnector, component: &mut T);
 }

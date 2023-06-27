@@ -112,7 +112,7 @@ impl CoreConnector {
         }
     }
     
-    /// Retrieves the `Event` object(s) which triggered the current `run`
+    /// Retrieves the `Event` object(s) which triggered the current `run` (if any)
     pub fn trigger_events<'a>(&'a self) -> impl Iterator<Item = &Arc<dyn Event>> + 'a {
         self.trigger_events.iter()
     }
