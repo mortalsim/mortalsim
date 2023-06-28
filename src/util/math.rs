@@ -1,6 +1,6 @@
-use std::ops::{Div, Mul};
-use std::f64::consts::E;
 use ordered_float::NotNan;
+use std::f64::consts::E;
+use std::ops::{Div, Mul};
 use uom::si::Units;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Copy)]
@@ -20,28 +20,27 @@ impl BoundFn {
 
 /// A mathematical sigmoid / logistic function with additional bounds
 /// to define function shape
-/// 
+///
 /// ### Arguments
 /// * `t` - time
 /// * `d` - duration
 /// * `a` - amplitude
 pub fn bound_sigmoid(t: f64, d: f64, a: f64) -> f64 {
-    return a / (1.0 + f64::exp(-((4.0 * E / d) * t - 2.0 * E)))
+    return a / (1.0 + f64::exp(-((4.0 * E / d) * t - 2.0 * E)));
 }
 
 /// A linear function with additional bounds to define function shape
-/// 
+///
 /// ### Arguments
 /// * `t` - time
 /// * `d` - duration
 /// * `a` - amplitude
 pub fn bound_linear(t: f64, d: f64, a: f64) -> f64 {
     if t < d {
-        return a*t/d;
+        return a * t / d;
     }
     return a;
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -67,7 +66,7 @@ mod tests {
         linear_3q:   bound_linear, (0.75, 1.0, 1.0, 0.75),
         linear_1:    bound_linear, (1.0, 1.0, 1.0, 1.0),
         linear_1_1h: bound_linear, (1.5, 1.0, 1.0, 1.0),
-        
+
         sigmoid_0:    bound_sigmoid, (0.0, 1.0, 1.0, 0.0),
         sigmoid_1q:   bound_sigmoid, (0.25, 1.0, 1.0, 0.0619),
         sigmoid_1h:   bound_sigmoid, (0.5, 1.0, 1.0, 0.5),
@@ -82,24 +81,23 @@ mod tests {
     //     let tests = [
 
     //     ]
-        
+
     //     let result = bound_sigmoid(0.0, 1.0, 1.0);
     //     assert!((result - 0.0).abs() < 0.0001, "result: {}", result);
-        
+
     //     let result = bound_sigmoid(0.25, 1.0, 1.0);
     //     assert!((result - 0.0619).abs() < 0.0001, "result: {}", result);
-        
+
     //     let result = bound_sigmoid(0.5, 1.0, 1.0);
     //     assert!((result - 0.5).abs() < 0.0001, "result: {}", result);
-        
+
     //     let result = bound_sigmoid(0.75, 1.0, 1.0);
     //     assert!((result - 0.9381).abs() < 0.0001, "result: {}", result);
-        
+
     //     let result = bound_sigmoid(1.0, 1.0, 1.0);
     //     assert!((result - 1.0).abs() < 0.0001, "result: {}", result);
-        
+
     //     let result = bound_sigmoid(1.5, 1.0, 1.0);
     //     assert!((result - 1.0).abs() < 0.0001, "result: {}", result);
     // }
-
 }

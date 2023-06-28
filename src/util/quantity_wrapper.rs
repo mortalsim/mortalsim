@@ -1,6 +1,6 @@
+use ordered_float::OrderedFloat;
 use std::cmp::Ordering;
 use uom::si::f64::Time;
-use ordered_float::OrderedFloat;
 
 #[derive(Debug, Default, Clone, Copy)]
 #[repr(transparent)]
@@ -42,7 +42,7 @@ impl PartialOrd for OrderedTime {
 impl Eq for OrderedTime {}
 
 impl Ord for OrderedTime {
-  fn cmp(&self, other: &Self) -> Ordering {
-    OrderedFloat(self.0.value).cmp(&OrderedFloat(other.0.value))
-  }
+    fn cmp(&self, other: &Self) -> Ordering {
+        OrderedFloat(self.0.value).cmp(&OrderedFloat(other.0.value))
+    }
 }

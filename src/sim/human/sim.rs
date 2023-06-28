@@ -1,19 +1,22 @@
-use std::collections::{HashSet, HashMap};
-use std::sync::Mutex;
-use std::any::{Any, TypeId};
+use super::circulation::HumanBloodManager;
+use super::module::{HumanModuleInitializer, HumanSimConnector, HumanSimModule};
+use super::{HumanCirculatorySystem, HUMAN_CIRCULATION_FILEPATH};
+use crate::closed_circulation::{
+    BloodVessel, ClosedCircConnector, ClosedCircInitializer, ClosedCirculatorySystem,
+};
+use crate::core::sim::{CoreSim, Sim, SimConnector, SimModule};
+use crate::event::Event;
+use crate::substance::{MolarConcentration, Substance, SubstanceStore, Time};
+use crate::util::IdType;
 use anyhow::Result;
 use petgraph::graph::{Graph, NodeIndex};
-use crate::core::sim::{Sim, CoreSim, SimConnector, SimModule};
-use crate::substance::{SubstanceStore, Time, Substance, MolarConcentration};
-use crate::event::Event;
-use crate::util::IdType;
-use crate::closed_circulation::{BloodVessel, ClosedCircInitializer, ClosedCircConnector, ClosedCirculatorySystem};
-use super::{HUMAN_CIRCULATION_FILEPATH, HumanCirculatorySystem};
-use super::circulation::HumanBloodManager;
-use super::module::{HumanSimModule, HumanSimConnector, HumanModuleInitializer};
+use std::any::{Any, TypeId};
+use std::collections::{HashMap, HashSet};
+use std::sync::Mutex;
 
 lazy_static! {
-    static ref COMPONENT_REGISTRY: Mutex<HashMap<&'static str, Box<dyn FnMut() -> Box<dyn HumanSimModule> + Send>>> = Mutex::new(HashMap::new());
+    static ref COMPONENT_REGISTRY: Mutex<HashMap<&'static str, Box<dyn FnMut() -> Box<dyn HumanSimModule> + Send>>> =
+        Mutex::new(HashMap::new());
 }
 
 /// Registers a Sim module which interacts with a Human simulation. By default, the module will be
@@ -22,9 +25,15 @@ lazy_static! {
 /// ### Arguments
 /// * `module_name` - String name for the module
 /// * `factory`        - Factory function which creates an instance of the module
-pub fn register_module(module_name: &'static str, factory: impl FnMut() -> Box<dyn HumanSimModule> + Send + 'static) {
+pub fn register_module(
+    module_name: &'static str,
+    factory: impl FnMut() -> Box<dyn HumanSimModule> + Send + 'static,
+) {
     log::debug!("Registering human module: {}", module_name);
-    COMPONENT_REGISTRY.lock().unwrap().insert(module_name, Box::new(factory));
+    COMPONENT_REGISTRY
+        .lock()
+        .unwrap()
+        .insert(module_name, Box::new(factory));
 }
 
 pub struct HumanSim {
@@ -41,7 +50,7 @@ impl HumanSim {
             core: CoreSim::new(),
             blood_manager: HumanBloodManager::new(HumanCirculatorySystem::new()),
             active_modules: HashMap::new(),
-            connector_map: HashMap::new()
+            connector_map: HashMap::new(),
         }
     }
 
@@ -57,16 +66,19 @@ impl HumanSim {
             match registry.get_mut(module_name) {
                 None => {
                     remaining_modules.insert(module_name);
-                },
+                }
                 Some(factory) => {
                     let mut module = factory();
                     let mut human_initializer = HumanModuleInitializer::new();
                     module.init(&mut human_initializer.initializer);
 
-                    self.core.setup_module(module_name, human_initializer.initializer);
+                    self.core
+                        .setup_module(module_name, human_initializer.initializer);
                     self.active_modules.insert(module_name, module);
 
-                    let cc_connector = self.blood_manager.setup_module(module_name, human_initializer.cc_initializer);
+                    let cc_connector = self
+                        .blood_manager
+                        .setup_module(module_name, human_initializer.cc_initializer);
 
                     let human_connector = HumanSimConnector::new(SimConnector::new(), cc_connector);
                     self.connector_map.insert(module_name, human_connector);
@@ -93,7 +105,6 @@ impl HumanSim {
 }
 
 impl Sim for HumanSim {
-
     /// Returns the current simulation time
     fn get_time(&self) -> Time {
         self.core.get_time()
@@ -102,8 +113,7 @@ impl Sim for HumanSim {
     fn has_module(&self, module_name: &'static str) -> bool {
         if self.active_modules.contains_key(module_name) {
             true
-        }
-        else {
+        } else {
             self.core.has_module(module_name)
         }
     }
@@ -131,7 +141,7 @@ impl Sim for HumanSim {
     }
 
     /// Advances simulation time to the next `Event` or listener in the queue, if any.
-    /// 
+    ///
     /// If there are no Events or listeners in the queue, time will remain unchanged
     fn advance(&mut self) {
         self.core.advance();
@@ -139,10 +149,10 @@ impl Sim for HumanSim {
     }
 
     /// Advances simulation time by the provided time step
-    /// 
+    ///
     /// If a negative value is provided, time will immediately jump to
     /// the next scheduled Event, if any.
-    /// 
+    ///
     /// ### Arguments
     /// * `time_step` - Amount of time to advance by
     fn advance_by(&mut self, time_step: Time) {
@@ -151,21 +161,21 @@ impl Sim for HumanSim {
     }
 
     /// Schedules an `Event` for future emission on this simulation
-    /// 
+    ///
     /// ### Arguments
     /// * `wait_time` - amount of simulation time to wait before emitting the Event
     /// * `event` - Event instance to emit
-    /// 
+    ///
     /// Returns the schedule ID
     fn schedule_event(&mut self, wait_time: Time, event: impl Event) -> IdType {
         self.core.schedule_event(wait_time, event)
     }
 
     /// Unschedules a previously scheduled `Event`
-    /// 
+    ///
     /// ### Arguments
     /// * `schedule_id` - Schedule ID returned by `schedule_event`
-    /// 
+    ///
     /// Returns an Err Result if the provided ID is invalid
     fn unschedule_event(&mut self, schedule_id: &IdType) -> Result<()> {
         self.core.unschedule_event(schedule_id)
@@ -175,7 +185,7 @@ impl Sim for HumanSim {
 #[cfg(test)]
 mod tests {
     use super::HumanSim;
-    use crate::core::sim::{Time, Sim};
+    use crate::core::sim::{Sim, Time};
     use uom::si::time::second;
 
     #[test]

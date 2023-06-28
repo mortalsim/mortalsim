@@ -1,5 +1,7 @@
+use crate::closed_circulation::{
+    BloodVessel, ClosedCirculationSim, ClosedCirculatorySystem, VesselIter,
+};
 use std::collections::HashSet;
-use crate::closed_circulation::{BloodVessel, ClosedCirculatorySystem, ClosedCirculationSim, VesselIter};
 
 pub type HumanCirculatorySystem = ClosedCirculatorySystem<HumanBloodVessel>;
 pub type HumanBloodManager = ClosedCirculationSim<HumanBloodVessel>;
@@ -17,8 +19,11 @@ lazy_static! {
 impl HumanCirculatorySystem {
     pub fn new() -> HumanCirculatorySystem {
         match HumanCirculatorySystem::from_json_file(HUMAN_CIRCULATION_FILEPATH) {
-            Err(err) => panic!("Error loading Human Circulatory System from '{}': {}", HUMAN_CIRCULATION_FILEPATH, err),
-            Ok(circ) => circ
+            Err(err) => panic!(
+                "Error loading Human Circulatory System from '{}': {}",
+                HUMAN_CIRCULATION_FILEPATH, err
+            ),
+            Ok(circ) => circ,
         }
     }
 }
@@ -123,6 +128,8 @@ pub enum HumanBloodVessel {
 
 impl BloodVessel for HumanBloodVessel {
     fn start_vessels<'a>() -> VesselIter<'a, Self> {
-        VesselIter { iter: START_VESSELS.iter() }
+        VesselIter {
+            iter: START_VESSELS.iter(),
+        }
     }
 }

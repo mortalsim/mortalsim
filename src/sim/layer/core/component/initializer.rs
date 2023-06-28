@@ -1,14 +1,14 @@
+use super::{CoreConnector, SimComponent};
+use crate::event::Event;
+use crate::hub::event_transformer::{EventTransformer, TransformerItem};
+use crate::hub::EventHub;
+use crate::sim::{SimState, TimeManager};
+use crate::util::id_gen::IdType;
+use std::any::TypeId;
+use std::cell::RefCell;
+use std::collections::HashSet;
 use std::rc::{Rc, Weak};
 use std::sync::Arc;
-use std::cell::RefCell;
-use std::any::TypeId;
-use std::collections::HashSet;
-use crate::sim::{TimeManager, SimState};
-use crate::hub::EventHub;
-use crate::hub::event_transformer::{EventTransformer, TransformerItem};
-use crate::event::Event;
-use crate::util::id_gen::IdType;
-use super::{SimComponent, CoreConnector};
 
 pub struct CoreComponentInitializer {
     pub(crate) input_events: HashSet<TypeId>,
@@ -31,16 +31,16 @@ impl CoreComponentInitializer {
 
     /// Registers the corresponding `SimModule` to `run` whenever the
     /// provided `Event` is modified on the `Sim`.
-    /// 
+    ///
     /// ### Arguments
     /// * `default` - Default `Event` value when one isn't provided by another module
     pub fn notify<E: Event>(&mut self, default: E) {
         self.notify_prioritized::<E>(0, default);
     }
-    
+
     /// Registers the corresponding `SimModule` to `run` whenever the
     /// provided `Event` is modified on the `Sim` with a given priority value.
-    /// 
+    ///
     /// ### Arguments
     /// * `priority` - Notify order priority for this registration
     /// * `default` - Default `Event` value when one isn't provided by another module
@@ -52,33 +52,44 @@ impl CoreComponentInitializer {
             panic!("Modules cannot register notifications for Events they are producing! This could cause an infinite loop.")
         }
 
-        self.pending_notifies.push((priority,Box::new(default)))
+        self.pending_notifies.push((priority, Box::new(default)))
     }
-    
+
     /// Registers a transformation function whenever the indicated `Event` is
     /// emitted for the correspoinding `Sim`.
-    /// 
+    ///
     /// ### Arguments
     /// * `handler` - Function to modify the `Event`
     pub fn transform<E: Event>(&mut self, handler: impl FnMut(&mut E) + 'static) {
-        self.pending_transforms.push(Box::new(TransformerItem::new(handler)))
+        self.pending_transforms
+            .push(Box::new(TransformerItem::new(handler)))
     }
-    
+
     /// Registers a transformation function whenever the indicated `Event` is
     /// emitted for the correspoinding `Sim` with a given priority value.
-    /// 
+    ///
     /// ### Arguments
     /// * `priority` - Transformation order priority for this registration
     /// * `handler` - Function to modify the `Event`
-    pub fn transform_prioritized<E: Event>(&mut self, priority: i32, handler: impl FnMut(&mut E) + 'static) {
-        self.pending_transforms.push(Box::new(TransformerItem::new_prioritized(handler, priority)))
+    pub fn transform_prioritized<E: Event>(
+        &mut self,
+        priority: i32,
+        handler: impl FnMut(&mut E) + 'static,
+    ) {
+        self.pending_transforms
+            .push(Box::new(TransformerItem::new_prioritized(
+                handler, priority,
+            )))
     }
-    
+
     /// Sets an `Event` as the initial state on the `Sim`
-    /// 
+    ///
     /// ### Arguments
     /// * `event` - `Event` instance to set on initial state
     pub fn set_output<E: Event>(&mut self, initial_value: E) {
         self.initial_outputs.push(Box::new(initial_value))
     }
 }
+
+#[cfg(test)]
+pub mod test {}

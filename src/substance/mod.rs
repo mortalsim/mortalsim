@@ -1,11 +1,10 @@
-
 use uom::si::molar_concentration::millimole_per_liter;
-mod substance;
-mod store;
 mod change;
-pub use substance::Substance;
-pub use store::SubstanceStore;
+mod store;
+mod substance;
 pub use change::SubstanceChange;
+pub use store::SubstanceStore;
+pub use substance::Substance;
 pub use uom::si::f64::*;
 
 lazy_static! {

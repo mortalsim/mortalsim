@@ -1,22 +1,23 @@
-use std::hash::{Hash, Hasher};
+use super::vessel::{BloodVessel, BloodVesselType, VesselIter};
+use super::{
+    BloodEdge, BloodNode, ClosedCircConnector, ClosedCircInitializer, ClosedCircSimModule,
+    ClosedCircVesselIter, ClosedCirculatorySystem, COMPONENT_REGISTRY,
+};
+use crate::core::sim::{second, CoreSim, SimConnector, SimModule, SimModuleInitializer, Time};
+use crate::event::{BloodCompositionChange, BloodVolumeChange};
+use crate::substance::{AmountOfSubstance, MolarConcentration, Substance, SubstanceStore, Volume};
+use petgraph::graph::{Graph, Neighbors, NodeIndex};
+use petgraph::Direction;
+use std::any::{Any, TypeId};
 use std::cmp::Ordering;
-use std::collections::{HashMap, HashSet};
 use std::collections::hash_set;
+use std::collections::{HashMap, HashSet};
+use std::hash::{Hash, Hasher};
 use std::rc::Rc;
 use std::string;
-use std::any::{Any, TypeId};
-use uuid::Uuid;
-use petgraph::Direction;
-use petgraph::graph::{Graph, NodeIndex, Neighbors};
-use uom::si::molar_concentration::mole_per_liter;
 use uom::si::amount_of_substance::mole;
-use crate::core::sim::{SimConnector, CoreSim, SimModule, SimModuleInitializer, Time, second};
-use crate::substance::{SubstanceStore, Volume, Substance, MolarConcentration, AmountOfSubstance};
-use crate::event::{BloodCompositionChange, BloodVolumeChange};
-use super::vessel::{BloodVessel, BloodVesselType, VesselIter};
-use super::{BloodNode, BloodEdge, ClosedCirculatorySystem, ClosedCircVesselIter,
-    ClosedCircConnector, ClosedCircSimModule,
-    ClosedCircInitializer, COMPONENT_REGISTRY};
+use uom::si::molar_concentration::mole_per_liter;
+use uuid::Uuid;
 
 pub struct ClosedCirculationSim<V: BloodVessel + 'static> {
     manager_id: Uuid,
@@ -46,7 +47,8 @@ impl<V: BloodVessel + 'static> ClosedCirculationSim<V> {
 
     pub(crate) fn init_modules(&mut self, module_names: HashSet<&'static str>) {
         let mut registry = COMPONENT_REGISTRY.lock().unwrap();
-        let vessel_registry: &mut HashMap<&'static str, Box<dyn Any + Send>> = registry.entry(TypeId::of::<V>()).or_insert(HashMap::new());
+        let vessel_registry: &mut HashMap<&'static str, Box<dyn Any + Send>> =
+            registry.entry(TypeId::of::<V>()).or_insert(HashMap::new());
 
         let mut remaining_modules = HashSet::new();
 
@@ -55,32 +57,41 @@ impl<V: BloodVessel + 'static> ClosedCirculationSim<V> {
             match vessel_registry.get_mut(module_name) {
                 None => {
                     remaining_modules.insert(module_name);
-                },
+                }
                 Some(factory_box) => {
-                    log::debug!("Initializing module \"{}\" on ClosedCirculation", module_name);
+                    log::debug!(
+                        "Initializing module \"{}\" on ClosedCirculation",
+                        module_name
+                    );
                     let factory = factory_box.downcast_mut::<Box<dyn FnMut() -> Box<dyn ClosedCircSimModule<VesselType = V>>>>().unwrap();
                     let mut module = factory();
                     let mut cc_initializer = ClosedCircInitializer::new();
                     module.init_cc(&mut cc_initializer);
-                    
+
                     // perform closed circulation module portion setup
                     self.setup_module(module_name, cc_initializer);
-                    
+
                     self.active_modules.insert(module_name, module);
                 }
             }
         }
     }
 
-    pub(crate) fn setup_module(&mut self, module_name: &'static str, cc_initializer: ClosedCircInitializer<V>) -> ClosedCircConnector<V> {
-
+    pub(crate) fn setup_module(
+        &mut self,
+        module_name: &'static str,
+        cc_initializer: ClosedCircInitializer<V>,
+    ) -> ClosedCircConnector<V> {
         let mut cc_connector = ClosedCircConnector::new(self.system.clone(), cc_initializer);
 
         for (vessel, substance_map) in cc_connector.substance_notifies.drain() {
             let mut substance_list = Vec::new();
             for (substance, threshold) in substance_map {
                 substance_list.push(substance);
-                let vsubstance_map = self.blood_notify_map.entry(vessel).or_insert(HashMap::new());
+                let vsubstance_map = self
+                    .blood_notify_map
+                    .entry(vessel)
+                    .or_insert(HashMap::new());
                 let notify_list = vsubstance_map.entry(substance).or_insert(Vec::new());
                 notify_list.push((threshold, module_name));
             }
@@ -89,7 +100,6 @@ impl<V: BloodVessel + 'static> ClosedCirculationSim<V> {
     }
 
     pub(crate) fn update(&mut self, update_list: impl Iterator<Item = &'static str>) {
-
         // // Process any blood composition change events
         // for evt in organism.extension_events::<BloodCompositionChange<V>>(&self.manager_id) {
         //     // Remove the index from the map so we have ownership of it
@@ -136,7 +146,6 @@ impl<V: BloodVessel + 'static> ClosedCirculationSim<V> {
     pub(crate) fn process_module(&mut self, _connector: &mut ClosedCircConnector<V>) {
         // ... Nothing to do here for now
     }
-
 }
 
 // impl<V: BloodVessel + 'static> ClosedCircSimConnector<V> for ClosedCirculationSim<V> {
@@ -157,7 +166,7 @@ impl<V: BloodVessel + 'static> ClosedCirculationSim<V> {
 //     fn is_pre_capillary(&self, vessel: &V) -> bool {
 //         self.pre_capillaries.contains(vessel)
 //     }
-    
+
 //     fn is_post_capillary(&self, vessel: &V) -> bool {
 //         self.post_capillaries.contains(vessel)
 //     }
@@ -165,7 +174,7 @@ impl<V: BloodVessel + 'static> ClosedCirculationSim<V> {
 //     fn pre_capillaries(&self) -> VesselIter<V> {
 //         self.pre_capillaries.iter().into()
 //     }
-    
+
 //     fn post_capillaries(&self) -> VesselIter<V> {
 //         self.post_capillaries.iter().into()
 //     }
@@ -173,7 +182,7 @@ impl<V: BloodVessel + 'static> ClosedCirculationSim<V> {
 //     fn downstream(&self, vessel: V) -> ClosedCircVesselIter<V> {
 //         self.vessel_connections(vessel, Direction::Outgoing)
 //     }
-    
+
 //     fn upstream(&self, vessel: V) -> ClosedCircVesselIter<V> {
 //         self.vessel_connections(vessel, Direction::Incoming)
 //     }
@@ -188,7 +197,5 @@ mod tests {
     use super::ClosedCirculationSim;
 
     #[test]
-    fn test_manager() {
-
-    }
+    fn test_manager() {}
 }

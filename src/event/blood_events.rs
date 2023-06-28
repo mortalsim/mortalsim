@@ -1,6 +1,6 @@
-use crate::closed_circulation::BloodVessel;
-use crate::substance::{Substance, AmountOfSubstance, MolarConcentration, Volume};
 use super::Event;
+use crate::closed_circulation::BloodVessel;
+use crate::substance::{AmountOfSubstance, MolarConcentration, Substance, Volume};
 
 #[derive(Debug)]
 pub struct BloodCompositionChange<V: BloodVessel> {

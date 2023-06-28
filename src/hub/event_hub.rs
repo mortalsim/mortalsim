@@ -3,17 +3,17 @@
 //! The EventHub handles Event dispatch to their corresponding transformers
 //! and listeners based on their TypeId
 
-use std::fmt;
-use std::error::Error;
-use std::collections::HashMap;
-use std::sync::Arc;
-use core::any::TypeId;
-use uuid::Uuid;
-use anyhow::Result;
-use crate::util::id_gen::{IdType, IdGenerator, InvalidIdError};
-use super::event_listener::{EventListener, ListenerItem, GenericListener};
+use super::event_listener::{EventListener, GenericListener, ListenerItem};
 use super::event_transformer::{EventTransformer, TransformerItem};
 use crate::event::Event;
+use crate::util::id_gen::{IdGenerator, IdType, InvalidIdError};
+use anyhow::Result;
+use core::any::TypeId;
+use std::collections::HashMap;
+use std::error::Error;
+use std::fmt;
+use std::sync::Arc;
+use uuid::Uuid;
 
 /// Pub/Sub router for Event objects. Handles Event dispatch and transformation.
 pub struct EventHub<'a> {
@@ -35,16 +35,18 @@ pub struct EventHub<'a> {
 
 impl<'a> fmt::Debug for EventHub<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "EventHub<{:?}> {{ listeners: {:?}, generic_listeners: {:?}, transformers: {:?} }}",
+        write!(
+            f,
+            "EventHub<{:?}> {{ listeners: {:?}, generic_listeners: {:?}, transformers: {:?} }}",
             self.hub_id,
             self.event_listeners,
             self.generic_event_listeners,
-            self.event_transformers)
+            self.event_transformers
+        )
     }
 }
 
 impl<'a> EventHub<'a> {
-
     /// Creates a new EventHub
     pub fn new() -> EventHub<'a> {
         EventHub {
@@ -54,7 +56,7 @@ impl<'a> EventHub<'a> {
             generic_event_listeners: Vec::new(),
             listener_id_type_map: HashMap::new(),
             transformer_id_type_map: HashMap::new(),
-            on_emitted_fn: None
+            on_emitted_fn: None,
         }
     }
 
@@ -67,7 +69,7 @@ impl<'a> EventHub<'a> {
         let type_key = TypeId::of::<T>();
         self.emit_typed(type_key, Box::new(evt));
     }
-    
+
     /// Dispatches an Event trait object with it's given type.
     ///
     /// ### Arguments
@@ -76,9 +78,13 @@ impl<'a> EventHub<'a> {
     pub(crate) fn emit_typed(&mut self, type_key: TypeId, mut evt: Box<dyn Event>) {
         // Call each transformer with the event
         match self.event_transformers.get_mut(&type_key) {
-            None => {}, // No transformers = nothing to do
+            None => {} // No transformers = nothing to do
             Some(transformers) => {
-                log::debug!("Triggering {} transformers for EventHub {}", transformers.len(), self.hub_id);
+                log::debug!(
+                    "Triggering {} transformers for EventHub {}",
+                    transformers.len(),
+                    self.hub_id
+                );
                 for transformer in transformers {
                     transformer.transform(&mut *evt);
                 }
@@ -87,18 +93,26 @@ impl<'a> EventHub<'a> {
 
         // Event is now finalized, so convert it into an Rc for shared, read-only ownership
         let final_evt: Arc<dyn Event> = evt.into();
-        
+
         // Call each generic listener with the event
-        log::debug!("Triggering {} generic listeners for EventHub {}", self.generic_event_listeners.len(), self.hub_id);
+        log::debug!(
+            "Triggering {} generic listeners for EventHub {}",
+            self.generic_event_listeners.len(),
+            self.hub_id
+        );
         for listener in &mut self.generic_event_listeners {
             listener.handle(final_evt.clone());
         }
 
         // Call each typed listener with the event
         match self.event_listeners.get_mut(&type_key) {
-            None => {}, // No listeners = nothing to do
+            None => {} // No listeners = nothing to do
             Some(listeners) => {
-                log::debug!("Triggering {} transformers for EventHub {}", listeners.len(), self.hub_id);
+                log::debug!(
+                    "Triggering {} transformers for EventHub {}",
+                    listeners.len(),
+                    self.hub_id
+                );
                 for listener in listeners {
                     listener.handle(final_evt.clone());
                 }
@@ -106,41 +120,49 @@ impl<'a> EventHub<'a> {
         }
 
         match &mut self.on_emitted_fn {
-            None => {/* Nothing to do if noone's listening */}
-            Some(cb) => cb(type_key, final_evt)
+            None => { /* Nothing to do if noone's listening */ }
+            Some(cb) => cb(type_key, final_evt),
         }
     }
 
-    /// Registers a listener for any Event. 
+    /// Registers a listener for any Event.
     ///
     /// ### Arguments
     /// * `handler` - Event handling function
-    /// 
+    ///
     /// Returns the registration ID for the listener
     pub fn on_any(&mut self, handler: impl FnMut(Arc<dyn Event>) + 'a) -> IdType {
         self.on_any_impl(Box::new(GenericListener::new(handler)))
     }
-    
+
     /// Registers a listener for any Event with the given priority value. Higher
     /// priority listeners are executed first.
     ///
     /// ### Arguments
     /// * `priority` - Priority of the listener
     /// * `handler` - Event handling function
-    /// 
+    ///
     /// Returns the registration ID for the listener
-    pub fn on_any_prioritized(&mut self, priority: i32, handler: impl FnMut(Arc<dyn Event>) + 'a) -> IdType {
-        self.on_any_impl(Box::new(GenericListener::new_prioritized(handler, priority)))
+    pub fn on_any_prioritized(
+        &mut self,
+        priority: i32,
+        handler: impl FnMut(Arc<dyn Event>) + 'a,
+    ) -> IdType {
+        self.on_any_impl(Box::new(GenericListener::new_prioritized(
+            handler, priority,
+        )))
     }
-    
+
     /// Internal function for registering listeners for any Event
     fn on_any_impl(&mut self, listener: Box<dyn EventListener + 'a>) -> IdType {
-
         let listener_id = listener.listener_id();
 
         // insert the listener into the generic_event_listeners at the appropriate location
         match self.generic_event_listeners.binary_search(&listener) {
-            Ok(_) => panic!("Duplicate Generic Listeners with id {}", listener.listener_id()),
+            Ok(_) => panic!(
+                "Duplicate Generic Listeners with id {}",
+                listener.listener_id()
+            ),
             Err(pos) => {
                 self.generic_event_listeners.insert(pos, listener);
             }
@@ -155,42 +177,60 @@ impl<'a> EventHub<'a> {
     ///
     /// ### Arguments
     /// * `listener_id` - listener registration ID
-    /// 
+    ///
     /// Returns Ok if successful, or Err if the provided ID is invalid.
     pub fn off_any(&mut self, listener_id: IdType) -> Result<()> {
-        match self.generic_event_listeners.iter().position(|l| l.listener_id() == listener_id) {
+        match self
+            .generic_event_listeners
+            .iter()
+            .position(|l| l.listener_id() == listener_id)
+        {
             Some(pos) => {
                 self.generic_event_listeners.remove(pos);
                 Ok(())
             }
-            None => Err(anyhow::Error::new(InvalidIdError::new(format!("{:?}", self), listener_id)))
+            None => Err(anyhow::Error::new(InvalidIdError::new(
+                format!("{:?}", self),
+                listener_id,
+            ))),
         }
     }
 
-    /// Registers a listener for a specific Event. 
+    /// Registers a listener for a specific Event.
     ///
     /// ### Arguments
     /// * `handler` - Event handling function
-    /// 
+    ///
     /// Returns the registration ID for the listener
     pub fn on<T: Event>(&mut self, handler: impl FnMut(Arc<T>) + 'a) -> IdType {
         self.on_impl(TypeId::of::<T>(), Box::new(ListenerItem::new(handler)))
     }
-    
+
     /// Registers a listener for a specific Event with the given priority value.
     /// Higher priority listeners are executed first.
     ///
     /// ### Arguments
     /// * `priority` - Priority of the listener
     /// * `handler` - Event handling function
-    /// 
+    ///
     /// Returns the registration ID for the listener
-    pub fn on_prioritized<T: Event>(&mut self, priority: i32, handler: impl FnMut(Arc<T>) + 'a) -> IdType {
-        self.on_impl(TypeId::of::<T>(), Box::new(ListenerItem::new_prioritized(priority, handler)))
+    pub fn on_prioritized<T: Event>(
+        &mut self,
+        priority: i32,
+        handler: impl FnMut(Arc<T>) + 'a,
+    ) -> IdType {
+        self.on_impl(
+            TypeId::of::<T>(),
+            Box::new(ListenerItem::new_prioritized(priority, handler)),
+        )
     }
 
     /// Internal function for registering specific Event listeners
-    pub(crate) fn on_impl(&mut self, type_key: TypeId, listener: Box<dyn EventListener + 'a>) -> IdType {
+    pub(crate) fn on_impl(
+        &mut self,
+        type_key: TypeId,
+        listener: Box<dyn EventListener + 'a>,
+    ) -> IdType {
         // Keep a reference to the listener's id so we can return it
         let listener_id = listener.listener_id();
 
@@ -198,19 +238,20 @@ impl<'a> EventHub<'a> {
 
         // insert the listener into the listeners array
         match self.event_listeners.get(&type_key) {
-            Some(listeners) => {
-                match listeners.binary_search(&listener) {
-                    Ok(_) => panic!("Duplicate Listener id {}", listener.listener_id()),
-                    Err(pos) => {
-                        self.event_listeners.get_mut(&type_key).unwrap().insert(pos, listener);
-                    }
+            Some(listeners) => match listeners.binary_search(&listener) {
+                Ok(_) => panic!("Duplicate Listener id {}", listener.listener_id()),
+                Err(pos) => {
+                    self.event_listeners
+                        .get_mut(&type_key)
+                        .unwrap()
+                        .insert(pos, listener);
                 }
             },
             None => {
-                self.event_listeners.insert(type_key, vec!(listener));
+                self.event_listeners.insert(type_key, vec![listener]);
             }
         }
-        
+
         // Add the id -> type mapping for quick removal if needed later
         self.listener_id_type_map.insert(listener_id, type_key);
 
@@ -223,45 +264,60 @@ impl<'a> EventHub<'a> {
     ///
     /// ### Arguments
     /// * `listener_id` - listener registration ID
-    /// 
+    ///
     /// Returns Ok if successful, or Err if the provided ID is invalid.
     pub fn off(&mut self, listener_id: IdType) -> Result<()> {
         match self.listener_id_type_map.get(&listener_id) {
             Some(type_key) => {
                 let listeners = self.event_listeners.get_mut(&type_key).unwrap();
-                match listeners.iter().position(|l| l.listener_id() == listener_id) {
+                match listeners
+                    .iter()
+                    .position(|l| l.listener_id() == listener_id)
+                {
                     Some(pos) => {
                         listeners.remove(pos);
                         self.listener_id_type_map.remove(&listener_id);
                         return Ok(());
-                    },
-                    None => {Err(anyhow::Error::new(InvalidIdError::new(format!("{:?}", self), listener_id)))}
+                    }
+                    None => Err(anyhow::Error::new(InvalidIdError::new(
+                        format!("{:?}", self),
+                        listener_id,
+                    ))),
                 }
-            },
-            None => {Err(anyhow::Error::new(InvalidIdError::new(format!("{:?}", self), listener_id)))}
+            }
+            None => Err(anyhow::Error::new(InvalidIdError::new(
+                format!("{:?}", self),
+                listener_id,
+            ))),
         }
     }
 
-    /// Registers a transformer for a specific Event. 
+    /// Registers a transformer for a specific Event.
     ///
     /// ### Arguments
     /// * `handler` - Event transforming function
-    /// 
+    ///
     /// Returns the registration ID for the transformer
     pub fn transform<T: Event>(&mut self, handler: impl FnMut(&mut T) + 'a) -> IdType {
         self.transform_impl::<T>(Box::new(TransformerItem::new(handler)))
     }
-    
+
     /// Registers a transformer for a specific Event with the given priority. Higher
     /// priority transformers are executed first.
     ///
     /// ### Arguments
     /// * `handler` - Event transforming function
     /// * `priority` - Priority of the transformer
-    /// 
+    ///
     /// Returns the registration ID for the transformer
-    pub fn transform_prioritized<T: Event>(&mut self, priority: i32, handler: impl FnMut(&mut T) + 'a) -> IdType {
-        self.transform_impl::<T>(Box::new(TransformerItem::new_prioritized(handler, priority)))
+    pub fn transform_prioritized<T: Event>(
+        &mut self,
+        priority: i32,
+        handler: impl FnMut(&mut T) + 'a,
+    ) -> IdType {
+        self.transform_impl::<T>(Box::new(TransformerItem::new_prioritized(
+            handler, priority,
+        )))
     }
 
     /// Internal function for registering specific Event transformers
@@ -273,21 +329,23 @@ impl<'a> EventHub<'a> {
 
         // insert the transformer into the transformers array
         match self.event_transformers.get(&type_key) {
-            Some(transformers) => {
-                match transformers.binary_search(&transformer) {
-                    Ok(_) => panic!("Duplicate Transformer id {}", transformer.transformer_id()),
-                    Err(pos) => {
-                        self.event_transformers.get_mut(&type_key).unwrap().insert(pos, transformer);
-                    }
+            Some(transformers) => match transformers.binary_search(&transformer) {
+                Ok(_) => panic!("Duplicate Transformer id {}", transformer.transformer_id()),
+                Err(pos) => {
+                    self.event_transformers
+                        .get_mut(&type_key)
+                        .unwrap()
+                        .insert(pos, transformer);
                 }
             },
             None => {
-                self.event_transformers.insert(type_key, vec!(transformer));
+                self.event_transformers.insert(type_key, vec![transformer]);
             }
         }
 
         // Add the id -> type mapping for quick removal if needed later
-        self.transformer_id_type_map.insert(transformer_id, type_key);
+        self.transformer_id_type_map
+            .insert(transformer_id, type_key);
 
         // Return the transformer id to the caller
         transformer_id
@@ -298,22 +356,31 @@ impl<'a> EventHub<'a> {
     ///
     /// ### Arguments
     /// * `transformer_id` - transformer registration ID
-    /// 
+    ///
     /// Returns Ok if successful, or Err if the provided ID is invalid.
     pub fn unset_transform(&mut self, transformer_id: IdType) -> Result<()> {
         match self.transformer_id_type_map.get(&transformer_id) {
             Some(type_key) => {
                 let transformers = self.event_transformers.get_mut(type_key).unwrap();
-                match transformers.iter().position(|l| l.transformer_id() == transformer_id) {
+                match transformers
+                    .iter()
+                    .position(|l| l.transformer_id() == transformer_id)
+                {
                     Some(pos) => {
                         transformers.remove(pos);
                         self.transformer_id_type_map.remove(&transformer_id);
                         Ok(())
-                    },
-                    None => Err(anyhow::Error::new(InvalidIdError::new(format!("{:?}", self), transformer_id)))
+                    }
+                    None => Err(anyhow::Error::new(InvalidIdError::new(
+                        format!("{:?}", self),
+                        transformer_id,
+                    ))),
                 }
-            },
-            None => Err(anyhow::Error::new(InvalidIdError::new(format!("{:?}", self), transformer_id)))
+            }
+            None => Err(anyhow::Error::new(InvalidIdError::new(
+                format!("{:?}", self),
+                transformer_id,
+            ))),
         }
     }
 
@@ -322,24 +389,27 @@ impl<'a> EventHub<'a> {
     ///
     /// ### Arguments
     /// * `handler` - Function to own the emitted Event
-    pub(in super::super) fn on_emitted(&mut self, handler: impl FnMut(TypeId, Arc<dyn Event>) + 'a) {
+    pub(in super::super) fn on_emitted(
+        &mut self,
+        handler: impl FnMut(TypeId, Arc<dyn Event>) + 'a,
+    ) {
         self.on_emitted_fn = Some(Box::new(handler));
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use std::time::{Duration, SystemTime};
-    use std::cell::{Cell, RefCell};
-    use std::sync::Arc;
-    use uom::si::f64::Length;
-    use uom::si::f64::AmountOfSubstance;
-    use uom::si::length::meter;
-    use uom::si::amount_of_substance::mole;
     use super::EventHub;
-    use crate::event::Event;
     use crate::event::test::TestEventA;
     use crate::event::test::TestEventB;
+    use crate::event::Event;
+    use std::cell::{Cell, RefCell};
+    use std::sync::Arc;
+    use std::time::{Duration, SystemTime};
+    use uom::si::amount_of_substance::mole;
+    use uom::si::f64::AmountOfSubstance;
+    use uom::si::f64::Length;
+    use uom::si::length::meter;
 
     #[test]
     fn test_hub() {
@@ -363,7 +433,7 @@ mod tests {
         hub.emit(TestEventA::new(Length::new::<meter>(1.0)));
         assert_eq!(on_val_a.get(), Length::new::<meter>(1.0));
         assert_eq!(a_count.get(), 1);
-        
+
         // Attach a handler for any Event
         hub.on_any(|_evt: Arc<dyn Event>| {
             any_count.set(any_count.get() + 1);
@@ -374,7 +444,7 @@ mod tests {
         assert_eq!(on_val_a.get(), Length::new::<meter>(2.0));
         assert_eq!(a_count.get(), 2);
         assert_eq!(any_count.get(), 1);
-        
+
         // Attach a handler for B Events
         hub.on(|evt: Arc<TestEventB>| {
             on_val_b.set(evt.amt);
@@ -412,7 +482,7 @@ mod tests {
         hub.on_prioritized(2, |_evt: Arc<TestEventA>| {
             calls.try_borrow_mut().unwrap().push(1);
         });
-        
+
         // Attach handler 2 for A Events
         hub.on_prioritized(5, |_evt: Arc<TestEventA>| {
             calls.try_borrow_mut().unwrap().push(2);
@@ -424,10 +494,10 @@ mod tests {
         });
 
         hub.emit(TestEventA::new(Length::new::<meter>(1.0)));
-        
-        assert_eq!(vec![2,3,1], *calls.try_borrow().unwrap());
+
+        assert_eq!(vec![2, 3, 1], *calls.try_borrow().unwrap());
     }
-    
+
     #[test]
     fn test_hub_priority_transformers() {
         crate::test::init_test();
@@ -440,7 +510,7 @@ mod tests {
         hub.transform_prioritized(2, |_evt: &mut TestEventA| {
             calls.try_borrow_mut().unwrap().push(2);
         });
-        
+
         // Attach handler 2 for A Events
         hub.transform_prioritized(5, |_evt: &mut TestEventA| {
             calls.try_borrow_mut().unwrap().push(5);
@@ -452,7 +522,7 @@ mod tests {
         });
 
         hub.emit(TestEventA::new(Length::new::<meter>(1.0)));
-        
-        assert_eq!(vec![5,3,2], *calls.try_borrow().unwrap());
+
+        assert_eq!(vec![5, 3, 2], *calls.try_borrow().unwrap());
     }
 }

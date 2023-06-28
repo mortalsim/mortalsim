@@ -1,7 +1,7 @@
-use std::collections::{HashSet, HashMap};
-use crate::substance::{Substance, MolarConcentration, Volume, SubstanceStore};
-use crate::event::Event;
 use super::super::vessel::BloodVessel;
+use crate::event::Event;
+use crate::substance::{MolarConcentration, Substance, SubstanceStore, Volume};
+use std::collections::{HashMap, HashSet};
 
 pub struct ClosedCircInitializer<V: BloodVessel> {
     pub(crate) vessel_connections: HashMap<V, SubstanceStore>,
@@ -20,16 +20,26 @@ impl<V: BloodVessel> ClosedCircInitializer<V> {
         }
     }
 
-    pub fn notify_composition_change(&mut self, vessel: V, substance: Substance, threshold: MolarConcentration) {
-        self.vessel_connections.insert(vessel, SubstanceStore::new());
-        let substance_map = self.substance_notifies.entry(vessel).or_insert(HashMap::new());
+    pub fn notify_composition_change(
+        &mut self,
+        vessel: V,
+        substance: Substance,
+        threshold: MolarConcentration,
+    ) {
+        self.vessel_connections
+            .insert(vessel, SubstanceStore::new());
+        let substance_map = self
+            .substance_notifies
+            .entry(vessel)
+            .or_insert(HashMap::new());
         substance_map.insert(substance, threshold);
     }
-    
+
     pub fn attach_vessel(&mut self, vessel: V) {
-        self.vessel_connections.insert(vessel, SubstanceStore::new());
+        self.vessel_connections
+            .insert(vessel, SubstanceStore::new());
     }
-    
+
     pub fn manage_all_vessels(&mut self) {
         self.attach_all = true;
     }

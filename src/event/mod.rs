@@ -1,7 +1,7 @@
-use std::sync::Arc;
-use std::any::TypeId;
-use std::fmt::{Display, Debug};
 use downcast_rs::DowncastSync;
+use std::any::TypeId;
+use std::fmt::{Debug, Display};
+use std::sync::Arc;
 use uuid::Uuid;
 
 // mod blood_events;
@@ -15,8 +15,8 @@ pub trait Event: DowncastSync + Debug {
 impl_downcast!(sync Event);
 
 pub struct EventIterator<'a, E: Event> {
-    evt_list: Option<Vec::<Arc<E>>>,
-    iter_ref: Option<&'a Vec::<Arc<E>>>,
+    evt_list: Option<Vec<Arc<E>>>,
+    iter_ref: Option<&'a Vec<Arc<E>>>,
 }
 
 // impl<'a, E: Event> Iterator for EventIterator<'a, E> {
@@ -29,16 +29,15 @@ pub struct EventIterator<'a, E: Event> {
 //     }
 // }
 
-
 #[cfg(test)]
 pub mod test {
 
     use super::Event;
-    use uuid::Uuid;
-    use uom::si::f64::Length;
-    use uom::si::f64::AmountOfSubstance;
-    use uom::si::length::meter;
     use uom::si::amount_of_substance::mole;
+    use uom::si::f64::AmountOfSubstance;
+    use uom::si::f64::Length;
+    use uom::si::length::meter;
+    use uuid::Uuid;
 
     #[derive(Debug, Clone, Copy)]
     pub struct TestEventA {
@@ -55,9 +54,10 @@ pub mod test {
         }
     }
 
-
     impl Event for TestEventA {
-        fn event_name(&self) -> &str {"TestEventA"}
+        fn event_name(&self) -> &str {
+            "TestEventA"
+        }
     }
 
     #[derive(Debug, Clone, Copy)]
@@ -65,7 +65,7 @@ pub mod test {
         pub amt: AmountOfSubstance,
         event_id: Uuid,
     }
-    
+
     impl TestEventB {
         pub fn new(amt: AmountOfSubstance) -> TestEventB {
             TestEventB {
@@ -74,8 +74,10 @@ pub mod test {
             }
         }
     }
-    
+
     impl Event for TestEventB {
-        fn event_name(&self) -> &str {"TestEventB"}
+        fn event_name(&self) -> &str {
+            "TestEventB"
+        }
     }
 }

@@ -2,14 +2,14 @@
 //!
 //! Provides an Ord wrapper for `Event` handling functions
 
-use std::cmp;
-use std::sync::Mutex;
-use std::fmt;
-use std::sync::Arc;
-use uuid::Uuid;
-use crate::util::id_gen::{IdType, IdGenerator};
 use crate::event::Event;
 use crate::event::EventHandler;
+use crate::util::id_gen::{IdGenerator, IdType};
+use std::cmp;
+use std::fmt;
+use std::sync::Arc;
+use std::sync::Mutex;
+use uuid::Uuid;
 
 lazy_static! {
     static ref ID_GEN: Mutex<IdGenerator> = Mutex::new(IdGenerator::new());
@@ -24,16 +24,19 @@ pub trait EventListener {
 
     /// Retrieves the priority value for this listener
     fn priority(&self) -> i32;
-    
+
     /// Retrieves the id for this listener
     fn listener_id(&self) -> IdType;
 }
 
 impl<'a> fmt::Debug for dyn EventListener + 'a {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "EventListener<{:?}> {{ priority: {:?} }}",
+        write!(
+            f,
+            "EventListener<{:?}> {{ priority: {:?} }}",
             self.listener_id(),
-            self.priority())
+            self.priority()
+        )
     }
 }
 
@@ -49,12 +52,10 @@ impl<'a> PartialOrd for dyn EventListener + 'a {
         if other.priority() == self.priority() {
             if self.eq(other) {
                 Some(cmp::Ordering::Equal)
-            }
-            else {
+            } else {
                 self.listener_id().partial_cmp(&other.listener_id())
             }
-        }
-        else {
+        } else {
             other.priority().partial_cmp(&self.priority())
         }
     }
@@ -67,12 +68,10 @@ impl<'a> Ord for dyn EventListener + 'a {
         if other.priority() == self.priority() {
             if self.eq(other) {
                 cmp::Ordering::Equal
-            }
-            else {
+            } else {
                 self.listener_id().cmp(&other.listener_id())
             }
-        }
-        else {
+        } else {
             other.priority().cmp(&self.priority())
         }
     }
@@ -84,7 +83,7 @@ pub struct GenericListener<'a> {
     /// Container for the Event handling function
     handler: Box<dyn FnMut(Arc<dyn Event>) + 'a>,
     /// Priority for this listener
-    priority: i32
+    priority: i32,
 }
 
 impl<'a> GenericListener<'a> {
@@ -102,17 +101,20 @@ impl<'a> GenericListener<'a> {
     }
     /// Creates a new GenericListener for the given handler function
     /// and priority of execution
-    /// 
+    ///
     /// ### Arguments
     /// * `handler`  - Event handling function
     /// * `priority` - determines this listener's priority when Events
     ///                are dispatched. Higher priority listeners are
     ///                executed first.
-    pub fn new_prioritized(handler: impl FnMut(Arc<dyn Event>) + 'a, priority: i32) -> GenericListener<'a> {
+    pub fn new_prioritized(
+        handler: impl FnMut(Arc<dyn Event>) + 'a,
+        priority: i32,
+    ) -> GenericListener<'a> {
         GenericListener {
             listener_id: ID_GEN.lock().unwrap().get_id(),
             handler: Box::new(handler),
-            priority: priority
+            priority: priority,
         }
     }
 }
@@ -126,14 +128,18 @@ impl<'a> Drop for GenericListener<'a> {
 
 impl<'a> EventListener for GenericListener<'a> {
     fn handle(&mut self, evt: Arc<dyn Event>) {
-        log::debug!("Executing generic event listener {} with Event {}", self.listener_id, evt.event_name());
+        log::debug!(
+            "Executing generic event listener {} with Event {}",
+            self.listener_id,
+            evt.event_name()
+        );
         (*self.handler)(evt);
     }
 
     fn priority(&self) -> i32 {
         self.priority
     }
-    
+
     fn listener_id(&self) -> IdType {
         self.listener_id
     }
@@ -145,7 +151,7 @@ pub struct ListenerItem<'a, T: Event> {
     /// Container for the Event handling function
     handler: Box<dyn FnMut(Arc<T>) + 'a>,
     /// Priority for this listener
-    priority: i32
+    priority: i32,
 }
 
 impl<'a, T: Event> ListenerItem<'a, T> {
@@ -163,7 +169,7 @@ impl<'a, T: Event> ListenerItem<'a, T> {
     }
     /// Creates a new ListenerItem for the given handler function
     /// and priority of execution
-    /// 
+    ///
     /// ### Arguments
     /// * `priority` - determines this listener's priority when Events
     ///                are dispatched. Higher priority listeners are
@@ -173,7 +179,7 @@ impl<'a, T: Event> ListenerItem<'a, T> {
         ListenerItem {
             listener_id: ID_GEN.lock().unwrap().get_id(),
             handler: Box::new(handler),
-            priority: priority
+            priority: priority,
         }
     }
 }
@@ -187,31 +193,34 @@ impl<'a, T: Event> Drop for ListenerItem<'a, T> {
 
 impl<'a, T: Event> EventListener for ListenerItem<'a, T> {
     fn handle(&mut self, evt: Arc<dyn Event>) {
-        log::debug!("Executing event listener {} with Event {}", self.listener_id, evt.event_name());
+        log::debug!(
+            "Executing event listener {} with Event {}",
+            self.listener_id,
+            evt.event_name()
+        );
 
         match evt.downcast_arc::<T>() {
             Ok(typed_evt) => (*self.handler)(typed_evt),
-            Err(_) => panic!("Ahhh! Listener {} is melting!!!", self.listener_id)
+            Err(_) => panic!("Ahhh! Listener {} is melting!!!", self.listener_id),
         }
     }
 
     fn priority(&self) -> i32 {
         self.priority
     }
-    
+
     fn listener_id(&self) -> IdType {
         self.listener_id
     }
 }
 
-
 #[cfg(test)]
 mod tests {
+    use super::EventListener;
+    use super::ListenerItem;
+    use crate::event::test::TestEventA;
     use std::cell::Cell;
     use std::sync::Arc;
-    use super::ListenerItem;
-    use super::EventListener;
-    use crate::event::test::TestEventA;
     use uom::si::f64::Length;
     use uom::si::length::meter;
 
@@ -224,7 +233,7 @@ mod tests {
 
         listener.handle(Arc::new(TestEventA::new(Length::new::<meter>(5.0))));
         assert_eq!(val.get(), Length::new::<meter>(5.0));
-        
+
         listener.handle(Arc::new(TestEventA::new(Length::new::<meter>(7.0))));
         assert_eq!(val.get(), Length::new::<meter>(7.0));
     }
@@ -250,5 +259,4 @@ mod tests {
         assert_eq!(v[2].priority(), 0);
         assert_eq!(v[3].priority(), -2);
     }
-
 }

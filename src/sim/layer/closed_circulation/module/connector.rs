@@ -1,12 +1,15 @@
-use std::collections::{HashMap, HashSet};
-use std::rc::Rc;
+use super::super::vessel::{BloodVessel, BloodVesselType, VesselIter};
+use super::super::{
+    BloodNode, ClosedCircInitializer, ClosedCircVesselIter, ClosedCirculationSim,
+    ClosedCirculatorySystem,
+};
+use crate::substance::Volume;
+use crate::substance::{MolarConcentration, Substance, SubstanceStore};
 use anyhow::Result;
 use petgraph::Direction;
+use std::collections::{HashMap, HashSet};
+use std::rc::Rc;
 use uom::si::volume::liter;
-use crate::substance::Volume;
-use crate::substance::{Substance, SubstanceStore, MolarConcentration};
-use super::super::vessel::{BloodVessel, BloodVesselType, VesselIter};
-use super::super::{BloodNode, ClosedCirculationSim, ClosedCircVesselIter, ClosedCirculatorySystem, ClosedCircInitializer};
 
 pub struct ClosedCircConnector<V: BloodVessel> {
     pub(crate) system: Rc<ClosedCirculatorySystem<V>>,
@@ -15,7 +18,10 @@ pub struct ClosedCircConnector<V: BloodVessel> {
 }
 
 impl<V: BloodVessel> ClosedCircConnector<V> {
-    pub fn new(system: Rc<ClosedCirculatorySystem<V>>, initializer: ClosedCircInitializer<V>) -> ClosedCircConnector<V> {
+    pub fn new(
+        system: Rc<ClosedCirculatorySystem<V>>,
+        initializer: ClosedCircInitializer<V>,
+    ) -> ClosedCircConnector<V> {
         ClosedCircConnector {
             system: system,
             vessel_connections: initializer.vessel_connections,
@@ -25,7 +31,7 @@ impl<V: BloodVessel> ClosedCircConnector<V> {
 
     fn get_system(&self) -> &ClosedCirculatorySystem<V> {
         self.system.as_ref()
-    }    
+    }
 
     pub fn depth(&self) -> u32 {
         self.get_system().depth as u32
@@ -44,7 +50,7 @@ impl<V: BloodVessel> ClosedCircConnector<V> {
     pub fn is_pre_capillary(&self, vessel: &V) -> bool {
         self.get_system().pre_capillaries.contains(vessel)
     }
-    
+
     pub fn is_post_capillary(&self, vessel: &V) -> bool {
         self.get_system().post_capillaries.contains(vessel)
     }
@@ -52,16 +58,18 @@ impl<V: BloodVessel> ClosedCircConnector<V> {
     pub fn pre_capillaries(&self) -> VesselIter<V> {
         self.get_system().pre_capillaries.iter().into()
     }
-    
+
     pub fn post_capillaries(&self) -> VesselIter<V> {
         self.get_system().post_capillaries.iter().into()
     }
 
     pub fn downstream(&self, vessel: V) -> ClosedCircVesselIter<V> {
-        self.get_system().vessel_connections(vessel, Direction::Outgoing)
+        self.get_system()
+            .vessel_connections(vessel, Direction::Outgoing)
     }
-    
+
     pub fn upstream(&self, vessel: V) -> ClosedCircVesselIter<V> {
-        self.get_system().vessel_connections(vessel, Direction::Incoming)
+        self.get_system()
+            .vessel_connections(vessel, Direction::Incoming)
     }
 }

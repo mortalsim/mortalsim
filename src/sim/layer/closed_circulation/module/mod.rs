@@ -1,8 +1,8 @@
-mod initializer;
 mod connector;
-pub use initializer::{ClosedCircInitializer};
-pub use connector::{ClosedCircConnector};
+mod initializer;
 use crate::core::sim::SimModule;
+pub use connector::ClosedCircConnector;
+pub use initializer::ClosedCircInitializer;
 
 use super::vessel::BloodVessel;
 
@@ -11,20 +11,20 @@ pub trait ClosedCircSimModule: SimModule {
 
     /// Initializes the module. Should register any `Event` objects to listen for
     /// and set initial state.
-    /// 
+    ///
     /// ### Arguments
     /// * `initializer` - Helper object for initializing the module
     fn init_cc(&mut self, cc_initializer: &mut ClosedCircInitializer<Self::VesselType>);
-    
+
     // /// Retrieves the SimModule portion of this module
-    // /// 
+    // ///
     // /// ### returns
     // /// this object as a SimModule
     // fn as_sim_module(&mut self) -> &mut dyn SimModule;
-    
+
     // /// Used by the HumanSim to retrieve a mutable reference to this module's
     // /// ClosedCircConnector, which tracks module interactions
-    // /// 
+    // ///
     // /// ### returns
     // /// SimConnector to interact with the rest of the simulation
     // fn cc_sim_connector(&mut self) -> &mut ClosedCircConnector<Self::VesselType>;
@@ -32,20 +32,20 @@ pub trait ClosedCircSimModule: SimModule {
 
 #[cfg(test)]
 pub mod test {
-    use std::collections::HashSet;
-    use std::sync::Arc;
-    use crate::closed_circulation::VesselIter;
-    use crate::core::sim::SimModule;
-    use crate::event::{Event, BloodCompositionChange};
-    use crate::event::test::{TestEventA, TestEventB};
-    use crate::substance::{Substance, MolarConcentration};
-    use crate::substance::Time;
     use super::BloodVessel;
     use super::ClosedCircSimModule;
-    use super::{ClosedCircInitializer, ClosedCircConnector};
-    use uom::si::f64::{Length, AmountOfSubstance};
-    use uom::si::length::meter;
+    use super::{ClosedCircConnector, ClosedCircInitializer};
+    use crate::closed_circulation::VesselIter;
+    use crate::core::sim::SimModule;
+    use crate::event::test::{TestEventA, TestEventB};
+    use crate::event::{BloodCompositionChange, Event};
+    use crate::substance::Time;
+    use crate::substance::{MolarConcentration, Substance};
+    use std::collections::HashSet;
+    use std::sync::Arc;
     use uom::si::amount_of_substance::mole;
+    use uom::si::f64::{AmountOfSubstance, Length};
+    use uom::si::length::meter;
     use uom::si::molar_concentration::millimole_per_liter;
     use uom::si::time::second;
 
@@ -71,17 +71,17 @@ pub mod test {
 
     impl BloodVessel for TestBloodVessel {
         fn start_vessels<'a>() -> VesselIter<'a, Self> {
-            VesselIter { iter: START_VESSELS.iter() }
+            VesselIter {
+                iter: START_VESSELS.iter(),
+            }
         }
     }
 
-    pub struct TestCircModuleA {
-    }
+    pub struct TestCircModuleA {}
 
     impl TestCircModuleA {
         pub fn new() -> TestCircModuleA {
-            TestCircModuleA {
-            }
+            TestCircModuleA {}
         }
         pub fn factory() -> Box<dyn ClosedCircSimModule<VesselType = TestBloodVessel>> {
             Box::new(TestCircModuleA::new())
@@ -92,9 +92,12 @@ pub mod test {
         type VesselType = TestBloodVessel;
 
         fn init_cc(&mut self, cc_initializer: &mut ClosedCircInitializer<TestBloodVessel>) {
-
             let threshold = MolarConcentration::new::<millimole_per_liter>(0.1);
-            cc_initializer.notify_composition_change(TestBloodVessel::ThoracicAorta, Substance::GLC, threshold);
+            cc_initializer.notify_composition_change(
+                TestBloodVessel::ThoracicAorta,
+                Substance::GLC,
+                threshold,
+            );
             cc_initializer.attach_vessel(TestBloodVessel::InferiorVenaCava);
         }
 
@@ -114,5 +117,4 @@ pub mod test {
             // self.cc_sim_connector.schedule_event(Time::new::<second>(1.0), change);
         }
     }
-    
 }

@@ -1,4 +1,3 @@
-
 /// Internal version struct for crate modules
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Version {
@@ -18,9 +17,21 @@ impl From<&str> for Version {
         let parts: Vec<&str> = val.split("\\-").collect();
         let vparts: Vec<&str> = parts[0].split("\\.").collect();
         Version {
-            major: if vparts.len() > 0 {vparts[0].parse::<u8>().unwrap_or(0)} else {0},
-            minor: if vparts.len() > 1 {vparts[1].parse::<u8>().unwrap_or(0)} else {0},
-            patch: if vparts.len() > 2 {vparts[2].parse::<u16>().unwrap_or(0)} else {0},
+            major: if vparts.len() > 0 {
+                vparts[0].parse::<u8>().unwrap_or(0)
+            } else {
+                0
+            },
+            minor: if vparts.len() > 1 {
+                vparts[1].parse::<u8>().unwrap_or(0)
+            } else {
+                0
+            },
+            patch: if vparts.len() > 2 {
+                vparts[2].parse::<u16>().unwrap_or(0)
+            } else {
+                0
+            },
         }
     }
 }

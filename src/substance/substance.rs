@@ -1,6 +1,6 @@
-use std::sync::Mutex;
 use std::collections::HashMap;
 use std::fmt;
+use std::sync::Mutex;
 use uom::si::f64::MolarMass;
 use uom::si::molar_mass::gram_per_mole;
 use uom::si::molar_mass::kilogram_per_mole;
@@ -19,7 +19,7 @@ pub enum Substance {
     GLC,  // Alpha D Glucose (GLC)
     GLCL, // L-Glucose (GLCL)
     H,    // Hydrogen (H+)
-    H2O,  // Water (H2O) 
+    H2O,  // Water (H2O)
     K,    // Potassium (K+)
     LAC,  // Lactate (LAC)
     LDH,  // Lactate Dehydrogenase (LDH)
@@ -40,17 +40,13 @@ impl fmt::Display for Substance {
         let charge = self.charge();
         if charge == 1 {
             write!(f, "{} ({:?}+)", self.name(), self)
-        }
-        else if charge > 1 {
+        } else if charge > 1 {
             write!(f, "{} ({:?} {}+)", self.name(), self, charge)
-        }
-        else if charge == -1 {
+        } else if charge == -1 {
             write!(f, "{} ({:?}-)", self.name(), self)
-        }
-        else if charge < -1 {
+        } else if charge < -1 {
             write!(f, "{} ({:?} {}-)", self.name(), self, charge)
-        }
-        else {
+        } else {
             write!(f, "{} ({:?})", self.name(), self)
         }
     }
@@ -60,85 +56,85 @@ impl Substance {
     /// Full substance name
     fn name(&self) -> &'static str {
         match self {
-            Substance::ADP  => "Adenosine Diphosphate",
-            Substance::AMP  => "Adenosine Monophosphate",
-            Substance::ATP  => "Adenosine Triphosphate",
-            Substance::Ca   => "Calcium",
-            Substance::CO2  => "Carbon Dioxide",
-            Substance::Cl   => "Chloride",
-            Substance::GLC  => "Alpha D Glucose",
+            Substance::ADP => "Adenosine Diphosphate",
+            Substance::AMP => "Adenosine Monophosphate",
+            Substance::ATP => "Adenosine Triphosphate",
+            Substance::Ca => "Calcium",
+            Substance::CO2 => "Carbon Dioxide",
+            Substance::Cl => "Chloride",
+            Substance::GLC => "Alpha D Glucose",
             Substance::GLCL => "L-Glucose",
-            Substance::H    => "Hydrogen",
-            Substance::H2O  => "Water",
-            Substance::K    => "Potassium",
-            Substance::LAC  => "Lactate",
-            Substance::LDH  => "Lactate Dehydrogenase",
-            Substance::MSG  => "Monosodium Glutamate",
-            Substance::N2   => "Dinitrogen",
-            Substance::NAD  => "Nicotinamide Adenine Dinucleotide",
+            Substance::H => "Hydrogen",
+            Substance::H2O => "Water",
+            Substance::K => "Potassium",
+            Substance::LAC => "Lactate",
+            Substance::LDH => "Lactate Dehydrogenase",
+            Substance::MSG => "Monosodium Glutamate",
+            Substance::N2 => "Dinitrogen",
+            Substance::NAD => "Nicotinamide Adenine Dinucleotide",
             Substance::NADH => "Reduced Nicotinamide Adenine Dinucleotide",
-            Substance::Na   => "Sodium",
+            Substance::Na => "Sodium",
             Substance::NaCl => "Salt",
-            Substance::O2   => "Dioxygen", 
-            Substance::PFK  => "Phosphofructokinase",  
-            Substance::PGK  => "Phosphoglycerate Kinase",  
-            Substance::PYR  => "Pyruvate",  
+            Substance::O2 => "Dioxygen",
+            Substance::PFK => "Phosphofructokinase",
+            Substance::PGK => "Phosphoglycerate Kinase",
+            Substance::PYR => "Pyruvate",
         }
     }
     /// Overall substance charge
     fn charge(&self) -> i8 {
         match self {
-            Substance::ADP  => 0,
-            Substance::AMP  => 0,
-            Substance::ATP  => 0,
-            Substance::Ca   => 2,
-            Substance::CO2  => 0,
-            Substance::Cl   => -1,
-            Substance::GLC  => 0,
+            Substance::ADP => 0,
+            Substance::AMP => 0,
+            Substance::ATP => 0,
+            Substance::Ca => 2,
+            Substance::CO2 => 0,
+            Substance::Cl => -1,
+            Substance::GLC => 0,
             Substance::GLCL => 0,
-            Substance::H    => 1,
-            Substance::H2O  => 0,
-            Substance::K    => 1,
-            Substance::LAC  => 0,
-            Substance::LDH  => 0,
-            Substance::MSG  => 0,
-            Substance::N2   => 0,
-            Substance::NAD  => 1,
+            Substance::H => 1,
+            Substance::H2O => 0,
+            Substance::K => 1,
+            Substance::LAC => 0,
+            Substance::LDH => 0,
+            Substance::MSG => 0,
+            Substance::N2 => 0,
+            Substance::NAD => 1,
             Substance::NADH => 0,
-            Substance::Na   => 1,
+            Substance::Na => 1,
             Substance::NaCl => 0,
-            Substance::O2   => 0,
-            Substance::PFK  => 0,
-            Substance::PGK  => 0,
-            Substance::PYR  => 0,
+            Substance::O2 => 0,
+            Substance::PFK => 0,
+            Substance::PGK => 0,
+            Substance::PYR => 0,
         }
     }
     /// Typical molar mass of the substance
     fn molar_mass(&self) -> MolarMass {
         match self {
-            Substance::ADP  => MolarMass::new::<gram_per_mole>(427.201),
-            Substance::AMP  => MolarMass::new::<gram_per_mole>(347.2212),
-            Substance::ATP  => MolarMass::new::<gram_per_mole>(507.18),
-            Substance::Ca   => MolarMass::new::<gram_per_mole>(40.078),
-            Substance::CO2  => MolarMass::new::<gram_per_mole>(44.01),
-            Substance::Cl   => MolarMass::new::<gram_per_mole>(35.453),
-            Substance::GLC  => MolarMass::new::<gram_per_mole>(180.156),
+            Substance::ADP => MolarMass::new::<gram_per_mole>(427.201),
+            Substance::AMP => MolarMass::new::<gram_per_mole>(347.2212),
+            Substance::ATP => MolarMass::new::<gram_per_mole>(507.18),
+            Substance::Ca => MolarMass::new::<gram_per_mole>(40.078),
+            Substance::CO2 => MolarMass::new::<gram_per_mole>(44.01),
+            Substance::Cl => MolarMass::new::<gram_per_mole>(35.453),
+            Substance::GLC => MolarMass::new::<gram_per_mole>(180.156),
             Substance::GLCL => MolarMass::new::<gram_per_mole>(180.156),
-            Substance::H    => MolarMass::new::<gram_per_mole>(1.00794),
-            Substance::H2O  => MolarMass::new::<gram_per_mole>(18.0153),
-            Substance::K    => MolarMass::new::<gram_per_mole>(39.0983),
-            Substance::LAC  => MolarMass::new::<gram_per_mole>(89.07),
-            Substance::LDH  => MolarMass::new::<kilogram_per_mole>(144.0),
-            Substance::MSG  => MolarMass::new::<gram_per_mole>(169.11),
-            Substance::N2   => MolarMass::new::<gram_per_mole>(28.0134),
-            Substance::NAD  => MolarMass::new::<gram_per_mole>(663.43),
+            Substance::H => MolarMass::new::<gram_per_mole>(1.00794),
+            Substance::H2O => MolarMass::new::<gram_per_mole>(18.0153),
+            Substance::K => MolarMass::new::<gram_per_mole>(39.0983),
+            Substance::LAC => MolarMass::new::<gram_per_mole>(89.07),
+            Substance::LDH => MolarMass::new::<kilogram_per_mole>(144.0),
+            Substance::MSG => MolarMass::new::<gram_per_mole>(169.11),
+            Substance::N2 => MolarMass::new::<gram_per_mole>(28.0134),
+            Substance::NAD => MolarMass::new::<gram_per_mole>(663.43),
             Substance::NADH => MolarMass::new::<gram_per_mole>(665.125),
-            Substance::Na   => MolarMass::new::<gram_per_mole>(22.989769),
+            Substance::Na => MolarMass::new::<gram_per_mole>(22.989769),
             Substance::NaCl => MolarMass::new::<gram_per_mole>(58.44),
-            Substance::O2   => MolarMass::new::<gram_per_mole>(31.9988),
-            Substance::PFK  => MolarMass::new::<kilogram_per_mole>(85.0),
-            Substance::PGK  => MolarMass::new::<kilogram_per_mole>(45.0),
-            Substance::PYR  => MolarMass::new::<gram_per_mole>(88.06),
+            Substance::O2 => MolarMass::new::<gram_per_mole>(31.9988),
+            Substance::PFK => MolarMass::new::<kilogram_per_mole>(85.0),
+            Substance::PGK => MolarMass::new::<kilogram_per_mole>(45.0),
+            Substance::PYR => MolarMass::new::<gram_per_mole>(88.06),
         }
     }
 }

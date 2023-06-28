@@ -4,18 +4,18 @@
 //! advancing time - either by a specified interval or by jumping
 //! immediately to the next `Event`
 
-use std::collections::BTreeMap;
-use std::collections::hash_map::{HashMap, Keys};
-use std::any::TypeId;
-use std::fmt;
-use uuid::Uuid;
-use uom::si::time::second;
-use uom::fmt::DisplayStyle::*;
-use anyhow::{Result, Error};
-use crate::util::id_gen::{IdType, IdGenerator, InvalidIdError};
 use crate::event::Event;
-use crate::util::quantity_wrapper::OrderedTime;
 use crate::hub::event_transformer::{EventTransformer, TransformerItem};
+use crate::util::id_gen::{IdGenerator, IdType, InvalidIdError};
+use crate::util::quantity_wrapper::OrderedTime;
+use anyhow::{Error, Result};
+use std::any::TypeId;
+use std::collections::hash_map::{HashMap, Keys};
+use std::collections::BTreeMap;
+use std::fmt;
+use uom::fmt::DisplayStyle::*;
+use uom::si::time::second;
+use uuid::Uuid;
 
 pub type Time = uom::si::f64::Time;
 
@@ -38,10 +38,11 @@ pub struct TimeManager {
 
 impl<'b> fmt::Debug for TimeManager {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "TimeManager({:?}) {{ sim_time: {:?}, event_queue: {:?} }}",
-            self.manager_id,
-            self.sim_time,
-            self.event_queue)
+        write!(
+            f,
+            "TimeManager({:?}) {{ sim_time: {:?}, event_queue: {:?} }}",
+            self.manager_id, self.sim_time, self.event_queue
+        )
     }
 }
 
@@ -55,7 +56,7 @@ impl TimeManager {
             event_transformers: HashMap::new(),
             transformer_type_map: HashMap::new(),
             id_gen: IdGenerator::new(),
-            id_time_map: HashMap::new()
+            id_time_map: HashMap::new(),
         }
     }
 
@@ -65,7 +66,7 @@ impl TimeManager {
     }
 
     /// Advances simulation time to the next `Event` or listener in the queue, if any.
-    /// 
+    ///
     /// If there are no Events or listeners in the queue, time will remain unchanged
     pub fn advance(&mut self) {
         log::debug!("Advancing time for TimeManager {}", self.manager_id);
@@ -79,10 +80,10 @@ impl TimeManager {
     }
 
     /// Advances simulation time by the provided time step
-    /// 
+    ///
     /// If a negative value is provided, time will immediately jump to
     /// the next scheduled Event, if any.
-    /// 
+    ///
     /// ### Arguments
     /// * `time_step` - Amount of time to advance by
     pub fn advance_by(&mut self, time_step: Time) {
@@ -97,17 +98,17 @@ impl TimeManager {
     }
 
     /// Schedules an `Event` for future emission
-    /// 
+    ///
     /// ### Arguments
     /// * `wait_time` - amount of simulation time to wait before emitting the Event
     /// * `event` - Event instance to emit
-    /// 
+    ///
     /// Returns the schedule ID
     pub fn schedule_event(&mut self, wait_time: Time, event: Box<dyn Event>) -> IdType {
         let exec_time = OrderedTime(self.sim_time + wait_time);
         let mut evt_list = self.event_queue.get_mut(&exec_time);
 
-        // If we haven't already created a vector for this time step, 
+        // If we haven't already created a vector for this time step,
         // then create one now and get the populated Option
         if evt_list.is_none() {
             self.event_queue.insert(exec_time, Vec::new());
@@ -124,33 +125,36 @@ impl TimeManager {
         // Insert a mapping for the id to the execution time for
         // faster lookup later
         self.id_time_map.insert(id, exec_time);
-        
+
         // Return the generated id
         id
     }
 
     /// Unschedules a previously scheduled `Event`
-    /// 
+    ///
     /// ### Arguments
     /// * `schedule_id` - Schedule ID returned by `schedule_event`
-    /// 
+    ///
     /// Returns an Err Result if the provided ID is invalid
     pub fn unschedule_event(&mut self, schedule_id: &IdType) -> Result<(), Error> {
         match self.id_time_map.get(&schedule_id) {
-            Some(time) => {
-                match self.event_queue.get_mut(time) {
-                    Some(evt_list) => {
-                        evt_list.retain(|item| item.0 != *schedule_id);
-                        Ok(())
-                    }
-                    None => {
-                        panic!("Scheduled ID {} refers to an invalid time on TimeManager {}!", schedule_id, self.manager_id);
-                    }
+            Some(time) => match self.event_queue.get_mut(time) {
+                Some(evt_list) => {
+                    evt_list.retain(|item| item.0 != *schedule_id);
+                    Ok(())
                 }
-            }
-            None => {
-                Err(anyhow!("Invalid schedule_id {} passed to `unschedule_event` for TimeManager {}", schedule_id, self.manager_id))
-            }
+                None => {
+                    panic!(
+                        "Scheduled ID {} refers to an invalid time on TimeManager {}!",
+                        schedule_id, self.manager_id
+                    );
+                }
+            },
+            None => Err(anyhow!(
+                "Invalid schedule_id {} passed to `unschedule_event` for TimeManager {}",
+                schedule_id,
+                self.manager_id
+            )),
         }
     }
 
@@ -163,8 +167,9 @@ impl TimeManager {
             let evt_list = self.event_queue.remove(&evt_time).unwrap();
 
             // Drop the registration token when returning the result vector
-            let mut result: Vec<Box<dyn Event>> = evt_list.into_iter().map(|(_, evt)| evt).rev().collect();
-            
+            let mut result: Vec<Box<dyn Event>> =
+                evt_list.into_iter().map(|(_, evt)| evt).rev().collect();
+
             for evt in result.iter_mut() {
                 // Call any transformers on the event
                 for transformers in self.event_transformers.get_mut(&evt.type_id()).iter_mut() {
@@ -175,52 +180,58 @@ impl TimeManager {
             }
 
             Some((evt_time, result))
-        }
-        else {
+        } else {
             None
         }
     }
-    
-    /// Registers a transformer for a specific Event. 
+
+    /// Registers a transformer for a specific Event.
     ///
     /// ### Arguments
     /// * `handler` - Event transforming function
-    /// 
+    ///
     /// Returns the registration ID for the transformer
     pub fn transform<E: Event>(&mut self, handler: impl FnMut(&mut E) + 'static) -> IdType {
         self.insert_transformer(Box::new(TransformerItem::new(handler)))
     }
-    
+
     /// Registers a transformer for a specific Event with the given priority. Higher
     /// priority transformers are executed first.
     ///
     /// ### Arguments
     /// * `handler` - Event transforming function
     /// * `priority` - Priority of the transformer
-    /// 
+    ///
     /// Returns the registration ID for the transformer
-    pub fn transform_prioritized<E: Event>(&mut self, priority: i32, handler: impl FnMut(&mut E) + 'static) -> IdType {
-        self.insert_transformer(Box::new(TransformerItem::new_prioritized(handler, priority)))
+    pub fn transform_prioritized<E: Event>(
+        &mut self,
+        priority: i32,
+        handler: impl FnMut(&mut E) + 'static,
+    ) -> IdType {
+        self.insert_transformer(Box::new(TransformerItem::new_prioritized(
+            handler, priority,
+        )))
     }
-    
+
     pub(super) fn insert_transformer(&mut self, transformer: Box<dyn EventTransformer>) -> IdType {
         let transformer_id = transformer.transformer_id();
         let type_key = transformer.type_id();
 
         match self.event_transformers.get(&type_key) {
-            Some(transformers) => {
-                match transformers.binary_search(&transformer) {
-                    Ok(_) => panic!("Duplicate Transformer id {}", transformer.transformer_id()),
-                    Err(pos) => {
-                        self.event_transformers.get_mut(&type_key).unwrap().insert(pos, transformer);
-                    }
+            Some(transformers) => match transformers.binary_search(&transformer) {
+                Ok(_) => panic!("Duplicate Transformer id {}", transformer.transformer_id()),
+                Err(pos) => {
+                    self.event_transformers
+                        .get_mut(&type_key)
+                        .unwrap()
+                        .insert(pos, transformer);
                 }
             },
             None => {
                 self.event_transformers.insert(type_key, vec![transformer]);
             }
         }
-        
+
         // Add the id -> type mapping for quick removal if needed later
         self.transformer_type_map.insert(transformer_id, type_key);
 
@@ -232,45 +243,53 @@ impl TimeManager {
     ///
     /// ### Arguments
     /// * `transformer_id` - transformer registration ID
-    /// 
+    ///
     /// Returns Ok if successful, or Err if the provided ID is invalid.
     pub fn unset_transform(&mut self, transformer_id: IdType) -> Result<()> {
         match self.transformer_type_map.get(&transformer_id) {
             Some(type_key) => {
                 let transformers = self.event_transformers.get_mut(type_key).unwrap();
-                match transformers.iter().position(|l| l.transformer_id() == transformer_id) {
+                match transformers
+                    .iter()
+                    .position(|l| l.transformer_id() == transformer_id)
+                {
                     Some(pos) => {
                         transformers.remove(pos);
                         self.transformer_type_map.remove(&transformer_id);
                         Ok(())
-                    },
-                    None => Err(anyhow::Error::new(InvalidIdError::new(format!("{:?}", self), transformer_id)))
+                    }
+                    None => Err(anyhow::Error::new(InvalidIdError::new(
+                        format!("{:?}", self),
+                        transformer_id,
+                    ))),
                 }
-            },
-            None => Err(anyhow::Error::new(InvalidIdError::new(format!("{:?}", self), transformer_id)))
+            }
+            None => Err(anyhow::Error::new(InvalidIdError::new(
+                format!("{:?}", self),
+                transformer_id,
+            ))),
         }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use std::cell::Cell;
-    use std::any::TypeId;
-    use super::Time;
     use super::second;
-    use super::TimeManager;
     use super::Event;
+    use super::Time;
+    use super::TimeManager;
     use crate::event::test::TestEventA;
     use crate::event::test::TestEventB;
-    use uom::si::f64::Length;
-    use uom::si::f64::AmountOfSubstance;
-    use uom::si::length::meter;
-    use uom::si::amount_of_substance::mole;
     use crate::hub::event_transformer::{EventTransformer, TransformerItem};
+    use std::any::TypeId;
+    use std::cell::Cell;
+    use uom::si::amount_of_substance::mole;
+    use uom::si::f64::AmountOfSubstance;
+    use uom::si::f64::Length;
+    use uom::si::length::meter;
 
     #[test]
     fn advance_test() {
-
         // Create a time manager and a handy reusable
         // variable representing one second
         let mut time_manager = TimeManager::new();
@@ -284,7 +303,7 @@ mod tests {
 
         // time should now be at 1 second
         assert_eq!(time_manager.get_time(), one_sec);
-        
+
         // Advance another second
         time_manager.advance_by(one_sec);
 
@@ -302,12 +321,12 @@ mod tests {
     fn emit_events_test() {
         let a_evt = TestEventA::new(Length::new::<meter>(3.5));
         let b_evt = TestEventB::new(AmountOfSubstance::new::<mole>(123456.0));
-        
+
         // Create a time manager and a handy reusable
         // variable representing one second
         let mut time_manager = TimeManager::new();
         let one_sec = Time::new::<second>(1.0);
-        
+
         // Schedule the events to be emitted later
         time_manager.schedule_event(Time::new::<second>(2.0), Box::new(a_evt));
         time_manager.schedule_event(Time::new::<second>(6.0), Box::new(b_evt));
@@ -316,20 +335,26 @@ mod tests {
         time_manager.advance_by(one_sec);
         assert_eq!(time_manager.get_time(), Time::new::<second>(1.0));
         assert!(time_manager.next_events().is_none());
-        
+
         // Advance again. First event should fire.
         time_manager.advance_by(one_sec);
         for evt in time_manager.next_events().unwrap().1.into_iter() {
             assert_eq!(evt.type_id(), TypeId::of::<TestEventA>());
-            assert_eq!(evt.downcast::<TestEventA>().unwrap().len, Length::new::<meter>(3.5));
+            assert_eq!(
+                evt.downcast::<TestEventA>().unwrap().len,
+                Length::new::<meter>(3.5)
+            );
         }
         assert_eq!(time_manager.get_time(), Time::new::<second>(2.0));
-        
+
         // Advance again automatically. Should fire the second event.
         time_manager.advance();
         for evt in time_manager.next_events().unwrap().1.into_iter() {
             assert_eq!(evt.type_id(), TypeId::of::<TestEventB>());
-            assert_eq!(evt.downcast::<TestEventB>().unwrap().amt, AmountOfSubstance::new::<mole>(123456.0));
+            assert_eq!(
+                evt.downcast::<TestEventB>().unwrap().amt,
+                AmountOfSubstance::new::<mole>(123456.0)
+            );
         }
         assert_eq!(time_manager.get_time(), Time::new::<second>(6.0));
     }

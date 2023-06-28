@@ -1,4 +1,4 @@
-#![ allow( dead_code, unused_imports, unused_macros ) ]
+#![allow(dead_code, unused_imports, unused_macros)]
 
 extern crate uom;
 #[macro_use]
@@ -12,8 +12,8 @@ extern crate strum_macros;
 
 mod sim;
 // mod hub;
-mod util;
 mod spark;
+mod util;
 
 // pub mod substance;
 pub mod event;
