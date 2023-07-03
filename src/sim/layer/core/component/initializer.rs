@@ -11,8 +11,8 @@ use std::rc::{Rc, Weak};
 use std::sync::Arc;
 
 pub struct CoreComponentInitializer {
-    pub(crate) input_events: HashSet<TypeId>,
-    pub(crate) output_events: HashSet<TypeId>,
+    input_events: HashSet<TypeId>,
+    output_events: HashSet<TypeId>,
     pub(crate) pending_notifies: Vec<(i32, Box<dyn Event>)>,
     pub(crate) pending_transforms: Vec<Box<dyn EventTransformer>>,
     pub(crate) initial_outputs: Vec<Box<dyn Event>>,
@@ -52,6 +52,7 @@ impl CoreComponentInitializer {
             panic!("Modules cannot register notifications for Events they are producing! This could cause an infinite loop.")
         }
 
+        self.input_events.insert(type_key);
         self.pending_notifies.push((priority, Box::new(default)))
     }
 
@@ -87,9 +88,92 @@ impl CoreComponentInitializer {
     /// ### Arguments
     /// * `event` - `Event` instance to set on initial state
     pub fn set_output<E: Event>(&mut self, initial_value: E) {
+        let type_key = TypeId::of::<E>();
+
+        // If this event type has already been registered as an output, panic
+        if self.input_events.contains(&type_key) {
+            panic!("Modules cannot produce Events they are notifying on! This could cause an infinite loop.")
+        }
+
+        self.output_events.insert(type_key);
         self.initial_outputs.push(Box::new(initial_value))
     }
 }
 
 #[cfg(test)]
-pub mod test {}
+pub mod test {
+    use crate::event::test::TestEventA;
+    use uom::si::f64::Length;
+    use uom::si::length::meter;
+
+    use super::CoreComponentInitializer;
+
+    fn basic_event() -> TestEventA {
+        TestEventA::new(Length::new::<meter>(1.0))
+    }
+
+    fn test_transformer(evt: &mut TestEventA) {
+        evt.len += Length::new::<meter>(1.0);
+    }
+
+    #[test]
+    fn test_init() {
+        CoreComponentInitializer::new();
+    }
+    
+    #[test]
+    fn test_notify() {
+        let mut initializer = CoreComponentInitializer::new();
+        initializer.notify(basic_event());
+    }
+    
+    #[test]
+    fn test_notify_with_priority() {
+        let mut initializer = CoreComponentInitializer::new();
+        initializer.notify(basic_event());
+        initializer.notify_prioritized(1, basic_event());
+    }
+    
+    #[test]
+    fn test_transform() {
+        let mut initializer = CoreComponentInitializer::new();
+
+        // Should accept both static functions and closures
+        initializer.transform(test_transformer);
+        initializer.transform(|evt: &mut TestEventA| {
+            evt.len += Length::new::<meter>(2.0)
+        });
+    }
+    
+    #[test]
+    fn test_transform_with_priority() {
+        let mut initializer = CoreComponentInitializer::new();
+
+        // Should accept both static functions and closures
+        initializer.transform_prioritized(1, |evt: &mut TestEventA| {
+            evt.len += Length::new::<meter>(2.0)
+        });
+    }
+    
+    #[test]
+    fn test_output() {
+        let mut initializer = CoreComponentInitializer::new();
+        initializer.set_output(basic_event())
+    }
+    
+    #[test]
+    #[should_panic]
+    fn test_notify_err() {
+        let mut initializer = CoreComponentInitializer::new();
+        initializer.notify(basic_event());
+        initializer.set_output(basic_event())
+    }
+    
+    #[test]
+    #[should_panic]
+    fn test_output_err() {
+        let mut initializer = CoreComponentInitializer::new();
+        initializer.set_output(basic_event());
+        initializer.notify(basic_event())
+    }
+}
