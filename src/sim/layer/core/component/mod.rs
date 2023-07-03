@@ -34,6 +34,7 @@ pub mod test {
     use crate::event::Event;
     use crate::sim::component::registry::ComponentRegistry;
     use crate::sim::SimState;
+    use std::any::TypeId;
     use std::sync::{Arc, Mutex};
     use uom::si::amount_of_substance::mole;
     use uom::si::f64::{AmountOfSubstance, Length};
@@ -71,7 +72,7 @@ pub mod test {
                 "Trigger Events: {:?}",
                 self.connector
                     .trigger_events()
-                    .collect::<Vec<&Arc<dyn Event>>>()
+                    .collect::<Vec<&TypeId>>()
             );
         }
     }
@@ -116,7 +117,7 @@ pub mod test {
                 "Trigger Events: {:?}",
                 self.connector
                     .trigger_events()
-                    .collect::<Vec<&Arc<dyn Event>>>()
+                    .collect::<Vec<&TypeId>>()
             );
         }
     }

@@ -89,7 +89,7 @@ impl<T: CoreComponent> SimComponentProcessor<T> for CoreLayer {
                 .unwrap_or(HashSet::new());
             notify_ids
                 .iter()
-                .map(|id| connector.state.lock().unwrap().get_state_ref(id).unwrap())
+                .map(|id| connector.state.lock().unwrap().get_state_ref(id).unwrap().type_id())
                 .collect()
         };
 

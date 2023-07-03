@@ -1,5 +1,6 @@
 use crate::event::Event;
 use crate::sim::{SimState, Time};
+use crate::util::IdGenerator;
 use crate::util::id_gen::IdType;
 use anyhow::{Error, Result};
 use std::any::TypeId;
@@ -13,7 +14,7 @@ pub struct CoreConnector {
     /// State specific to the connected module
     pub(crate) sim_state: Arc<Mutex<SimState>>,
     /// Holds a shared reference to the Event which triggered module execution
-    pub(crate) trigger_events: Vec<Arc<dyn Event>>,
+    pub(crate) trigger_events: Vec<TypeId>,
     /// Map of scheduled event identifiers
     pub(crate) scheduled_events: HashMap<TypeId, HashMap<IdType, Time>>,
     /// Map of scheduled ids to event types
@@ -86,8 +87,8 @@ impl CoreConnector {
     ///
     /// Returns a HashMap if any events are scheduled for the given type, and
     /// None otherwise
-    pub fn get_scheduled_events<E: Event>(&mut self) -> Option<&HashMap<IdType, Time>> {
-        self.scheduled_events.get(&TypeId::of::<E>())
+    pub fn get_scheduled_events<'a, E: Event>(&'a mut self) -> impl Iterator<Item = (&'a IdType, &'a Time)> {
+        self.scheduled_events.entry(TypeId::of::<E>()).or_default().iter()
     }
 
     /// Retrieves the current simulation time
@@ -101,18 +102,136 @@ impl CoreConnector {
             .sim_state
             .lock()
             .unwrap()
-            .get_state_ref(&TypeId::of::<E>())
+            .get_state_ref(&TypeId::of::<E>())?.downcast_arc::<E>()
         {
-            None => None,
-            Some(evt_rc) => match evt_rc.downcast_arc::<E>() {
-                Err(_) => None,
-                Ok(typed_evt_rc) => Some(typed_evt_rc),
-            },
+            Err(_) => None,
+            Ok(typed_evt_rc) => Some(typed_evt_rc),
         }
     }
-
+    
     /// Retrieves the `Event` object(s) which triggered the current `run` (if any)
-    pub fn trigger_events<'a>(&'a self) -> impl Iterator<Item = &Arc<dyn Event>> + 'a {
+    pub fn trigger_events<'a>(&'a self) -> impl Iterator<Item = &TypeId> + 'a {
         self.trigger_events.iter()
+    }
+}
+
+#[cfg(test)]
+pub mod test {
+    use std::any::TypeId;
+    use std::collections::HashMap;
+    use std::sync::{Arc, Mutex};
+
+    use crate::event::Event;
+    use crate::event::test::TestEventB;
+    use crate::sim::SimState;
+    use crate::{sim::Time, event::test::TestEventA};
+    use uom::si::amount_of_substance::mole;
+    use uom::si::f64::AmountOfSubstance;
+    use uom::si::time::second;
+    use uom::si::f64::Length;
+    use uom::si::length::meter;
+
+    use super::CoreConnector;
+
+    fn basic_event_a() -> TestEventA {
+        TestEventA::new(Length::new::<meter>(1.0))
+    }
+
+    fn basic_event_b() -> TestEventB {
+        TestEventB::new(AmountOfSubstance::new::<mole>(1.0))
+    }
+
+    fn connector() -> CoreConnector {
+        let mut connector = CoreConnector::new();
+        let mut a_events = HashMap::new();
+        a_events.insert(1, Time::new::<second>(1.0));
+        let mut b_events = HashMap::new();
+        b_events.insert(2, Time::new::<second>(2.0));
+        connector.scheduled_events.insert(TypeId::of::<TestEventA>(), a_events);
+        connector.scheduled_events.insert(TypeId::of::<TestEventB>(), b_events);
+        connector.sim_state = Arc::new(Mutex::new(SimState::new()));
+
+        let evt_a = Arc::new(basic_event_a());
+        connector.sim_state.lock().unwrap().put_state(TypeId::of::<TestEventA>(), evt_a.clone());
+        connector.trigger_events.push(TypeId::of::<TestEventA>());
+        connector.sim_time = Time::new::<second>(0.0);
+        connector
+    }
+    
+    fn connector_with_a_only() -> CoreConnector {
+        let mut connector = CoreConnector::new();
+        let mut a_events = HashMap::new();
+        a_events.insert(1, Time::new::<second>(1.0));
+        connector.scheduled_events.insert(TypeId::of::<TestEventA>(), a_events);
+        connector
+    }
+
+
+    #[test]
+    pub fn test_emit() {
+        let mut connector = CoreConnector::new();
+        connector.schedule_event(Time::new::<second>(1.0), basic_event_a())
+    }
+    
+    #[test]
+    pub fn test_unschedule() {
+        let mut connector = connector();
+        assert!(connector.unschedule_event::<TestEventA>(1).is_ok());
+        assert!(connector.unschedule_event::<TestEventB>(2).is_ok());
+    }
+    
+    #[test]
+    pub fn test_unschedule_invalid_event() {
+        let mut connector = connector_with_a_only();
+        assert!(connector.unschedule_event::<TestEventB>(2).is_err());
+    }
+    
+    #[test]
+    pub fn test_unschedule_invalid_id() {
+        let mut connector = connector_with_a_only();
+        assert!(connector.unschedule_event::<TestEventA>(2).is_err());
+    }
+    
+    #[test]
+    pub fn test_unschedule_all() {
+        let mut connector = CoreConnector::new();
+        connector.unschedule_all(true);
+        assert!(connector.unschedule_all == true);
+    }
+    
+    #[test]
+    pub fn test_get_scheduled() {
+        let mut connector = connector();
+
+        for (schedule_id, time) in connector.get_scheduled_events::<TestEventA>() {
+            assert!(schedule_id == &1);
+            assert!(time == &Time::new::<second>(1.0))
+        }
+        for (schedule_id, time) in connector.get_scheduled_events::<TestEventB>() {
+            assert!(schedule_id == &2);
+            assert!(time == &Time::new::<second>(2.0))
+        }
+    }
+    
+    #[test]
+    pub fn test_get_time() {
+        let connector = connector();
+        assert!(connector.get_time() == Time::new::<second>(0.0));
+    }
+    
+    #[test]
+    pub fn test_get() {
+        let connector = connector();
+        assert!(connector.get::<TestEventA>().unwrap().as_ref().len == basic_event_a().len);
+        assert!(connector.get::<TestEventB>().is_none());
+    }
+    
+    #[test]
+    pub fn test_trigger() {
+        let connector = connector();
+        let mut count = 0;
+        let v: Vec<&TypeId> = connector.trigger_events().inspect(|_| {count += 1}).collect();
+        assert!(count == 1);
+        assert!(v.get(0).unwrap() == &&TypeId::of::<TestEventA>())
     }
 }
