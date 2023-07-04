@@ -1,7 +1,6 @@
 use crate::event::Event;
 use crate::sim::component::SimComponentProcessor;
 use crate::sim::SimConnector;
-use crate::sim::Time;
 use crate::util::id_gen::{IdType, InvalidIdError};
 use anyhow::Result;
 use either::Either;

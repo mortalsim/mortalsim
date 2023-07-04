@@ -191,8 +191,8 @@ mod tests {
     #[test]
     fn test_human_sim() {
         let mut sim = HumanSim::new();
-        assert_eq!(sim.get_time(), Time::new::<second>(0.0));
-        sim.advance_by(Time::new::<second>(1.0));
-        assert_eq!(sim.get_time(), Time::new::<second>(1.0));
+        assert_eq!(sim.get_time(), Time::from_s(0.0));
+        sim.advance_by(Time::from_s(1.0));
+        assert_eq!(sim.get_time(), Time::from_s(1.0));
     }
 }

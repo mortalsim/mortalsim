@@ -103,17 +103,16 @@ impl CoreComponentInitializer {
 #[cfg(test)]
 pub mod test {
     use crate::event::test::TestEventA;
-    use uom::si::f64::Length;
-    use uom::si::length::meter;
+    use crate::units::base::Distance;
 
     use super::CoreComponentInitializer;
 
     fn basic_event() -> TestEventA {
-        TestEventA::new(Length::new::<meter>(1.0))
+        TestEventA::new(Distance::from_m(1.0))
     }
 
     fn test_transformer(evt: &mut TestEventA) {
-        evt.len += Length::new::<meter>(1.0);
+        evt.len += Distance::from_m(1.0);
     }
 
     #[test]
@@ -141,7 +140,7 @@ pub mod test {
         // Should accept both static functions and closures
         initializer.transform(test_transformer);
         initializer.transform(|evt: &mut TestEventA| {
-            evt.len += Length::new::<meter>(2.0)
+            evt.len += Distance::from_m(2.0)
         });
     }
     
@@ -151,7 +150,7 @@ pub mod test {
 
         // Should accept both static functions and closures
         initializer.transform_prioritized(1, |evt: &mut TestEventA| {
-            evt.len += Length::new::<meter>(2.0)
+            evt.len += Distance::from_m(2.0)
         });
     }
     

@@ -10,7 +10,7 @@ pub use version::Version;
 
 macro_rules! secs {
     ( $x:expr ) => {
-        Time::new::<second>($x)
+        Time::from_s($x)
     };
 }
 

@@ -1,5 +1,5 @@
 use crate::event::Event;
-use crate::sim::{SimState, Time};
+use crate::sim::{SimState, SimTime};
 use crate::util::IdGenerator;
 use crate::util::id_gen::IdType;
 use anyhow::{Error, Result};
@@ -7,7 +7,6 @@ use std::any::TypeId;
 use std::collections::HashMap;
 use std::ptr::null;
 use std::sync::{Arc, Mutex};
-use uom::si::time::second;
 
 /// Provides methods for `Sim` modules to interact with the simulation
 pub struct CoreConnector {
@@ -16,15 +15,15 @@ pub struct CoreConnector {
     /// Holds a shared reference to the Event which triggered module execution
     pub(crate) trigger_events: Vec<TypeId>,
     /// Map of scheduled event identifiers
-    pub(crate) scheduled_events: HashMap<TypeId, HashMap<IdType, Time>>,
+    pub(crate) scheduled_events: HashMap<TypeId, HashMap<IdType, SimTime>>,
     /// Map of scheduled ids to event types
     pub(crate) schedule_id_type_map: HashMap<IdType, TypeId>,
     /// List of events to schedule
-    pub(crate) pending_schedules: Vec<(Time, Box<dyn Event>)>,
+    pub(crate) pending_schedules: Vec<(SimTime, Box<dyn Event>)>,
     /// List of events to unschedule
     pub(crate) pending_unschedules: Vec<IdType>,
     /// Copy of the current simulation time
-    pub(crate) sim_time: Time,
+    pub(crate) sim_time: SimTime,
     /// Whether to indicate to the parent Sim that all previously scheduled events should be unscheduled
     pub(crate) unschedule_all: bool,
 }
@@ -40,7 +39,7 @@ impl CoreConnector {
             schedule_id_type_map: HashMap::new(),
             pending_schedules: Vec::new(),
             pending_unschedules: Vec::new(),
-            sim_time: Time::new::<second>(0.0),
+            sim_time: SimTime::from_s(0.0),
             unschedule_all: true,
         }
     }
@@ -50,7 +49,7 @@ impl CoreConnector {
     /// ### Arguments
     /// * `wait_time` - Amount of time to wait before execution
     /// * `evt` - `Event` to emit after `wait_time` has elapsed
-    pub fn schedule_event(&mut self, wait_time: Time, evt: impl Event) {
+    pub fn schedule_event(&mut self, wait_time: SimTime, evt: impl Event) {
         self.pending_schedules.push((wait_time, Box::new(evt)))
     }
 
@@ -87,12 +86,12 @@ impl CoreConnector {
     ///
     /// Returns a HashMap if any events are scheduled for the given type, and
     /// None otherwise
-    pub fn get_scheduled_events<'a, E: Event>(&'a mut self) -> impl Iterator<Item = (&'a IdType, &'a Time)> {
+    pub fn get_scheduled_events<'a, E: Event>(&'a mut self) -> impl Iterator<Item = (&'a IdType, &'a SimTime)> {
         self.scheduled_events.entry(TypeId::of::<E>()).or_default().iter()
     }
 
     /// Retrieves the current simulation time
-    pub fn get_time(&self) -> Time {
+    pub fn get_time(&self) -> SimTime {
         self.sim_time
     }
 
@@ -124,29 +123,27 @@ pub mod test {
     use crate::event::Event;
     use crate::event::test::TestEventB;
     use crate::sim::SimState;
-    use crate::{sim::Time, event::test::TestEventA};
-    use uom::si::amount_of_substance::mole;
-    use uom::si::f64::AmountOfSubstance;
-    use uom::si::time::second;
-    use uom::si::f64::Length;
-    use uom::si::length::meter;
+    use crate::{sim::SimTime, event::test::TestEventA};
+    use crate::units::base::Amount;
+    use crate::units::base::Distance;
+    use crate::units::base::Time;
 
     use super::CoreConnector;
 
     fn basic_event_a() -> TestEventA {
-        TestEventA::new(Length::new::<meter>(1.0))
+        TestEventA::new(Distance::from_m(1.0))
     }
 
     fn basic_event_b() -> TestEventB {
-        TestEventB::new(AmountOfSubstance::new::<mole>(1.0))
+        TestEventB::new(Amount::from_mol(1.0))
     }
 
     fn connector() -> CoreConnector {
         let mut connector = CoreConnector::new();
         let mut a_events = HashMap::new();
-        a_events.insert(1, Time::new::<second>(1.0));
+        a_events.insert(1, Time::from_s(1.0));
         let mut b_events = HashMap::new();
-        b_events.insert(2, Time::new::<second>(2.0));
+        b_events.insert(2, Time::from_s(2.0));
         connector.scheduled_events.insert(TypeId::of::<TestEventA>(), a_events);
         connector.scheduled_events.insert(TypeId::of::<TestEventB>(), b_events);
         connector.sim_state = Arc::new(Mutex::new(SimState::new()));
@@ -154,14 +151,14 @@ pub mod test {
         let evt_a = Arc::new(basic_event_a());
         connector.sim_state.lock().unwrap().put_state(TypeId::of::<TestEventA>(), evt_a.clone());
         connector.trigger_events.push(TypeId::of::<TestEventA>());
-        connector.sim_time = Time::new::<second>(0.0);
+        connector.sim_time = Time::from_s(0.0);
         connector
     }
     
     fn connector_with_a_only() -> CoreConnector {
         let mut connector = CoreConnector::new();
         let mut a_events = HashMap::new();
-        a_events.insert(1, Time::new::<second>(1.0));
+        a_events.insert(1, Time::from_s(1.0));
         connector.scheduled_events.insert(TypeId::of::<TestEventA>(), a_events);
         connector
     }
@@ -170,7 +167,7 @@ pub mod test {
     #[test]
     pub fn test_emit() {
         let mut connector = CoreConnector::new();
-        connector.schedule_event(Time::new::<second>(1.0), basic_event_a())
+        connector.schedule_event(Time::from_s(1.0), basic_event_a())
     }
     
     #[test]
@@ -205,18 +202,18 @@ pub mod test {
 
         for (schedule_id, time) in connector.get_scheduled_events::<TestEventA>() {
             assert!(schedule_id == &1);
-            assert!(time == &Time::new::<second>(1.0))
+            assert!(time == &Time::from_s(1.0))
         }
         for (schedule_id, time) in connector.get_scheduled_events::<TestEventB>() {
             assert!(schedule_id == &2);
-            assert!(time == &Time::new::<second>(2.0))
+            assert!(time == &Time::from_s(2.0))
         }
     }
     
     #[test]
     pub fn test_get_time() {
         let connector = connector();
-        assert!(connector.get_time() == Time::new::<second>(0.0));
+        assert!(connector.get_time() == Time::from_s(0.0));
     }
     
     #[test]

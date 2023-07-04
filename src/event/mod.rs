@@ -33,20 +33,18 @@ pub struct EventIterator<'a, E: Event> {
 pub mod test {
 
     use super::Event;
-    use uom::si::amount_of_substance::mole;
-    use uom::si::f64::AmountOfSubstance;
-    use uom::si::f64::Length;
-    use uom::si::length::meter;
+    use crate::units::base::Amount;
+    use crate::units::base::Distance;
     use uuid::Uuid;
 
     #[derive(Debug, Clone, Copy)]
     pub struct TestEventA {
-        pub len: Length,
+        pub len: Distance<f64>,
         event_id: Uuid,
     }
 
     impl TestEventA {
-        pub fn new(len: Length) -> TestEventA {
+        pub fn new(len: Distance<f64>) -> TestEventA {
             TestEventA {
                 len: len,
                 event_id: Uuid::new_v4(),
@@ -62,12 +60,12 @@ pub mod test {
 
     #[derive(Debug, Clone, Copy)]
     pub struct TestEventB {
-        pub amt: AmountOfSubstance,
+        pub amt: Amount<f64>,
         event_id: Uuid,
     }
 
     impl TestEventB {
-        pub fn new(amt: AmountOfSubstance) -> TestEventB {
+        pub fn new(amt: Amount<f64>) -> TestEventB {
             TestEventB {
                 amt: amt,
                 event_id: Uuid::new_v4(),

@@ -55,15 +55,15 @@ mod tests {
     //         &mut self.connector
     //     }
     //     fn init(&mut self, initializer: &mut SimModuleInitializer) {
-    //         initializer.notify(TestEventA::new(Length::new::<meter>(1.0)));
-    //         initializer.notify(TestEventB::new(AmountOfSubstance::new::<mole>(1.0)));
+    //         initializer.notify(TestEventA::new(Distance::from_m(1.0)));
+    //         initializer.notify(TestEventB::new(Amount::from_mol(1.0)));
     //         initializer.transform(|evt: &mut TestEventA| {
-    //             evt.len = Length::new::<meter>(3.0);
+    //             evt.len = Distance::from_m(3.0);
     //         });
     //     }
     //     fn run(&mut self) {
     //         let evt_a = self.connector.get::<TestEventA>().unwrap();
-    //         assert_eq!(evt_a.len, Length::new::<meter>(3.0));
+    //         assert_eq!(evt_a.len, Distance::from_m(3.0));
 
     //         log::debug!("Trigger Events: {:?}", self.connector.trigger_events().collect::<Vec<&Arc<dyn Event>>>());
     //     }
@@ -89,9 +89,9 @@ mod tests {
     //     let module = TestModuleA::factory();
     //     let module_ref: Box<&mut dyn SimModule> = Box::new(module.as_sim_module());
 
-    //     // assert_eq!(sim.get_time(), Time::new::<second>(0.0));
-    //     // sim.advance_by(Time::new::<second>(1.0));
-    //     // assert_eq!(sim.get_time(), Time::new::<second>(1.0));
+    //     // assert_eq!(sim.get_time(), Time::from_s(0.0));
+    //     // sim.advance_by(Time::from_s(1.0));
+    //     // assert_eq!(sim.get_time(), Time::from_s(1.0));
     // }
 }
 

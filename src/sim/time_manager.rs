@@ -8,22 +8,21 @@ use crate::event::Event;
 use crate::hub::event_transformer::{EventTransformer, TransformerItem};
 use crate::util::id_gen::{IdGenerator, IdType, InvalidIdError};
 use crate::util::quantity_wrapper::OrderedTime;
+use crate::units::base::Time;
 use anyhow::{Error, Result};
 use std::any::TypeId;
 use std::collections::hash_map::{HashMap, Keys};
 use std::collections::BTreeMap;
 use std::fmt;
-use uom::fmt::DisplayStyle::*;
-use uom::si::time::second;
 use uuid::Uuid;
 
-pub type Time = uom::si::f64::Time;
+pub type SimTime = Time<f64>;
 
 pub struct TimeManager {
     /// Identifier for this TimeManager object
     manager_id: Uuid,
     /// Current simulation time
-    sim_time: Time,
+    sim_time: SimTime,
     /// Sorted map of events to be executed
     event_queue: BTreeMap<OrderedTime, Vec<(IdType, Box<dyn Event>)>>,
     /// Map of event transformer functions
@@ -51,7 +50,7 @@ impl TimeManager {
     pub fn new() -> TimeManager {
         TimeManager {
             manager_id: Uuid::new_v4(),
-            sim_time: Time::new::<second>(0.0),
+            sim_time: Time::from_s(0.0),
             event_queue: BTreeMap::new(),
             event_transformers: HashMap::new(),
             transformer_type_map: HashMap::new(),
@@ -61,7 +60,7 @@ impl TimeManager {
     }
 
     /// Returns the current simulation time
-    pub fn get_time(&self) -> Time {
+    pub fn get_time(&self) -> SimTime {
         self.sim_time
     }
 
@@ -86,10 +85,10 @@ impl TimeManager {
     ///
     /// ### Arguments
     /// * `time_step` - Amount of time to advance by
-    pub fn advance_by(&mut self, time_step: Time) {
+    pub fn advance_by(&mut self, time_step: SimTime) {
         // If the time_step is zero or negative, advance to the next
         // point in the simulation
-        if time_step <= Time::new::<second>(0.0) {
+        if time_step <= Time::from_s(0.0) {
             return self.advance();
         }
 
@@ -104,7 +103,7 @@ impl TimeManager {
     /// * `event` - Event instance to emit
     ///
     /// Returns the schedule ID
-    pub fn schedule_event(&mut self, wait_time: Time, event: Box<dyn Event>) -> IdType {
+    pub fn schedule_event(&mut self, wait_time: SimTime, event: Box<dyn Event>) -> IdType {
         let exec_time = OrderedTime(self.sim_time + wait_time);
         let mut evt_list = self.event_queue.get_mut(&exec_time);
 
@@ -274,29 +273,26 @@ impl TimeManager {
 
 #[cfg(test)]
 mod tests {
-    use super::second;
     use super::Event;
     use super::Time;
     use super::TimeManager;
     use crate::event::test::TestEventA;
     use crate::event::test::TestEventB;
     use crate::hub::event_transformer::{EventTransformer, TransformerItem};
+    use crate::units::base::Amount;
+    use crate::units::base::Distance;
     use std::any::TypeId;
     use std::cell::Cell;
-    use uom::si::amount_of_substance::mole;
-    use uom::si::f64::AmountOfSubstance;
-    use uom::si::f64::Length;
-    use uom::si::length::meter;
 
     #[test]
     fn advance_test() {
         // Create a time manager and a handy reusable
         // variable representing one second
         let mut time_manager = TimeManager::new();
-        let one_sec = Time::new::<second>(1.0);
+        let one_sec = Time::from_s(1.0);
 
         // Time should start at zero seconds
-        assert_eq!(time_manager.get_time(), Time::new::<second>(0.0));
+        assert_eq!(time_manager.get_time(), Time::from_s(0.0));
 
         // Advance time by 1s
         time_manager.advance_by(one_sec);
@@ -308,32 +304,32 @@ mod tests {
         time_manager.advance_by(one_sec);
 
         // Time should now be at 2 seconds
-        assert_eq!(time_manager.get_time(), Time::new::<second>(2.0));
+        assert_eq!(time_manager.get_time(), Time::from_s(2.0));
 
         // Advance again, but this time by 3 seconds
-        time_manager.advance_by(Time::new::<second>(3.0));
+        time_manager.advance_by(Time::from_s(3.0));
 
         // Time should now be at 5 seconds
-        assert_eq!(time_manager.get_time(), Time::new::<second>(5.0));
+        assert_eq!(time_manager.get_time(), Time::from_s(5.0));
     }
 
     #[test]
     fn emit_events_test() {
-        let a_evt = TestEventA::new(Length::new::<meter>(3.5));
-        let b_evt = TestEventB::new(AmountOfSubstance::new::<mole>(123456.0));
+        let a_evt = TestEventA::new(Distance::from_m(3.5));
+        let b_evt = TestEventB::new(Amount::from_mol(123456.0));
 
         // Create a time manager and a handy reusable
         // variable representing one second
         let mut time_manager = TimeManager::new();
-        let one_sec = Time::new::<second>(1.0);
+        let one_sec = Time::from_s(1.0);
 
         // Schedule the events to be emitted later
-        time_manager.schedule_event(Time::new::<second>(2.0), Box::new(a_evt));
-        time_manager.schedule_event(Time::new::<second>(6.0), Box::new(b_evt));
+        time_manager.schedule_event(Time::from_s(2.0), Box::new(a_evt));
+        time_manager.schedule_event(Time::from_s(6.0), Box::new(b_evt));
 
         // Advance by 1s. No events yet.
         time_manager.advance_by(one_sec);
-        assert_eq!(time_manager.get_time(), Time::new::<second>(1.0));
+        assert_eq!(time_manager.get_time(), Time::from_s(1.0));
         assert!(time_manager.next_events().is_none());
 
         // Advance again. First event should fire.
@@ -342,10 +338,10 @@ mod tests {
             assert_eq!(evt.type_id(), TypeId::of::<TestEventA>());
             assert_eq!(
                 evt.downcast::<TestEventA>().unwrap().len,
-                Length::new::<meter>(3.5)
+                Distance::from_m(3.5)
             );
         }
-        assert_eq!(time_manager.get_time(), Time::new::<second>(2.0));
+        assert_eq!(time_manager.get_time(), Time::from_s(2.0));
 
         // Advance again automatically. Should fire the second event.
         time_manager.advance();
@@ -353,22 +349,22 @@ mod tests {
             assert_eq!(evt.type_id(), TypeId::of::<TestEventB>());
             assert_eq!(
                 evt.downcast::<TestEventB>().unwrap().amt,
-                AmountOfSubstance::new::<mole>(123456.0)
+                Amount::from_mol(123456.0)
             );
         }
-        assert_eq!(time_manager.get_time(), Time::new::<second>(6.0));
+        assert_eq!(time_manager.get_time(), Time::from_s(6.0));
     }
 
     #[test]
     fn transformer_test() {
         let mut listener = TransformerItem::new(|evt: &mut TestEventA| {
-            evt.len = Length::new::<meter>(10.0);
+            evt.len = Distance::from_m(10.0);
         });
 
-        let mut evt = TestEventA::new(Length::new::<meter>(5.0));
-        assert_eq!(evt.len, Length::new::<meter>(5.0));
+        let mut evt = TestEventA::new(Distance::from_m(5.0));
+        assert_eq!(evt.len, Distance::from_m(5.0));
 
         listener.transform(&mut evt);
-        assert_eq!(evt.len, Length::new::<meter>(10.0));
+        assert_eq!(evt.len, Distance::from_m(10.0));
     }
 }

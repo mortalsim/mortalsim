@@ -219,23 +219,22 @@ mod tests {
     use super::EventListener;
     use super::ListenerItem;
     use crate::event::test::TestEventA;
+    use crate::units::base::Distance;
     use std::cell::Cell;
     use std::sync::Arc;
-    use uom::si::f64::Length;
-    use uom::si::length::meter;
 
     #[test]
     fn test_handle() {
-        let val: Cell<Length> = Cell::new(Length::new::<meter>(0.0));
+        let val: Cell<Distance<f64>> = Cell::new(Distance::from_m(0.0));
         let mut listener = ListenerItem::new(|evt: Arc<TestEventA>| {
             val.set(evt.len);
         });
 
-        listener.handle(Arc::new(TestEventA::new(Length::new::<meter>(5.0))));
-        assert_eq!(val.get(), Length::new::<meter>(5.0));
+        listener.handle(Arc::new(TestEventA::new(Distance::from_m(5.0))));
+        assert_eq!(val.get(), Distance::from_m(5.0));
 
-        listener.handle(Arc::new(TestEventA::new(Length::new::<meter>(7.0))));
-        assert_eq!(val.get(), Length::new::<meter>(7.0));
+        listener.handle(Arc::new(TestEventA::new(Distance::from_m(7.0))));
+        assert_eq!(val.get(), Distance::from_m(7.0));
     }
 
     #[test]

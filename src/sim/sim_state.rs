@@ -144,15 +144,13 @@ mod tests {
     use crate::event::test::TestEventA;
     use crate::event::test::TestEventB;
     use crate::event::Event;
+    use crate::units::base::Amount;
+    use crate::units::base::Distance;
     use simple_logger::SimpleLogger;
     use std::any::TypeId;
     use std::cell::{Cell, RefCell};
     use std::collections::hash_set::HashSet;
     use std::time::{Duration, SystemTime};
-    use uom::si::amount_of_substance::mole;
-    use uom::si::f64::AmountOfSubstance;
-    use uom::si::f64::Length;
-    use uom::si::length::meter;
 
     #[test]
     fn test_sim_state() {
@@ -160,7 +158,7 @@ mod tests {
 
         let mut state = SimState::new();
 
-        state.set_state(TestEventA::new(Length::new::<meter>(0.0)));
+        state.set_state(TestEventA::new(Distance::from_m(0.0)));
         assert_eq!(true, state.has_state::<TestEventA>());
         assert_eq!(false, state.has_state::<TestEventB>());
 
@@ -168,13 +166,13 @@ mod tests {
         test_set_1.insert(TypeId::of::<TestEventA>());
         assert_eq!(true, &test_set_1 == state.get_tainted());
 
-        state.set_state(TestEventB::new(AmountOfSubstance::new::<mole>(0.0)));
+        state.set_state(TestEventB::new(Amount::from_mol(0.0)));
         assert_eq!(true, state.has_state::<TestEventB>());
 
         test_set_1.insert(TypeId::of::<TestEventB>());
         assert_eq!(true, &test_set_1 == state.get_tainted());
 
         let evt_a = state.get_state::<TestEventA>().take().unwrap();
-        assert_eq!(Length::new::<meter>(0.0), evt_a.len)
+        assert_eq!(Distance::from_m(0.0), evt_a.len)
     }
 }

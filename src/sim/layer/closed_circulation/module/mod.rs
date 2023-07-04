@@ -114,7 +114,7 @@ pub mod test {
             //     change: MolarConcentration::new::<millimole_per_liter>(0.1 / self.cc_sim_connector().depth() as f64),
             // };
 
-            // self.cc_sim_connector.schedule_event(Time::new::<second>(1.0), change);
+            // self.cc_sim_connector.schedule_event(Time::from_s(1.0), change);
         }
     }
 }

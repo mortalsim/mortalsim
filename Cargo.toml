@@ -27,11 +27,6 @@ features = ["derive"]
 version = "0.6"
 features = ["serde-1"]
 
-[dependencies.uom]
-version = "0.31.0"
-default-features = false
-features = ["autoconvert", "rational", "f64", "si", "std", "try-from", "use_serde"]
-
 [dependencies.uuid]
 version = "0.8"
 features = ["serde", "v4"]

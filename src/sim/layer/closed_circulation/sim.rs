@@ -33,7 +33,7 @@ impl<V: BloodVessel + 'static> ClosedCirculationSim<V> {
     pub fn new(system: ClosedCirculatorySystem<V>) -> ClosedCirculationSim<V> {
         ClosedCirculationSim {
             manager_id: Uuid::new_v4(),
-            sim_time: Time::new::<second>(0.0),
+            sim_time: Time::from_s(0.0),
             active_modules: HashMap::new(),
             system: Rc::new(system),
             blood_notify_map: HashMap::new(),

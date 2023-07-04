@@ -403,13 +403,11 @@ mod tests {
     use crate::event::test::TestEventA;
     use crate::event::test::TestEventB;
     use crate::event::Event;
+    use crate::units::base::Distance;
+    use crate::units::base::Amount;
     use std::cell::{Cell, RefCell};
     use std::sync::Arc;
     use std::time::{Duration, SystemTime};
-    use uom::si::amount_of_substance::mole;
-    use uom::si::f64::AmountOfSubstance;
-    use uom::si::f64::Length;
-    use uom::si::length::meter;
 
     #[test]
     fn test_hub() {
@@ -417,9 +415,9 @@ mod tests {
 
         let any_count = Cell::new(0);
         let a_count = Cell::new(0);
-        let on_val_a = Cell::new(Length::new::<meter>(0.0));
+        let on_val_a = Cell::new(Distance::from_m(0.0));
         let b_count = Cell::new(0);
-        let on_val_b = Cell::new(AmountOfSubstance::new::<mole>(0.0));
+        let on_val_b = Cell::new(Amount::from_mol(0.0));
 
         let mut hub = EventHub::new();
 
@@ -430,8 +428,8 @@ mod tests {
         });
 
         // Emit an event and it should get passed to the appropriate handler
-        hub.emit(TestEventA::new(Length::new::<meter>(1.0)));
-        assert_eq!(on_val_a.get(), Length::new::<meter>(1.0));
+        hub.emit(TestEventA::new(Distance::from_m(1.0)));
+        assert_eq!(on_val_a.get(), Distance::from_m(1.0));
         assert_eq!(a_count.get(), 1);
 
         // Attach a handler for any Event
@@ -440,8 +438,8 @@ mod tests {
         });
 
         // Emitting an A event should now cause both to be called
-        hub.emit(TestEventA::new(Length::new::<meter>(2.0)));
-        assert_eq!(on_val_a.get(), Length::new::<meter>(2.0));
+        hub.emit(TestEventA::new(Distance::from_m(2.0)));
+        assert_eq!(on_val_a.get(), Distance::from_m(2.0));
         assert_eq!(a_count.get(), 2);
         assert_eq!(any_count.get(), 1);
 
@@ -452,22 +450,22 @@ mod tests {
         });
 
         // Emitting a B event should call the B and any handlers only
-        hub.emit(TestEventB::new(AmountOfSubstance::new::<mole>(1.0)));
-        assert_eq!(on_val_b.get(), AmountOfSubstance::new::<mole>(1.0));
+        hub.emit(TestEventB::new(Amount::from_mol(1.0)));
+        assert_eq!(on_val_b.get(), Amount::from_mol(1.0));
         assert_eq!(a_count.get(), 2);
         assert_eq!(b_count.get(), 1);
         assert_eq!(any_count.get(), 2);
 
         // Attach a transformer for A that overrides any value
         hub.transform(|evt: &mut TestEventA| {
-            evt.len = Length::new::<meter>(10.0);
+            evt.len = Distance::from_m(10.0);
         });
 
         // It should be set to that value now whenever A Events are emitted
-        hub.emit(TestEventA::new(Length::new::<meter>(3.0)));
-        assert_eq!(on_val_a.get(), Length::new::<meter>(10.0));
-        hub.emit(TestEventA::new(Length::new::<meter>(5.0)));
-        assert_eq!(on_val_a.get(), Length::new::<meter>(10.0));
+        hub.emit(TestEventA::new(Distance::from_m(3.0)));
+        assert_eq!(on_val_a.get(), Distance::from_m(10.0));
+        hub.emit(TestEventA::new(Distance::from_m(5.0)));
+        assert_eq!(on_val_a.get(), Distance::from_m(10.0));
     }
 
     #[test]
@@ -493,7 +491,7 @@ mod tests {
             calls.try_borrow_mut().unwrap().push(3);
         });
 
-        hub.emit(TestEventA::new(Length::new::<meter>(1.0)));
+        hub.emit(TestEventA::new(Distance::from_m(1.0)));
 
         assert_eq!(vec![2, 3, 1], *calls.try_borrow().unwrap());
     }
@@ -521,7 +519,7 @@ mod tests {
             calls.try_borrow_mut().unwrap().push(3);
         });
 
-        hub.emit(TestEventA::new(Length::new::<meter>(1.0)));
+        hub.emit(TestEventA::new(Distance::from_m(1.0)));
 
         assert_eq!(vec![5, 3, 2], *calls.try_borrow().unwrap());
     }

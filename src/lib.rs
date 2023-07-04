@@ -1,6 +1,5 @@
 #![allow(dead_code, unused_imports, unused_macros)]
 
-extern crate uom;
 #[macro_use]
 extern crate anyhow;
 #[macro_use]
@@ -20,6 +19,8 @@ pub mod event;
 pub mod hub;
 // pub mod closed_circulation;
 // pub mod human;
+
+pub use simple_si_units as units;
 
 #[cfg(test)]
 mod test {

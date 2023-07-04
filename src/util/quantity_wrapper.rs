@@ -1,8 +1,9 @@
 use ordered_float::OrderedFloat;
 use std::cmp::Ordering;
-use uom::si::f64::Time;
 
-#[derive(Debug, Default, Clone, Copy)]
+type Time = crate::units::base::Time<f64>;
+
+#[derive(Debug, Clone, Copy)]
 #[repr(transparent)]
 pub struct OrderedTime(pub Time);
 
@@ -29,7 +30,7 @@ impl AsMut<Time> for OrderedTime {
 
 impl PartialEq for OrderedTime {
     fn eq(&self, other: &OrderedTime) -> bool {
-        OrderedFloat(self.0.value).eq(&OrderedFloat(other.0.value))
+        OrderedFloat(self.0.s).eq(&OrderedFloat(other.0.s))
     }
 }
 
@@ -43,6 +44,6 @@ impl Eq for OrderedTime {}
 
 impl Ord for OrderedTime {
     fn cmp(&self, other: &Self) -> Ordering {
-        OrderedFloat(self.0.value).cmp(&OrderedFloat(other.0.value))
+        OrderedFloat(self.0.s).cmp(&OrderedFloat(other.0.s))
     }
 }

@@ -34,11 +34,10 @@ pub mod test {
     use crate::event::Event;
     use crate::sim::component::registry::ComponentRegistry;
     use crate::sim::SimState;
+    use crate::units::base::Amount;
+    use crate::units::base::Distance;
     use std::any::TypeId;
     use std::sync::{Arc, Mutex};
-    use uom::si::amount_of_substance::mole;
-    use uom::si::f64::{AmountOfSubstance, Length};
-    use uom::si::length::meter;
 
     pub struct TestComponentA {
         connector: CoreConnector,
@@ -49,10 +48,10 @@ pub mod test {
             &mut self.connector
         }
         fn core_init(&mut self, initializer: &mut CoreComponentInitializer) {
-            initializer.notify(TestEventA::new(Length::new::<meter>(1.0)));
-            initializer.notify(TestEventB::new(AmountOfSubstance::new::<mole>(1.0)));
+            initializer.notify(TestEventA::new(Distance::from_m(1.0)));
+            initializer.notify(TestEventB::new(Amount::from_mol(1.0)));
             initializer.transform(|evt: &mut TestEventA| {
-                evt.len = Length::new::<meter>(3.0);
+                evt.len = Distance::from_m(3.0);
             });
         }
     }
@@ -66,7 +65,7 @@ pub mod test {
         }
         fn run(&mut self) {
             let evt_a = self.connector.get::<TestEventA>().unwrap();
-            assert_eq!(evt_a.len, Length::new::<meter>(3.0));
+            assert_eq!(evt_a.len, Distance::from_m(3.0));
 
             log::debug!(
                 "Trigger Events: {:?}",
@@ -88,13 +87,13 @@ pub mod test {
         }
 
         pub fn transform_b(evt: &mut TestEventB) {
-            evt.amt = evt.amt + AmountOfSubstance::new::<mole>(0.0);
+            evt.amt = evt.amt + Amount::from_mol(0.0);
         }
     }
     impl CoreComponent for TestComponentB {
         fn core_init(&mut self, initializer: &mut CoreComponentInitializer) {
-            initializer.notify(TestEventA::new(Length::new::<meter>(2.0)));
-            initializer.notify(TestEventB::new(AmountOfSubstance::new::<mole>(2.0)));
+            initializer.notify(TestEventA::new(Distance::from_m(2.0)));
+            initializer.notify(TestEventB::new(Amount::from_mol(2.0)));
             initializer.transform(Self::transform_b);
         }
         fn core_connector(&mut self) -> &mut CoreConnector {
@@ -111,7 +110,7 @@ pub mod test {
         }
         fn run(&mut self) {
             let evt_a = self.connector.get::<TestEventA>().unwrap();
-            assert_eq!(evt_a.len, Length::new::<meter>(3.0));
+            assert_eq!(evt_a.len, Distance::from_m(3.0));
 
             log::debug!(
                 "Trigger Events: {:?}",

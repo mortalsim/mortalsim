@@ -160,21 +160,20 @@ mod tests {
     use super::EventTransformer;
     use super::TransformerItem;
     use crate::event::test::TestEventA;
+    use crate::units::base::Distance;
     use std::cell::Cell;
-    use uom::si::f64::Length;
-    use uom::si::length::meter;
 
     #[test]
     fn test_handle() {
         let mut listener = TransformerItem::new(|evt: &mut TestEventA| {
-            evt.len = Length::new::<meter>(10.0);
+            evt.len = Distance::from_m(10.0);
         });
 
-        let mut evt = TestEventA::new(Length::new::<meter>(5.0));
-        assert_eq!(evt.len, Length::new::<meter>(5.0));
+        let mut evt = TestEventA::new(Distance::from_m(5.0));
+        assert_eq!(evt.len, Distance::from_m(5.0));
 
         listener.transform(&mut evt);
-        assert_eq!(evt.len, Length::new::<meter>(10.0));
+        assert_eq!(evt.len, Distance::from_m(10.0));
     }
 
     #[test]
