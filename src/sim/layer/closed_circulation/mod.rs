@@ -4,13 +4,13 @@ use std::sync::Mutex;
 
 mod graph;
 mod module;
-mod sim;
+mod closed_circulation_layer;
 mod system;
 mod vessel;
 
 pub use graph::{BloodEdge, BloodNode};
 pub use module::{ClosedCircConnector, ClosedCircInitializer, ClosedCircSimModule};
-pub use sim::ClosedCirculationSim;
+pub use closed_circulation_layer::ClosedCirculationLayer;
 pub use system::{ClosedCircVesselIter, ClosedCirculatorySystem};
 pub use vessel::{BloodVessel, VesselIter};
 

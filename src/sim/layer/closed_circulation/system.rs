@@ -235,22 +235,22 @@ impl<T: BloodVessel> ClosedCirculatorySystem<T> {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::ClosedCirculatorySystem;
-    use crate::human::{HumanBloodVessel, HUMAN_CIRCULATION_FILEPATH};
-    use petgraph::dot::{Config, Dot};
-    use petgraph::graphmap::DiGraphMap;
-    use petgraph::stable_graph::StableDiGraph;
-    use serde_json::to_string_pretty;
-    use std::rc::Rc;
-    use std::time::{Duration, Instant};
+// #[cfg(test)]
+// mod tests {
+//     use super::ClosedCirculatorySystem;
+//     use crate::human::{HumanBloodVessel, HUMAN_CIRCULATION_FILEPATH};
+//     use petgraph::dot::{Config, Dot};
+//     use petgraph::graphmap::DiGraphMap;
+//     use petgraph::stable_graph::StableDiGraph;
+//     use serde_json::to_string_pretty;
+//     use std::rc::Rc;
+//     use std::time::{Duration, Instant};
 
-    #[test]
-    fn test_load() {
-        let circ: ClosedCirculatorySystem<HumanBloodVessel> =
-            ClosedCirculatorySystem::from_json_file(HUMAN_CIRCULATION_FILEPATH).unwrap();
-        println!("{}", circ.digraph());
-        println!("depth: {}", circ.depth);
-    }
-}
+//     #[test]
+//     fn test_load() {
+//         let circ: ClosedCirculatorySystem<HumanBloodVessel> =
+//             ClosedCirculatorySystem::from_json_file(HUMAN_CIRCULATION_FILEPATH).unwrap();
+//         println!("{}", circ.digraph());
+//         println!("depth: {}", circ.depth);
+//     }
+// }

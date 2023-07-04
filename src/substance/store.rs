@@ -1,5 +1,5 @@
-use super::{MolarConcentration, SubstanceChange, ZERO_CONCENTRATION};
-use crate::core::sim::{second, Time};
+use super::{SubstanceConcentration, SubstanceChange, ZERO_CONCENTRATION};
+use crate::sim::SimTime;
 use crate::substance::Substance;
 use crate::util::id_gen::{IdGenerator, IdType, InvalidIdError};
 use crate::util::{mmol_per_L, secs, BoundFn};
@@ -8,7 +8,6 @@ use core::any::TypeId;
 use std::collections::{HashMap, HashSet};
 use std::fmt;
 use std::ops::Bound;
-use uom::si::molar_concentration::millimole_per_liter;
 use uuid::Uuid;
 
 /// A storage construct for Substance concentrations in a volume
@@ -18,9 +17,9 @@ pub struct SubstanceStore {
     /// Id generator for substance changes
     id_gen: IdGenerator,
     /// Local cache of simulation time
-    sim_time: Time,
+    sim_time: SimTime,
     /// Data structure containing the internal substance concentration
-    composition: HashMap<Substance, MolarConcentration>,
+    composition: HashMap<Substance, SubstanceConcentration>,
     /// Keep track of any Substances which are changing
     substance_changes: HashMap<Substance, HashMap<IdType, SubstanceChange>>,
 }
@@ -57,7 +56,7 @@ impl SubstanceStore {
     /// * `substance` - Substance to retrieve
     ///
     /// Returns the current concentration of the substance
-    pub fn concentration_of(&self, substance: &Substance) -> MolarConcentration {
+    pub fn concentration_of(&self, substance: &Substance) -> SubstanceConcentration {
         match self.composition.get(substance) {
             None => *ZERO_CONCENTRATION,
             Some(amt) => *amt,
@@ -69,7 +68,7 @@ impl SubstanceStore {
     /// ### Arguments
     /// * `substance` - Substance to set the concentration for
     /// * `concentration` - concentration to set for the Substance
-    pub fn set_concentration(&mut self, substance: Substance, concentration: MolarConcentration) {
+    pub fn set_concentration(&mut self, substance: Substance, concentration: SubstanceConcentration) {
         self.composition.insert(substance, concentration);
     }
 
@@ -78,7 +77,7 @@ impl SubstanceStore {
     ///
     /// ### Arguments
     /// * `composition` - the Substance composition to merge
-    pub fn merge_composition(&mut self, composition: &HashMap<Substance, MolarConcentration>) {
+    pub fn merge_composition(&mut self, composition: &HashMap<Substance, SubstanceConcentration>) {
         self.composition.extend(composition);
     }
 
@@ -109,14 +108,14 @@ impl SubstanceStore {
     pub fn schedule_change(
         &mut self,
         substance: Substance,
-        delay: Time,
-        amount: MolarConcentration,
-        duration: Time,
+        delay: SimTime,
+        amount: SubstanceConcentration,
+        duration: SimTime,
         bound_fn: BoundFn,
     ) -> IdType {
         // Constrain the start time to a minimum of the current sim time
         let x_start_time = {
-            if delay.value < 0.0 {
+            if delay.s < 0.0 {
                 self.sim_time;
             }
             self.sim_time + delay
@@ -154,7 +153,7 @@ impl SubstanceStore {
     ///
     /// ### Arguments
     /// * `sim_time` - the new simulation time
-    pub fn advance(&mut self, sim_time: Time) {
+    pub fn advance(&mut self, sim_time: SimTime) {
         for (substance, change_map) in self.substance_changes.iter_mut() {
             let mut ids_to_remove = Vec::new();
 
@@ -188,7 +187,7 @@ impl SubstanceStore {
 #[cfg(test)]
 mod tests {
     use super::{
-        millimole_per_liter, second, BoundFn, MolarConcentration, Substance, SubstanceStore, Time,
+        BoundFn, SubstanceConcentration, Substance, SubstanceStore, SimTime,
         ZERO_CONCENTRATION,
     };
     use crate::util::{mmol_per_L, secs};
@@ -257,7 +256,7 @@ mod tests {
         let adp_conc = store.concentration_of(&Substance::ADP);
         let expected_adp = mmol_per_L!(0.5);
         assert!(
-            (adp_conc - expected_adp).value.abs() < 0.0001,
+            (adp_conc - expected_adp).molpm3.abs() < 0.0001,
             "Incorrect ADP concentration, found {:?}, expected {:?}",
             adp_conc,
             expected_adp
@@ -273,7 +272,7 @@ mod tests {
         // ADP shouldn't have changed
         let adp_conc2 = store.concentration_of(&Substance::ADP);
         assert!(
-            (adp_conc2 - expected_adp).value.abs() < 0.01,
+            (adp_conc2 - expected_adp).molpm3.abs() < 0.01,
             "Incorrect ADP concentration, found {:?}, expected {:?}",
             adp_conc,
             expected_adp
@@ -283,7 +282,7 @@ mod tests {
         let atp_conc1 = store.concentration_of(&Substance::ATP);
         let expected_atp1 = mmol_per_L!(0.5);
         assert!(
-            (atp_conc1 - expected_atp1).value.abs() < 0.01,
+            (atp_conc1 - expected_atp1).molpm3.abs() < 0.01,
             "Incorrect ATP concentration, found {:?}, expected {:?}",
             adp_conc,
             expected_atp1
@@ -296,7 +295,7 @@ mod tests {
         let atp_conc2 = store.concentration_of(&Substance::ATP);
         let expected_atp2 = mmol_per_L!(1.0);
         assert!(
-            (atp_conc2 - expected_atp2).value.abs() < 0.01,
+            (atp_conc2 - expected_atp2).molpm3.abs() < 0.01,
             "Incorrect ATP concentration, found {:?}, expected {:?}",
             atp_conc2,
             expected_atp2
@@ -309,13 +308,13 @@ mod tests {
         let adp_conc3 = store.concentration_of(&Substance::ADP);
         let atp_conc3 = store.concentration_of(&Substance::ATP);
         assert!(
-            (adp_conc3 - expected_adp).value.abs() < 0.01,
+            (adp_conc3 - expected_adp).molpm3.abs() < 0.01,
             "Incorrect ADP concentration, found {:?}, expected {:?}",
             adp_conc3,
             expected_adp
         );
         assert!(
-            (atp_conc3 - expected_atp2).value.abs() < 0.01,
+            (atp_conc3 - expected_atp2).molpm3.abs() < 0.01,
             "Incorrect ATP concentration, found {:?}, expected {:?}",
             atp_conc3,
             expected_atp2

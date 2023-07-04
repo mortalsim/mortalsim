@@ -10,13 +10,13 @@ pub use version::Version;
 
 macro_rules! secs {
     ( $x:expr ) => {
-        Time::from_s($x)
+        crate::units::base::Time::from_s($x)
     };
 }
 
 macro_rules! mmol_per_L {
     ( $x:expr ) => {
-        MolarConcentration::new::<millimole_per_liter>($x)
+        crate::units::chemical::Concentration::from_mM($x)
     };
 }
 

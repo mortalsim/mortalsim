@@ -19,7 +19,7 @@ use uom::si::amount_of_substance::mole;
 use uom::si::molar_concentration::mole_per_liter;
 use uuid::Uuid;
 
-pub struct ClosedCirculationSim<V: BloodVessel + 'static> {
+pub struct ClosedCirculationLayer<V: BloodVessel + 'static> {
     manager_id: Uuid,
     sim_time: Time,
     active_modules: HashMap<&'static str, Box<dyn ClosedCircSimModule<VesselType = V>>>,
@@ -28,10 +28,10 @@ pub struct ClosedCirculationSim<V: BloodVessel + 'static> {
     composition_map: HashMap<V, SubstanceStore>,
 }
 
-impl<V: BloodVessel + 'static> ClosedCirculationSim<V> {
-    /// Creates a ClosedCirculationSim from a Graph representing the circulatory structure
-    pub fn new(system: ClosedCirculatorySystem<V>) -> ClosedCirculationSim<V> {
-        ClosedCirculationSim {
+impl<V: BloodVessel + 'static> ClosedCirculationLayer<V> {
+    /// Creates a ClosedCirculationLayer from a Graph representing the circulatory structure
+    pub fn new(system: ClosedCirculatorySystem<V>) -> ClosedCirculationLayer<V> {
+        ClosedCirculationLayer {
             manager_id: Uuid::new_v4(),
             sim_time: Time::from_s(0.0),
             active_modules: HashMap::new(),
@@ -148,7 +148,7 @@ impl<V: BloodVessel + 'static> ClosedCirculationSim<V> {
     }
 }
 
-// impl<V: BloodVessel + 'static> ClosedCircSimConnector<V> for ClosedCirculationSim<V> {
+// impl<V: BloodVessel + 'static> ClosedCircSimConnector<V> for ClosedCirculationLayer<V> {
 //     fn depth(&self) -> u32 {
 //         self.depth as u32
 //     }
@@ -194,7 +194,7 @@ impl<V: BloodVessel + 'static> ClosedCirculationSim<V> {
 
 #[cfg(test)]
 mod tests {
-    use super::ClosedCirculationSim;
+    use super::ClosedCirculationLayer;
 
     #[test]
     fn test_manager() {}

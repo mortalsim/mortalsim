@@ -19,16 +19,6 @@ pub struct EventIterator<'a, E: Event> {
     iter_ref: Option<&'a Vec<Arc<E>>>,
 }
 
-// impl<'a, E: Event> Iterator for EventIterator<'a, E> {
-//     type Item = Arc<E>;
-
-//     fn next(&mut self) -> Option<Self::Item> {
-//         if self.evt_list.is_some() {
-//             self.
-//         }
-//     }
-// }
-
 #[cfg(test)]
 pub mod test {
 

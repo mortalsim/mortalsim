@@ -1,9 +1,7 @@
 use std::collections::HashMap;
 use std::fmt;
 use std::sync::Mutex;
-use uom::si::f64::MolarMass;
-use uom::si::molar_mass::gram_per_mole;
-use uom::si::molar_mass::kilogram_per_mole;
+use crate::units::chemical::MolarMass;
 
 /// Enumeration of chemical substances.
 /// These are typically named as their most abundant form in nature.
@@ -110,31 +108,31 @@ impl Substance {
         }
     }
     /// Typical molar mass of the substance
-    fn molar_mass(&self) -> MolarMass {
+    fn molar_mass(&self) -> MolarMass<f64> {
         match self {
-            Substance::ADP => MolarMass::new::<gram_per_mole>(427.201),
-            Substance::AMP => MolarMass::new::<gram_per_mole>(347.2212),
-            Substance::ATP => MolarMass::new::<gram_per_mole>(507.18),
-            Substance::Ca => MolarMass::new::<gram_per_mole>(40.078),
-            Substance::CO2 => MolarMass::new::<gram_per_mole>(44.01),
-            Substance::Cl => MolarMass::new::<gram_per_mole>(35.453),
-            Substance::GLC => MolarMass::new::<gram_per_mole>(180.156),
-            Substance::GLCL => MolarMass::new::<gram_per_mole>(180.156),
-            Substance::H => MolarMass::new::<gram_per_mole>(1.00794),
-            Substance::H2O => MolarMass::new::<gram_per_mole>(18.0153),
-            Substance::K => MolarMass::new::<gram_per_mole>(39.0983),
-            Substance::LAC => MolarMass::new::<gram_per_mole>(89.07),
-            Substance::LDH => MolarMass::new::<kilogram_per_mole>(144.0),
-            Substance::MSG => MolarMass::new::<gram_per_mole>(169.11),
-            Substance::N2 => MolarMass::new::<gram_per_mole>(28.0134),
-            Substance::NAD => MolarMass::new::<gram_per_mole>(663.43),
-            Substance::NADH => MolarMass::new::<gram_per_mole>(665.125),
-            Substance::Na => MolarMass::new::<gram_per_mole>(22.989769),
-            Substance::NaCl => MolarMass::new::<gram_per_mole>(58.44),
-            Substance::O2 => MolarMass::new::<gram_per_mole>(31.9988),
-            Substance::PFK => MolarMass::new::<kilogram_per_mole>(85.0),
-            Substance::PGK => MolarMass::new::<kilogram_per_mole>(45.0),
-            Substance::PYR => MolarMass::new::<gram_per_mole>(88.06),
+            Substance::ADP => MolarMass::from_gpmol(427.201),
+            Substance::AMP => MolarMass::from_gpmol(347.2212),
+            Substance::ATP => MolarMass::from_gpmol(507.18),
+            Substance::Ca => MolarMass::from_gpmol(40.078),
+            Substance::CO2 => MolarMass::from_gpmol(44.01),
+            Substance::Cl => MolarMass::from_gpmol(35.453),
+            Substance::GLC => MolarMass::from_gpmol(180.156),
+            Substance::GLCL => MolarMass::from_gpmol(180.156),
+            Substance::H => MolarMass::from_gpmol(1.00794),
+            Substance::H2O => MolarMass::from_gpmol(18.0153),
+            Substance::K => MolarMass::from_gpmol(39.0983),
+            Substance::LAC => MolarMass::from_gpmol(89.07),
+            Substance::LDH => MolarMass::from_kgpmol(144.0),
+            Substance::MSG => MolarMass::from_gpmol(169.11),
+            Substance::N2 => MolarMass::from_gpmol(28.0134),
+            Substance::NAD => MolarMass::from_gpmol(663.43),
+            Substance::NADH => MolarMass::from_gpmol(665.125),
+            Substance::Na => MolarMass::from_gpmol(22.989769),
+            Substance::NaCl => MolarMass::from_gpmol(58.44),
+            Substance::O2 => MolarMass::from_gpmol(31.9988),
+            Substance::PFK => MolarMass::from_kgpmol(85.0),
+            Substance::PGK => MolarMass::from_kgpmol(45.0),
+            Substance::PYR => MolarMass::from_gpmol(88.06),
         }
     }
 }

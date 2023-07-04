@@ -1,25 +1,21 @@
-use super::MolarConcentration;
-use crate::core::sim::Time;
+use super::SubstanceConcentration;
+use crate::sim::SimTime;
 use crate::substance::Substance;
 use crate::util::math::{bound_linear, bound_sigmoid};
 use crate::util::BoundFn;
 use anyhow::{Error, Result};
 
-// Need to use the BASE UNIT for molar concentration
-// otherwise the universe becomes unstable
-use uom::si::molar_concentration::mole_per_cubic_meter;
-
 #[derive(Debug, Clone)]
 pub struct SubstanceChange {
-    pub start_time: Time,
-    pub amount: MolarConcentration,
-    pub duration: Time,
+    pub start_time: SimTime,
+    pub amount: SubstanceConcentration,
+    pub duration: SimTime,
     pub bound_fn: BoundFn,
-    pub previous_val: MolarConcentration,
+    pub previous_val: SubstanceConcentration,
 }
 
-fn check_duration(duration: Time) {
-    if duration.value <= 0.0 {
+fn check_duration(duration: SimTime) {
+    if duration.to_s() <= 0.0 {
         panic!("SubstanceChange duration must be greater than 0!")
     }
 }
@@ -36,9 +32,9 @@ impl SubstanceChange {
     ///
     /// Returns a new SubstanceChange starting at 0.0
     pub fn new(
-        start_time: Time,
-        amount: MolarConcentration,
-        duration: Time,
+        start_time: SimTime,
+        amount: SubstanceConcentration,
+        duration: SimTime,
         bound_fn: BoundFn,
     ) -> SubstanceChange {
         check_duration(duration);
@@ -47,7 +43,7 @@ impl SubstanceChange {
             amount,
             duration,
             bound_fn,
-            previous_val: MolarConcentration::new::<mole_per_cubic_meter>(0.0),
+            previous_val: SubstanceConcentration::from_mM(0.0),
         }
     }
 
@@ -56,11 +52,11 @@ impl SubstanceChange {
     ///
     /// ### Arguments
     /// * `sim_time` - simulation time to evaluate the change at
-    pub fn next_amount(&mut self, sim_time: Time) -> MolarConcentration {
-        let new_val = MolarConcentration::new::<mole_per_cubic_meter>(self.bound_fn.call(
-            (sim_time - self.start_time).value,
-            self.duration.value,
-            self.amount.value,
+    pub fn next_amount(&mut self, sim_time: SimTime) -> SubstanceConcentration {
+        let new_val = SubstanceConcentration::from_mM(self.bound_fn.call(
+            (sim_time - self.start_time).to_s(),
+            self.duration.to_s(),
+            self.amount.to_mM(),
         ));
 
         let result = new_val - self.previous_val;
@@ -76,10 +72,8 @@ impl SubstanceChange {
 #[cfg(test)]
 mod tests {
 
-    use super::{BoundFn, MolarConcentration, SubstanceChange, Time};
+    use super::{BoundFn, SubstanceConcentration, SubstanceChange, SimTime};
     use crate::util::{mmol_per_L, secs};
-    use uom::si::molar_concentration::millimole_per_liter;
-    use uom::si::time::second;
 
     #[test]
     fn new_change() {
@@ -109,22 +103,22 @@ mod tests {
         let result = change.next_amount(sim_time);
         let diff = result - (amt / 2.0);
         assert!(
-            diff.value.abs() < 0.01,
+            diff.to_mM().abs() < 0.01,
             "time: {}, result: {}, diff: {}",
-            sim_time.value,
-            result.value,
-            diff.value
+            sim_time.to_s(),
+            result.to_mM(),
+            diff.to_mM()
         );
 
         // Should be the other half
         let result = change.next_amount(duration);
         let diff = result - (amt / 2.0);
         assert!(
-            diff.value.abs() < 0.01,
+            diff.to_mM().abs() < 0.01,
             "time: {}, result: {}, diff: {}",
-            sim_time.value,
-            result.value,
-            diff.value
+            sim_time.to_s(),
+            result.to_mM(),
+            diff.to_mM()
         );
     }
 }

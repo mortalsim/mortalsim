@@ -14,13 +14,12 @@ mod sim;
 mod spark;
 mod util;
 
-// pub mod substance;
+pub mod substance;
 pub mod event;
 pub mod hub;
+pub mod units;
 // pub mod closed_circulation;
 // pub mod human;
-
-pub use simple_si_units as units;
 
 #[cfg(test)]
 mod test {
