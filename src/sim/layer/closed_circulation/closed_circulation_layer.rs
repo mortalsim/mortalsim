@@ -1,13 +1,14 @@
+use crate::sim::SimTime;
+use crate::substance::{Substance, SubstanceConcentration, SubstanceStore};
+
 use super::vessel::{BloodVessel, BloodVesselType, VesselIter};
 use super::{
-    BloodEdge, BloodNode, ClosedCircConnector, ClosedCircInitializer, ClosedCircSimModule,
+    BloodEdge, BloodNode, ClosedCircConnector, ClosedCircInitializer, ClosedCircComponent,
     ClosedCircVesselIter, ClosedCirculatorySystem, COMPONENT_REGISTRY,
 };
-use crate::core::sim::{second, CoreSim, SimConnector, SimModule, SimModuleInitializer, Time};
-use crate::event::{BloodCompositionChange, BloodVolumeChange};
-use crate::substance::{AmountOfSubstance, MolarConcentration, Substance, SubstanceStore, Volume};
 use petgraph::graph::{Graph, Neighbors, NodeIndex};
 use petgraph::Direction;
+use simple_si_units::chemical::Concentration;
 use std::any::{Any, TypeId};
 use std::cmp::Ordering;
 use std::collections::hash_set;
@@ -15,16 +16,14 @@ use std::collections::{HashMap, HashSet};
 use std::hash::{Hash, Hasher};
 use std::rc::Rc;
 use std::string;
-use uom::si::amount_of_substance::mole;
-use uom::si::molar_concentration::mole_per_liter;
 use uuid::Uuid;
 
 pub struct ClosedCirculationLayer<V: BloodVessel + 'static> {
     manager_id: Uuid,
-    sim_time: Time,
-    active_modules: HashMap<&'static str, Box<dyn ClosedCircSimModule<VesselType = V>>>,
+    sim_time: SimTime,
+    active_modules: HashMap<&'static str, Box<dyn ClosedCircComponent<VesselType = V>>>,
     system: Rc<ClosedCirculatorySystem<V>>,
-    blood_notify_map: HashMap<V, HashMap<Substance, Vec<(MolarConcentration, &'static str)>>>,
+    blood_notify_map: HashMap<V, HashMap<Substance, Vec<(SubstanceConcentration, &'static str)>>>,
     composition_map: HashMap<V, SubstanceStore>,
 }
 
@@ -33,7 +32,7 @@ impl<V: BloodVessel + 'static> ClosedCirculationLayer<V> {
     pub fn new(system: ClosedCirculatorySystem<V>) -> ClosedCirculationLayer<V> {
         ClosedCirculationLayer {
             manager_id: Uuid::new_v4(),
-            sim_time: Time::from_s(0.0),
+            sim_time: SimTime::from_s(0.0),
             active_modules: HashMap::new(),
             system: Rc::new(system),
             blood_notify_map: HashMap::new(),
@@ -63,7 +62,7 @@ impl<V: BloodVessel + 'static> ClosedCirculationLayer<V> {
                         "Initializing module \"{}\" on ClosedCirculation",
                         module_name
                     );
-                    let factory = factory_box.downcast_mut::<Box<dyn FnMut() -> Box<dyn ClosedCircSimModule<VesselType = V>>>>().unwrap();
+                    let factory = factory_box.downcast_mut::<Box<dyn FnMut() -> Box<dyn ClosedCircComponent<VesselType = V>>>>().unwrap();
                     let mut module = factory();
                     let mut cc_initializer = ClosedCircInitializer::new();
                     module.init_cc(&mut cc_initializer);
@@ -135,7 +134,7 @@ impl<V: BloodVessel + 'static> ClosedCirculationLayer<V> {
         }
     }
 
-    pub(crate) fn prepare_module(&mut self, module: &mut dyn ClosedCircSimModule<VesselType = V>) {
+    pub(crate) fn prepare_module(&mut self, _component: &mut dyn ClosedCircComponent<VesselType = V>) {
         // let cc_connector = module.cc_sim_connector();
 
         // for (vessel, store) in cc_connector.vessel_connections.iter_mut() {

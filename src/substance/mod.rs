@@ -6,7 +6,7 @@ pub use store::SubstanceStore;
 pub use substance::Substance;
 use crate::units::chemical::Concentration;
 
-type SubstanceConcentration = Concentration<f64>;
+pub type SubstanceConcentration = Concentration<f64>;
 
 lazy_static! {
     #[derive(Debug)]

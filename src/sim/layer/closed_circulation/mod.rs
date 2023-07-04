@@ -3,13 +3,13 @@ use std::collections::HashMap;
 use std::sync::Mutex;
 
 mod graph;
-mod module;
+mod component;
 mod closed_circulation_layer;
 mod system;
 mod vessel;
 
 pub use graph::{BloodEdge, BloodNode};
-pub use module::{ClosedCircConnector, ClosedCircInitializer, ClosedCircSimModule};
+pub use component::{ClosedCircConnector, ClosedCircInitializer, ClosedCircComponent};
 pub use closed_circulation_layer::ClosedCirculationLayer;
 pub use system::{ClosedCircVesselIter, ClosedCirculatorySystem};
 pub use vessel::{BloodVessel, VesselIter};
@@ -27,7 +27,7 @@ lazy_static! {
 /// * `factory`        - Factory function which creates an instance of the module
 fn register_module<V: BloodVessel + 'static>(
     module_name: &'static str,
-    factory: impl FnMut() -> Box<dyn ClosedCircSimModule<VesselType = V>> + Send + 'static,
+    factory: impl FnMut() -> Box<dyn ClosedCircComponent<VesselType = V>> + Send + 'static,
 ) {
     log::debug!("Registering closed circulation module: {}", module_name);
 

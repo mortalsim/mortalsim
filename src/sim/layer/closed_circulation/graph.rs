@@ -1,8 +1,7 @@
 use super::vessel::{BloodVessel, BloodVesselType};
-use crate::substance::{SubstanceStore, Volume};
+use crate::substance::SubstanceStore;
 use std::fmt;
 use std::hash::{Hash, Hasher};
-use uom::si::volume::liter;
 
 /// Blood Vessel node within the circulation graph
 #[derive(Clone, Debug)]

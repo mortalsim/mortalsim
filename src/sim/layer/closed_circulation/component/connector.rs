@@ -1,20 +1,18 @@
 use super::super::vessel::{BloodVessel, BloodVesselType, VesselIter};
 use super::super::{
-    BloodNode, ClosedCircInitializer, ClosedCircVesselIter, ClosedCirculationSim,
+    BloodNode, ClosedCircInitializer, ClosedCircVesselIter,
     ClosedCirculatorySystem,
 };
-use crate::substance::Volume;
-use crate::substance::{MolarConcentration, Substance, SubstanceStore};
+use crate::substance::{SubstanceConcentration, Substance, SubstanceStore};
 use anyhow::Result;
 use petgraph::Direction;
 use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
-use uom::si::volume::liter;
 
 pub struct ClosedCircConnector<V: BloodVessel> {
     pub(crate) system: Rc<ClosedCirculatorySystem<V>>,
     pub(crate) vessel_connections: HashMap<V, SubstanceStore>,
-    pub(crate) substance_notifies: HashMap<V, HashMap<Substance, MolarConcentration>>,
+    pub(crate) substance_notifies: HashMap<V, HashMap<Substance, SubstanceConcentration>>,
 }
 
 impl<V: BloodVessel> ClosedCircConnector<V> {

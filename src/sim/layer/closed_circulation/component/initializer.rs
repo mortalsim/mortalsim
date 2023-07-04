@@ -1,11 +1,11 @@
 use super::super::vessel::BloodVessel;
 use crate::event::Event;
-use crate::substance::{MolarConcentration, Substance, SubstanceStore, Volume};
+use crate::substance::{SubstanceConcentration, Substance, SubstanceStore};
 use std::collections::{HashMap, HashSet};
 
 pub struct ClosedCircInitializer<V: BloodVessel> {
     pub(crate) vessel_connections: HashMap<V, SubstanceStore>,
-    pub(crate) substance_notifies: HashMap<V, HashMap<Substance, MolarConcentration>>,
+    pub(crate) substance_notifies: HashMap<V, HashMap<Substance, SubstanceConcentration>>,
     pub(crate) any_substance_notifies: HashSet<V>,
     pub(crate) attach_all: bool,
 }
@@ -24,7 +24,7 @@ impl<V: BloodVessel> ClosedCircInitializer<V> {
         &mut self,
         vessel: V,
         substance: Substance,
-        threshold: MolarConcentration,
+        threshold: SubstanceConcentration,
     ) {
         self.vessel_connections
             .insert(vessel, SubstanceStore::new());
