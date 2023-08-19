@@ -1,0 +1,260 @@
+---
+path: src/sim/human/human_circulation.rs
+arterial:
+  - id: Aorta
+    regions: [Thoracic]
+    links:
+    - id: RightBraciocephalicArtery
+      regions: [Thoracic]
+      links:
+      - id: RightSubclavianArtery
+        regions: [Thoracic]
+        links:
+        - id: RightAxillaryArtery
+          regions: [RightAxillary]
+          links:
+          - id: RightBrachialArtery
+            regions: [RightBrachial]
+            links:
+            - id: RightUlnarArtery
+              regions: [RightAntebrachial]
+              bridges: [RightBasilicVein]
+            - id: RightRadialArtery
+              regions: [RightAntebrachial]
+              bridges: [RightCephalicVein]
+      - id: RightCommonCarotidArtery
+        regions: [Thoracic, Cervical]
+        links:
+        - id: RightCarotidSinusArtery
+          regions: [Cervical]
+          links:
+          - id: RightInternalCarotidArtery
+            regions: [Cervical, Cranial]
+            bridges: [RightInternalJugularVein]
+          - id: RightExternalCarotidArtery
+            regions: [Cervical, RightFacial]
+            bridges: [RightInternalJugularVein]
+    - id: LeftSubclavianArtery
+      regions: [Thoracic]
+      links:
+      - id: LeftAxillaryArtery
+        regions: [Thoracic]
+        links:
+        - id: LeftBrachialArtery
+          regions: [LeftBrachial]
+          links:
+          - id: LeftUlnarArtery
+            regions: [LeftAntebrachial]
+            bridges: [LeftBasilicVein]
+          - id: LeftRadialArtery
+            regions: [LeftAntebrachial]
+            bridges: [LeftCephalicVein]
+    - id: LeftCommonCarotidArtery
+      regions: [Thoracic, Cervical]
+      links:
+      - id: LeftCarotidSinusArtery
+        regions: [Cervical]
+        links:
+        - id: LeftInternalCarotidArtery
+          regions: [Cervical, Cranial]
+          bridges: [LeftInternalJugularVein]
+        - id: LeftExternalCarotidArtery
+          regions: [Cervical, LeftFacial]
+          bridges: [LeftInternalJugularVein]
+    - id: ThoracicAorta
+      regions: [Thoracic]
+      links:
+      - id: AbdominalAorta
+        regions: [LeftUpperAbdominal, RightUpperAbdominal]
+        links:
+        - id: CeliacArtery
+          regions: [LeftUpperAbdominal, RightUpperAbdominal]
+          links:
+          - id: CommonHepaticArtery
+            regions: [RightUpperAbdominal]
+            links:
+            - id: RightGastricArtery
+              regions: [RightUpperAbdominal]
+              bridges: [RightGastricVein]
+            bridges: [HepaticVein]
+          - id: SplenicArtery
+            regions: [LeftUpperAbdominal]
+            bridges: [SplenicVein]
+          - id: LeftGastricArtery
+            regions: [LeftUpperAbdominal]
+            bridges: [LeftGastricVein]
+        - id: SuperiorMesentericArtery
+          regions: [RightUpperAbdominal, LeftUpperAbdominal, RightLowerAbdominal, LeftLowerAbdominal]
+          links:
+          - id: InferiorMesentericArtery
+            regions: [LeftUpperAbdominal, LeftLowerAbdominal]
+            bridges: [InferiorMesentericVein]
+          bridges: [SuperiorMesentericVein]
+        - id: RightRenalArtery
+          regions: [RightUpperAbdominal]
+          bridges: [RightRenalVein]
+        - id: LeftRenalArtery
+          regions: [LeftUpperAbdominal]
+          bridges: [LeftRenalVein]
+        - id: RightCommonIliacArtery
+          regions: [RightLowerAbdominal]
+          links:
+          - id: RightInternalIliacArtery
+            regions: [RightLowerAbdominal, RightInguinal]
+            bridges: [RightInternalIliacVein]
+          - id: RightExternalIliacArtery
+            regions: [RightLowerAbdominal]
+            links:
+            - id: RightCommonFemoralArtery
+              regions: [RightFemoral]
+              links:
+              - id: RightDeepFemoralArtery
+                regions: [RightFemoral]
+                bridges: [RightDeepFemoralVein]
+              - id: RightSuperficialFemoralArtery
+                regions: [RightFemoral]
+                links:
+                - id: RightPoplitealArtery
+                  regions: [RightPopliteal]
+                  links:
+                  - id: RightAnteriorTibialArtery
+                    regions: [RightFibular]
+                    bridges: [RightAnteriorTibialVein, RightGreatSaphenousVein]
+                  - id: RightPosteriorTibialArtery
+                    regions: [RightCrural]
+                    bridges: [RightPosteriorTibialVein]
+                  - id: RightFibularArtery
+                    regions: [RightFibular]
+                    bridges: [RightSmallSaphenousVein]
+        - id: LeftCommonIliacArtery
+          regions: [LeftLowerAbdominal]
+          links:
+          - id: LeftInternalIliacArtery
+            regions: [LeftLowerAbdominal, LeftInguinal]
+            bridges: [LeftInternalIliacVein]
+          - id: LeftExternalIliacArtery
+            regions: [LeftLowerAbdominal]
+            links:
+            - id: LeftCommonFemoralArtery
+              regions: [LeftFemoral]
+              links:
+              - id: LeftDeepFemoralArtery
+                regions: [LeftFemoral]
+                bridges: [LeftDeepFemoralVein]
+              - id: LeftSuperficialFemoralArtery
+                regions: [LeftFemoral]
+                links:
+                - id: LeftPoplitealArtery
+                  regions: [LeftPopliteal]
+                  links:
+                  - id: LeftAnteriorTibialArtery
+                    regions: [LeftFibular]
+                    bridges: [LeftAnteriorTibialVein, LeftGreatSaphenousVein]
+                  - id: LeftPosteriorTibialArtery
+                    regions: [LeftCrural]
+                    bridges: [LeftPosteriorTibialVein]
+                  - id: LeftFibularArtery
+                    regions: [LeftFibular]
+                    bridges: [LeftSmallSaphenousVein]
+venous:
+  - id: SuperiorVenaCava
+    regions: [Thoracic]
+    links:
+    - id: RightBrachiocephalicVein
+      regions: [Thoracic]
+      links:
+      - id: RightSubclavianVein
+        regions: [Thoracic]
+        links:
+        - id: RightAxillaryVein
+          regions: [RightAxillary]
+          links:
+          - id: RightBasilicVein
+            regions: [RightAntebrachial]
+        - id: RightCephalicVein
+          regions: [RightAntebrachial]
+      - id: RightInternalJugularVein
+        regions: [Cervical]
+    - id: LeftBrachiocephalicVein
+      regions: [Thoracic]
+      links:
+      - id: LeftSubclavianVein
+        regions: [Thoracic]
+        links:
+        - id: LeftAxillaryVein
+          regions: [LeftAxillary]
+          links:
+          - id: LeftBasilicVein
+            regions: [LeftAntebrachial]
+        - id: LeftCephalicVein
+          regions: [LeftAntebrachial]
+      - id: LeftInternalJugularVein
+        regions: [Cervical]
+  - id: InferiorVenaCava
+    regions: [LeftUpperAbdominal, RightUpperAbdominal]
+    links:
+    - id: HepaticVein
+      regions: [RightUpperAbdominal]
+      links:
+      - id: SplenicVein
+        regions: [LeftUpperAbdominal]
+      - id: SuperiorMesentericVein
+        regions: [RightUpperAbdominal, LeftUpperAbdominal, RightLowerAbdominal, LeftLowerAbdominal]
+      - id: InferiorMesentericVein
+        regions: [LeftUpperAbdominal, LeftLowerAbdominal]
+      - id: LeftGastricVein
+        regions: [LeftUpperAbdominal]
+      - id: RightGastricVein
+        regions: [RightUpperAbdominal]
+    - id: LeftRenalVein
+      regions: [LeftUpperAbdominal]
+    - id: RightRenalVein
+      regions: [RightUpperAbdominal]
+    - id: RightCommonIliacVein
+      regions: [RightLowerAbdominal]
+      links:
+      - id: RightInternalIliacVein
+        regions: [RightLowerAbdominal, RightInguinal]
+      - id: RightExternalIliacVein
+        regions: [RightLowerAbdominal]
+        links:
+        - id: RightDeepFemoralVein
+          regions: [RightFemoral]
+        - id: RightGreatSaphenousVein
+          regions: [RightFibular]
+        - id: RightFemoralVein
+          regions: [RightFemoral]
+          links:
+          - id: RightPoplitealVein
+            regions: [RightPopliteal]
+            links:
+            - id: RightSmallSaphenousVein
+              regions: [RightFibular]
+            - id: RightAnteriorTibialVein
+              regions: [RightFibular]
+            - id: RightPosteriorTibialVein
+              regions: [RightCrural]
+    - id: LeftCommonIliacVein
+      regions: [LeftLowerAbdominal]
+      links:
+      - id: LeftInternalIliacVein
+        regions: [LeftLowerAbdominal, LeftInguinal]
+      - id: LeftExternalIliacVein
+        regions: [LeftLowerAbdominal]
+        links:
+        - id: LeftDeepFemoralVein
+          regions: [LeftFemoral]
+        - id: LeftGreatSaphenousVein
+          regions: [LeftFibular]
+        - id: LeftFemoralVein
+          regions: [LeftFemoral]
+          links:
+          - id: LeftPoplitealVein
+            regions: [LeftPopliteal]
+            links:
+            - id: LeftSmallSaphenousVein
+              regions: [LeftFibular]
+            - id: LeftAnteriorTibialVein
+              regions: [LeftFibular]
+            - id: LeftPosteriorTibialVein
+              regions: [LeftCrural]

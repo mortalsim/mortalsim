@@ -57,3 +57,8 @@ impl fmt::Display for BloodEdge {
         write!(f, "(out: {}, in: {})", self.outgoing_pct, self.incoming_pct)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    
+}

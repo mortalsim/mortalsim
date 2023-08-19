@@ -1,4 +1,5 @@
-use crate::sim::SimTime;
+use crate::sim::{SimTime, SimConnector};
+use crate::sim::component::{SimComponent, SimComponentProcessor};
 use crate::substance::{Substance, SubstanceConcentration, SubstanceStore};
 
 use super::vessel::{BloodVessel, BloodVesselType, VesselIter};
@@ -146,6 +147,100 @@ impl<V: BloodVessel + 'static> ClosedCirculationLayer<V> {
         // ... Nothing to do here for now
     }
 }
+
+// impl<T: ClosedCircComponent + SimComponent, V: BloodVessel> SimComponentProcessor<T> for ClosedCirculationLayer<V> {
+//     fn setup_component(&mut self, connector: &mut SimConnector, component: &mut T) {
+//         let mut initializer = ClosedCircInitializer::new();
+//         component.init_cc(&mut initializer);
+
+//         for (vessel, substance_map) in component..substance_notifies.drain() {
+//             let mut substance_list = Vec::new();
+//             for (substance, threshold) in substance_map {
+//                 substance_list.push(substance);
+//                 let vsubstance_map = self
+//                     .blood_notify_map
+//                     .entry(vessel)
+//                     .or_insert(HashMap::new());
+//                 let notify_list = vsubstance_map.entry(substance).or_insert(Vec::new());
+//                 notify_list.push((threshold, module_name));
+//             }
+//         }
+//     }
+
+//     fn prepare_component(&mut self, connector: &SimConnector, component: &mut T) -> bool {
+//         // Update connector before module execution
+
+//         component.core_connector().trigger_events = {
+//             let notify_ids = self
+//                 .notify_map
+//                 .remove(component.id())
+//                 .unwrap_or(HashSet::new());
+//             notify_ids
+//                 .iter()
+//                 .map(|id| connector.state.lock().unwrap().get_state_ref(id).unwrap().type_id())
+//                 .collect()
+//         };
+
+//         let comp_connector = component.core_connector();
+//         comp_connector.sim_time = connector.time_manager.get_time();
+
+//         // If this comp_connector doesn't yet have a reference to the sim state, set it now
+//         if !Arc::ptr_eq(&comp_connector.sim_state, &connector.state) {
+//             comp_connector.sim_state = connector.state.clone();
+//         }
+
+//         // Trigger the module only if the trigger events list is non empty
+//         !comp_connector.trigger_events.is_empty()
+//     }
+
+//     fn process_component(&mut self, connector: &mut SimConnector, component: &mut T) {
+//         let comp_connector = component.core_connector();
+
+//         // Unschedule any requested events
+//         if comp_connector.unschedule_all {
+//             for (_, id_map) in comp_connector.scheduled_events.drain() {
+//                 for (schedule_id, _) in id_map {
+//                     connector
+//                         .time_manager
+//                         .unschedule_event(&schedule_id)
+//                         .unwrap();
+//                 }
+//             }
+//         } else {
+//             for schedule_id in comp_connector.pending_unschedules.drain(..) {
+//                 connector
+//                     .time_manager
+//                     .unschedule_event(&schedule_id)
+//                     .unwrap();
+//                 let type_id = comp_connector
+//                     .schedule_id_type_map
+//                     .remove(&schedule_id)
+//                     .unwrap();
+//                 comp_connector.scheduled_events.remove(&type_id).unwrap();
+//             }
+//         }
+
+//         // Schedule any new events
+//         for (wait_time, evt) in comp_connector.pending_schedules.drain(..) {
+//             let type_id = evt.type_id();
+//             let schedule_id = connector.time_manager.schedule_event(wait_time, evt);
+//             comp_connector
+//                 .schedule_id_type_map
+//                 .insert(schedule_id, type_id);
+//             match comp_connector.scheduled_events.get_mut(&type_id) {
+//                 None => {
+//                     let mut map = HashMap::new();
+//                     map.insert(schedule_id, wait_time);
+//                     comp_connector.scheduled_events.insert(type_id, map);
+//                 }
+//                 Some(map) => {
+//                     map.insert(schedule_id, wait_time);
+//                 }
+//             }
+//         }
+//     }
+// }
+
 
 // impl<V: BloodVessel + 'static> ClosedCircSimConnector<V> for ClosedCirculationLayer<V> {
 //     fn depth(&self) -> u32 {

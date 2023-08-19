@@ -4,6 +4,7 @@ mod component;
 mod layer;
 mod sim_state;
 mod time_manager;
+mod human;
 pub use sim_state::SimState;
 pub use time_manager::{SimTime, TimeManager};
 
