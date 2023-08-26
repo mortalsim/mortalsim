@@ -1,4 +1,5 @@
 pub mod core;
+pub mod closed_circulation;
 use crate::sim::layer::core::component::CoreComponent;
 
 pub trait ComponentWrapper: CoreComponent {

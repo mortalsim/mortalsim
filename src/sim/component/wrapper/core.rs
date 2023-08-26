@@ -2,7 +2,7 @@ use super::{
     super::{ComponentRegistry, SimComponent},
     ComponentWrapper,
 };
-use crate::sim::layer::core::component::{CoreComponent, CoreComponentInitializer, CoreConnector};
+use crate::sim::layer::{core::component::{CoreComponent, CoreComponentInitializer, CoreConnector}, closed_circulation::{component::{ClosedCircComponent, ClosedCircInitializer, ClosedCircConnector}, BloodVessel, DummyVessel}};
 
 pub struct CoreComponentWrapper<T: CoreComponent + 'static>(pub T);
 
@@ -33,5 +33,16 @@ impl<T: CoreComponent> CoreComponent for CoreComponentWrapper<T> {
     }
     fn core_connector(&mut self) -> &mut CoreConnector {
         self.0.core_connector()
+    }
+}
+
+impl<T: CoreComponent> ClosedCircComponent for CoreComponentWrapper<T> {
+    type VesselType = DummyVessel;
+
+    fn cc_init(&mut self, _initializer: &mut ClosedCircInitializer<Self::VesselType>) {
+        panic!()
+    }
+    fn cc_connector(&mut self) -> &mut ClosedCircConnector<Self::VesselType> {
+        panic!()
     }
 }

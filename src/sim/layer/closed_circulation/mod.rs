@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use std::sync::Mutex;
 
 mod graph;
-// mod component;
+pub mod component;
 // mod closed_circulation_layer;
 mod system;
 mod vessel;
@@ -12,7 +12,7 @@ mod vessel;
 // pub use component::{ClosedCircConnector, ClosedCircInitializer, ClosedCircComponent};
 // pub use closed_circulation_layer::ClosedCirculationLayer;
 // pub use system::{ClosedCircVesselIter, ClosedCirculatorySystem};
-pub use vessel::{BloodVessel, VesselIter, AnatomicalRegionIter, BloodVesselType};
+pub use vessel::{BloodVessel, VesselIter, AnatomicalRegionIter, BloodVesselType, DummyVessel};
 
 // lazy_static! {
 //     static ref COMPONENT_REGISTRY: Mutex<HashMap<TypeId, HashMap<&'static str, Box<dyn Any + Send>>>> =

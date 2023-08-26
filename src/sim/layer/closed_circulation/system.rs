@@ -208,13 +208,13 @@ impl<T: BloodVessel> ClosedCirculatorySystem<T> {
     //     }
     // }
 
-    /// Internal function for computing the map of vessel ids to `NodeIndex` items for
-    /// rapid lookup later
-    fn compute_node_map(&mut self) {
-        for node_idx in self.graph.node_indices() {
-            self.node_map.insert(self.graph[node_idx].vessel, node_idx);
-        }
-    }
+    // /// Internal function for computing the map of vessel ids to `NodeIndex` items for
+    // /// rapid lookup later
+    // fn compute_node_map(&mut self) {
+    //     for node_idx in self.graph.node_indices() {
+    //         self.node_map.insert(self.graph[node_idx].vessel, node_idx);
+    //     }
+    // }
 
     pub fn digraph(&self) -> String {
         Dot::with_config(&self.graph, &[Config::EdgeNoLabel]).to_string()
