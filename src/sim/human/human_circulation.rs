@@ -1765,7 +1765,7 @@ lazy_static! {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::InferiorVenaCava);
         vessel_list
-
+        
     };
 }
 
