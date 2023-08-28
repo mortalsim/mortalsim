@@ -25,99 +25,111 @@ pub trait ClosedCircComponent: SimComponent {
     fn cc_connector(&mut self) -> &mut ClosedCircConnector<Self::VesselType>;
 }
 
-// #[cfg(test)]
-// pub mod test {
-//     use simple_si_units::chemical::Concentration;
-//     use simple_si_units::chemical::Molality;
+#[cfg(test)]
+pub mod test {
+    use simple_si_units::chemical::Concentration;
+    use simple_si_units::chemical::Molality;
+    use simple_si_units::base::Time;
 
-//     use super::BloodVessel;
-//     use super::ClosedCircComponent;
-//     use super::{ClosedCircConnector, ClosedCircInitializer};
-//     use crate::sim::layer::closed_circulation::VesselIter;
-//     use crate::sim::component::SimComponent;
-//     use crate::event::test::{TestEventA, TestEventB};
-//     use crate::event::Event;
-//     use crate::substance::Substance;
-//     use std::collections::HashSet;
-//     use std::sync::Arc;
+    use super::BloodVessel;
+    use super::ClosedCircComponent;
+    use super::{ClosedCircConnector, ClosedCircInitializer};
+    use crate::sim::SimTime;
+    use crate::sim::component::registry::ComponentRegistry;
+    use crate::sim::layer::closed_circulation::VesselIter;
+    use crate::sim::component::SimComponent;
+    use crate::event::test::{TestEventA, TestEventB};
+    use crate::event::Event;
+    use crate::sim::layer::closed_circulation::vessel::test::TestBloodVessel;
+    use crate::substance::Substance;
+    use crate::substance::SubstanceStore;
+    use crate::util::mmol_per_L;
+    use crate::util::BoundFn;
+    use std::collections::HashMap;
+    use std::collections::HashSet;
+    use std::sync::Arc;
+    
+     pub struct TestCircComponentA {
+         cc_sim_connector: ClosedCircConnector<TestBloodVessel>
+     }
 
-//     lazy_static! {
-//         static ref START_VESSELS: HashSet<TestBloodVessel> = {
-//             let mut vessel_list = HashSet::new();
-//             vessel_list.insert(TestBloodVessel::Aorta);
-//             vessel_list
-//         };
-//     }
+     impl TestCircComponentA {
+         pub fn new() -> TestCircComponentA {
+             TestCircComponentA {
+                 cc_sim_connector: ClosedCircConnector::new()
+             }
+         }
+     }
 
-//     #[derive(Debug, Display, Hash, Clone, Copy, PartialEq, Eq, EnumString, IntoStaticStr)]
-//     pub enum TestBloodVessel {
-//         Aorta,
-//         ThoracicAorta,
-//         LeftSubclavianArtery,
-//         RightBraciocephalicArtery,
-//         LeftCommonCarotidArtery,
-//         SuperiorVenaCava,
-//         InferiorVenaCava,
-//         VenaCava,
-//     }
+    impl ClosedCircComponent for TestCircComponentA {
+        type VesselType = TestBloodVessel;
 
-//     impl BloodVessel for TestBloodVessel {
-//         fn start_vessels<'a>() -> VesselIter<'a, Self> {
-//             VesselIter(START_VESSELS.iter())
-//         }
-//     }
+        fn cc_init(&mut self, cc_initializer: &mut ClosedCircInitializer<TestBloodVessel>) {
+            cc_initializer.notify_composition_change(
+                TestBloodVessel::Aorta,
+                Substance::GLC,
+                Concentration::from_mM(0.1),
+            );
+            cc_initializer.attach_vessel(TestBloodVessel::VenaCava);
+        }
 
-//     pub struct TestCircComponentA {
-//         cc_sim_connector: ClosedCircConnector<TestBloodVessel>
-//     }
+        fn cc_connector(&mut self) -> &mut ClosedCircConnector<Self::VesselType> {
+            &mut self.cc_sim_connector
+        }
+    }
 
-//     impl TestCircComponentA {
-//         pub fn new() -> TestCircComponentA {
-//             TestCircComponentA {
-//                 cc_sim_connector: ClosedCircConnector::new()
-//             }
-//         }
-//     }
+    impl SimComponent for TestCircComponentA {
 
-//     impl ClosedCircComponent for TestCircComponentA {
-//         type VesselType = TestBloodVessel;
+        /// The unique id of the component
+        fn id(&self) -> &'static str {
+            "TestCircComponentA"
+        }
 
-//         fn init_cc(&mut self, cc_initializer: &mut ClosedCircInitializer<TestBloodVessel>) {
-//             let threshold = Concentration::from_mM(0.1);
-//             cc_initializer.notify_composition_change(
-//                 TestBloodVessel::ThoracicAorta,
-//                 Substance::GLC,
-//                 threshold,
-//             );
-//             cc_initializer.attach_vessel(TestBloodVessel::InferiorVenaCava);
-//         }
+        /// Attaches the module to the ComponentKeeper
+        fn attach(self, registry: &mut ComponentRegistry) {
+            registry.add_closed_circulation_component(self)
+        }
 
-//         fn cc_sim_connector(&mut self) -> &mut ClosedCircConnector<Self::VesselType> {
-//             &mut self.cc_sim_connector
-//         }
-//     }
+        /// Runs an iteration of this module.
+        fn run(&mut self) {
+            self.cc_sim_connector.blood_store(&TestBloodVessel::VenaCava).unwrap()
+                .schedule_change(
+                    Substance::GLC,
+                    mmol_per_L!(1.0),
+                    SimTime::from_s(1.0),
+                    SimTime::from_s(1.0),
+                    BoundFn::Linear
+                );
+        }
+    }
 
-//     impl SimComponent for TestCircComponentA {
+    #[test]
+    fn test_component() {
+        let mut component = TestCircComponentA::new();
+        let mut vessel_map = HashMap::new();
+        vessel_map.insert(TestBloodVessel::VenaCava, SubstanceStore::new());
+        component.cc_connector().vessel_connections = vessel_map;
 
-//         /// The unique id of the component
-//         fn id(&self) -> &'static str {
-//             "TestCircComponentA"
-//         }
+        let mut cc_initializer = ClosedCircInitializer::new();
 
-//         /// Attaches the module to the ComponentKeeper
-//         fn attach(self, registry: &mut ComponentRegistry) {
-//             registry.add_
-//         }
+        component.cc_init(&mut cc_initializer);
 
-//         /// Runs an iteration of this module.
-//         fn run(&mut self) {
-//             // let change = BloodCompositionChange::<TestBloodVessel> {
-//             //     vessel: TestBloodVessel::InferiorVenaCava,
-//             //     substance: Substance::GLC,
-//             //     change: MolarConcentration::new::<millimole_per_liter>(0.1 / self.cc_sim_connector().depth() as f64),
-//             // };
+        component.cc_connector().vessel_connections = cc_initializer.vessel_connections;
+        component.cc_connector().substance_notifies = cc_initializer.substance_notifies;
 
-//             // self.cc_sim_connector.schedule_event(Time::from_s(1.0), change);
-//         }
-//     }
-// }
+        assert_eq!(component.cc_connector()
+            .substance_notifies.get(&TestBloodVessel::Aorta)
+            .unwrap()
+            .get(&Substance::GLC).unwrap(), &mmol_per_L!(0.1));
+
+        component.run();
+
+        component.cc_connector().vessel_connections
+            .get_mut(&TestBloodVessel::VenaCava)
+            .unwrap().advance(SimTime::from_s(2.0));
+        
+        assert_eq!(component.cc_connector().blood_store(&TestBloodVessel::VenaCava).unwrap()
+            .concentration_of(&Substance::GLC), mmol_per_L!(1.0));
+
+    }
+}

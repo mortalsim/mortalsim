@@ -5,6 +5,7 @@ use crate::util::id_gen::{IdGenerator, IdType, InvalidIdError};
 use crate::util::{mmol_per_L, secs, BoundFn};
 use anyhow::Result;
 use core::any::TypeId;
+use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::fmt;
 use std::ops::Bound;
@@ -15,13 +16,13 @@ pub struct SubstanceStore {
     /// Id for this SubstanceStore
     store_id: Uuid,
     /// Id generator for substance changes
-    id_gen: IdGenerator,
+    id_gen: RefCell<IdGenerator>,
     /// Local cache of simulation time
     sim_time: SimTime,
     /// Data structure containing the internal substance concentration
     composition: HashMap<Substance, SubstanceConcentration>,
     /// Keep track of any Substances which are changing
-    substance_changes: HashMap<Substance, HashMap<IdType, SubstanceChange>>,
+    substance_changes: RefCell<HashMap<Substance, HashMap<IdType, SubstanceChange>>>,
 }
 
 impl fmt::Debug for SubstanceStore {
@@ -43,11 +44,16 @@ impl SubstanceStore {
     pub fn new() -> SubstanceStore {
         SubstanceStore {
             store_id: Uuid::new_v4(),
-            id_gen: IdGenerator::new(),
+            id_gen: RefCell::new(IdGenerator::new()),
             sim_time: secs!(0.0),
             composition: HashMap::new(),
-            substance_changes: HashMap::new(),
+            substance_changes: RefCell::new(HashMap::new()),
         }
+    }
+
+    /// Retrieves the current simulation time for the store.
+    pub fn sim_time(&self) -> SimTime {
+        self.sim_time
     }
 
     /// Retrieves the concentration of a given Substance in the store.
@@ -106,10 +112,10 @@ impl SubstanceStore {
     ///
     /// Returns an id corresponding to this change
     pub fn schedule_change(
-        &mut self,
+        &self,
         substance: Substance,
-        delay: SimTime,
         amount: SubstanceConcentration,
+        delay: SimTime,
         duration: SimTime,
         bound_fn: BoundFn,
     ) -> IdType {
@@ -121,9 +127,10 @@ impl SubstanceStore {
             self.sim_time + delay
         };
 
-        let change_id = self.id_gen.get_id();
+        let change_id = self.id_gen.borrow_mut().get_id();
         let change = SubstanceChange::new(x_start_time, amount, duration, bound_fn);
         self.substance_changes
+            .borrow_mut()
             .entry(substance)
             .or_default()
             .insert(change_id, change);
@@ -139,11 +146,12 @@ impl SubstanceStore {
     ///
     /// Returns the provided BoundFn if found and the change hasn't completed, None otherwise
     pub fn unschedule_change(
-        &mut self,
+        &self,
         substance: &Substance,
         change_id: &IdType,
     ) -> Option<SubstanceChange> {
         self.substance_changes
+            .borrow_mut()
             .entry(*substance)
             .or_default()
             .remove(change_id)
@@ -154,7 +162,7 @@ impl SubstanceStore {
     /// ### Arguments
     /// * `sim_time` - the new simulation time
     pub fn advance(&mut self, sim_time: SimTime) {
-        for (substance, change_map) in self.substance_changes.iter_mut() {
+        for (substance, change_map) in self.substance_changes.borrow_mut().iter_mut() {
             let mut ids_to_remove = Vec::new();
 
             for (change_id, change) in change_map.iter_mut() {
@@ -236,15 +244,15 @@ mod tests {
         let mut store = SubstanceStore::new();
         let change_id = store.schedule_change(
             Substance::ADP,
-            secs!(0.0),
             mmol_per_L!(1.0),
+            secs!(0.0),
             secs!(1.0),
             BoundFn::Sigmoid,
         );
         store.schedule_change(
             Substance::ATP,
-            secs!(1.0),
             mmol_per_L!(1.0),
+            secs!(1.0),
             secs!(1.0),
             BoundFn::Sigmoid,
         );

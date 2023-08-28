@@ -42,7 +42,13 @@ pub mod test {
     pub struct TestComponentA {
         connector: CoreConnector,
     }
-    impl TestComponentA {}
+    impl TestComponentA {
+        fn new() -> TestComponentA {
+            TestComponentA {
+                connector: CoreConnector::new(),
+            }
+        }
+    }
     impl CoreComponent for TestComponentA {
         fn core_connector(&mut self) -> &mut CoreConnector {
             &mut self.connector
@@ -80,10 +86,10 @@ pub mod test {
         connector: CoreConnector,
     }
     impl TestComponentB {
-        pub fn factory() -> Box<dyn SimComponent> {
-            Box::new(TestComponentA {
+        pub fn new() -> TestComponentB {
+            TestComponentB {
                 connector: CoreConnector::new(),
-            })
+            }
         }
 
         pub fn transform_b(evt: &mut TestEventB) {
@@ -119,5 +125,15 @@ pub mod test {
                     .collect::<Vec<&TypeId>>()
             );
         }
+    }
+
+    #[test]
+    fn test_component() {
+        let mut component = TestComponentA::new();
+        let mut initializer = CoreComponentInitializer::new();
+        component.core_init(&mut initializer);
+
+        assert!(initializer.pending_notifies.len() == 2);
+        assert!(initializer.pending_transforms.len() == 1);
     }
 }

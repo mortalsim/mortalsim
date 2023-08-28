@@ -12,12 +12,10 @@ pub struct ClosedCircConnector<V: BloodVessel> {
 }
 
 impl<V: BloodVessel> ClosedCircConnector<V> {
-    pub fn new(
-        initializer: ClosedCircInitializer<V>,
-    ) -> ClosedCircConnector<V> {
+    pub fn new() -> ClosedCircConnector<V> {
         ClosedCircConnector {
-            vessel_connections: initializer.vessel_connections,
-            substance_notifies: initializer.substance_notifies,
+            vessel_connections: HashMap::new(),
+            substance_notifies: HashMap::new(),
         }
     }
 

@@ -78,7 +78,7 @@ impl BloodVessel for DummyVessel {
 }
 
 #[cfg(test)]
-mod test {
+pub mod test {
     use std::collections::HashSet;
 
     use super::{BloodVessel, VesselIter, BloodVesselType, AnatomicalRegionIter};
