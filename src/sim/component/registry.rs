@@ -1,5 +1,5 @@
 use crate::sim::layer::core::component::CoreComponent;
-use crate::sim::layer::closed_circulation::component::ClosedCircComponent;
+use crate::sim::layer::closed_circulation::ClosedCircComponent;
 use std::collections::HashMap;
 
 use super::{

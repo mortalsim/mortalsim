@@ -40,7 +40,36 @@ impl<V: BloodVessel> ClosedCircInitializer<V> {
             .insert(vessel, SubstanceStore::new());
     }
 
-    pub fn manage_all_vessels(&mut self) {
+    pub fn attach_all_vessels(&mut self) {
         self.attach_all = true;
+    }
+}
+
+#[cfg(test)]
+pub mod test {
+    use crate::{sim::layer::closed_circulation::vessel::test::TestBloodVessel, substance::Substance, util::mmol_per_L};
+
+    use super::ClosedCircInitializer;
+    
+    #[test]
+    fn test_attach_vessel() {
+        let mut cc_init = ClosedCircInitializer::<TestBloodVessel>::new();
+        cc_init.attach_vessel(TestBloodVessel::Aorta);
+        assert!(cc_init.vessel_connections.contains_key(&TestBloodVessel::Aorta));
+    }
+
+    #[test]
+    fn test_attach_all() {
+        let mut cc_init = ClosedCircInitializer::<TestBloodVessel>::new();
+        cc_init.attach_all_vessels();
+        assert!(cc_init.attach_all == true);
+    }
+
+    #[test]
+    fn test_notify() {
+        let mut cc_init = ClosedCircInitializer::<TestBloodVessel>::new();
+        cc_init.notify_composition_change(TestBloodVessel::Aorta, Substance::CO2, mmol_per_L!(1.0));
+        assert!(cc_init.substance_notifies.contains_key(&TestBloodVessel::Aorta));
+        assert!(!cc_init.substance_notifies.contains_key(&TestBloodVessel::VenaCava));
     }
 }

@@ -3,7 +3,7 @@ use super::{
     ComponentWrapper,
 };
 use crate::sim::layer::core::component::{CoreComponent, CoreComponentInitializer, CoreConnector};
-use crate::sim::layer::closed_circulation::{component::{ClosedCircComponent, ClosedCircInitializer, ClosedCircConnector}, BloodVessel};
+use crate::sim::layer::closed_circulation::{ClosedCircComponent, ClosedCircInitializer, ClosedCircConnector, BloodVessel};
 
 pub struct ClosedCircComponentWrapper<T: ClosedCircComponent + 'static>(pub T);
 
