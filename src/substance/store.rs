@@ -5,6 +5,7 @@ use crate::util::id_gen::{IdGenerator, IdType, InvalidIdError};
 use crate::util::{mmol_per_L, secs, BoundFn};
 use anyhow::Result;
 use core::any::TypeId;
+use core::panic;
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::fmt;
@@ -16,13 +17,13 @@ pub struct SubstanceStore {
     /// Id for this SubstanceStore
     store_id: Uuid,
     /// Id generator for substance changes
-    id_gen: RefCell<IdGenerator>,
+    id_gen: IdGenerator,
     /// Local cache of simulation time
     sim_time: SimTime,
     /// Data structure containing the internal substance concentration
     composition: HashMap<Substance, SubstanceConcentration>,
     /// Keep track of any Substances which are changing
-    substance_changes: RefCell<HashMap<Substance, HashMap<IdType, SubstanceChange>>>,
+    substance_changes: HashMap<Substance, HashMap<IdType, SubstanceChange>>,
 }
 
 impl fmt::Debug for SubstanceStore {
@@ -44,10 +45,10 @@ impl SubstanceStore {
     pub fn new() -> SubstanceStore {
         SubstanceStore {
             store_id: Uuid::new_v4(),
-            id_gen: RefCell::new(IdGenerator::new()),
+            id_gen: IdGenerator::new(),
             sim_time: secs!(0.0),
             composition: HashMap::new(),
-            substance_changes: RefCell::new(HashMap::new()),
+            substance_changes: HashMap::new(),
         }
     }
 
@@ -98,12 +99,11 @@ impl SubstanceStore {
 
     /// Schedule a substance change on this store
     /// with a custom shape over the given duration.
-    /// If the `start_time` is less than the current simulation time,
-    /// it will be set to the current simulation time.
     ///
-    /// Panics if `duration <= 0`
+    /// Panics if `delay < 0` or `duration <= 0`
     ///
     /// ### Arguments
+    /// * `substance`  - the substance to change
     /// * `delay`      - future simulation time to start the change
     /// * `substance`  - the substance to change
     /// * `amount`     - total concentration change to take place
@@ -112,7 +112,7 @@ impl SubstanceStore {
     ///
     /// Returns an id corresponding to this change
     pub fn schedule_change(
-        &self,
+        &mut self,
         substance: Substance,
         amount: SubstanceConcentration,
         delay: SimTime,
@@ -122,15 +122,36 @@ impl SubstanceStore {
         // Constrain the start time to a minimum of the current sim time
         let x_start_time = {
             if delay.s < 0.0 {
-                self.sim_time;
+                panic!("Delay cannot be less than zero!");
             }
             self.sim_time + delay
         };
 
-        let change_id = self.id_gen.borrow_mut().get_id();
+        let change_id = self.id_gen.get_id();
         let change = SubstanceChange::new(x_start_time, amount, duration, bound_fn);
         self.substance_changes
-            .borrow_mut()
+            .entry(substance)
+            .or_default()
+            .insert(change_id, change);
+
+        change_id
+    }
+
+    /// Schedule a substance change on this store
+    /// defined by the given `SubstanceChange`
+    ///
+    /// ### Arguments
+    /// * `substance`  - the substance to change
+    /// * `change`     - the change to exert on the substance
+    ///
+    /// Returns an id corresponding to this change
+    pub(crate) fn schedule_substance_change(
+        &mut self,
+        substance: Substance,
+        change: SubstanceChange
+    ) -> IdType {
+        let change_id = self.id_gen.get_id();
+        self.substance_changes
             .entry(substance)
             .or_default()
             .insert(change_id, change);
@@ -146,12 +167,11 @@ impl SubstanceStore {
     ///
     /// Returns the provided BoundFn if found and the change hasn't completed, None otherwise
     pub fn unschedule_change(
-        &self,
+        &mut self,
         substance: &Substance,
         change_id: &IdType,
     ) -> Option<SubstanceChange> {
         self.substance_changes
-            .borrow_mut()
             .entry(*substance)
             .or_default()
             .remove(change_id)
@@ -162,7 +182,7 @@ impl SubstanceStore {
     /// ### Arguments
     /// * `sim_time` - the new simulation time
     pub fn advance(&mut self, sim_time: SimTime) {
-        for (substance, change_map) in self.substance_changes.borrow_mut().iter_mut() {
+        for (substance, change_map) in self.substance_changes.iter_mut() {
             let mut ids_to_remove = Vec::new();
 
             for (change_id, change) in change_map.iter_mut() {
@@ -178,7 +198,7 @@ impl SubstanceStore {
                     self.composition.insert(*substance, new_conc);
                 }
 
-                if sim_time > change.start_time + change.duration {
+                if sim_time.s > change.start_time.s + change.duration.s {
                     ids_to_remove.push(*change_id);
                 }
             }

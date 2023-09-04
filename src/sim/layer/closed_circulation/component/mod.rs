@@ -92,22 +92,20 @@ pub mod test {
 
         /// Runs an iteration of this module.
         fn run(&mut self) {
-            self.cc_sim_connector.blood_store(&TestBloodVessel::VenaCava).unwrap()
-                .schedule_change(
+            assert!(self.cc_sim_connector.schedule_change(
+                    TestBloodVessel::VenaCava,
                     Substance::GLC,
                     mmol_per_L!(1.0),
                     SimTime::from_s(1.0),
-                    SimTime::from_s(1.0),
-                    BoundFn::Linear
-                );
+                ).is_ok());
         }
     }
 
     #[test]
     fn test_component() {
         let mut component = TestCircComponentA::new();
-        let mut vessel_map = HashMap::new();
-        vessel_map.insert(TestBloodVessel::VenaCava, SubstanceStore::new());
+        let mut vessel_map = HashSet::new();
+        vessel_map.insert(TestBloodVessel::VenaCava);
         component.cc_connector().vessel_connections = vessel_map;
 
         let mut cc_initializer = ClosedCircInitializer::new();
@@ -124,12 +122,27 @@ pub mod test {
 
         component.run();
 
-        component.cc_connector().vessel_connections
-            .get_mut(&TestBloodVessel::VenaCava)
-            .unwrap().advance(SimTime::from_s(2.0));
+        let mut store = SubstanceStore::new();
+
+        for (_vessel, mut changes)  in component.cc_connector().pending_changes.drain() {
+            for (_id, (substance, change)) in changes.drain() {
+                store.schedule_substance_change(substance, change);
+            }
+        }
+
+        store.advance(SimTime::from_s(2.0));
+
+        let glc = store.concentration_of(&Substance::GLC);
+        let expected = mmol_per_L!(1.0);
+        let threshold = mmol_per_L!(0.0001);
+        assert!(glc > expected - threshold && glc < expected + threshold, "GLC not within {} of {}", threshold, expected);
         
-        assert_eq!(component.cc_connector().blood_store(&TestBloodVessel::VenaCava).unwrap()
-            .concentration_of(&Substance::GLC), mmol_per_L!(1.0));
+        store.advance(SimTime::from_s(2.0));
+
+        let glc = store.concentration_of(&Substance::GLC);
+        let expected = mmol_per_L!(1.0);
+        let threshold = mmol_per_L!(0.0001);
+        assert!(glc > expected - threshold && glc < expected + threshold, "GLC not within {} of {}", threshold, expected);
 
     }
 }

@@ -4,7 +4,7 @@ use crate::substance::{SubstanceConcentration, Substance, SubstanceStore};
 use std::collections::{HashMap, HashSet};
 
 pub struct ClosedCircInitializer<V: BloodVessel> {
-    pub(crate) vessel_connections: HashMap<V, SubstanceStore>,
+    pub(crate) vessel_connections: HashSet<V>,
     pub(crate) substance_notifies: HashMap<V, HashMap<Substance, SubstanceConcentration>>,
     pub(crate) any_substance_notifies: HashSet<V>,
     pub(crate) attach_all: bool,
@@ -13,7 +13,7 @@ pub struct ClosedCircInitializer<V: BloodVessel> {
 impl<V: BloodVessel> ClosedCircInitializer<V> {
     pub fn new() -> ClosedCircInitializer<V> {
         ClosedCircInitializer {
-            vessel_connections: HashMap::new(),
+            vessel_connections: HashSet::new(),
             substance_notifies: HashMap::new(),
             any_substance_notifies: HashSet::new(),
             attach_all: false,
@@ -27,7 +27,7 @@ impl<V: BloodVessel> ClosedCircInitializer<V> {
         threshold: SubstanceConcentration,
     ) {
         self.vessel_connections
-            .insert(vessel, SubstanceStore::new());
+            .insert(vessel);
         let substance_map = self
             .substance_notifies
             .entry(vessel)
@@ -37,7 +37,7 @@ impl<V: BloodVessel> ClosedCircInitializer<V> {
 
     pub fn attach_vessel(&mut self, vessel: V) {
         self.vessel_connections
-            .insert(vessel, SubstanceStore::new());
+            .insert(vessel);
     }
 
     pub fn attach_all_vessels(&mut self) {
@@ -55,7 +55,7 @@ pub mod test {
     fn test_attach_vessel() {
         let mut cc_init = ClosedCircInitializer::<TestBloodVessel>::new();
         cc_init.attach_vessel(TestBloodVessel::Aorta);
-        assert!(cc_init.vessel_connections.contains_key(&TestBloodVessel::Aorta));
+        assert!(cc_init.vessel_connections.contains(&TestBloodVessel::Aorta));
     }
 
     #[test]
