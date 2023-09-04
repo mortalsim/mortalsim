@@ -7,18 +7,26 @@ use anyhow::{Result, Error};
 use petgraph::Direction;
 use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
-use std::sync::Mutex;
 
 pub struct ClosedCircConnector<V: BloodVessel> {
+    /// Local generator for this connector
     id_gen: IdGenerator,
+    /// Mapping of local ids to `SubstanceStore` ids
     pub(crate) id_map: HashMap<IdType, IdType>,
     /// Copy of the current simulation time
     pub(crate) sim_time: SimTime,
+    /// Whether all vessels are attached to the associated component
     pub(crate) all_attached: bool,
+    /// Set of vessel connections for the associated component
     pub(crate) vessel_connections: HashSet<V>,
+    /// Map of thresholds for changes to vessels and substances that should trigger
+    /// the associated component
     pub(crate) substance_notifies: HashMap<V, HashMap<Substance, SubstanceConcentration>>,
+    /// Scheduled substance changes pending for addition
     pub(crate) pending_changes: HashMap<V, HashMap<IdType, (Substance, SubstanceChange)>>,
-    pub(crate) unschedules: Vec<IdType>,
+    /// Ids of substance changes pending removal
+    pub(crate) pending_unschedules: Vec<IdType>,
+    /// Whether all changes should be unscheduled before each run
     pub(crate) unschedule_all: bool,
 }
 
@@ -32,7 +40,7 @@ impl<V: BloodVessel> ClosedCircConnector<V> {
             vessel_connections: HashSet::new(),
             substance_notifies: HashMap::new(),
             pending_changes: HashMap::new(),
-            unschedules: Vec::new(),
+            pending_unschedules: Vec::new(),
             unschedule_all: true,
         }
     }
@@ -123,7 +131,7 @@ impl<V: BloodVessel> ClosedCircConnector<V> {
         // id to the id on the actual SubstanceStore, which is managed elsewhere
         match self.id_map.remove(change_id) {
             Some(store_id) => {
-                self.unschedules.push(store_id);
+                self.pending_unschedules.push(store_id);
                 Ok(())
             }
             None => Err(anyhow!("Invalid id provided : {}", change_id))
@@ -140,7 +148,6 @@ impl<V: BloodVessel> ClosedCircConnector<V> {
 
 #[cfg(test)]
 pub mod test {
-
 
     use simple_si_units::chemical::Concentration;
 

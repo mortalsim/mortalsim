@@ -11,10 +11,15 @@ use std::rc::{Rc, Weak};
 use std::sync::Arc;
 
 pub struct CoreComponentInitializer {
+    /// Input events for the associated component
     input_events: HashSet<TypeId>,
+    /// Output events for the associated component
     output_events: HashSet<TypeId>,
+    /// Notifications pending from the last run of the component
     pub(crate) pending_notifies: Vec<(i32, Box<dyn Event>)>,
+    /// Transforms pending from the last run of the component
     pub(crate) pending_transforms: Vec<Box<dyn EventTransformer>>,
+    /// Default event state from the component
     pub(crate) initial_outputs: Vec<Box<dyn Event>>,
 }
 
@@ -29,7 +34,7 @@ impl CoreComponentInitializer {
         }
     }
 
-    /// Registers the corresponding `SimModule` to `run` whenever the
+    /// Registers the associated `CoreComponent` to `run` whenever the
     /// provided `Event` is modified on the `Sim`.
     ///
     /// ### Arguments
@@ -38,7 +43,7 @@ impl CoreComponentInitializer {
         self.notify_prioritized::<E>(0, default);
     }
 
-    /// Registers the corresponding `SimModule` to `run` whenever the
+    /// Registers the associated `CoreComponent` to `run` whenever the
     /// provided `Event` is modified on the `Sim` with a given priority value.
     ///
     /// ### Arguments
