@@ -116,9 +116,7 @@ lazy_static! {
         vessel_list.insert(HumanBloodVessel::Aorta);
         vessel_list
     };
-}
 
-lazy_static! {
     static ref ARTERIES: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::Aorta);
@@ -174,9 +172,7 @@ lazy_static! {
         vessel_list.insert(HumanBloodVessel::LeftFibularArtery);
         vessel_list
     };
-}
 
-lazy_static! {
     static ref VEINS: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::SuperiorVenaCava);
@@ -223,9 +219,7 @@ lazy_static! {
         vessel_list.insert(HumanBloodVessel::LeftPosteriorTibialVein);
         vessel_list
     };
-}
 
-lazy_static! {
     static ref PRE_CAPILLARIES: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightBasilicVein);
@@ -256,9 +250,7 @@ lazy_static! {
         vessel_list.insert(HumanBloodVessel::LeftSmallSaphenousVein);
         vessel_list
     };
-}
 
-lazy_static! {
     static ref POST_CAPILLARIES: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightUlnarArtery);
@@ -291,465 +283,361 @@ lazy_static! {
         vessel_list.insert(HumanBloodVessel::LeftFibularArtery);
         vessel_list
     };
-}
 
-lazy_static! {
     static ref AORTA_UPSTREAM: HashSet<HumanBloodVessel> = {
         HashSet::new()
     };
-}
 
-lazy_static! {
     static ref RIGHTBRACIOCEPHALICARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::Aorta);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTSUBCLAVIANARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightBraciocephalicArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTAXILLARYARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightSubclavianArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTBRACHIALARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightAxillaryArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTULNARARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightBrachialArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTRADIALARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightBrachialArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTCOMMONCAROTIDARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightBraciocephalicArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTCAROTIDSINUSARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightCommonCarotidArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTINTERNALCAROTIDARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightCarotidSinusArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTEXTERNALCAROTIDARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightCarotidSinusArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTSUBCLAVIANARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::Aorta);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTAXILLARYARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftSubclavianArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTBRACHIALARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftAxillaryArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTULNARARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftBrachialArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTRADIALARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftBrachialArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTCOMMONCAROTIDARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::Aorta);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTCAROTIDSINUSARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftCommonCarotidArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTINTERNALCAROTIDARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftCarotidSinusArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTEXTERNALCAROTIDARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftCarotidSinusArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref THORACICAORTA_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::Aorta);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref ABDOMINALAORTA_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::ThoracicAorta);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref CELIACARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::AbdominalAorta);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref COMMONHEPATICARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::CeliacArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTGASTRICARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::CommonHepaticArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref SPLENICARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::CeliacArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTGASTRICARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::CeliacArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref SUPERIORMESENTERICARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::AbdominalAorta);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref INFERIORMESENTERICARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::SuperiorMesentericArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTRENALARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::AbdominalAorta);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTRENALARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::AbdominalAorta);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTCOMMONILIACARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::AbdominalAorta);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTINTERNALILIACARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightCommonIliacArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTEXTERNALILIACARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightCommonIliacArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTCOMMONFEMORALARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightExternalIliacArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTDEEPFEMORALARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightCommonFemoralArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTSUPERFICIALFEMORALARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightCommonFemoralArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTPOPLITEALARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightSuperficialFemoralArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTANTERIORTIBIALARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightPoplitealArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTPOSTERIORTIBIALARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightPoplitealArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTFIBULARARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightPoplitealArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTCOMMONILIACARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::AbdominalAorta);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTINTERNALILIACARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftCommonIliacArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTEXTERNALILIACARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftCommonIliacArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTCOMMONFEMORALARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftExternalIliacArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTDEEPFEMORALARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftCommonFemoralArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTSUPERFICIALFEMORALARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftCommonFemoralArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTPOPLITEALARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftSuperficialFemoralArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTANTERIORTIBIALARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftPoplitealArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTPOSTERIORTIBIALARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftPoplitealArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTFIBULARARTERY_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftPoplitealArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref SUPERIORVENACAVA_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightBrachiocephalicVein);
@@ -757,9 +645,7 @@ lazy_static! {
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTBRACHIOCEPHALICVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightSubclavianVein);
@@ -767,9 +653,7 @@ lazy_static! {
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTSUBCLAVIANVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightAxillaryVein);
@@ -777,36 +661,28 @@ lazy_static! {
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTAXILLARYVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightBasilicVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTBASILICVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightUlnarArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTCEPHALICVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightRadialArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTINTERNALJUGULARVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightInternalCarotidArtery);
@@ -814,9 +690,7 @@ lazy_static! {
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTBRACHIOCEPHALICVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftSubclavianVein);
@@ -824,9 +698,7 @@ lazy_static! {
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTSUBCLAVIANVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftAxillaryVein);
@@ -834,36 +706,28 @@ lazy_static! {
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTAXILLARYVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftBasilicVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTBASILICVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftUlnarArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTCEPHALICVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftRadialArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTINTERNALJUGULARVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftInternalCarotidArtery);
@@ -871,9 +735,7 @@ lazy_static! {
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref INFERIORVENACAVA_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::HepaticVein);
@@ -884,9 +746,7 @@ lazy_static! {
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref HEPATICVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::SplenicVein);
@@ -898,72 +758,56 @@ lazy_static! {
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref SPLENICVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::SplenicArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref SUPERIORMESENTERICVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::SuperiorMesentericArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref INFERIORMESENTERICVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::InferiorMesentericArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTGASTRICVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftGastricArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTGASTRICVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightGastricArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTRENALVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftRenalArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTRENALVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightRenalArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTCOMMONILIACVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightInternalIliacVein);
@@ -971,18 +815,14 @@ lazy_static! {
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTINTERNALILIACVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightInternalIliacArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTEXTERNALILIACVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightDeepFemoralVein);
@@ -991,36 +831,28 @@ lazy_static! {
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTDEEPFEMORALVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightDeepFemoralArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTGREATSAPHENOUSVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightAnteriorTibialArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTFEMORALVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightPoplitealVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTPOPLITEALVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightSmallSaphenousVein);
@@ -1029,36 +861,28 @@ lazy_static! {
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTSMALLSAPHENOUSVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightFibularArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTANTERIORTIBIALVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightAnteriorTibialArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTPOSTERIORTIBIALVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightPosteriorTibialArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTCOMMONILIACVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftInternalIliacVein);
@@ -1066,18 +890,14 @@ lazy_static! {
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTINTERNALILIACVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftInternalIliacArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTEXTERNALILIACVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftDeepFemoralVein);
@@ -1086,36 +906,28 @@ lazy_static! {
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTDEEPFEMORALVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftDeepFemoralArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTGREATSAPHENOUSVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftAnteriorTibialArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTFEMORALVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftPoplitealVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTPOPLITEALVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftSmallSaphenousVein);
@@ -1124,37 +936,29 @@ lazy_static! {
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTSMALLSAPHENOUSVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftFibularArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTANTERIORTIBIALVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftAnteriorTibialArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTPOSTERIORTIBIALVEIN_UPSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftPosteriorTibialArtery);
         vessel_list
         
     };
-}
 
 
-lazy_static! {
     static ref AORTA_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightBraciocephalicArtery);
@@ -1164,9 +968,7 @@ lazy_static! {
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTBRACIOCEPHALICARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightSubclavianArtery);
@@ -1174,27 +976,21 @@ lazy_static! {
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTSUBCLAVIANARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightAxillaryArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTAXILLARYARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightBrachialArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTBRACHIALARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightUlnarArtery);
@@ -1202,36 +998,28 @@ lazy_static! {
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTULNARARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightBasilicVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTRADIALARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightCephalicVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTCOMMONCAROTIDARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightCarotidSinusArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTCAROTIDSINUSARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightInternalCarotidArtery);
@@ -1239,45 +1027,35 @@ lazy_static! {
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTINTERNALCAROTIDARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightInternalJugularVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTEXTERNALCAROTIDARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightInternalJugularVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTSUBCLAVIANARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftAxillaryArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTAXILLARYARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftBrachialArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTBRACHIALARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftUlnarArtery);
@@ -1285,36 +1063,28 @@ lazy_static! {
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTULNARARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftBasilicVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTRADIALARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftCephalicVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTCOMMONCAROTIDARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftCarotidSinusArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTCAROTIDSINUSARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftInternalCarotidArtery);
@@ -1322,36 +1092,28 @@ lazy_static! {
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTINTERNALCAROTIDARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftInternalJugularVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTEXTERNALCAROTIDARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftInternalJugularVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref THORACICAORTA_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::AbdominalAorta);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref ABDOMINALAORTA_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::CeliacArtery);
@@ -1363,9 +1125,7 @@ lazy_static! {
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref CELIACARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::CommonHepaticArtery);
@@ -1374,9 +1134,7 @@ lazy_static! {
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref COMMONHEPATICARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightGastricArtery);
@@ -1384,36 +1142,28 @@ lazy_static! {
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTGASTRICARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightGastricVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref SPLENICARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::SplenicVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTGASTRICARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftGastricVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref SUPERIORMESENTERICARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::InferiorMesentericArtery);
@@ -1421,36 +1171,28 @@ lazy_static! {
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref INFERIORMESENTERICARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::InferiorMesentericVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTRENALARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightRenalVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTRENALARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftRenalVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTCOMMONILIACARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightInternalIliacArtery);
@@ -1458,27 +1200,21 @@ lazy_static! {
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTINTERNALILIACARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightInternalIliacVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTEXTERNALILIACARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightCommonFemoralArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTCOMMONFEMORALARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightDeepFemoralArtery);
@@ -1486,27 +1222,21 @@ lazy_static! {
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTDEEPFEMORALARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightDeepFemoralVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTSUPERFICIALFEMORALARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightPoplitealArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTPOPLITEALARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightAnteriorTibialArtery);
@@ -1515,9 +1245,7 @@ lazy_static! {
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTANTERIORTIBIALARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightAnteriorTibialVein);
@@ -1525,27 +1253,21 @@ lazy_static! {
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTPOSTERIORTIBIALARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightPosteriorTibialVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTFIBULARARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightSmallSaphenousVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTCOMMONILIACARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftInternalIliacArtery);
@@ -1553,27 +1275,21 @@ lazy_static! {
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTINTERNALILIACARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftInternalIliacVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTEXTERNALILIACARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftCommonFemoralArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTCOMMONFEMORALARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftDeepFemoralArtery);
@@ -1581,27 +1297,21 @@ lazy_static! {
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTDEEPFEMORALARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftDeepFemoralVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTSUPERFICIALFEMORALARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftPoplitealArtery);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTPOPLITEALARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftAnteriorTibialArtery);
@@ -1610,9 +1320,7 @@ lazy_static! {
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTANTERIORTIBIALARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftAnteriorTibialVein);
@@ -1620,624 +1328,480 @@ lazy_static! {
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTPOSTERIORTIBIALARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftPosteriorTibialVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTFIBULARARTERY_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftSmallSaphenousVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref SUPERIORVENACAVA_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         HashSet::new()
     };
-}
 
-lazy_static! {
     static ref RIGHTBRACHIOCEPHALICVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::SuperiorVenaCava);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTSUBCLAVIANVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightBrachiocephalicVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTAXILLARYVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightSubclavianVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTBASILICVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightAxillaryVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTCEPHALICVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightSubclavianVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTINTERNALJUGULARVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightBrachiocephalicVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTBRACHIOCEPHALICVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::SuperiorVenaCava);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTSUBCLAVIANVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftBrachiocephalicVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTAXILLARYVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftSubclavianVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTBASILICVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftAxillaryVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTCEPHALICVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftSubclavianVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTINTERNALJUGULARVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftBrachiocephalicVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref INFERIORVENACAVA_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         HashSet::new()
     };
-}
 
-lazy_static! {
     static ref HEPATICVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::InferiorVenaCava);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref SPLENICVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::HepaticVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref SUPERIORMESENTERICVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::HepaticVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref INFERIORMESENTERICVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::HepaticVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTGASTRICVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::HepaticVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTGASTRICVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::HepaticVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTRENALVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::InferiorVenaCava);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTRENALVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::InferiorVenaCava);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTCOMMONILIACVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::InferiorVenaCava);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTINTERNALILIACVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightCommonIliacVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTEXTERNALILIACVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightCommonIliacVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTDEEPFEMORALVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightExternalIliacVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTGREATSAPHENOUSVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightExternalIliacVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTFEMORALVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightExternalIliacVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTPOPLITEALVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightFemoralVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTSMALLSAPHENOUSVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightPoplitealVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTANTERIORTIBIALVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightPoplitealVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref RIGHTPOSTERIORTIBIALVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::RightPoplitealVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTCOMMONILIACVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::InferiorVenaCava);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTINTERNALILIACVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftCommonIliacVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTEXTERNALILIACVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftCommonIliacVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTDEEPFEMORALVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftExternalIliacVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTGREATSAPHENOUSVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftExternalIliacVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTFEMORALVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftExternalIliacVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTPOPLITEALVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftFemoralVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTSMALLSAPHENOUSVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftPoplitealVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTANTERIORTIBIALVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftPoplitealVein);
         vessel_list
         
     };
-}
 
-lazy_static! {
     static ref LEFTPOSTERIORTIBIALVEIN_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(HumanBloodVessel::LeftPoplitealVein);
         vessel_list
         
     };
-}
 
 
-lazy_static! {
     static ref AORTA_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTBRACIOCEPHALICARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTSUBCLAVIANARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTAXILLARYARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightAxillary);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTBRACHIALARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightBrachial);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTULNARARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightAntebrachial);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTRADIALARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightAntebrachial);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTCOMMONCAROTIDARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTCAROTIDSINUSARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTINTERNALCAROTIDARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list.insert(HumanAnatomicalRegion::Cranial);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTEXTERNALCAROTIDARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list.insert(HumanAnatomicalRegion::RightFacial);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTSUBCLAVIANARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTAXILLARYARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTBRACHIALARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftBrachial);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTULNARARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftAntebrachial);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTRADIALARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftAntebrachial);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTCOMMONCAROTIDARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTCAROTIDSINUSARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTINTERNALCAROTIDARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list.insert(HumanAnatomicalRegion::Cranial);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTEXTERNALCAROTIDARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list.insert(HumanAnatomicalRegion::LeftFacial);
         region_list
     };
-}
 
-lazy_static! {
     static ref THORACICAORTA_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
-}
 
-lazy_static! {
     static ref ABDOMINALAORTA_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftUpperAbdominal);
         region_list.insert(HumanAnatomicalRegion::RightUpperAbdominal);
         region_list
     };
-}
 
-lazy_static! {
     static ref CELIACARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftUpperAbdominal);
         region_list.insert(HumanAnatomicalRegion::RightUpperAbdominal);
         region_list
     };
-}
 
-lazy_static! {
     static ref COMMONHEPATICARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightUpperAbdominal);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTGASTRICARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightUpperAbdominal);
         region_list
     };
-}
 
-lazy_static! {
     static ref SPLENICARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftUpperAbdominal);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTGASTRICARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftUpperAbdominal);
         region_list
     };
-}
 
-lazy_static! {
     static ref SUPERIORMESENTERICARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightUpperAbdominal);
@@ -2246,325 +1810,245 @@ lazy_static! {
         region_list.insert(HumanAnatomicalRegion::LeftLowerAbdominal);
         region_list
     };
-}
 
-lazy_static! {
     static ref INFERIORMESENTERICARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftUpperAbdominal);
         region_list.insert(HumanAnatomicalRegion::LeftLowerAbdominal);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTRENALARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightUpperAbdominal);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTRENALARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftUpperAbdominal);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTCOMMONILIACARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightLowerAbdominal);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTINTERNALILIACARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightLowerAbdominal);
         region_list.insert(HumanAnatomicalRegion::RightInguinal);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTEXTERNALILIACARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightLowerAbdominal);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTCOMMONFEMORALARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightFemoral);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTDEEPFEMORALARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightFemoral);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTSUPERFICIALFEMORALARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightFemoral);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTPOPLITEALARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightPopliteal);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTANTERIORTIBIALARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightFibular);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTPOSTERIORTIBIALARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightCrural);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTFIBULARARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightFibular);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTCOMMONILIACARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftLowerAbdominal);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTINTERNALILIACARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftLowerAbdominal);
         region_list.insert(HumanAnatomicalRegion::LeftInguinal);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTEXTERNALILIACARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftLowerAbdominal);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTCOMMONFEMORALARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftFemoral);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTDEEPFEMORALARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftFemoral);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTSUPERFICIALFEMORALARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftFemoral);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTPOPLITEALARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftPopliteal);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTANTERIORTIBIALARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftFibular);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTPOSTERIORTIBIALARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftCrural);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTFIBULARARTERY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftFibular);
         region_list
     };
-}
 
-lazy_static! {
     static ref SUPERIORVENACAVA_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTBRACHIOCEPHALICVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTSUBCLAVIANVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTAXILLARYVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightAxillary);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTBASILICVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightAntebrachial);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTCEPHALICVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightAntebrachial);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTINTERNALJUGULARVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTBRACHIOCEPHALICVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTSUBCLAVIANVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTAXILLARYVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftAxillary);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTBASILICVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftAntebrachial);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTCEPHALICVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftAntebrachial);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTINTERNALJUGULARVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list
     };
-}
 
-lazy_static! {
     static ref INFERIORVENACAVA_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftUpperAbdominal);
         region_list.insert(HumanAnatomicalRegion::RightUpperAbdominal);
         region_list
     };
-}
 
-lazy_static! {
     static ref HEPATICVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightUpperAbdominal);
         region_list
     };
-}
 
-lazy_static! {
     static ref SPLENICVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftUpperAbdominal);
         region_list
     };
-}
 
-lazy_static! {
     static ref SUPERIORMESENTERICVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightUpperAbdominal);
@@ -2573,211 +2057,161 @@ lazy_static! {
         region_list.insert(HumanAnatomicalRegion::LeftLowerAbdominal);
         region_list
     };
-}
 
-lazy_static! {
     static ref INFERIORMESENTERICVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftUpperAbdominal);
         region_list.insert(HumanAnatomicalRegion::LeftLowerAbdominal);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTGASTRICVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftUpperAbdominal);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTGASTRICVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightUpperAbdominal);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTRENALVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftUpperAbdominal);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTRENALVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightUpperAbdominal);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTCOMMONILIACVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightLowerAbdominal);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTINTERNALILIACVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightLowerAbdominal);
         region_list.insert(HumanAnatomicalRegion::RightInguinal);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTEXTERNALILIACVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightLowerAbdominal);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTDEEPFEMORALVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightFemoral);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTGREATSAPHENOUSVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightFibular);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTFEMORALVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightFemoral);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTPOPLITEALVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightPopliteal);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTSMALLSAPHENOUSVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightFibular);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTANTERIORTIBIALVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightFibular);
         region_list
     };
-}
 
-lazy_static! {
     static ref RIGHTPOSTERIORTIBIALVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightCrural);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTCOMMONILIACVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftLowerAbdominal);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTINTERNALILIACVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftLowerAbdominal);
         region_list.insert(HumanAnatomicalRegion::LeftInguinal);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTEXTERNALILIACVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftLowerAbdominal);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTDEEPFEMORALVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftFemoral);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTGREATSAPHENOUSVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftFibular);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTFEMORALVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftFemoral);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTPOPLITEALVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftPopliteal);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTSMALLSAPHENOUSVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftFibular);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTANTERIORTIBIALVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftFibular);
         region_list
     };
-}
 
-lazy_static! {
     static ref LEFTPOSTERIORTIBIALVEIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftCrural);
         region_list
     };
-}
 
+}
 
 impl BloodVessel for HumanBloodVessel {
     type AnatomyType = HumanAnatomicalRegion;
