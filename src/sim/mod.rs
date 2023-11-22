@@ -1,10 +1,10 @@
 use std::sync::{Arc, Mutex};
 
-mod component;
-mod layer;
-mod sim_state;
-mod time_manager;
-mod human;
+pub mod component;
+pub mod layer;
+pub mod sim_state;
+pub mod time_manager;
+pub mod organism;
 pub use sim_state::SimState;
 pub use time_manager::{SimTime, TimeManager};
 

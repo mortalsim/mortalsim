@@ -1,16 +1,10 @@
-// use crate::closed_circulation::{ClosedCirculationSim, ClosedCirculatorySystem};
-// use crate::core::sim::CoreSim;
-// use std::sync::Arc;
-// mod circulation;
-// mod module;
-// mod sim;
 mod anatomy;
 pub use anatomy::HumanAnatomicalRegion;
 
 mod human_circulation;
+pub use human_circulation::HumanBloodVessel;
 
-// pub use circulation::{HumanBloodVessel, HumanCirculatorySystem, HUMAN_CIRCULATION_FILEPATH};
-// pub type HumanClosedCirculationSim = ClosedCirculationSim<HumanBloodVessel>;
+pub mod component;
 
 // #[cfg(test)]
 // mod tests {

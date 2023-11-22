@@ -1,4 +1,5 @@
 #![allow(dead_code, unused_imports, unused_macros)]
+#![recursion_limit = "1024"]
 
 #[macro_use]
 extern crate anyhow;

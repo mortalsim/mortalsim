@@ -1,5 +1,5 @@
 ---
-path: src/sim/human/anatomy.rs
+path: src/sim/organism/human/anatomy.rs
 regions:
   - Cranial
   - Nasal

@@ -43,12 +43,6 @@ impl<'a, V: BloodVessel> ExactSizeIterator for VesselIter<'a, V> {
     }
 }
 
-// impl<'a, V: BloodVessel> From<VesselIter<'a, V> for HashSet<T> {
-//     fn from(iter: VesselIter<'a, V>) {
-//         iter.0
-//     }
-// }
-
 pub struct AnatomicalRegionIter<'a, T: Clone>(pub hash_set::Iter<'a, T>);
 
 impl<'a, T: Clone> Iterator for AnatomicalRegionIter<'a, T> {
