@@ -124,12 +124,6 @@ pub mod test {
 
         let mut store = SubstanceStore::new();
 
-        for (_vessel, mut changes)  in component.cc_connector().pending_changes.drain() {
-            for (_id, (substance, change)) in changes.drain() {
-                store.schedule_substance_change(substance, change);
-            }
-        }
-
         store.advance(SimTime::from_s(2.0));
 
         let glc = store.concentration_of(&Substance::GLC);
