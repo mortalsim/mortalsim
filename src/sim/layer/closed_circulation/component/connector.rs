@@ -2,7 +2,7 @@ use super::super::vessel::{BloodVessel, BloodVesselType, VesselIter};
 use crate::sim::SimTime;
 use crate::substance::{SubstanceConcentration, Substance, SubstanceStore, SubstanceChange};
 use crate::util::{BoundFn, IdType, IdGenerator};
-use super::ClosedCircInitializer;
+use super::{ClosedCircInitializer, ConcentrationTracker};
 use anyhow::{Result, Error};
 use petgraph::Direction;
 use std::collections::{HashMap, HashSet};
@@ -23,7 +23,7 @@ pub struct ClosedCircConnector<V: BloodVessel> {
     pub(crate) vessel_connections: HashSet<V>,
     /// Map of thresholds for changes to vessels and substances that should trigger
     /// the associated component
-    pub(crate) substance_notifies: HashMap<V, HashMap<Substance, SubstanceConcentration>>,
+    pub(crate) substance_notifies: HashMap<V, HashMap<Substance, ConcentrationTracker>>,
     /// Whether all changes should be unscheduled before each run
     /// NOTE: If this is set to false, the component is responsible for
     /// tracking and unscheduling preexisting changes, if necessary

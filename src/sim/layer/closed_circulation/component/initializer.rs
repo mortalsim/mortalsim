@@ -1,4 +1,5 @@
 use super::super::vessel::BloodVessel;
+use super::ConcentrationTracker;
 use crate::event::Event;
 use crate::substance::{SubstanceConcentration, Substance, SubstanceStore};
 use std::collections::{HashMap, HashSet};
@@ -7,7 +8,7 @@ pub struct ClosedCircInitializer<V: BloodVessel> {
     /// BloodVessel connections for the associated component
     pub(crate) vessel_connections: HashSet<V>,
     /// Notifications requested for the associated component
-    pub(crate) substance_notifies: HashMap<V, HashMap<Substance, SubstanceConcentration>>,
+    pub(crate) substance_notifies: HashMap<V, HashMap<Substance, ConcentrationTracker>>,
     /// Attached all vessels to the component.
     pub(crate) attach_all: bool,
 }
@@ -41,7 +42,7 @@ impl<V: BloodVessel> ClosedCircInitializer<V> {
             .substance_notifies
             .entry(vessel)
             .or_insert(HashMap::new());
-        substance_map.insert(substance, threshold);
+        substance_map.insert(substance, ConcentrationTracker::new(threshold));
     }
 
     /// Attaches a vessel for use by the associated `ClosedCircComponent`

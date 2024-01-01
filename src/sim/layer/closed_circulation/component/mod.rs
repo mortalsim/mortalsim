@@ -3,9 +3,30 @@ mod initializer;
 pub use connector::ClosedCircConnector;
 pub use initializer::ClosedCircInitializer;
 
-use crate::sim::component::SimComponent;
+use crate::{sim::component::SimComponent, substance::SubstanceConcentration, util::{mmol_per_L, math}};
 
 use super::vessel::BloodVessel;
+
+pub struct ConcentrationTracker {
+    threshold: SubstanceConcentration,
+    previous_val: SubstanceConcentration,
+}
+
+impl ConcentrationTracker {
+    pub fn new(threshold: SubstanceConcentration) -> ConcentrationTracker {
+        ConcentrationTracker {
+            threshold,
+            previous_val: mmol_per_L!(0.0),
+        }
+    }
+    pub fn update(&mut self, val: SubstanceConcentration) {
+        self.previous_val = val;
+    }
+    pub fn check(&self, val: SubstanceConcentration) -> bool {
+        (val >= self.previous_val && val - self.previous_val > self.threshold) ||
+        (val < self.previous_val && self.previous_val - val > self.threshold)
+    }
+}
 
 pub trait ClosedCircComponent: SimComponent {
     type VesselType: BloodVessel;
@@ -104,9 +125,6 @@ pub mod test {
     #[test]
     fn test_component() {
         let mut component = TestCircComponentA::new();
-        let mut vessel_map = HashSet::new();
-        vessel_map.insert(TestBloodVessel::VenaCava);
-        component.cc_connector().vessel_connections = vessel_map;
 
         let mut cc_initializer = ClosedCircInitializer::new();
 
@@ -118,22 +136,22 @@ pub mod test {
         assert_eq!(component.cc_connector()
             .substance_notifies.get(&TestBloodVessel::Aorta)
             .unwrap()
-            .get(&Substance::GLC).unwrap(), &mmol_per_L!(0.1));
+            .get(&Substance::GLC).unwrap().threshold, mmol_per_L!(0.1));
+        
+        component.cc_connector().vessel_map.insert(TestBloodVessel::VenaCava, SubstanceStore::new());
 
         component.run();
 
-        let mut store = SubstanceStore::new();
+        component.cc_connector().vessel_map.get_mut(&TestBloodVessel::VenaCava).unwrap().advance(SimTime::from_s(2.0));
 
-        store.advance(SimTime::from_s(2.0));
-
-        let glc = store.concentration_of(&Substance::GLC);
+        let glc = component.cc_connector().get_concentration(&TestBloodVessel::VenaCava, &Substance::GLC).unwrap();
         let expected = mmol_per_L!(1.0);
         let threshold = mmol_per_L!(0.0001);
         assert!(glc > expected - threshold && glc < expected + threshold, "GLC not within {} of {}", threshold, expected);
         
-        store.advance(SimTime::from_s(2.0));
+        component.cc_connector().vessel_map.get_mut(&TestBloodVessel::VenaCava).unwrap().advance(SimTime::from_s(2.0));
 
-        let glc = store.concentration_of(&Substance::GLC);
+        let glc = component.cc_connector().get_concentration(&TestBloodVessel::VenaCava, &Substance::GLC).unwrap();
         let expected = mmol_per_L!(1.0);
         let threshold = mmol_per_L!(0.0001);
         assert!(glc > expected - threshold && glc < expected + threshold, "GLC not within {} of {}", threshold, expected);
