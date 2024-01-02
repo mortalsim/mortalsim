@@ -1,8 +1,8 @@
 use super::super::vessel::{BloodVessel, BloodVesselType, VesselIter};
 use crate::sim::SimTime;
-use crate::substance::{SubstanceConcentration, Substance, SubstanceStore, SubstanceChange};
+use crate::substance::{SubstanceConcentration, Substance, SubstanceStore, SubstanceChange, ConcentrationTracker};
 use crate::util::{BoundFn, IdType, IdGenerator};
-use super::{ClosedCircInitializer, ConcentrationTracker};
+use super::ClosedCircInitializer;
 use anyhow::{Result, Error};
 use petgraph::Direction;
 use std::collections::{HashMap, HashSet};
