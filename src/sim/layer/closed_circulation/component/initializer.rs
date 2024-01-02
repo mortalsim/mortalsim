@@ -1,7 +1,6 @@
 use super::super::vessel::BloodVessel;
-use super::ConcentrationTracker;
 use crate::event::Event;
-use crate::substance::{SubstanceConcentration, Substance, SubstanceStore};
+use crate::substance::{SubstanceConcentration, Substance, SubstanceStore, ConcentrationTracker};
 use std::collections::{HashMap, HashSet};
 
 pub struct ClosedCircInitializer<V: BloodVessel> {

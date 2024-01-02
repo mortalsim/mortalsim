@@ -7,27 +7,6 @@ use crate::{sim::component::SimComponent, substance::SubstanceConcentration, uti
 
 use super::vessel::BloodVessel;
 
-pub struct ConcentrationTracker {
-    threshold: SubstanceConcentration,
-    previous_val: SubstanceConcentration,
-}
-
-impl ConcentrationTracker {
-    pub fn new(threshold: SubstanceConcentration) -> ConcentrationTracker {
-        ConcentrationTracker {
-            threshold,
-            previous_val: mmol_per_L!(0.0),
-        }
-    }
-    pub fn update(&mut self, val: SubstanceConcentration) {
-        self.previous_val = val;
-    }
-    pub fn check(&self, val: SubstanceConcentration) -> bool {
-        (val >= self.previous_val && val - self.previous_val > self.threshold) ||
-        (val < self.previous_val && self.previous_val - val > self.threshold)
-    }
-}
-
 pub trait ClosedCircComponent: SimComponent {
     type VesselType: BloodVessel;
 

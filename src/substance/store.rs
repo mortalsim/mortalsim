@@ -165,7 +165,7 @@ impl SubstanceStore {
     /// * `substance` - the substance which was scheduled to be changed
     /// * `change_id` - the id returned from the call to schedule_change
     ///
-    /// Returns the provided BoundFn if found and the change hasn't completed, None otherwise
+    /// Returns a `SubstanceChange` if found and the change hasn't completed, None otherwise
     pub fn unschedule_change(
         &mut self,
         substance: &Substance,
