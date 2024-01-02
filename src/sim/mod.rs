@@ -13,3 +13,13 @@ pub struct SimConnector {
     time_manager: TimeManager,
     state: Arc<Mutex<SimState>>,
 }
+
+impl SimConnector {
+    pub fn new() -> Self {
+        SimConnector {
+            sim_time: SimTime::from_s(0.0),
+            time_manager: TimeManager::new(),
+            state: Arc::new(Mutex::new(SimState::new())),
+        }
+    }
+}

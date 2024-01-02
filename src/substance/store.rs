@@ -37,6 +37,22 @@ impl fmt::Debug for SubstanceStore {
     }
 }
 
+impl Default for SubstanceStore {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+lazy_static! {
+    static ref DEFAULT_STORE: SubstanceStore = SubstanceStore::new();
+}
+
+impl<'a> Default for &'a SubstanceStore {
+    fn default() -> Self {
+        &DEFAULT_STORE
+    }
+}
+
 impl SubstanceStore {
     /// Constructs a new Substance store with the given identifier and initial volume
     ///
