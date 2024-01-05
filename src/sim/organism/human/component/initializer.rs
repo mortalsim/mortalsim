@@ -1,8 +1,9 @@
 use super::super::HumanBloodVessel;
 use crate::sim::layer::core::CoreComponentInitializer;
 use crate::sim::layer::closed_circulation::ClosedCircInitializer;
+use crate::sim::organism::human::HumanSim;
 
-pub type HumanCircInitializer = ClosedCircInitializer<HumanBloodVessel>;
+pub type HumanCircInitializer = ClosedCircInitializer<HumanSim>;
 
 pub struct HumanModuleInitializer {
     pub(crate) core: CoreComponentInitializer,

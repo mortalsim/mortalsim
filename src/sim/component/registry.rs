@@ -1,26 +1,24 @@
-use crate::sim::{layer::core::component::CoreComponent, organism::human::component::HumanComponent};
+use crate::sim::organism::generic::GenericSim;
+use crate::sim::{layer::core::component::CoreComponent, organism::Organism};
 use crate::sim::layer::closed_circulation::ClosedCircComponent;
 use std::collections::HashMap;
+use std::marker::PhantomData;
+use std::path::Component;
 
 use super::{
-    wrapper::{core::CoreComponentWrapper, closed_circulation::ClosedCircComponentWrapper, human::HumanComponentWrapper, ComponentWrapper},
+    wrapper::{core::CoreComponentWrapper, closed_circulation::ClosedCircComponentWrapper, ComponentWrapper},
     SimComponent,
 };
 
-pub struct ComponentRegistry<'a>(HashMap<&'a str, Box<dyn ComponentWrapper>>);
+pub struct ComponentRegistry<'a, O: Organism>(pub HashMap<&'a str, Box<dyn ComponentWrapper<O>>>);
 
-impl<'a> ComponentRegistry<'a> {
-    // TODO: create add_{system}Component methods for each combination of systems
-    pub fn add_core_component(&mut self, component: impl CoreComponent + 'static) {
+impl<'a, O: Organism + 'static> ComponentRegistry<'a, O> {
+    pub fn add_core_component(&mut self, component: impl CoreComponent<O> + 'static) {
         self.0
-            .insert(component.id(), Box::new(CoreComponentWrapper(component)));
+            .insert(component.id(), Box::new(CoreComponentWrapper(component, PhantomData)));
     }
-    pub fn add_closed_circulation_component(&mut self, component: impl ClosedCircComponent + 'static) {
+    pub fn add_closed_circulation_component(&mut self, component: impl ClosedCircComponent<O> + 'static) {
         self.0
-            .insert(component.id(), Box::new(ClosedCircComponentWrapper(component)));
-    }
-    pub fn add_human_component(&mut self, component: impl HumanComponent + 'static) {
-        self.0
-            .insert(component.id(), Box::new(HumanComponentWrapper(component)));
+            .insert(component.id(), Box::new(ClosedCircComponentWrapper(component, PhantomData)));
     }
 }

@@ -1,60 +1,38 @@
-use crate::event::Event;
-use crate::sim::component::SimComponentProcessor;
-use crate::sim::SimConnector;
-use crate::sim::organism::Organism;
-use crate::sim::organism::generic::GenericSim;
-use crate::util::id_gen::{IdType, InvalidIdError};
-use anyhow::Result;
-use either::Either;
-use std::any::TypeId;
-use std::cell::{Ref, RefCell};
-use std::collections::{BTreeSet, HashMap, HashSet, VecDeque};
-use std::fmt;
-use std::rc::Rc;
-use std::sync::{Arc, Mutex};
-use uuid::Uuid;
 
-use super::component::{CoreComponent, CoreComponentInitializer};
+use std::{fmt, collections::HashMap, any::TypeId};
+use crate::{substance::SubstanceStore, util::IdType};
 
-pub struct CoreLayer {
-    module_notifications: HashMap<TypeId, Vec<(i32, &'static str)>>,
-    transformer_id_map: HashMap<&'static str, Vec<IdType>>,
-    /// Map of pending updates for each module
-    notify_map: HashMap<&'static str, HashSet<TypeId>>,
+use super::{component::{DigestionComponent, DigestionComponentInitializer}, consumable::Consumable};
+
+type ConsumableId = IdType;
+
+pub struct DigestionLayer {
+    consumed_map: HashMap<ConsumableId, Consumable>,
+    module_positions: HashMap<TypeId, (f64, f64)>,
 }
 
-impl fmt::Debug for CoreLayer {
+impl fmt::Debug for DigestionLayer {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "CoreLayer {{ notifications: {:?}, transformer_id_map: {:?}, notify_map: {:?} }}",
-            self.module_notifications, self.transformer_id_map, self.notify_map
+            "DigestionLayer {{ consumed_map: {:?} }}",
+            self.consumed_map
         )
     }
 }
 
-impl CoreLayer {
+impl DigestionLayer {
     /// Creates a Sim with the default set of modules which is equal to all registered
     /// modules at the time of execution.
-    pub fn new() -> CoreLayer {
-        CoreLayer {
-            module_notifications: HashMap::new(),
-            transformer_id_map: HashMap::new(),
-            notify_map: HashMap::new(),
+    pub fn new() -> DigestionLayer {
+        DigestionLayer {
+            consumed_map: HashMap::new(),
+            module_positions: HashMap::new(),
         }
-    }
-
-    /// handles internal registrations and initial outputs for modules
-    pub fn pending_updates<'a>(&'a mut self) -> impl Iterator<Item = &'static str> + 'a {
-        self.notify_map.keys().map(|n| *n)
-    }
-
-    pub fn clear_notifications(&mut self) {
-        self.notify_map.clear()
     }
 }
 
-impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer {
+impl<T: CoreComponent> SimComponentProcessor<T> for DigestionLayer {
     fn setup_component(&mut self, connector: &mut SimConnector, component: &mut T) {
         let mut initializer = CoreComponentInitializer::new();
         component.core_init(&mut initializer);

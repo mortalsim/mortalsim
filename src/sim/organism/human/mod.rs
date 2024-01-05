@@ -4,7 +4,16 @@ pub use anatomy::HumanAnatomicalRegion;
 mod human_circulation;
 pub use human_circulation::HumanBloodVessel;
 
+use super::Organism;
+
 pub mod component;
+
+pub struct HumanSim {}
+
+impl Organism for HumanSim {
+    type VesselType = HumanBloodVessel;
+    type AnatomyType = HumanAnatomicalRegion;
+}
 
 // #[cfg(test)]
 // mod tests {

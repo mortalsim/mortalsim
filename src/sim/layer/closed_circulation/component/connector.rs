@@ -1,5 +1,6 @@
 use super::super::vessel::{BloodVessel, BloodVesselType, VesselIter};
 use crate::sim::SimTime;
+use crate::sim::organism::Organism;
 use crate::substance::{SubstanceConcentration, Substance, SubstanceStore, SubstanceChange, ConcentrationTracker};
 use crate::util::{BoundFn, IdType, IdGenerator};
 use super::ClosedCircInitializer;
@@ -8,30 +9,30 @@ use petgraph::Direction;
 use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
 
-pub struct ClosedCircConnector<V: BloodVessel> {
+pub struct ClosedCircConnector<O: Organism> {
     /// Local generator for this connector
     id_gen: IdGenerator,
     /// Mapping of local ids to `SubstanceStore` changes
-    pub change_map: HashMap<IdType, (V, Substance, IdType)>,
+    pub change_map: HashMap<IdType, (O::VesselType, Substance, IdType)>,
     /// Mapping of `BloodVessel`s to their corresponding `SubstanceStore`
-    pub vessel_map: HashMap<V, SubstanceStore>,
+    pub vessel_map: HashMap<O::VesselType, SubstanceStore>,
     /// Copy of the current simulation time
     pub(crate) sim_time: SimTime,
     /// Whether all vessels are attached to the associated component
     pub(crate) all_attached: bool,
     /// Set of vessel connections for the associated component
-    pub(crate) vessel_connections: HashSet<V>,
+    pub(crate) vessel_connections: HashSet<O::VesselType>,
     /// Map of thresholds for changes to vessels and substances that should trigger
     /// the associated component
-    pub(crate) substance_notifies: HashMap<V, HashMap<Substance, ConcentrationTracker>>,
+    pub(crate) substance_notifies: HashMap<O::VesselType, HashMap<Substance, ConcentrationTracker>>,
     /// Whether all changes should be unscheduled before each run
     /// NOTE: If this is set to false, the component is responsible for
     /// tracking and unscheduling preexisting changes, if necessary
     pub(crate) unschedule_all: bool,
 }
 
-impl<V: BloodVessel> ClosedCircConnector<V> {
-    pub fn new() -> ClosedCircConnector<V> {
+impl<O: Organism> ClosedCircConnector<O> {
+    pub fn new() -> ClosedCircConnector<O> {
         ClosedCircConnector {
             id_gen: IdGenerator::new(),
             change_map: HashMap::new(),
@@ -56,7 +57,7 @@ impl<V: BloodVessel> ClosedCircConnector<V> {
     /// * `substance` - Substance to retrieve
     ///
     /// Returns the current concentration of the substance on the vessel
-    pub fn get_concentration(&self, vessel: &V, substance: &Substance) -> Result<SubstanceConcentration> {
+    pub fn get_concentration(&self, vessel: &O::VesselType, substance: &Substance) -> Result<SubstanceConcentration> {
         match self.vessel_map.get(vessel) {
             Some(store) => {
                 Ok(store.concentration_of(substance))
@@ -79,7 +80,7 @@ impl<V: BloodVessel> ClosedCircConnector<V> {
     /// * `duration`   - amount of time over which the change takes place
     ///
     /// Returns an id corresponding to this change, if successful
-    pub fn schedule_change(&mut self, vessel: V, substance: Substance, amount: SubstanceConcentration, duration: SimTime) -> Result<IdType> {
+    pub fn schedule_change(&mut self, vessel: O::VesselType, substance: Substance, amount: SubstanceConcentration, duration: SimTime) -> Result<IdType> {
         self.schedule_custom_change(vessel, substance, amount, SimTime::from_s(0.0), duration, BoundFn::Sigmoid)
     }
 
@@ -98,7 +99,7 @@ impl<V: BloodVessel> ClosedCircConnector<V> {
     /// Returns an id corresponding to this change
     pub fn schedule_custom_change(
         &mut self,
-        vessel: V,
+        vessel: O::VesselType,
         substance: Substance,
         amount: SubstanceConcentration,
         delay: SimTime,
@@ -154,55 +155,57 @@ impl<V: BloodVessel> ClosedCircConnector<V> {
 pub mod test {
 
     use simple_si_units::chemical::Concentration;
-
-    use crate::{sim::{layer::closed_circulation::vessel::test::TestBloodVessel, SimTime}, substance::{SubstanceStore, Substance}, util::mmol_per_L};
+    use crate::sim::organism::test::{TestSim, TestBloodVessel};
+    use crate::sim::SimTime;
+    use crate::substance::{SubstanceStore, Substance};
+    use crate::util::mmol_per_L;
 
     use super::ClosedCircConnector;
 
     #[test]
     fn test_sim_time() {
-        let ccc = ClosedCircConnector::<TestBloodVessel>::new();
+        let ccc = ClosedCircConnector::<TestSim>::new();
         assert_eq!(ccc.sim_time(), SimTime::from_s(0.0));
     }
 
     #[test]
     fn test_get_concentration() {
-        let mut ccc = ClosedCircConnector::<TestBloodVessel>::new();
+        let mut ccc = ClosedCircConnector::<TestSim>::new();
         ccc.vessel_map.insert(TestBloodVessel::VenaCava, SubstanceStore::new());
         assert!(ccc.get_concentration(&TestBloodVessel::VenaCava, &Substance::GLC).is_ok());
     }
 
     #[test]
     fn test_schedule_change() {
-        let mut ccc = ClosedCircConnector::<TestBloodVessel>::new();
+        let mut ccc = ClosedCircConnector::<TestSim>::new();
         ccc.vessel_map.insert(TestBloodVessel::VenaCava, SubstanceStore::new());
         assert!(ccc.schedule_change(TestBloodVessel::VenaCava, Substance::GLC, mmol_per_L!(1.0), SimTime::from_s(1.0)).is_ok());
     }
 
     #[test]
     fn test_bad_schedule_change() {
-        let mut ccc = ClosedCircConnector::<TestBloodVessel>::new();
+        let mut ccc = ClosedCircConnector::<TestSim>::new();
         ccc.vessel_map.insert(TestBloodVessel::VenaCava, SubstanceStore::new());
         assert!(ccc.schedule_change(TestBloodVessel::Aorta, Substance::GLC, mmol_per_L!(1.0), SimTime::from_s(1.0)).is_err());
     }
 
     #[test]
     fn test_schedule_custom_change() {
-        let mut ccc = ClosedCircConnector::<TestBloodVessel>::new();
+        let mut ccc = ClosedCircConnector::<TestSim>::new();
         ccc.vessel_map.insert(TestBloodVessel::VenaCava, SubstanceStore::new());
         assert!(ccc.schedule_custom_change(TestBloodVessel::VenaCava, Substance::GLC, mmol_per_L!(1.0), SimTime::from_s(1.0), SimTime::from_s(1.0), crate::util::BoundFn::Linear).is_ok());
     }
 
     #[test]
     fn test_bad_schedule_custom_change() {
-        let mut ccc = ClosedCircConnector::<TestBloodVessel>::new();
+        let mut ccc = ClosedCircConnector::<TestSim>::new();
         ccc.vessel_map.insert(TestBloodVessel::VenaCava, SubstanceStore::new());
         assert!(ccc.schedule_custom_change(TestBloodVessel::Aorta, Substance::GLC, mmol_per_L!(1.0), SimTime::from_s(1.0), SimTime::from_s(1.0), crate::util::BoundFn::Linear).is_err());
     }
 
     #[test]
     fn test_unschedule() {
-        let mut ccc = ClosedCircConnector::<TestBloodVessel>::new();
+        let mut ccc = ClosedCircConnector::<TestSim>::new();
         ccc.vessel_map.insert(TestBloodVessel::VenaCava, SubstanceStore::new());
         let id = ccc.schedule_change(TestBloodVessel::VenaCava, Substance::GLC, mmol_per_L!(1.0), SimTime::from_s(1.0)).unwrap();
         assert!(ccc.unschedule_change(&id).is_some());
@@ -210,13 +213,13 @@ pub mod test {
 
     #[test]
     fn test_bad_unschedule() {
-        let mut ccc = ClosedCircConnector::<TestBloodVessel>::new();
+        let mut ccc = ClosedCircConnector::<TestSim>::new();
         assert!(ccc.unschedule_change(&1).is_none());
     }
 
     #[test]
     fn test_unschedule_all() {
-        let mut ccc = ClosedCircConnector::<TestBloodVessel>::new();
+        let mut ccc = ClosedCircConnector::<TestSim>::new();
         assert!(ccc.unschedule_all);
         ccc.unschedule_all(false);
         assert!(!ccc.unschedule_all);

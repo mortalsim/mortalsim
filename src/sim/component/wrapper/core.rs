@@ -1,12 +1,23 @@
-use super::{
-    super::{ComponentRegistry, SimComponent},
-    ComponentWrapper,
-};
-use crate::sim::layer::{core::component::{CoreComponent, CoreComponentInitializer, CoreConnector}, closed_circulation::{ClosedCircComponent, ClosedCircInitializer, ClosedCircConnector, BloodVessel, DummyVessel}};
+use std::marker::PhantomData;
 
-pub struct CoreComponentWrapper<T: CoreComponent + 'static>(pub T);
+use crate::sim::{layer::{core::component::{CoreComponent, CoreComponentInitializer, CoreConnector}, closed_circulation::{ClosedCircComponent, ClosedCircInitializer, ClosedCircConnector, BloodVessel, DummyVessel}}, organism::{generic::GenericSim, Organism}, component::{registry::ComponentRegistry, SimComponent}};
 
-impl<T: CoreComponent> ComponentWrapper for CoreComponentWrapper<T> {
+use super::ComponentWrapper;
+
+// trait CoreRegistryExt {
+//     fn add_core_component(&mut self, component: impl CoreComponent + 'static);
+// }
+
+// impl<'a, O: Organism> CoreRegistryExt for ComponentRegistry<'a, O> {
+//     fn add_core_component(&mut self, component: impl CoreComponent + 'static) {
+//         self.0
+//             .insert(component.id(), Box::new(CoreComponentWrapper(component)));
+//     }
+// }
+
+pub struct CoreComponentWrapper<O: Organism, T: CoreComponent<O> + 'static>(pub T, pub PhantomData<O>);
+
+impl<O: Organism + 'static, T: CoreComponent<O>> ComponentWrapper<O> for CoreComponentWrapper<O, T> {
     fn is_core_component(&self) -> bool {
         true
     }
@@ -15,11 +26,11 @@ impl<T: CoreComponent> ComponentWrapper for CoreComponentWrapper<T> {
     }
 }
 
-impl<T: CoreComponent> SimComponent for CoreComponentWrapper<T> {
+impl<O: Organism + 'static, T: CoreComponent<O>> SimComponent<O> for CoreComponentWrapper<O, T> {
     fn id(&self) -> &'static str {
         self.0.id()
     }
-    fn attach(self, registry: &mut ComponentRegistry) {
+    fn attach(self, registry: &mut ComponentRegistry<O>) {
         registry.add_core_component(self.0);
     }
     fn run(&mut self) {
@@ -27,7 +38,7 @@ impl<T: CoreComponent> SimComponent for CoreComponentWrapper<T> {
     }
 }
 
-impl<T: CoreComponent> CoreComponent for CoreComponentWrapper<T> {
+impl<O: Organism + 'static, T: CoreComponent<O>> CoreComponent<O> for CoreComponentWrapper<O, T> {
     fn core_init(&mut self, initializer: &mut CoreComponentInitializer) {
         self.0.core_init(initializer)
     }
@@ -36,13 +47,11 @@ impl<T: CoreComponent> CoreComponent for CoreComponentWrapper<T> {
     }
 }
 
-impl<T: CoreComponent> ClosedCircComponent for CoreComponentWrapper<T> {
-    type VesselType = DummyVessel;
-
-    fn cc_init(&mut self, _initializer: &mut ClosedCircInitializer<Self::VesselType>) {
+impl<O: Organism + 'static, T: CoreComponent<O>> ClosedCircComponent<O> for CoreComponentWrapper<O, T> {
+    fn cc_init(&mut self, _initializer: &mut ClosedCircInitializer<O>) {
         panic!()
     }
-    fn cc_connector(&mut self) -> &mut ClosedCircConnector<Self::VesselType> {
+    fn cc_connector(&mut self) -> &mut ClosedCircConnector<O> {
         panic!()
     }
 }

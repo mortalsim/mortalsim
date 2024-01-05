@@ -9,8 +9,6 @@ use super::HumanBloodVessel;
 pub type HumanCircConnector = ClosedCircConnector<HumanBloodVessel>;
 pub type HumanCircInitializer = ClosedCircInitializer<HumanBloodVessel>;
 
-pub trait HumanComponent: SimComponent + CoreComponent + ClosedCircComponent {}
-
 // #[cfg(test)]
 // mod tests {
 //     use crate::sim::{layer::core::CoreConnector, component::SimComponent};

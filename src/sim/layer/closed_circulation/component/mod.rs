@@ -3,26 +3,25 @@ mod initializer;
 pub use connector::ClosedCircConnector;
 pub use initializer::ClosedCircInitializer;
 
-use crate::{sim::component::SimComponent, substance::SubstanceConcentration, util::{mmol_per_L, math}};
+use crate::{sim::{component::SimComponent, organism::Organism}, substance::SubstanceConcentration, util::{mmol_per_L, math}};
 
 use super::vessel::BloodVessel;
 
-pub trait ClosedCircComponent: SimComponent {
-    type VesselType: BloodVessel;
+pub trait ClosedCircComponent<O: Organism>: SimComponent<O> {
 
     /// Initializes the module. Should register any `Event` objects to listen for
     /// and set initial state.
     ///
     /// ### Arguments
     /// * `initializer` - Helper object for initializing the module
-    fn cc_init(&mut self, cc_initializer: &mut ClosedCircInitializer<Self::VesselType>);
+    fn cc_init(&mut self, cc_initializer: &mut ClosedCircInitializer<O>);
 
     /// Used by the Sim to retrieve a mutable reference to this module's
     /// ClosedCircConnector, which tracks module interactions
     ///
     /// ### returns
     /// SimConnector to interact with the rest of the simulation
-    fn cc_connector(&mut self) -> &mut ClosedCircConnector<Self::VesselType>;
+    fn cc_connector(&mut self) -> &mut ClosedCircConnector<O>;
 }
 
 #[cfg(test)]
@@ -31,6 +30,9 @@ pub mod test {
     use simple_si_units::chemical::Molality;
     use simple_si_units::base::Time;
 
+    use crate::sim::component::wrapper::closed_circulation::ClosedCircComponentWrapper;
+    use crate::sim::organism::Organism;
+    use crate::sim::organism::test::{TestSim, TestBloodVessel};
     use super::BloodVessel;
     use super::ClosedCircComponent;
     use super::{ClosedCircConnector, ClosedCircInitializer};
@@ -40,7 +42,6 @@ pub mod test {
     use crate::sim::component::SimComponent;
     use crate::event::test::{TestEventA, TestEventB};
     use crate::event::Event;
-    use crate::sim::layer::closed_circulation::vessel::test::TestBloodVessel;
     use crate::substance::Substance;
     use crate::substance::SubstanceStore;
     use crate::util::mmol_per_L;
@@ -49,22 +50,21 @@ pub mod test {
     use std::collections::HashSet;
     use std::sync::Arc;
     
-     pub struct TestCircComponentA {
-         cc_sim_connector: ClosedCircConnector<TestBloodVessel>
-     }
+    pub struct TestCircComponentA {
+        cc_sim_connector: ClosedCircConnector<TestSim>
+    }
 
-     impl TestCircComponentA {
-         pub fn new() -> TestCircComponentA {
-             TestCircComponentA {
-                 cc_sim_connector: ClosedCircConnector::new()
-             }
-         }
-     }
+    impl TestCircComponentA {
+        pub fn new() -> TestCircComponentA {
+            TestCircComponentA {
+                cc_sim_connector: ClosedCircConnector::new()
+            }
+        }
+    }
 
-    impl ClosedCircComponent for TestCircComponentA {
-        type VesselType = TestBloodVessel;
+    impl ClosedCircComponent<TestSim> for TestCircComponentA {
 
-        fn cc_init(&mut self, cc_initializer: &mut ClosedCircInitializer<TestBloodVessel>) {
+        fn cc_init(&mut self, cc_initializer: &mut ClosedCircInitializer<TestSim>) {
             cc_initializer.notify_composition_change(
                 TestBloodVessel::Aorta,
                 Substance::GLC,
@@ -73,12 +73,12 @@ pub mod test {
             cc_initializer.attach_vessel(TestBloodVessel::VenaCava);
         }
 
-        fn cc_connector(&mut self) -> &mut ClosedCircConnector<Self::VesselType> {
+        fn cc_connector(&mut self) -> &mut ClosedCircConnector<TestSim> {
             &mut self.cc_sim_connector
         }
     }
 
-    impl SimComponent for TestCircComponentA {
+    impl SimComponent<TestSim> for TestCircComponentA {
 
         /// The unique id of the component
         fn id(&self) -> &'static str {
@@ -86,7 +86,7 @@ pub mod test {
         }
 
         /// Attaches the module to the ComponentKeeper
-        fn attach(self, registry: &mut ComponentRegistry) {
+        fn attach(self, registry: &mut ComponentRegistry<TestSim>) {
             registry.add_closed_circulation_component(self)
         }
 

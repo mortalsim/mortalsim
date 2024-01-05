@@ -2,21 +2,21 @@ pub mod registry;
 pub mod wrapper;
 
 use self::registry::ComponentRegistry;
-use super::SimConnector;
+use super::{SimConnector, organism::{Organism, generic::GenericSim}};
 
 /// Trait to be used by any modules for Sim objects
-pub trait SimComponent {
+pub trait SimComponent<O: Organism> {
     /// The unique id of the component
     fn id(&self) -> &'static str;
-    /// Attaches the module to the ComponentKeeper
-    fn attach(self, registry: &mut ComponentRegistry);
+    /// Attaches the module to the ComponentRegistry
+    fn attach(self, registry: &mut ComponentRegistry<O>);
     /// Runs an iteration of this module.
     fn run(&mut self);
 }
 
 /// Trait to outline common methods for all systems that
 /// process `SimComponent`s
-pub trait SimComponentProcessor<T: SimComponent> {
+pub trait SimComponentProcessor<O: Organism, T: SimComponent<O>> {
     /// Execute initial setup for a component
     fn setup_component(&mut self, connector: &mut SimConnector, component: &mut T);
     /// Prepare a component for their run, and indicate if they should trigger a run

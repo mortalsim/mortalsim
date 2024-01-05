@@ -1,48 +1,34 @@
-mod connector;
-mod initializer;
-use crate::event::Event;
-use crate::sim::component::wrapper::ComponentWrapper;
 use crate::sim::component::SimComponent;
-use crate::sim::organism::Organism;
-use crate::sim::organism::generic::GenericSim;
-pub use connector::CoreConnector;
-pub use initializer::CoreComponentInitializer;
-use std::any::TypeId;
-use std::cell::RefCell;
-use std::collections::HashMap;
-use std::rc::Rc;
+pub mod connector;
+pub mod initializer;
 
-pub trait CoreComponent<O: Organism>: SimComponent<O> {
+pub trait DigestionComponent: SimComponent {
     /// Initializes the module. Should register any `Event` objects to listen for
     /// and set initial state.
     ///
     /// ### Arguments
     /// * `initializer` - Helper object for initializing the module
-    fn core_init(&mut self, initializer: &mut CoreComponentInitializer);
+    fn digestion_init(&mut self, initializer: &mut DigestionComponentInitializer);
 
     /// Used by the Sim to retrieve a mutable reference to this module's
     /// CoreConnector, which tracks module interactions
     ///
     /// ### returns
     /// CoreConnector to interact with the rest of the simulation
-    fn core_connector(&mut self) -> &mut CoreConnector;
+    fn digestion_connector(&mut self) -> &mut DigestionConnector;
 }
 
 #[cfg(test)]
 pub mod test {
-    use super::CoreComponent;
+    use super::{CoreComponent, SimComponent};
     use super::{CoreComponentInitializer, CoreConnector};
     use crate::event::test::{TestEventA, TestEventB};
     use crate::event::Event;
-    use crate::sim::component::SimComponent;
     use crate::sim::component::registry::ComponentRegistry;
     use crate::sim::SimState;
-    use crate::sim::organism::Organism;
-    use crate::sim::organism::generic::GenericSim;
     use crate::units::base::Amount;
     use crate::units::base::Distance;
     use std::any::TypeId;
-    use std::path::Component;
     use std::sync::{Arc, Mutex};
 
     pub struct TestComponentA {
@@ -55,7 +41,7 @@ pub mod test {
             }
         }
     }
-    impl<O: Organism + 'static> CoreComponent<O> for TestComponentA {
+    impl CoreComponent for TestComponentA {
         fn core_connector(&mut self) -> &mut CoreConnector {
             &mut self.connector
         }
@@ -68,11 +54,11 @@ pub mod test {
         }
     }
 
-    impl<O: Organism + 'static> SimComponent<O> for TestComponentA {
+    impl SimComponent for TestComponentA {
         fn id(&self) -> &'static str {
             "TestComponentA"
         }
-        fn attach(self, registry: &mut ComponentRegistry<O>) {
+        fn attach(self, registry: &mut ComponentRegistry) {
             registry.add_core_component(self)
         }
         fn run(&mut self) {
@@ -102,7 +88,7 @@ pub mod test {
             evt.amt = evt.amt + Amount::from_mol(0.0);
         }
     }
-    impl<O: Organism + 'static> CoreComponent<O> for TestComponentB {
+    impl CoreComponent for TestComponentB {
         fn core_init(&mut self, initializer: &mut CoreComponentInitializer) {
             initializer.notify(TestEventA::new(Distance::from_m(2.0)));
             initializer.notify(TestEventB::new(Amount::from_mol(2.0)));
@@ -113,11 +99,11 @@ pub mod test {
         }
     }
 
-    impl<O: Organism + 'static> SimComponent<O> for TestComponentB {
+    impl SimComponent for TestComponentB {
         fn id(&self) -> &'static str {
             "TestComponentB"
         }
-        fn attach(self, registry: &mut ComponentRegistry<O>) {
+        fn attach(self, registry: &mut ComponentRegistry) {
             registry.add_core_component(self)
         }
         fn run(&mut self) {
@@ -137,7 +123,7 @@ pub mod test {
     fn test_component() {
         let mut component = TestComponentA::new();
         let mut initializer = CoreComponentInitializer::new();
-        CoreComponent::<GenericSim>::core_init(&mut component, &mut initializer);
+        component.core_init(&mut initializer);
 
         assert!(initializer.pending_notifies.len() == 2);
         assert!(initializer.pending_transforms.len() == 1);
