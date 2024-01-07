@@ -1,6 +1,6 @@
-use std::marker::PhantomData;
+use std::{marker::PhantomData, collections::HashSet};
 
-use crate::sim::{layer::{core::component::{CoreComponent, CoreComponentInitializer, CoreConnector}, closed_circulation::{ClosedCircComponent, ClosedCircInitializer, ClosedCircConnector, BloodVessel, DummyVessel}}, organism::{generic::GenericSim, Organism}, component::{registry::ComponentRegistry, SimComponent}};
+use crate::sim::{layer::{core::{component::{CoreComponent, CoreComponentInitializer, CoreConnector}, SimLayer}, closed_circulation::{ClosedCircComponent, ClosedCircInitializer, ClosedCircConnector, BloodVessel, DummyVessel}}, organism::{generic::GenericSim, Organism}, component::{registry::ComponentRegistry, SimComponent}};
 
 use super::ComponentWrapper;
 
@@ -17,21 +17,12 @@ use super::ComponentWrapper;
 
 pub struct CoreComponentWrapper<O: Organism, T: CoreComponent<O> + 'static>(pub T, pub PhantomData<O>);
 
-impl<O: Organism + 'static, T: CoreComponent<O>> ComponentWrapper<O> for CoreComponentWrapper<O, T> {
-    fn is_core_component(&self) -> bool {
-        true
-    }
-    fn is_closed_circ_component(&self) -> bool {
-        false
-    }
-}
-
 impl<O: Organism + 'static, T: CoreComponent<O>> SimComponent<O> for CoreComponentWrapper<O, T> {
     fn id(&self) -> &'static str {
         self.0.id()
     }
     fn attach(self, registry: &mut ComponentRegistry<O>) {
-        registry.add_core_component(self.0);
+        registry.add_core_component(self);
     }
     fn run(&mut self) {
         self.0.run();

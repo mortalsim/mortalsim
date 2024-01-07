@@ -1,32 +1,21 @@
 use core::panic;
-use std::marker::PhantomData;
+use std::{marker::PhantomData, collections::HashSet};
 
 use super::{
     super::{ComponentRegistry, SimComponent},
     ComponentWrapper,
 };
-use crate::sim::{layer::core::component::{CoreComponent, CoreComponentInitializer, CoreConnector}, organism::{Organism, generic::GenericSim}};
+use crate::sim::{layer::core::{component::{CoreComponent, CoreComponentInitializer, CoreConnector}, SimLayer}, organism::{Organism, generic::GenericSim}};
 use crate::sim::layer::closed_circulation::{ClosedCircComponent, ClosedCircInitializer, ClosedCircConnector, BloodVessel};
 
 pub struct ClosedCircComponentWrapper<O: Organism + 'static, T: ClosedCircComponent<O> + 'static>(pub T, pub PhantomData<O>);
-
-impl<O: Organism, T: ClosedCircComponent<O>> ComponentWrapper<O> for ClosedCircComponentWrapper<O, T>
-where ClosedCircComponentWrapper<O, T>: CoreComponent<O>
-{
-    fn is_core_component(&self) -> bool {
-        true
-    }
-    fn is_closed_circ_component(&self) -> bool {
-        false
-    }
-}
 
 impl<O: Organism, T: ClosedCircComponent<O>> SimComponent<O> for ClosedCircComponentWrapper<O, T> {
     fn id(&self) -> &'static str {
         self.0.id()
     }
     fn attach(self, registry: &mut ComponentRegistry<O>) {
-        registry.add_closed_circulation_component(self.0);
+        registry.add_closed_circulation_component(self);
     }
     fn run(&mut self) {
         self.0.run();

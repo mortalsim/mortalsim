@@ -1,8 +1,14 @@
 pub mod core;
 pub mod closed_circulation;
-use crate::sim::{layer::{core::component::CoreComponent, closed_circulation::ClosedCircComponent}, organism::{Organism, generic::GenericSim}};
+use std::collections::HashSet;
 
-pub trait ComponentWrapper<O: Organism = GenericSim>: CoreComponent<O> + ClosedCircComponent<O> {
-    fn is_core_component(&self) -> bool;
-    fn is_closed_circ_component(&self) -> bool;
+use crate::sim::layer::core::SimLayer;
+use crate::sim::layer::core::component::CoreComponent;
+use crate::sim::layer::closed_circulation::ClosedCircComponent;
+use crate::sim::organism::Organism;
+
+use super::registry::ComponentRegistry;
+
+pub trait ComponentWrapper<O: Organism>: CoreComponent<O> + ClosedCircComponent<O> {
+    fn attach(self, registry: &mut ComponentRegistry<O>);
 }

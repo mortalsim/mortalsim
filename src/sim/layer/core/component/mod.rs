@@ -1,7 +1,6 @@
 mod connector;
 mod initializer;
 use crate::event::Event;
-use crate::sim::component::wrapper::ComponentWrapper;
 use crate::sim::component::SimComponent;
 use crate::sim::organism::Organism;
 use crate::sim::organism::generic::GenericSim;
@@ -18,7 +17,7 @@ pub trait CoreComponent<O: Organism>: SimComponent<O> {
     ///
     /// ### Arguments
     /// * `initializer` - Helper object for initializing the module
-    fn core_init(&mut self, initializer: &mut CoreComponentInitializer);
+    fn core_init(&mut self, _initializer: &mut CoreComponentInitializer);
 
     /// Used by the Sim to retrieve a mutable reference to this module's
     /// CoreConnector, which tracks module interactions
@@ -37,11 +36,13 @@ pub mod test {
     use crate::sim::component::SimComponent;
     use crate::sim::component::registry::ComponentRegistry;
     use crate::sim::SimState;
+    use crate::sim::layer::core::SimLayer;
     use crate::sim::organism::Organism;
     use crate::sim::organism::generic::GenericSim;
     use crate::units::base::Amount;
     use crate::units::base::Distance;
     use std::any::TypeId;
+    use std::collections::HashSet;
     use std::path::Component;
     use std::sync::{Arc, Mutex};
 
@@ -73,7 +74,7 @@ pub mod test {
             "TestComponentA"
         }
         fn attach(self, registry: &mut ComponentRegistry<O>) {
-            registry.add_core_component(self)
+            registry.add_core_component(self);
         }
         fn run(&mut self) {
             let evt_a = self.connector.get::<TestEventA>().unwrap();
@@ -118,7 +119,7 @@ pub mod test {
             "TestComponentB"
         }
         fn attach(self, registry: &mut ComponentRegistry<O>) {
-            registry.add_core_component(self)
+            registry.add_core_component(self);
         }
         fn run(&mut self) {
             let evt_a = self.connector.get::<TestEventA>().unwrap();
