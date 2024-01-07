@@ -4,17 +4,6 @@ use crate::sim::{layer::{core::{component::{CoreComponent, CoreComponentInitiali
 
 use super::ComponentWrapper;
 
-// trait CoreRegistryExt {
-//     fn add_core_component(&mut self, component: impl CoreComponent + 'static);
-// }
-
-// impl<'a, O: Organism> CoreRegistryExt for ComponentRegistry<'a, O> {
-//     fn add_core_component(&mut self, component: impl CoreComponent + 'static) {
-//         self.0
-//             .insert(component.id(), Box::new(CoreComponentWrapper(component)));
-//     }
-// }
-
 pub struct CoreComponentWrapper<O: Organism, T: CoreComponent<O> + 'static>(pub T, pub PhantomData<O>);
 
 impl<O: Organism + 'static, T: CoreComponent<O>> SimComponent<O> for CoreComponentWrapper<O, T> {

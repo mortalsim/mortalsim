@@ -6,10 +6,10 @@ lazy_static! {
 }
 
 pub struct Consumable {
-    id: IdType,
-    store: SubstanceStore,
-    movement_multiplier: f64,
-    position: f64,
+    pub id: IdType,
+    pub store: SubstanceStore,
+    pub movement_multiplier: f64,
+    pub position: f64,
 }
 
 impl fmt::Debug for Consumable {
