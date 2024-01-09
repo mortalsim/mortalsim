@@ -2,10 +2,11 @@ use crate::sim::organism::Organism;
 use crate::sim::{SimTime, SimConnector};
 use crate::sim::component::{SimComponent, SimComponentProcessor};
 use crate::substance::{Substance, SubstanceConcentration, SubstanceStore};
+use crate::util::IdType;
 
 use super::vessel::{BloodVessel, BloodVesselType, VesselIter};
 use super::{
-    ClosedCircConnector, ClosedCircInitializer, ClosedCircComponent,
+    ClosedCircConnector, ClosedCircInitializer, ClosedCircComponent, BloodStore
 };
 use petgraph::graph::{Graph, Neighbors, NodeIndex};
 use petgraph::Direction;
@@ -23,6 +24,8 @@ use uuid::Uuid;
 pub struct ClosedCirculationLayer<O: Organism + 'static> {
     blood_notify_map: HashMap<O::VesselType, HashMap<Substance, Vec<(SubstanceConcentration, &'static str)>>>,
     composition_map: HashMap<O::VesselType, SubstanceStore>,
+    component_settings: HashMap<&'static str, ClosedCircInitializer<O>>,
+    component_change_maps: HashMap<&'static str, HashMap<O::VesselType, HashMap<Substance, Vec<IdType>>>>,
 }
 
 impl<O: Organism + 'static> ClosedCirculationLayer<O> {
@@ -31,6 +34,8 @@ impl<O: Organism + 'static> ClosedCirculationLayer<O> {
         ClosedCirculationLayer {
             blood_notify_map: HashMap::new(),
             composition_map: HashMap::new(),
+            component_settings: HashMap::new(),
+            component_change_maps: HashMap::new(),
         }
     }
 }
@@ -55,11 +60,13 @@ impl<O: Organism, T: ClosedCircComponent<O>> SimComponentProcessor<O, T> for Clo
     }
 
     fn prepare_component(&mut self, connector: &SimConnector, component: &mut T) -> bool {
+        let comp_id = component.id();
+        let comp_settings = self.component_settings.get_mut(component.id()).unwrap();
         let cc_connector = component.cc_connector();
         cc_connector.sim_time = connector.sim_time;
         let mut trigger = false;
         // Determine if any substances have changed beyond the threshold
-        for (vessel, track_map) in cc_connector.substance_notifies.iter_mut() {
+        for (vessel, track_map) in comp_settings.substance_notifies.iter_mut() {
             for (substance, tracker) in track_map.iter_mut() {
                 let val = self.composition_map.get(vessel).unwrap().concentration_of(substance);
                 if tracker.check(val) {
@@ -69,13 +76,17 @@ impl<O: Organism, T: ClosedCircComponent<O>> SimComponentProcessor<O, T> for Clo
             }
         }
         if trigger {
-            if cc_connector.all_attached {
-                swap(&mut self.composition_map, &mut cc_connector.vessel_map);
+            if comp_settings.attach_all {
+                for (vessel, store) in self.composition_map.drain() {
+                    let changes = self.component_change_maps.entry(comp_id).or_default().remove(&vessel).unwrap_or_default();
+                    cc_connector.vessel_map.insert(vessel, BloodStore::build(store, changes));
+                }
             }
             else {
-                for vessel in cc_connector.vessel_connections.iter() {
+                for vessel in comp_settings.vessel_connections.iter() {
                     let store = self.composition_map.remove(&vessel).unwrap();
-                    cc_connector.vessel_map.insert(*vessel, store);
+                    let changes = self.component_change_maps.entry(comp_id).or_default().remove(&vessel).unwrap_or_default();
+                    cc_connector.vessel_map.insert(*vessel, BloodStore::build(store, changes));
                 }
             }
         }
@@ -83,15 +94,12 @@ impl<O: Organism, T: ClosedCircComponent<O>> SimComponentProcessor<O, T> for Clo
     }
 
     fn process_component(&mut self, _: &mut SimConnector, component: &mut T) {
+        let comp_id = component.id();
         let cc_connector = component.cc_connector();
-        if cc_connector.all_attached {
-            swap(&mut self.composition_map, &mut cc_connector.vessel_map);
-        }
-        else {
-            for vessel in cc_connector.vessel_connections.iter() {
-                let store = cc_connector.vessel_map.remove(&vessel).unwrap_or_default();
-                self.composition_map.insert(*vessel, store);
-            }
+        for (vessel, blood_store) in cc_connector.vessel_map.drain() {
+            let (store, change_map) = blood_store.extract();
+            self.composition_map.insert(vessel, store);
+            self.component_change_maps.entry(comp_id).or_default().insert(vessel, change_map);
         }
     }
 }

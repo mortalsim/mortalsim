@@ -1,6 +1,73 @@
 
 macro_rules! substance_store_wrapper {
-    ( $($field_path:ident).+ ) => {
+    ( $($field_path:ident).+, $($id_map_path:ident).+ ) => {
+            /// Retrieves the current simulation time for the store.
+            pub fn sim_time(&self) -> SimTime {
+                self.$($field_path).+.sim_time()
+            }
+
+            /// Retrieves the concentration of a given Substance in the store.
+            ///
+            /// ### Arguments
+            /// * `substance` - Substance to retrieve
+            ///
+            /// Returns the current concentration of the substance
+            pub fn concentration_of(&self, substance: &Substance) -> crate::substance::SubstanceConcentration {
+                self.$($field_path).+.concentration_of(substance)
+            }
+
+            /// Get a reference to a previously added `SubstanceChange`
+            ///
+            /// ### Arguments
+            /// * `change_id`  - change id returned previously
+            ///
+            /// Returns a reference to the `SubstanceChange`
+            pub(crate) fn get_substance_change<'a>(
+                &'a self,
+                substance: &Substance,
+                change_id: &IdType,
+            ) -> Option<&'a SubstanceChange> {
+                self.$($field_path).+.get_substance_change(substance, change_id)
+            }
+
+            /// Get all previously scheduled `SubstanceChange` objects
+            /// for the given `Substance`
+            ///
+            /// ### Arguments
+            /// * `substance`  - the substance which was changed
+            ///
+            /// Returns an iterator of (change_id, substance_change) references
+            pub(crate) fn get_substance_changes<'a>(
+                &'a self,
+                substance: Substance,
+            ) -> impl Iterator<Item = (&'a IdType, &'a crate::substance::SubstanceChange)> {
+                match self.$($id_map_path).+.get(&substance) {
+                    Some(list) => {
+                        let iter = list.iter()
+                            .map(move |id| (id, self.$($field_path).+.get_substance_change(&substance, id).unwrap()));
+                        either::Left(iter)
+                    }
+                    None => either::Right(std::iter::empty())
+                }
+            }
+
+            /// Get all previously scheduled change ids
+            /// for the given `Substance`
+            ///
+            /// ### Arguments
+            /// * `substance`  - the substance which was changed
+            ///
+            /// Returns an iterator of change ids
+            pub(crate) fn get_substance_change_ids<'a>(
+                &'a self,
+                substance: Substance,
+            ) -> impl Iterator<Item = &'a IdType> {
+                match self.$($id_map_path).+.get(&substance) {
+                    Some(list) => either::Left(list.iter()),
+                    None => either::Right(std::iter::empty())
+                }
+            }
+
             /// Schedule a substance change on a given Vessel
             /// with a sigmoid shape over the given duration,
             /// startinig immediately.
@@ -44,7 +111,9 @@ macro_rules! substance_store_wrapper {
                 duration: crate::sim::SimTime,
                 bound_fn: crate::util::BoundFn,
             ) -> IdType {
-                self.$($field_path).+.schedule_change(substance, amount, delay, duration, bound_fn)
+                let id = self.$($field_path).+.schedule_change(substance, amount, delay, duration, bound_fn);
+                self.$($id_map_path).+.entry(substance).or_default().push(id);
+                id
             }
 
             /// Schedule a substance change on this store
@@ -60,7 +129,9 @@ macro_rules! substance_store_wrapper {
                 substance: Substance,
                 change: SubstanceChange
             ) -> IdType {
-                self.$($field_path).+.schedule_substance_change(substance, change)
+                let id = self.$($field_path).+.schedule_substance_change(substance, change);
+                self.$($id_map_path).+.entry(substance).or_default().push(id);
+                id
             }
 
             /// Unschedule a substance change on this store
@@ -75,6 +146,7 @@ macro_rules! substance_store_wrapper {
                 substance: &crate::substance::Substance,
                 change_id: &crate::util::IdType,
             ) -> Option<crate::substance::SubstanceChange> {
+                self.$($id_map_path).+.entry(*substance).or_default().retain(|c| c != change_id);
                 self.$($field_path).+.unschedule_change(substance, change_id)
             }
     };

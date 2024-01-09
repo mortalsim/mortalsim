@@ -7,7 +7,7 @@ mod component;
 pub mod vessel;
 
 // pub use graph::{BloodEdge, BloodNode};
-pub use component::{ClosedCircConnector, ClosedCircInitializer, ClosedCircComponent};
+pub use component::{ClosedCircConnector, ClosedCircInitializer, ClosedCircComponent, BloodStore};
 // pub use closed_circulation_layer::ClosedCirculationLayer;
 // pub use system::{ClosedCircVesselIter, ClosedCirculatorySystem};
 pub use vessel::{BloodVessel, VesselIter, AnatomicalRegionIter, BloodVesselType, DummyVessel};

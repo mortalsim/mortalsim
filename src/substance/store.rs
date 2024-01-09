@@ -175,6 +175,20 @@ impl SubstanceStore {
         change_id
     }
 
+    /// Get a reference to a previously added `SubstanceChange`
+    ///
+    /// ### Arguments
+    /// * `change_id`  - change id returned previously
+    ///
+    /// Returns a reference to the `SubstanceChange`
+    pub(crate) fn get_substance_change<'a>(
+        &'a self,
+        substance: &Substance,
+        change_id: &IdType,
+    ) -> Option<&'a SubstanceChange> {
+        self.substance_changes.get(substance)?.get(change_id)
+    }
+
     /// Unschedule a substance change on this store
     ///
     /// ### Arguments
