@@ -15,9 +15,9 @@ use super::consumable::Consumable;
 
 type ConsumableId = IdType;
 
-const DEFAULT_DIGESTION_DURATION: SimTime = secs!(60.0);
-
 pub struct DigestionLayer {
+    /// Default duration each component receives a consumable for
+    default_digestion_duration: SimTime,
     /// Current simulation time according to the layer
     sim_time: SimTime,
     /// Tracks the order in which substance stores pass
@@ -49,7 +49,8 @@ impl DigestionLayer {
     /// modules at the time of execution.
     pub fn new() -> DigestionLayer {
         DigestionLayer {
-            sim_time: SimTime::from_s(0.0),
+            default_digestion_duration: secs!(60.0),
+            sim_time: secs!(0.0),
             component_map: HashMap::new(),
             trigger_map: HashSet::new(),
             consumed_map: BTreeMap::new(),
@@ -100,7 +101,7 @@ impl DigestionLayer {
                 removed.entry_time = removed.exit_time;
 
                 // set defaults, which the component may override
-                removed.exit_time = removed.entry_time + DEFAULT_DIGESTION_DURATION;
+                removed.exit_time = removed.entry_time + self.default_digestion_duration;
                 removed.exit_direction = DigestionDirection::FORWARD;
 
                 // Check cases for elimination, either forward or backward
