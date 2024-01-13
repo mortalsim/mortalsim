@@ -1,133 +1,167 @@
 
-use std::{fmt, collections::HashMap, any::TypeId};
-use crate::{substance::SubstanceStore, util::IdType};
+use std::borrow::BorrowMut;
+use std::fmt;
+use std::collections::{HashMap, BTreeMap, HashSet};
+use crate::sim::{SimConnector, SimTime};
+use crate::sim::organism::Organism;
+use crate::substance::SubstanceStore;
+use crate::util::{IdType, secs};
+use crate::sim::component::SimComponentProcessor;
 
-use super::{component::{DigestionComponent, DigestionComponentInitializer}, consumable::Consumable};
+use super::DigestionDirection;
+use super::component::{DigestionComponent, DigestionInitializer};
+use super::component::connector::Consumed;
+use super::consumable::Consumable;
 
 type ConsumableId = IdType;
 
+const DEFAULT_DIGESTION_DURATION: SimTime = secs!(60.0);
+
 pub struct DigestionLayer {
-    consumed_map: HashMap<ConsumableId, Consumable>,
-    module_positions: HashMap<TypeId, (f64, f64)>,
+    /// Current simulation time according to the layer
+    sim_time: SimTime,
+    /// Tracks the order in which substance stores pass
+    /// through each component, according to the order
+    /// they were added, as well as whether they should
+    /// trigger due to a new consumable coming in.
+    component_map: HashMap<&'static str, usize>,
+    /// Keeps track of component indices which should
+    /// trigger due to a new consumable coming in.
+    trigger_map: HashSet<usize>,
+    /// Map to track stores in between components
+    consumed_map: BTreeMap<usize, Vec<Consumed>>,
+    /// Consumables staged for elimination
+    elimination_list: Vec<(Consumable, DigestionDirection)>,
 }
 
-impl fmt::Debug for DigestionLayer {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "DigestionLayer {{ consumed_map: {:?} }}",
-            self.consumed_map
-        )
-    }
-}
+// impl fmt::Debug for DigestionLayer {
+//     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+//         write!(
+//             f,
+//             "DigestionLayer {{ consumed_map: {:?} }}",
+//             self.consumed_map
+//         )
+//     }
+// }
 
 impl DigestionLayer {
     /// Creates a Sim with the default set of modules which is equal to all registered
     /// modules at the time of execution.
     pub fn new() -> DigestionLayer {
         DigestionLayer {
-            consumed_map: HashMap::new(),
-            module_positions: HashMap::new(),
+            sim_time: SimTime::from_s(0.0),
+            component_map: HashMap::new(),
+            trigger_map: HashSet::new(),
+            consumed_map: BTreeMap::new(),
+            elimination_list: Vec::new(),
+        }
+    }
+
+    /// Consume a new SubstanceStore
+    pub fn consume(&mut self, consumable: Consumable) {
+        let consumed = Consumed::new(consumable);
+        self.consumed_map.entry(0).or_default().push(consumed);
+    }
+
+    /// Eliminate the remains of any SubstanceStores
+    pub fn eliminate<'a>(&'a mut self) -> impl Iterator<Item = (Consumable, DigestionDirection)> + 'a {
+        self.elimination_list.drain(..)
+    }
+
+    fn update(&mut self, sim_time: SimTime) {
+        if sim_time == self.sim_time {
+            return;
+        }
+        self.sim_time = sim_time;
+
+        // Keep track of vector indices of items which need to move
+        let mut moving_indices: Vec<Vec<usize>> = vec![vec![]; self.consumed_map.len()];
+        for (pos, consumed_list) in self.consumed_map.iter_mut() {
+            for (idx, consumed) in consumed_list.iter_mut().enumerate() {
+                // advance time for the consumable
+                consumed.advance(sim_time);
+                // if time has exceeded the exit time, stage it for movement
+                if consumed.exit_time <= sim_time {
+                    moving_indices.get_mut(*pos)
+                                  .expect("moving_indices initialized improperly")
+                                  .push(idx);
+                }
+            }
+        }
+        // position of the last digestion component
+        let last = self.consumed_map.len() - 1;
+        for (pos, indices) in moving_indices.into_iter().enumerate() {
+            for idx in indices {
+                let mut removed = self.consumed_map.get_mut(&pos)
+                    .expect("moving_indices referenced invalid position")
+                    .remove(idx);
+
+                // update entry time
+                removed.entry_time = removed.exit_time;
+
+                // set defaults, which the component may override
+                removed.exit_time = removed.entry_time + DEFAULT_DIGESTION_DURATION;
+                removed.exit_direction = DigestionDirection::FORWARD;
+
+                // Check cases for elimination, either forward or backward
+                if  (pos == 0 && removed.exit_direction == DigestionDirection::BACK) ||
+                    (pos == last && removed.exit_direction == DigestionDirection::FORWARD) {
+                        self.elimination_list.push((removed.consumable, removed.exit_direction));
+                    }
+                else {
+                    match removed.exit_direction {
+                        DigestionDirection::FORWARD => {
+                            let target_idx = pos + 1;
+                            self.consumed_map.get_mut(&target_idx).expect("invalid index").push(removed);
+                            self.trigger_map.insert(target_idx);
+                        }
+                        DigestionDirection::BACK => {
+                            let target_idx = pos - 1;
+                            self.consumed_map.get_mut(&target_idx).expect("invalid index").push(removed);
+                            self.trigger_map.insert(target_idx);
+                        }
+                        DigestionDirection::EXHAUSTED => {
+                            // Drop the removed consumable completely
+                        }
+                    }
+                }
+            }
         }
     }
 }
 
-impl<T: CoreComponent> SimComponentProcessor<T> for DigestionLayer {
-    fn setup_component(&mut self, connector: &mut SimConnector, component: &mut T) {
-        let mut initializer = CoreComponentInitializer::new();
-        component.core_init(&mut initializer);
+impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessor<O, T> for DigestionLayer {
+    fn setup_component(&mut self, _connector: &mut SimConnector, component: &mut T) {
+        let mut initializer = DigestionInitializer::new();
+        component.digestion_init(&mut initializer);
 
-        let mut transformer_ids = Vec::new();
-        for transformer in initializer.pending_transforms {
-            transformer_ids.push(connector.time_manager.insert_transformer(transformer));
-        }
-        self.transformer_id_map
-            .insert(component.id(), transformer_ids);
-
-        for (priority, evt) in initializer.pending_notifies {
-            let type_id = evt.type_id();
-            match self.module_notifications.get_mut(&type_id) {
-                None => {
-                    self.module_notifications
-                        .insert(type_id, vec![(priority, component.id())]);
-                }
-                Some(list) => {
-                    list.push((priority, component.id()));
-                }
-            }
-        }
+        self.component_map.insert(component.id(), self.component_map.len());
     }
 
     fn prepare_component(&mut self, connector: &SimConnector, component: &mut T) -> bool {
-        // Update connector before module execution
+        // advances time and moves any consumables that need to be moved
+        self.update(connector.sim_time);
 
-        component.core_connector().trigger_events = {
-            let notify_ids = self
-                .notify_map
-                .remove(component.id())
-                .unwrap_or(HashSet::new());
-            notify_ids
-                .iter()
-                .map(|id| connector.state.lock().unwrap().get_state_ref(id).unwrap().type_id())
-                .collect()
-        };
+        let component_pos = self.component_map.get(component.id()).expect("Digestion component position is missing!");
+        let trigger = self.trigger_map.contains(component_pos);
 
-        let comp_connector = component.core_connector();
-        comp_connector.sim_time = connector.time_manager.get_time();
-
-        // If this comp_connector doesn't yet have a reference to the sim state, set it now
-        if !Arc::ptr_eq(&comp_connector.sim_state, &connector.state) {
-            comp_connector.sim_state = connector.state.clone();
+        if trigger {
+            // move consumed items from the layer map into the component connector
+            let consumed_list = self.consumed_map.entry(*component_pos).or_default();
+            component.digestion_connector().consumed_list.extend(consumed_list.drain(..));
         }
 
-        // Trigger the module only if the trigger events list is non empty
-        !comp_connector.trigger_events.is_empty()
+        trigger
     }
 
-    fn process_component(&mut self, connector: &mut SimConnector, component: &mut T) {
-        let comp_connector = component.core_connector();
+    fn process_component(&mut self, _connector: &mut SimConnector, component: &mut T) {
+        let component_pos = self.component_map.get(component.id()).expect("Digestion component position is missing!");
 
-        // Unschedule any requested events
-        if comp_connector.unschedule_all {
-            for (_, id_map) in comp_connector.scheduled_events.drain() {
-                for (schedule_id, _) in id_map {
-                    connector
-                        .time_manager
-                        .unschedule_event(&schedule_id)
-                        .unwrap();
-                }
-            }
-        } else {
-            for schedule_id in comp_connector.pending_unschedules.drain(..) {
-                connector
-                    .time_manager
-                    .unschedule_event(&schedule_id)
-                    .unwrap();
-                let type_id = comp_connector
-                    .schedule_id_type_map
-                    .remove(&schedule_id)
-                    .unwrap();
-                comp_connector.scheduled_events.remove(&type_id).unwrap();
-            }
-        }
+        // move consumed items from the component connector back into the layer map
+        let consumed_list = &mut component.digestion_connector().consumed_list;
+        self.consumed_map.entry(*component_pos).or_default().extend(consumed_list.drain(..));
 
-        // Schedule any new events
-        for (wait_time, evt) in comp_connector.pending_schedules.drain(..) {
-            let type_id = evt.type_id();
-            let schedule_id = connector.time_manager.schedule_event(wait_time, evt);
-            comp_connector
-                .schedule_id_type_map
-                .insert(schedule_id, type_id);
-            match comp_connector.scheduled_events.get_mut(&type_id) {
-                None => {
-                    let mut map = HashMap::new();
-                    map.insert(schedule_id, wait_time);
-                    comp_connector.scheduled_events.insert(type_id, map);
-                }
-                Some(map) => {
-                    map.insert(schedule_id, wait_time);
-                }
-            }
-        }
+        // Reset the trigger
+        self.trigger_map.remove(component_pos);
     }
 }

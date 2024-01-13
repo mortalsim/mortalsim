@@ -9,18 +9,18 @@ use super::SimComponent;
 use super::wrapper::closed_circulation::ClosedCircComponentWrapper;
 use super::wrapper::core::CoreComponentWrapper;
 
-pub struct ComponentRegistry<'a, O: Organism>(pub HashMap<&'a str, Box<dyn SimComponent<O>>>);
+pub struct ComponentRegistry<O: Organism>(pub Vec<Box<dyn SimComponent<O>>>);
 
-impl<'a, O: Organism + 'static> ComponentRegistry<'a, O> {
-    pub fn add_component(&mut self, component: impl SimComponent<O> + 'static) {
+impl<'a, O: Organism + 'static> ComponentRegistry<O> {
+    pub fn add_component(&mut self, component: impl SimComponent<O> + 'a) {
         component.attach(self);
     }
-    pub fn add_core_component(&mut self, component: impl CoreComponent<O> + 'static) {
+    pub fn add_core_component(&mut self, component: impl CoreComponent<O> + 'a) {
         self.0
-            .insert(component.id(), Box::new(CoreComponentWrapper(component, PhantomData)));
+            .push(Box::new(CoreComponentWrapper(component, PhantomData)));
     }
-    pub fn add_closed_circulation_component(&mut self, component: impl ClosedCircComponent<O> + 'static) {
+    pub fn add_closed_circulation_component(&mut self, component: impl ClosedCircComponent<O> + 'a) {
         self.0
-            .insert(component.id(), Box::new(ClosedCircComponentWrapper(component, PhantomData)));
+            .push(Box::new(ClosedCircComponentWrapper(component, PhantomData)));
     }
 }

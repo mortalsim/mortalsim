@@ -1,22 +1,26 @@
 use crate::sim::component::SimComponent;
+use crate::sim::organism::Organism;
+
 pub mod connector;
-// pub mod initializer;
+pub mod initializer;
 
-// pub trait DigestionComponent: SimComponent {
-//     /// Initializes the module. Should register any `Event` objects to listen for
-//     /// and set initial state.
-//     ///
-//     /// ### Arguments
-//     /// * `initializer` - Helper object for initializing the module
-//     fn digestion_init(&mut self, initializer: &mut DigestionComponentInitializer);
+use self::connector::DigestionConnector;
+pub use self::initializer::DigestionInitializer;
 
-//     /// Used by the Sim to retrieve a mutable reference to this module's
-//     /// CoreConnector, which tracks module interactions
-//     ///
-//     /// ### returns
-//     /// CoreConnector to interact with the rest of the simulation
-//     fn digestion_connector(&mut self) -> &mut DigestionConnector;
-// }
+pub trait DigestionComponent<O: Organism>: SimComponent<O> {
+    /// Initializes the module. Currently not used.
+    ///
+    /// ### Arguments
+    /// * `initializer` - Helper object for initializing the module
+    fn digestion_init(&mut self, _initializer: &mut DigestionInitializer) {}
+
+    /// Used by the Sim to retrieve a mutable reference to this module's
+    /// DigestionConnector, which tracks module interactions
+    ///
+    /// ### returns
+    /// DigestionConnector to interact with the digestion layer
+    fn digestion_connector(&mut self) -> &mut DigestionConnector;
+}
 
 // #[cfg(test)]
 // pub mod test {
