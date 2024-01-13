@@ -2,7 +2,7 @@
 macro_rules! substance_store_wrapper {
     ( $($field_path:ident).+, $($id_map_path:ident).+ ) => {
             /// Retrieves the current simulation time for the store.
-            pub fn sim_time(&self) -> SimTime {
+            pub fn sim_time(&self) -> crate::sim::SimTime {
                 self.$($field_path).+.sim_time()
             }
 
@@ -12,7 +12,7 @@ macro_rules! substance_store_wrapper {
             /// * `substance` - Substance to retrieve
             ///
             /// Returns the current concentration of the substance
-            pub fn concentration_of(&self, substance: &Substance) -> crate::substance::SubstanceConcentration {
+            pub fn concentration_of(&self, substance: &crate::substance::Substance) -> crate::substance::SubstanceConcentration {
                 self.$($field_path).+.concentration_of(substance)
             }
 
@@ -24,9 +24,9 @@ macro_rules! substance_store_wrapper {
             /// Returns a reference to the `SubstanceChange`
             pub(crate) fn get_substance_change<'a>(
                 &'a self,
-                substance: &Substance,
-                change_id: &IdType,
-            ) -> Option<&'a SubstanceChange> {
+                substance: &crate::substance::Substance,
+                change_id: &crate::util::IdType,
+            ) -> Option<&'a crate::substance::SubstanceChange> {
                 self.$($field_path).+.get_substance_change(substance, change_id)
             }
 
@@ -39,7 +39,7 @@ macro_rules! substance_store_wrapper {
             /// Returns an iterator of (change_id, substance_change) references
             pub(crate) fn get_substance_changes<'a>(
                 &'a self,
-                substance: Substance,
+                substance: crate::substance::Substance,
             ) -> impl Iterator<Item = (&'a IdType, &'a crate::substance::SubstanceChange)> {
                 match self.$($id_map_path).+.get(&substance) {
                     Some(list) => {
@@ -60,7 +60,7 @@ macro_rules! substance_store_wrapper {
             /// Returns an iterator of change ids
             pub(crate) fn get_substance_change_ids<'a>(
                 &'a self,
-                substance: Substance,
+                substance: crate::substance::Substance,
             ) -> impl Iterator<Item = &'a IdType> {
                 match self.$($id_map_path).+.get(&substance) {
                     Some(list) => either::Left(list.iter()),
@@ -126,8 +126,8 @@ macro_rules! substance_store_wrapper {
             /// Returns an id corresponding to this change
             pub(crate) fn schedule_substance_change(
                 &mut self,
-                substance: Substance,
-                change: SubstanceChange
+                substance: crate::substance::Substance,
+                change: crate::substance::SubstanceChange
             ) -> IdType {
                 let id = self.$($field_path).+.schedule_substance_change(substance, change);
                 self.$($id_map_path).+.entry(substance).or_default().push(id);
