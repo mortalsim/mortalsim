@@ -5,7 +5,10 @@ use super::{
     super::{ComponentRegistry, SimComponent},
     ComponentWrapper,
 };
-use crate::sim::{layer::core::{component::{CoreComponent, CoreComponentInitializer, CoreConnector}, SimLayer}, organism::{Organism, generic::GenericSim}};
+use crate::sim::layer::core::component::{CoreComponent, CoreComponentInitializer, CoreConnector};
+use crate::sim::layer::SimLayer;
+use crate::sim::organism::Organism;
+use crate::sim::organism::generic::GenericSim;
 use crate::sim::layer::closed_circulation::{ClosedCircComponent, ClosedCircInitializer, ClosedCircConnector, BloodVessel};
 
 pub struct ClosedCircComponentWrapper<O: Organism + 'static, T: ClosedCircComponent<O> + 'static>(pub T, pub PhantomData<O>);

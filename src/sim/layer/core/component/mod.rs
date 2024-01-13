@@ -36,7 +36,7 @@ pub mod test {
     use crate::sim::component::SimComponent;
     use crate::sim::component::registry::ComponentRegistry;
     use crate::sim::SimState;
-    use crate::sim::layer::core::SimLayer;
+    use crate::sim::layer::SimLayer;
     use crate::sim::organism::Organism;
     use crate::sim::organism::generic::GenericSim;
     use crate::units::base::Amount;
