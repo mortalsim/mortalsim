@@ -3,7 +3,7 @@ path: src/sim/organism/human/human_nervous.rs
 sections:
   - id: Brain
     regions: [Cranial]
-    downlink:
+    links:
       - RightOcculomotor
       - LeftOcculomotor
       - Brainstem
@@ -13,7 +13,7 @@ sections:
     regions: [LeftFacial]
   - id: Brainstem
     regions: [Cranial]
-    downlink:
+    links:
       - LeftTrigeminal
       - RightTrigeminal
       - LeftFacial
@@ -36,7 +36,7 @@ sections:
     regions: [Cranial, RightFacial]
   - id: LeftVagus
     regions: [Cranial, Cervical, Thoracic]
-    downlink:
+    links:
       - LeftSuperiorLaryngeal
       - LeftRecurrentLaryngeal
       - EsophagealPlexus
@@ -48,7 +48,7 @@ sections:
     regions: [Thoracic, Cervical]
   - id: RightVagus
     regions: [Cranial, Cervical, Thoracic]
-    downlink:
+    links:
       - RightSuperiorLaryngeal
       - RightRecurrentLaryngeal
       - EsophagealPlexus
@@ -64,7 +64,7 @@ sections:
     regions: [Thoracic]
   - id: DeepCardiacPlexus
     regions: [Thoracic]
-    downlink:
+    links:
       - PulmonaryPlexus
   - id: PulmonaryPlexus
     regions: [Thoracic]
@@ -78,7 +78,7 @@ sections:
     regions: [Sacral]
   - id: SpinalCord
     regions: [Cervical, Thoracic]
-    downlink:
+    links:
       - LeftSpinalAccessory
       - RightSpinalAccessory
       - LeftC1
@@ -130,32 +130,32 @@ sections:
     regions: [Cervical]
   - id: LeftC1
     regions: [Cervical]
-    downlink:
+    links:
       - LeftInternalCarotid
       - LeftSympatheticChain
   - id: LeftC2
     regions: [Cervical]
-    downlink:
+    links:
       - LeftSympatheticChain
       - LeftOccipital
       - LeftGreatAricular
       - LeftAnsaCervicalis
   - id: LeftC3
     regions: [Cervical]
-    downlink:
+    links:
       - LeftSympatheticChain
       - LeftGreatAricular
       - LeftSupraclavicular
       - LeftPhrenic
   - id: LeftC4
     regions: [Cervical]
-    downlink:
+    links:
       - LeftSympatheticChain
       - LeftSupraclavicular
       - LeftPhrenic
   - id: LeftC5
     regions: [Cervical]
-    downlink:
+    links:
       - LeftSympatheticChain
       - LeftPhrenic
       - LeftLateralBrachialPlexus
@@ -164,7 +164,7 @@ sections:
       - LeftSuprascapular
   - id: LeftC6
     regions: [Cervical]
-    downlink:
+    links:
       - LeftSympatheticChain
       - LeftThoracodorsal
       - LeftLateralBrachialPlexus
@@ -172,89 +172,89 @@ sections:
       - LeftSuprascapular
   - id: LeftC7
     regions: [Cervical]
-    downlink:
+    links:
       - LeftSympatheticChain
       - LeftThoracodorsal
       - LeftLateralBrachialPlexus
       - LeftPosteriorBrachialPlexus
   - id: LeftC8
     regions: [Cervical]
-    downlink:
+    links:
       - LeftSympatheticChain
       - LeftThoracodorsal
       - LeftPosteriorBrachialPlexus
       - LeftMedialBrachialPlexus
   - id: LeftT1
     regions: [Thoracic]
-    downlink:
+    links:
       - LeftSympatheticChain
       - LeftIntercostal1
       - LeftMedialBrachialPlexus
   - id: LeftT2
     regions: [Thoracic]
-    downlink:
+    links:
       - LeftSympatheticChain
       - LeftIntercostal2
   - id: LeftT3
     regions: [Thoracic]
-    downlink:
+    links:
       - LeftSympatheticChain
       - LeftIntercostal3
   - id: LeftT4
     regions: [Thoracic]
-    downlink:
+    links:
       - LeftSympatheticChain
       - LeftIntercostal4
   - id: LeftT5
     regions: [Thoracic]
-    downlink:
+    links:
       - LeftSympatheticChain
       - LeftIntercostal5
   - id: LeftT6
     regions: [Thoracic]
-    downlink:
+    links:
       - LeftSympatheticChain
       - LeftIntercostal6
   - id: LeftT7
     regions: [Thoracic]
-    downlink:
+    links:
       - LeftSympatheticChain
       - LeftIntercostal7
   - id: LeftT8
     regions: [Thoracic]
-    downlink:
+    links:
       - LeftSympatheticChain
       - LeftIntercostal8
   - id: LeftT9
     regions: [Thoracic]
-    downlink:
+    links:
       - LeftSympatheticChain
       - LeftIntercostal9
   - id: LeftT10
     regions: [Thoracic]
-    downlink:
+    links:
       - LeftSympatheticChain
       - LeftIntercostal10
   - id: LeftT11
     regions: [Thoracic]
-    downlink:
+    links:
       - LeftSympatheticChain
       - LeftIntercostal11
   - id: LeftT12
     regions: [Thoracic]
-    downlink:
+    links:
       - LeftSympatheticChain
       - LeftSubcostal
   - id: LeftL1
     regions: [Lumbar]
-    downlink:
+    links:
       - LeftSympatheticChain
       - LeftIliohypogastric
       - LeftIlioInguinal
-      - LeftGenitoFemoral
+      - LeftGenitofemoral
   - id: CaudaEquina
     regions: [Lumbar]
-    downlink:
+    links:
       - LeftL2
       - LeftL3
       - LeftL4
@@ -266,60 +266,60 @@ sections:
       - LeftS5
   - id: LeftL2
     regions: [Lumbar]
-    downlink:
+    links:
       - LeftSympatheticChain
       - LeftLumbarPlexus
-      - LeftGenitoFemoral
+      - LeftGenitofemoral
       - LeftObturator
   - id: LeftL3
     regions: [Lumbar]
-    downlink:
+    links:
       - LeftSympatheticChain
       - LeftLumbarPlexus
       - LeftObturator
   - id: LeftL4
     regions: [Lumbar]
-    downlink:
+    links:
       - LeftSympatheticChain
       - LeftLumbarPlexus
       - LeftSacralPlexus
       - LeftObturator
   - id: LeftL5
     regions: [Lumbar]
-    downlink:
+    links:
       - LeftSympatheticChain
       - LeftSacralPlexus
   - id: LeftS1
     regions: [Sacral]
-    downlink:
+    links:
       - LeftSympatheticChain
       - LeftSacralPlexus
   - id: LeftS2
     regions: [Sacral]
-    downlink:
+    links:
       - LeftSympatheticChain
       - LeftSacralPlexus
       - LeftPudendal
   - id: LeftS3
     regions: [Sacral]
-    downlink:
+    links:
       - LeftSympatheticChain
       - LeftSacralPlexus
       - LeftPudendal
   - id: LeftS4
     regions: [Sacral]
-    downlink:
+    links:
       - LeftSympatheticChain
       - LeftPudendal
   - id: LeftS5
     regions: [Sacral]
-    downlink:
+    links:
       - LeftSympatheticChain
   - id: LeftInternalCarotid
     regions: [Cervical, Cranial]
   - id: LeftSympatheticChain
     regions: [Cervical, Cranial, Thoracic, Lumbar, Sacral]
-    downlink:
+    links:
       - EsophagealPlexus
       - SuperficialCardiacPlexus
       - DeepCardiacPlexus
@@ -333,11 +333,11 @@ sections:
     regions: [Thoracic]
   - id: LeftLesserThoracicSplanchic
     regions: [Thoracic]
-    downlink:
+    links:
       - CeliacPlexus
   - id: LeftLeastThoracicSplanchic
     regions: [Thoracic]
-    downlink:
+    links:
       - LeftRenalPlexus
       - SuperiorMesentericPlexus
       - LeftIntermesentericPlexus
@@ -348,6 +348,8 @@ sections:
     regions: [Thoracic]
   - id: LeftLumbarSplanchic
     regions: [Lumbar]
+  - id: LeftGenitofemoral
+    regions: [Lumbar, Pubic, LeftFemoral]
   - id: LeftOccipital
     regions: [Cervical, Cranial]
   - id: LeftGreatAricular
@@ -384,13 +386,13 @@ sections:
     regions: [Cervical]
   - id: LeftLateralBrachialPlexus
     regions: [LeftScapular, Thoracic]
-    downlink:
+    links:
       - LeftMedian
       - LeftMusculocutaneous
       - LeftLateralPectoral
   - id: LeftPosteriorBrachialPlexus
     regions: [LeftScapular, Thoracic]
-    downlink:
+    links:
       - LeftAxillary
       - LeftRadial
       - LeftUpperSubscapular
@@ -398,7 +400,7 @@ sections:
       - LeftLowerSubscapular
   - id: LeftMedialBrachialPlexus
     regions: [LeftScapular, Thoracic]
-    downlink:
+    links:
       - LeftMedian
       - LeftUlnar
       - LeftMedialPectoral
@@ -437,18 +439,18 @@ sections:
     regions: [Lumbar, LeftInguinal]
   - id: LeftGenitofemoral
     regions: [Lumbar, LeftFemoral]
-    downlink:
+    links:
       - LeftSaphenous
   - id: LeftObturator
     regions: [Lumbar]
   - id: LeftLumbarPlexus
     regions: [Lumbar]
-    downlink:
+    links:
       - LeftFemoral
       - LeftLateralFemoralCutaneous
   - id: LeftSacralPlexus
     regions: [Sacral]
-    downlink:
+    links:
       - LeftSciatic
       - LeftPosteriorFemoralCutaneous
   - id: LeftLateralFemoralCutaneous
@@ -459,11 +461,11 @@ sections:
     regions: [Lumbar, LeftFemoral]
   - id: LeftSciatic
     regions: [Sacral, LeftGluteal, LeftFemoral, LeftPopliteal]
-    downlink:
+    links:
       - LeftCommonFibular
   - id: LeftPudendal
     regions: [Sacral, LeftGluteal]
-    downlink:
+    links:
       - LeftInferiorRectal
   - id: LeftInferiorRectal
     regions: [Sacral, LeftGluteal]
@@ -471,7 +473,7 @@ sections:
     regions: [LeftFemoral, LeftPopliteal, LeftCrural, LeftTarsal]
   - id: LeftCommonFibular
     regions: [LeftPopliteal]
-    downlink:
+    links:
       - LeftSuperficialFibular
       - LeftDeepFibular
       - LeftSural
@@ -483,7 +485,7 @@ sections:
     regions: [LeftPopliteal, LeftSural, LeftTarsal, LeftPedal]
   - id: LeftTibial
     regions: [LeftPopliteal, LeftSural, LeftTarsal, LeftCalcaneal]
-    downlink:
+    links:
       - LeftPlantal
   - id: LeftPlantal
     regions: [LeftPlantar]
@@ -491,32 +493,32 @@ sections:
 
   - id: RightC1
     regions: [Cervical]
-    downlink:
+    links:
       - RightInternalCarotid
       - RightSympatheticChain
   - id: RightC2
     regions: [Cervical]
-    downlink:
+    links:
       - RightSympatheticChain
       - RightOccipital
       - RightGreatAricular
       - RightAnsaCervicalis
   - id: RightC3
     regions: [Cervical]
-    downlink:
+    links:
       - RightSympatheticChain
       - RightGreatAricular
       - RightSupraclavicular
       - RightPhrenic
   - id: RightC4
     regions: [Cervical]
-    downlink:
+    links:
       - RightSympatheticChain
       - RightSupraclavicular
       - RightPhrenic
   - id: RightC5
     regions: [Cervical]
-    downlink:
+    links:
       - RightSympatheticChain
       - RightPhrenic
       - RightLateralBrachialPlexus
@@ -525,7 +527,7 @@ sections:
       - RightSuprascapular
   - id: RightC6
     regions: [Cervical]
-    downlink:
+    links:
       - RightSympatheticChain
       - RightThoracodorsal
       - RightLateralBrachialPlexus
@@ -533,89 +535,89 @@ sections:
       - RightSuprascapular
   - id: RightC7
     regions: [Cervical]
-    downlink:
+    links:
       - RightSympatheticChain
       - RightThoracodorsal
       - RightLateralBrachialPlexus
       - RightPosteriorBrachialPlexus
   - id: RightC8
     regions: [Cervical]
-    downlink:
+    links:
       - RightSympatheticChain
       - RightThoracodorsal
       - RightPosteriorBrachialPlexus
       - RightMedialBrachialPlexus
   - id: RightT1
     regions: [Thoracic]
-    downlink:
+    links:
       - RightSympatheticChain
       - RightIntercostal1
       - RightMedialBrachialPlexus
   - id: RightT2
     regions: [Thoracic]
-    downlink:
+    links:
       - RightSympatheticChain
       - RightIntercostal2
   - id: RightT3
     regions: [Thoracic]
-    downlink:
+    links:
       - RightSympatheticChain
       - RightIntercostal3
   - id: RightT4
     regions: [Thoracic]
-    downlink:
+    links:
       - RightSympatheticChain
       - RightIntercostal4
   - id: RightT5
     regions: [Thoracic]
-    downlink:
+    links:
       - RightSympatheticChain
       - RightIntercostal5
   - id: RightT6
     regions: [Thoracic]
-    downlink:
+    links:
       - RightSympatheticChain
       - RightIntercostal6
   - id: RightT7
     regions: [Thoracic]
-    downlink:
+    links:
       - RightSympatheticChain
       - RightIntercostal7
   - id: RightT8
     regions: [Thoracic]
-    downlink:
+    links:
       - RightSympatheticChain
       - RightIntercostal8
   - id: RightT9
     regions: [Thoracic]
-    downlink:
+    links:
       - RightSympatheticChain
       - RightIntercostal9
   - id: RightT10
     regions: [Thoracic]
-    downlink:
+    links:
       - RightSympatheticChain
       - RightIntercostal10
   - id: RightT11
     regions: [Thoracic]
-    downlink:
+    links:
       - RightSympatheticChain
       - RightIntercostal11
   - id: RightT12
     regions: [Thoracic]
-    downlink:
+    links:
       - RightSympatheticChain
       - RightSubcostal
   - id: RightL1
     regions: [Lumbar]
-    downlink:
+    links:
       - RightSympatheticChain
       - RightIliohypogastric
       - RightIlioInguinal
-      - RightGenitoFemoral
+      - RightGenitofemoral
   - id: CaudaEquina
     regions: [Lumbar]
-    downlink:
+    links:
       - RightL2
       - RightL3
       - RightL4
@@ -627,60 +629,60 @@ sections:
       - RightS5
   - id: RightL2
     regions: [Lumbar]
-    downlink:
+    links:
       - RightSympatheticChain
       - RightLumbarPlexus
-      - RightGenitoFemoral
+      - RightGenitofemoral
       - RightObturator
   - id: RightL3
     regions: [Lumbar]
-    downlink:
+    links:
       - RightSympatheticChain
       - RightLumbarPlexus
       - RightObturator
   - id: RightL4
     regions: [Lumbar]
-    downlink:
+    links:
       - RightSympatheticChain
       - RightLumbarPlexus
       - RightSacralPlexus
       - RightObturator
   - id: RightL5
     regions: [Lumbar]
-    downlink:
+    links:
       - RightSympatheticChain
       - RightSacralPlexus
   - id: RightS1
     regions: [Sacral]
-    downlink:
+    links:
       - RightSympatheticChain
       - RightSacralPlexus
   - id: RightS2
     regions: [Sacral]
-    downlink:
+    links:
       - RightSympatheticChain
       - RightSacralPlexus
       - RightPudendal
   - id: RightS3
     regions: [Sacral]
-    downlink:
+    links:
       - RightSympatheticChain
       - RightSacralPlexus
       - RightPudendal
   - id: RightS4
     regions: [Sacral]
-    downlink:
+    links:
       - RightSympatheticChain
       - RightPudendal
   - id: RightS5
     regions: [Sacral]
-    downlink:
+    links:
       - RightSympatheticChain
   - id: RightInternalCarotid
     regions: [Cervical, Cranial]
   - id: RightSympatheticChain
     regions: [Cervical, Cranial, Thoracic, Lumbar, Sacral]
-    downlink:
+    links:
       - EsophagealPlexus
       - SuperficialCardiacPlexus
       - DeepCardiacPlexus
@@ -694,11 +696,11 @@ sections:
     regions: [Thoracic]
   - id: RightLesserThoracicSplanchic
     regions: [Thoracic]
-    downlink:
+    links:
       - CeliacPlexus
   - id: RightLeastThoracicSplanchic
     regions: [Thoracic]
-    downlink:
+    links:
       - RightRenalPlexus
       - SuperiorMesentericPlexus
       - RightIntermesentericPlexus
@@ -709,6 +711,8 @@ sections:
     regions: [Thoracic]
   - id: RightLumbarSplanchic
     regions: [Lumbar]
+  - id: RightGenitofemoral
+    regions: [Lumbar, Pubic, RightFemoral]
   - id: RightOccipital
     regions: [Cervical, Cranial]
   - id: RightGreatAricular
@@ -745,13 +749,13 @@ sections:
     regions: [Cervical]
   - id: RightLateralBrachialPlexus
     regions: [RightScapular, Thoracic]
-    downlink:
+    links:
       - RightMedian
       - RightMusculocutaneous
       - RightLateralPectoral
   - id: RightPosteriorBrachialPlexus
     regions: [RightScapular, Thoracic]
-    downlink:
+    links:
       - RightAxillary
       - RightRadial
       - RightUpperSubscapular
@@ -759,7 +763,7 @@ sections:
       - RightLowerSubscapular
   - id: RightMedialBrachialPlexus
     regions: [RightScapular, Thoracic]
-    downlink:
+    links:
       - RightMedian
       - RightUlnar
       - RightMedialPectoral
@@ -798,18 +802,18 @@ sections:
     regions: [Lumbar, RightInguinal]
   - id: RightGenitofemoral
     regions: [Lumbar, RightFemoral]
-    downlink:
+    links:
       - RightSaphenous
   - id: RightObturator
     regions: [Lumbar]
   - id: RightLumbarPlexus
     regions: [Lumbar]
-    downlink:
+    links:
       - RightFemoral
       - RightLateralFemoralCutaneous
   - id: RightSacralPlexus
     regions: [Sacral]
-    downlink:
+    links:
       - RightSciatic
       - RightPosteriorFemoralCutaneous
   - id: RightLateralFemoralCutaneous
@@ -820,11 +824,11 @@ sections:
     regions: [Lumbar, RightFemoral]
   - id: RightSciatic
     regions: [Sacral, RightGluteal, RightFemoral, RightPopliteal]
-    downlink:
+    links:
       - RightCommonFibular
   - id: RightPudendal
     regions: [Sacral, RightGluteal]
-    downlink:
+    links:
       - RightInferiorRectal
   - id: RightInferiorRectal
     regions: [Sacral, RightGluteal]
@@ -832,7 +836,7 @@ sections:
     regions: [RightFemoral, RightPopliteal, RightCrural, RightTarsal]
   - id: RightCommonFibular
     regions: [RightPopliteal]
-    downlink:
+    links:
       - RightSuperficialFibular
       - RightDeepFibular
       - RightSural
@@ -844,7 +848,7 @@ sections:
     regions: [RightPopliteal, RightSural, RightTarsal, RightPedal]
   - id: RightTibial
     regions: [RightPopliteal, RightSural, RightTarsal, RightCalcaneal]
-    downlink:
+    links:
       - RightPlantal
   - id: RightPlantal
     regions: [RightPlantar]

@@ -11,8 +11,6 @@ use crate::sim::layer::closed_circulation::{
 
 use super::HumanAnatomicalRegion;
 
-// pub type HumanCirculationSim = ClosedCirculationSim<HumanBloodVessel>;
-
 #[derive(Debug, Display, Hash, Clone, Copy, PartialEq, Eq, EnumString, IntoStaticStr)]
 pub enum HumanBloodVessel {
     Aorta,
@@ -283,6 +281,9 @@ lazy_static! {
         vessel_list.insert(HumanBloodVessel::LeftFibularArtery);
         vessel_list
     };
+}
+
+lazy_static! {
 
     static ref AORTA_UPSTREAM: HashSet<HumanBloodVessel> = {
         HashSet::new()
@@ -958,6 +959,9 @@ lazy_static! {
         
     };
 
+}
+
+lazy_static! {
 
     static ref AORTA_DOWNSTREAM: HashSet<HumanBloodVessel> = {
         let mut vessel_list = HashSet::new();
@@ -1631,6 +1635,9 @@ lazy_static! {
         
     };
 
+}
+
+lazy_static! {
 
     static ref AORTA_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();

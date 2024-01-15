@@ -75,8 +75,6 @@ use crate::sim::layer::closed_circulation::{
 
 use super::${namespaceCapitalized}AnatomicalRegion;
 
-// pub type ${namespaceCapitalized}CirculationSim = ClosedCirculationSim<HumanBloodVessel>;
-
 #[derive(Debug, Display, Hash, Clone, Copy, PartialEq, Eq, EnumString, IntoStaticStr)]
 pub enum ${vesselEnum} {
     ${Object.keys(arteries).join(',\n    ')},
@@ -125,6 +123,9 @@ lazy_static! {
             .join('\n        ')}
         vessel_list
     };
+}
+
+lazy_static! {
 ${allVessels.map(v => `
     static ref ${v.id.toUpperCase()}_UPSTREAM: HashSet<${vesselEnum}> = {
         ${v.upstream.length > 0 ? `let mut vessel_list = HashSet::new();
@@ -134,6 +135,9 @@ ${allVessels.map(v => `
         `HashSet::new()`}
     };
 `).join('')}
+}
+
+lazy_static! {
 ${allVessels.filter(v => v.downstream).map(v => `
     static ref ${v.id.toUpperCase()}_DOWNSTREAM: HashSet<${vesselEnum}> = {
         ${v.downstream.length > 0 ? `let mut vessel_list = HashSet::new();
@@ -143,6 +147,9 @@ ${allVessels.filter(v => v.downstream).map(v => `
         `HashSet::new()`}
     };
 `).join('')}
+}
+
+lazy_static! {
 ${allVessels.map(v => `
     static ref ${v.id.toUpperCase()}_REGIONS: HashSet<${anatomyEnum}> = {
         let mut region_list = HashSet::new();

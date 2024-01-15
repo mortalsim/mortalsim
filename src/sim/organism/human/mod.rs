@@ -4,6 +4,9 @@ pub use anatomy::HumanAnatomicalRegion;
 mod human_circulation;
 pub use human_circulation::HumanBloodVessel;
 
+mod human_nervous;
+pub use human_nervous::HumanNerve;
+
 use super::Organism;
 
 pub mod component;
