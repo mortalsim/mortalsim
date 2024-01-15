@@ -15,6 +15,7 @@ pub struct HumanSim {}
 
 impl Organism for HumanSim {
     type VesselType = HumanBloodVessel;
+    type NerveType = HumanNerve;
     type AnatomyType = HumanAnatomicalRegion;
 }
 

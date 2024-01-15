@@ -4,11 +4,8 @@
  * SOURCE: config/human/nervous_system.yaml
  */
 use std::collections::HashSet;
-
-use crate::sim::layer::nervous::{
-    Nerve, NerveIter, AnatomicalRegionIter
-};
-
+use crate::sim::layer::nervous::{Nerve, NerveIter};
+use crate::sim::layer::AnatomicalRegionIter;
 use super::HumanAnatomicalRegion;
 
 #[derive(Debug, Display, Hash, Clone, Copy, PartialEq, Eq, EnumString, IntoStaticStr)]

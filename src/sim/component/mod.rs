@@ -2,7 +2,8 @@ pub mod registry;
 pub mod wrapper;
 
 use self::registry::ComponentRegistry;
-use super::{SimConnector, organism::{Organism, generic::GenericSim}};
+use super::SimConnector;
+use super::organism::Organism;
 
 /// Trait to be used by any modules for Sim objects
 pub trait SimComponent<O: Organism> {

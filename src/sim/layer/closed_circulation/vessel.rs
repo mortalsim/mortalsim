@@ -3,6 +3,8 @@ use std::fmt;
 use std::hash::Hash;
 use std::str::FromStr;
 
+use crate::sim::layer::AnatomicalRegionIter;
+
 pub trait BloodVessel:
     FromStr + Hash + Clone + Copy + Eq + fmt::Debug + fmt::Display + Send + Sync + Into<&'static str>
 {
@@ -40,15 +42,6 @@ impl<'a, V: BloodVessel> Iterator for VesselIter<'a, V> {
 impl<'a, V: BloodVessel> ExactSizeIterator for VesselIter<'a, V> {
     fn len(&self) -> usize {
         self.0.len()
-    }
-}
-
-pub struct AnatomicalRegionIter<'a, T: Clone>(pub hash_set::Iter<'a, T>);
-
-impl<'a, T: Clone> Iterator for AnatomicalRegionIter<'a, T> {
-    type Item = T;
-    fn next(&mut self) -> Option<T> {
-        Some(self.0.next()?.clone())
     }
 }
 

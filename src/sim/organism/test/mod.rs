@@ -1,6 +1,8 @@
 use std::collections::HashSet;
 
-use crate::sim::layer::closed_circulation::{BloodVessel, VesselIter, BloodVesselType, AnatomicalRegionIter};
+use crate::sim::layer::closed_circulation::{BloodVessel, VesselIter, BloodVesselType};
+use crate::sim::layer::nervous::{Nerve, NerveIter};
+use crate::sim::layer::AnatomicalRegionIter;
 
 use super::Organism;
 
@@ -8,6 +10,7 @@ pub struct TestSim;
 
 impl Organism for TestSim {
     type VesselType = TestBloodVessel;
+    type NerveType = TestNerve;
     type AnatomyType = TestAnatomicalRegion;
 }
 
@@ -27,77 +30,57 @@ lazy_static! {
         vessel_list.insert(TestBloodVessel::Aorta);
         vessel_list
     };
-}
 
-lazy_static! {
     static ref ARTERIES: HashSet<TestBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(TestBloodVessel::Aorta);
         vessel_list
     };
-}
 
-lazy_static! {
     static ref VEINS: HashSet<TestBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(TestBloodVessel::VenaCava);
         vessel_list
     };
-}
 
-lazy_static! {
     static ref PRE_CAPILLARIES: HashSet<TestBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(TestBloodVessel::Aorta);
         vessel_list
     };
-}
 
-lazy_static! {
     static ref POST_CAPILLARIES: HashSet<TestBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(TestBloodVessel::VenaCava);
         vessel_list
     };
-}
 
-lazy_static! {
     static ref AORTA_UPSTREAM: HashSet<TestBloodVessel> = {
         HashSet::new()
     };
-}
 
-lazy_static! {
     static ref VENACAVA_UPSTREAM: HashSet<TestBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(TestBloodVessel::Aorta);
         vessel_list
     };
-}
 
-lazy_static! {
     static ref AORTA_DOWNSTREAM: HashSet<TestBloodVessel> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(TestBloodVessel::VenaCava);
         vessel_list
     };
-}
 
-lazy_static! {
     static ref VENACAVA_DOWNSTREAM: HashSet<TestBloodVessel> = {
         HashSet::new()
     };
-}
 
-lazy_static! {
     static ref AORTA_REGIONS: HashSet<TestAnatomicalRegion> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(TestAnatomicalRegion::Torso);
         vessel_list
     };
-}
 
-lazy_static! {
     static ref VENACAVA_REGIONS: HashSet<TestAnatomicalRegion> = {
         let mut vessel_list = HashSet::new();
         vessel_list.insert(TestAnatomicalRegion::Torso);
@@ -156,4 +139,80 @@ impl BloodVessel for TestBloodVessel {
             TestBloodVessel::VenaCava => AnatomicalRegionIter(VENACAVA_REGIONS.iter()),
         }
     }
+}
+
+#[derive(Debug, Display, Hash, Clone, Copy, PartialEq, Eq, EnumString, IntoStaticStr)]
+pub enum TestNerve {
+    Brain,
+    SpinalCord,
+}
+
+lazy_static! {
+    static ref TERMINAL_NERVES: HashSet<TestNerve> = {
+        let mut nerve_list = HashSet::new();
+        nerve_list.insert(TestNerve::SpinalCord);
+        nerve_list
+    };
+
+    static ref BRAIN_UPLINK: HashSet<TestNerve> = {
+        HashSet::new()
+    };
+
+    static ref SPINALCORD_UPLINK: HashSet<TestNerve> = {
+        let mut nerve_list = HashSet::new();
+        nerve_list.insert(TestNerve::Brain);
+        nerve_list
+    };
+
+    static ref BRAIN_DOWNLINK: HashSet<TestNerve> = {
+        let mut nerve_list = HashSet::new();
+        nerve_list.insert(TestNerve::SpinalCord);
+        nerve_list
+    };
+
+    static ref SPINALCORD_DOWNLINK: HashSet<TestNerve> = {
+        HashSet::new()
+    };
+
+    static ref BRAIN_REGIONS: HashSet<TestAnatomicalRegion> = {
+        let mut region_list = HashSet::new();
+        region_list.insert(TestAnatomicalRegion::Head);
+        region_list
+    };
+
+    static ref SPINALCORD_REGIONS: HashSet<TestAnatomicalRegion> = {
+        let mut region_list = HashSet::new();
+        region_list.insert(TestAnatomicalRegion::Torso);
+        region_list
+    };
+}
+
+impl Nerve for TestNerve {
+    type AnatomyType = TestAnatomicalRegion;
+
+    fn terminal_nerves<'a>() -> NerveIter<'a, Self> {
+        NerveIter(TERMINAL_NERVES.iter())
+    }
+
+    fn uplink<'a>(&self) -> NerveIter<'a, Self> {
+        match self {
+            TestNerve::Brain => NerveIter(BRAIN_UPLINK.iter()),
+            TestNerve::SpinalCord => NerveIter(SPINALCORD_UPLINK.iter()),
+        }
+    }
+
+    fn downlink<'a>(&self) -> NerveIter<'a, Self> {
+        match self {
+            TestNerve::Brain => NerveIter(BRAIN_DOWNLINK.iter()),
+            TestNerve::SpinalCord => NerveIter(SPINALCORD_DOWNLINK.iter()),
+        }
+    }
+
+    fn regions<'a>(&self) -> AnatomicalRegionIter<Self::AnatomyType> {
+        match self {
+            TestNerve::Brain => AnatomicalRegionIter(BRAIN_REGIONS.iter()),
+            TestNerve::SpinalCord => AnatomicalRegionIter(SPINALCORD_REGIONS.iter()),
+        }
+    }
+
 }

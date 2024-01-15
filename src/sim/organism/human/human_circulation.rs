@@ -4,11 +4,8 @@
  * SOURCE: config/human/circulation.yaml
  */
 use std::collections::{HashMap, HashSet};
-
-use crate::sim::layer::closed_circulation::{
-    BloodVesselType, BloodVessel, VesselIter, AnatomicalRegionIter
-};
-
+use crate::sim::layer::closed_circulation::{BloodVesselType, BloodVessel, VesselIter};
+use crate::sim::layer::AnatomicalRegionIter;
 use super::HumanAnatomicalRegion;
 
 #[derive(Debug, Display, Hash, Clone, Copy, PartialEq, Eq, EnumString, IntoStaticStr)]

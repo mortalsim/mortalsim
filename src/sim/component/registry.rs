@@ -1,4 +1,3 @@
-use crate::sim::organism::generic::GenericSim;
 use crate::sim::{layer::core::component::CoreComponent, organism::Organism};
 use crate::sim::layer::closed_circulation::ClosedCircComponent;
 use std::collections::HashMap;

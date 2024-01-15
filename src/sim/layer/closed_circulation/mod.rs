@@ -10,5 +10,5 @@ pub mod vessel;
 pub use component::{ClosedCircConnector, ClosedCircInitializer, ClosedCircComponent, BloodStore};
 // pub use closed_circulation_layer::ClosedCirculationLayer;
 // pub use system::{ClosedCircVesselIter, ClosedCirculatorySystem};
-pub use vessel::{BloodVessel, VesselIter, AnatomicalRegionIter, BloodVesselType, DummyVessel};
+pub use vessel::{BloodVessel, VesselIter, BloodVesselType, DummyVessel};
 

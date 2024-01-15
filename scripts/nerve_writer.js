@@ -39,11 +39,8 @@ function writeNeuralFile(namespace, config) {
  * SOURCE: config/${namespace}/nervous_system.yaml
  */
 use std::collections::HashSet;
-
-use crate::sim::layer::nervous::{
-    Nerve, NerveIter, AnatomicalRegionIter
-};
-
+use crate::sim::layer::nervous::{Nerve, NerveIter};
+use crate::sim::layer::AnatomicalRegionIter;
 use super::${namespaceCapitalized}AnatomicalRegion;
 
 #[derive(Debug, Display, Hash, Clone, Copy, PartialEq, Eq, EnumString, IntoStaticStr)]

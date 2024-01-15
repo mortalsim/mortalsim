@@ -2,7 +2,6 @@ use crate::event::Event;
 use crate::sim::component::SimComponentProcessor;
 use crate::sim::SimConnector;
 use crate::sim::organism::Organism;
-use crate::sim::organism::generic::GenericSim;
 use crate::util::id_gen::{IdType, InvalidIdError};
 use anyhow::Result;
 use either::Either;

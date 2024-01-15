@@ -1,4 +1,3 @@
 
 pub mod nerve;
-
-pub use nerve::{Nerve, NerveIter, AnatomicalRegionIter};
+pub use nerve::{Nerve, NerveIter};

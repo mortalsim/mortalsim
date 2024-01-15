@@ -3,7 +3,7 @@ use std::{marker::PhantomData, collections::HashSet};
 use crate::sim::layer::core::component::{CoreComponent, CoreComponentInitializer, CoreConnector};
 use crate::sim::layer::SimLayer;
 use crate::sim::layer::closed_circulation::{ClosedCircComponent, ClosedCircInitializer, ClosedCircConnector, BloodVessel, DummyVessel};
-use crate::sim::organism::{generic::GenericSim, Organism};
+use crate::sim::organism::Organism;
 use crate::sim::component::{registry::ComponentRegistry, SimComponent};
 
 use super::ComponentWrapper;
