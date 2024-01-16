@@ -4,7 +4,10 @@ pub use connector::ClosedCircConnector;
 pub use connector::BloodStore;
 pub use initializer::ClosedCircInitializer;
 
-use crate::{sim::{component::SimComponent, organism::Organism}, substance::SubstanceConcentration, util::{mmol_per_L, math}};
+use crate::sim::component::SimComponent;
+use crate::sim::organism::Organism;
+use crate::substance::SubstanceConcentration;
+use crate::util::{mmol_per_L, math};
 
 use super::vessel::BloodVessel;
 
