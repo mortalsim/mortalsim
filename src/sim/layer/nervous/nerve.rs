@@ -1,12 +1,19 @@
 use std::any::{Any, TypeId};
+use std::borrow::BorrowMut;
 use std::collections::hash_set;
-use std::fmt;
+use std::{fmt, vec};
 use std::hash::Hash;
 use std::str::FromStr;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
+use downcast_rs::DowncastSync;
+use uuid::Uuid;
+
+use crate::event::Event;
+use crate::sim::SimTime;
 use crate::sim::layer::AnatomicalRegionIter;
 use crate::sim::organism::Organism;
+use crate::util::{IdType, IdGenerator};
 
 pub trait Nerve:
     FromStr + Hash + Clone + Copy + Eq + fmt::Debug + fmt::Display + Send + Sync + Into<&'static str>
@@ -18,7 +25,7 @@ pub trait Nerve:
     fn regions<'a>(&self) -> AnatomicalRegionIter<Self::AnatomyType>;
 }
 
-pub struct NerveIter<'a, N: Nerve>(pub hash_set::Iter<'a, N>);
+pub struct NerveIter<'a, N: Nerve>(pub core::slice::Iter<'a, N>);
 
 impl<'a, N: Nerve> Iterator for NerveIter<'a, N> {
     type Item = N;
@@ -33,13 +40,16 @@ impl<'a, N: Nerve> ExactSizeIterator for NerveIter<'a, N> {
     }
 }
 
-pub struct NerveSignal<O: Organism> {
+pub struct NerveSignal<O: Organism>  {
+    id: Uuid,
     path: Vec<O::NerveType>,
-    message: Arc<dyn Any>,
+    message: Box<dyn Event>,
+    send_time: SimTime,
+    blocked: bool,
 }
 
-impl<O: Organism> NerveSignal<O> {
-    pub fn new<T: 'static>(neural_path: Vec<O::NerveType>, message: T) -> anyhow::Result<Self> {
+impl<O: Organism + 'static> NerveSignal<O> {
+    pub fn new<T: Event>(message: T, neural_path: Vec<O::NerveType>, send_time: SimTime) -> anyhow::Result<Self> {
         if neural_path.is_empty() {
             return Err(anyhow!("Neural path cannot be empty!"));
         }
@@ -53,20 +63,54 @@ impl<O: Organism> NerveSignal<O> {
         }
 
         Ok(Self {
+            id: Uuid::new_v4(),
             path: neural_path,
-            message: Arc::new(message),
+            message: Box::new(message),
+            send_time,
+            blocked: false,
         })
     }
 
-    pub fn neural_path(&self) -> impl Iterator<Item = &O::NerveType> {
-        self.path.iter()
+    pub fn id(&self) -> &Uuid {
+        &self.id
+    }
+
+    pub fn is_blocked(&self) -> bool {
+        self.blocked
+    }
+    
+    pub fn block(&mut self) {
+        self.blocked = true;
+    }
+    
+    pub fn unblock(&mut self) {
+        self.blocked = false;
+    }
+
+    pub fn neural_path(&self) -> NerveIter<O::NerveType> {
+        NerveIter(self.path.iter())
+    }
+    
+    pub fn send_time(&self) -> SimTime {
+        self.send_time
     }
 
     pub fn type_id(&self) -> TypeId {
         self.message.type_id()
     }
 
-    pub fn message<'a, T: 'static>(&'a self) -> &'a T {
-        self.message.downcast_ref::<T>().expect("Invalid NerveSignal downcast")
+    pub fn message<T: Event>(&self) -> &'_ T {
+        self.message.downcast_ref::<T>().expect("Invalid message type")
+    }
+
+    pub fn message_mut<T: Event>(&mut self) -> &'_ mut T {
+        self.message.downcast_mut::<T>().expect("Invalid message type")
+    }
+
+    pub fn into_message<T: Event>(self) -> anyhow::Result<T> {
+        match self.message.downcast::<T>() {
+            Ok(msg) => Ok(*msg),
+            Err(_) => Err(anyhow!("Invalid message type attempted"))
+        }
     }
 }

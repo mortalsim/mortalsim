@@ -49,11 +49,11 @@ pub enum ${nerveEnum} {
 }
 
 lazy_static! {
-    static ref TERMINAL_NERVES: HashSet<${nerveEnum}> = {
-        let mut nerve_list = HashSet::new();
+    static ref TERMINAL_NERVES: Vec<${nerveEnum}> = {
+        let mut nerve_list = Vec::new();
         ${allNerves
             .filter(a => a.downlink.length == 0)
-            .map(a => `nerve_list.insert(${nerveEnum}::${a.id});`)
+            .map(a => `nerve_list.push(${nerveEnum}::${a.id});`)
             .join('\n        ')}
         nerve_list
     };
@@ -61,24 +61,24 @@ lazy_static! {
 
 lazy_static! {
 ${allNerves.map(n => `
-    static ref ${n.id.toUpperCase()}_UPLINK: HashSet<${nerveEnum}> = {
-        ${n.uplink.length > 0 ? `let mut nerve_list = HashSet::new();
-        ${n.uplink.map(x => `nerve_list.insert(${nerveEnum}::${x});`).join('\n        ')}
+    static ref ${n.id.toUpperCase()}_UPLINK: Vec<${nerveEnum}> = {
+        ${n.uplink.length > 0 ? `let mut nerve_list = Vec::new();
+        ${n.uplink.map(x => `nerve_list.push(${nerveEnum}::${x});`).join('\n        ')}
         nerve_list
         ` :
-        `HashSet::new()`}
+        `Vec::new()`}
     };
 `).join('')}
 }
 
 lazy_static! {
 ${allNerves.filter(n => n.downlink).map(n => `
-    static ref ${n.id.toUpperCase()}_DOWNLINK: HashSet<${nerveEnum}> = {
-        ${n.downlink.length > 0 ? `let mut nerve_list = HashSet::new();
-        ${n.downlink.map(x => `nerve_list.insert(${nerveEnum}::${x});`).join('\n        ')}
+    static ref ${n.id.toUpperCase()}_DOWNLINK: Vec<${nerveEnum}> = {
+        ${n.downlink.length > 0 ? `let mut nerve_list = Vec::new();
+        ${n.downlink.map(x => `nerve_list.push(${nerveEnum}::${x});`).join('\n        ')}
         nerve_list
         ` :
-        `HashSet::new()`}
+        `Vec::new()`}
     };
 `).join('')}
 }

@@ -148,30 +148,30 @@ pub enum TestNerve {
 }
 
 lazy_static! {
-    static ref TERMINAL_NERVES: HashSet<TestNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(TestNerve::SpinalCord);
+    static ref TERMINAL_NERVES: Vec<TestNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(TestNerve::SpinalCord);
         nerve_list
     };
 
-    static ref BRAIN_UPLINK: HashSet<TestNerve> = {
-        HashSet::new()
+    static ref BRAIN_UPLINK: Vec<TestNerve> = {
+        Vec::new()
     };
 
-    static ref SPINALCORD_UPLINK: HashSet<TestNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(TestNerve::Brain);
+    static ref SPINALCORD_UPLINK: Vec<TestNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(TestNerve::Brain);
         nerve_list
     };
 
-    static ref BRAIN_DOWNLINK: HashSet<TestNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(TestNerve::SpinalCord);
+    static ref BRAIN_DOWNLINK: Vec<TestNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(TestNerve::SpinalCord);
         nerve_list
     };
 
-    static ref SPINALCORD_DOWNLINK: HashSet<TestNerve> = {
-        HashSet::new()
+    static ref SPINALCORD_DOWNLINK: Vec<TestNerve> = {
+        Vec::new()
     };
 
     static ref BRAIN_REGIONS: HashSet<TestAnatomicalRegion> = {

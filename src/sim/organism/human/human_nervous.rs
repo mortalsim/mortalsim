@@ -223,2319 +223,2319 @@ pub enum HumanNerve {
 }
 
 lazy_static! {
-    static ref TERMINAL_NERVES: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightOcculomotor);
-        nerve_list.insert(HumanNerve::LeftOcculomotor);
-        nerve_list.insert(HumanNerve::LeftTrigeminal);
-        nerve_list.insert(HumanNerve::RightTrigeminal);
-        nerve_list.insert(HumanNerve::LeftFacial);
-        nerve_list.insert(HumanNerve::RightFacial);
-        nerve_list.insert(HumanNerve::LeftHypoglossal);
-        nerve_list.insert(HumanNerve::RightHypoglossal);
-        nerve_list.insert(HumanNerve::LeftSuperiorLaryngeal);
-        nerve_list.insert(HumanNerve::LeftRecurrentLaryngeal);
-        nerve_list.insert(HumanNerve::RightSuperiorLaryngeal);
-        nerve_list.insert(HumanNerve::RightRecurrentLaryngeal);
-        nerve_list.insert(HumanNerve::EsophagealPlexus);
-        nerve_list.insert(HumanNerve::SuperficialCardiacPlexus);
-        nerve_list.insert(HumanNerve::PulmonaryPlexus);
-        nerve_list.insert(HumanNerve::CeliacPlexus);
-        nerve_list.insert(HumanNerve::SuperiorMesentericPlexus);
-        nerve_list.insert(HumanNerve::InferiorMesentericPlexus);
-        nerve_list.insert(HumanNerve::HypogastricPlexus);
-        nerve_list.insert(HumanNerve::LeftSpinalAccessory);
-        nerve_list.insert(HumanNerve::RightSpinalAccessory);
-        nerve_list.insert(HumanNerve::LeftInternalCarotid);
-        nerve_list.insert(HumanNerve::LeftGreaterThoracicSplanchic);
-        nerve_list.insert(HumanNerve::LeftRenalPlexus);
-        nerve_list.insert(HumanNerve::LeftIntermesentericPlexus);
-        nerve_list.insert(HumanNerve::LeftLumbarSplanchic);
-        nerve_list.insert(HumanNerve::LeftOccipital);
-        nerve_list.insert(HumanNerve::LeftGreatAricular);
-        nerve_list.insert(HumanNerve::LeftAnsaCervicalis);
-        nerve_list.insert(HumanNerve::LeftIntercostal1);
-        nerve_list.insert(HumanNerve::LeftIntercostal2);
-        nerve_list.insert(HumanNerve::LeftIntercostal3);
-        nerve_list.insert(HumanNerve::LeftIntercostal4);
-        nerve_list.insert(HumanNerve::LeftIntercostal5);
-        nerve_list.insert(HumanNerve::LeftIntercostal6);
-        nerve_list.insert(HumanNerve::LeftIntercostal7);
-        nerve_list.insert(HumanNerve::LeftIntercostal8);
-        nerve_list.insert(HumanNerve::LeftIntercostal9);
-        nerve_list.insert(HumanNerve::LeftIntercostal10);
-        nerve_list.insert(HumanNerve::LeftIntercostal11);
-        nerve_list.insert(HumanNerve::LeftSubcostal);
-        nerve_list.insert(HumanNerve::LeftSupraclavicular);
-        nerve_list.insert(HumanNerve::LeftPhrenic);
-        nerve_list.insert(HumanNerve::LeftAxillary);
-        nerve_list.insert(HumanNerve::LeftMusculocutaneous);
-        nerve_list.insert(HumanNerve::LeftMedian);
-        nerve_list.insert(HumanNerve::LeftRadial);
-        nerve_list.insert(HumanNerve::LeftUlnar);
-        nerve_list.insert(HumanNerve::LeftUpperSubscapular);
-        nerve_list.insert(HumanNerve::LeftLowerSubscapular);
-        nerve_list.insert(HumanNerve::LeftThoracodorsal);
-        nerve_list.insert(HumanNerve::LeftDorsalScapular);
-        nerve_list.insert(HumanNerve::LeftLongThoracic);
-        nerve_list.insert(HumanNerve::LeftSuprascapular);
-        nerve_list.insert(HumanNerve::LeftLateralPectoral);
-        nerve_list.insert(HumanNerve::LeftMedialPectoral);
-        nerve_list.insert(HumanNerve::LeftMedialCutaneous);
-        nerve_list.insert(HumanNerve::LeftIliohypogastric);
-        nerve_list.insert(HumanNerve::LeftIlioInguinal);
-        nerve_list.insert(HumanNerve::LeftObturator);
-        nerve_list.insert(HumanNerve::LeftLateralFemoralCutaneous);
-        nerve_list.insert(HumanNerve::LeftPosteriorFemoralCutaneous);
-        nerve_list.insert(HumanNerve::LeftFemoral);
-        nerve_list.insert(HumanNerve::LeftInferiorRectal);
-        nerve_list.insert(HumanNerve::LeftSaphenous);
-        nerve_list.insert(HumanNerve::LeftSuperficialFibular);
-        nerve_list.insert(HumanNerve::LeftDeepFibular);
-        nerve_list.insert(HumanNerve::LeftSural);
-        nerve_list.insert(HumanNerve::LeftPlantal);
-        nerve_list.insert(HumanNerve::RightInternalCarotid);
-        nerve_list.insert(HumanNerve::RightGreaterThoracicSplanchic);
-        nerve_list.insert(HumanNerve::RightRenalPlexus);
-        nerve_list.insert(HumanNerve::RightIntermesentericPlexus);
-        nerve_list.insert(HumanNerve::RightLumbarSplanchic);
-        nerve_list.insert(HumanNerve::RightOccipital);
-        nerve_list.insert(HumanNerve::RightGreatAricular);
-        nerve_list.insert(HumanNerve::RightAnsaCervicalis);
-        nerve_list.insert(HumanNerve::RightIntercostal1);
-        nerve_list.insert(HumanNerve::RightIntercostal2);
-        nerve_list.insert(HumanNerve::RightIntercostal3);
-        nerve_list.insert(HumanNerve::RightIntercostal4);
-        nerve_list.insert(HumanNerve::RightIntercostal5);
-        nerve_list.insert(HumanNerve::RightIntercostal6);
-        nerve_list.insert(HumanNerve::RightIntercostal7);
-        nerve_list.insert(HumanNerve::RightIntercostal8);
-        nerve_list.insert(HumanNerve::RightIntercostal9);
-        nerve_list.insert(HumanNerve::RightIntercostal10);
-        nerve_list.insert(HumanNerve::RightIntercostal11);
-        nerve_list.insert(HumanNerve::RightSubcostal);
-        nerve_list.insert(HumanNerve::RightSupraclavicular);
-        nerve_list.insert(HumanNerve::RightPhrenic);
-        nerve_list.insert(HumanNerve::RightAxillary);
-        nerve_list.insert(HumanNerve::RightMusculocutaneous);
-        nerve_list.insert(HumanNerve::RightMedian);
-        nerve_list.insert(HumanNerve::RightRadial);
-        nerve_list.insert(HumanNerve::RightUlnar);
-        nerve_list.insert(HumanNerve::RightUpperSubscapular);
-        nerve_list.insert(HumanNerve::RightLowerSubscapular);
-        nerve_list.insert(HumanNerve::RightThoracodorsal);
-        nerve_list.insert(HumanNerve::RightDorsalScapular);
-        nerve_list.insert(HumanNerve::RightLongThoracic);
-        nerve_list.insert(HumanNerve::RightSuprascapular);
-        nerve_list.insert(HumanNerve::RightLateralPectoral);
-        nerve_list.insert(HumanNerve::RightMedialPectoral);
-        nerve_list.insert(HumanNerve::RightMedialCutaneous);
-        nerve_list.insert(HumanNerve::RightIliohypogastric);
-        nerve_list.insert(HumanNerve::RightIlioInguinal);
-        nerve_list.insert(HumanNerve::RightObturator);
-        nerve_list.insert(HumanNerve::RightLateralFemoralCutaneous);
-        nerve_list.insert(HumanNerve::RightPosteriorFemoralCutaneous);
-        nerve_list.insert(HumanNerve::RightFemoral);
-        nerve_list.insert(HumanNerve::RightInferiorRectal);
-        nerve_list.insert(HumanNerve::RightSaphenous);
-        nerve_list.insert(HumanNerve::RightSuperficialFibular);
-        nerve_list.insert(HumanNerve::RightDeepFibular);
-        nerve_list.insert(HumanNerve::RightSural);
-        nerve_list.insert(HumanNerve::RightPlantal);
+    static ref TERMINAL_NERVES: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightOcculomotor);
+        nerve_list.push(HumanNerve::LeftOcculomotor);
+        nerve_list.push(HumanNerve::LeftTrigeminal);
+        nerve_list.push(HumanNerve::RightTrigeminal);
+        nerve_list.push(HumanNerve::LeftFacial);
+        nerve_list.push(HumanNerve::RightFacial);
+        nerve_list.push(HumanNerve::LeftHypoglossal);
+        nerve_list.push(HumanNerve::RightHypoglossal);
+        nerve_list.push(HumanNerve::LeftSuperiorLaryngeal);
+        nerve_list.push(HumanNerve::LeftRecurrentLaryngeal);
+        nerve_list.push(HumanNerve::RightSuperiorLaryngeal);
+        nerve_list.push(HumanNerve::RightRecurrentLaryngeal);
+        nerve_list.push(HumanNerve::EsophagealPlexus);
+        nerve_list.push(HumanNerve::SuperficialCardiacPlexus);
+        nerve_list.push(HumanNerve::PulmonaryPlexus);
+        nerve_list.push(HumanNerve::CeliacPlexus);
+        nerve_list.push(HumanNerve::SuperiorMesentericPlexus);
+        nerve_list.push(HumanNerve::InferiorMesentericPlexus);
+        nerve_list.push(HumanNerve::HypogastricPlexus);
+        nerve_list.push(HumanNerve::LeftSpinalAccessory);
+        nerve_list.push(HumanNerve::RightSpinalAccessory);
+        nerve_list.push(HumanNerve::LeftInternalCarotid);
+        nerve_list.push(HumanNerve::LeftGreaterThoracicSplanchic);
+        nerve_list.push(HumanNerve::LeftRenalPlexus);
+        nerve_list.push(HumanNerve::LeftIntermesentericPlexus);
+        nerve_list.push(HumanNerve::LeftLumbarSplanchic);
+        nerve_list.push(HumanNerve::LeftOccipital);
+        nerve_list.push(HumanNerve::LeftGreatAricular);
+        nerve_list.push(HumanNerve::LeftAnsaCervicalis);
+        nerve_list.push(HumanNerve::LeftIntercostal1);
+        nerve_list.push(HumanNerve::LeftIntercostal2);
+        nerve_list.push(HumanNerve::LeftIntercostal3);
+        nerve_list.push(HumanNerve::LeftIntercostal4);
+        nerve_list.push(HumanNerve::LeftIntercostal5);
+        nerve_list.push(HumanNerve::LeftIntercostal6);
+        nerve_list.push(HumanNerve::LeftIntercostal7);
+        nerve_list.push(HumanNerve::LeftIntercostal8);
+        nerve_list.push(HumanNerve::LeftIntercostal9);
+        nerve_list.push(HumanNerve::LeftIntercostal10);
+        nerve_list.push(HumanNerve::LeftIntercostal11);
+        nerve_list.push(HumanNerve::LeftSubcostal);
+        nerve_list.push(HumanNerve::LeftSupraclavicular);
+        nerve_list.push(HumanNerve::LeftPhrenic);
+        nerve_list.push(HumanNerve::LeftAxillary);
+        nerve_list.push(HumanNerve::LeftMusculocutaneous);
+        nerve_list.push(HumanNerve::LeftMedian);
+        nerve_list.push(HumanNerve::LeftRadial);
+        nerve_list.push(HumanNerve::LeftUlnar);
+        nerve_list.push(HumanNerve::LeftUpperSubscapular);
+        nerve_list.push(HumanNerve::LeftLowerSubscapular);
+        nerve_list.push(HumanNerve::LeftThoracodorsal);
+        nerve_list.push(HumanNerve::LeftDorsalScapular);
+        nerve_list.push(HumanNerve::LeftLongThoracic);
+        nerve_list.push(HumanNerve::LeftSuprascapular);
+        nerve_list.push(HumanNerve::LeftLateralPectoral);
+        nerve_list.push(HumanNerve::LeftMedialPectoral);
+        nerve_list.push(HumanNerve::LeftMedialCutaneous);
+        nerve_list.push(HumanNerve::LeftIliohypogastric);
+        nerve_list.push(HumanNerve::LeftIlioInguinal);
+        nerve_list.push(HumanNerve::LeftObturator);
+        nerve_list.push(HumanNerve::LeftLateralFemoralCutaneous);
+        nerve_list.push(HumanNerve::LeftPosteriorFemoralCutaneous);
+        nerve_list.push(HumanNerve::LeftFemoral);
+        nerve_list.push(HumanNerve::LeftInferiorRectal);
+        nerve_list.push(HumanNerve::LeftSaphenous);
+        nerve_list.push(HumanNerve::LeftSuperficialFibular);
+        nerve_list.push(HumanNerve::LeftDeepFibular);
+        nerve_list.push(HumanNerve::LeftSural);
+        nerve_list.push(HumanNerve::LeftPlantal);
+        nerve_list.push(HumanNerve::RightInternalCarotid);
+        nerve_list.push(HumanNerve::RightGreaterThoracicSplanchic);
+        nerve_list.push(HumanNerve::RightRenalPlexus);
+        nerve_list.push(HumanNerve::RightIntermesentericPlexus);
+        nerve_list.push(HumanNerve::RightLumbarSplanchic);
+        nerve_list.push(HumanNerve::RightOccipital);
+        nerve_list.push(HumanNerve::RightGreatAricular);
+        nerve_list.push(HumanNerve::RightAnsaCervicalis);
+        nerve_list.push(HumanNerve::RightIntercostal1);
+        nerve_list.push(HumanNerve::RightIntercostal2);
+        nerve_list.push(HumanNerve::RightIntercostal3);
+        nerve_list.push(HumanNerve::RightIntercostal4);
+        nerve_list.push(HumanNerve::RightIntercostal5);
+        nerve_list.push(HumanNerve::RightIntercostal6);
+        nerve_list.push(HumanNerve::RightIntercostal7);
+        nerve_list.push(HumanNerve::RightIntercostal8);
+        nerve_list.push(HumanNerve::RightIntercostal9);
+        nerve_list.push(HumanNerve::RightIntercostal10);
+        nerve_list.push(HumanNerve::RightIntercostal11);
+        nerve_list.push(HumanNerve::RightSubcostal);
+        nerve_list.push(HumanNerve::RightSupraclavicular);
+        nerve_list.push(HumanNerve::RightPhrenic);
+        nerve_list.push(HumanNerve::RightAxillary);
+        nerve_list.push(HumanNerve::RightMusculocutaneous);
+        nerve_list.push(HumanNerve::RightMedian);
+        nerve_list.push(HumanNerve::RightRadial);
+        nerve_list.push(HumanNerve::RightUlnar);
+        nerve_list.push(HumanNerve::RightUpperSubscapular);
+        nerve_list.push(HumanNerve::RightLowerSubscapular);
+        nerve_list.push(HumanNerve::RightThoracodorsal);
+        nerve_list.push(HumanNerve::RightDorsalScapular);
+        nerve_list.push(HumanNerve::RightLongThoracic);
+        nerve_list.push(HumanNerve::RightSuprascapular);
+        nerve_list.push(HumanNerve::RightLateralPectoral);
+        nerve_list.push(HumanNerve::RightMedialPectoral);
+        nerve_list.push(HumanNerve::RightMedialCutaneous);
+        nerve_list.push(HumanNerve::RightIliohypogastric);
+        nerve_list.push(HumanNerve::RightIlioInguinal);
+        nerve_list.push(HumanNerve::RightObturator);
+        nerve_list.push(HumanNerve::RightLateralFemoralCutaneous);
+        nerve_list.push(HumanNerve::RightPosteriorFemoralCutaneous);
+        nerve_list.push(HumanNerve::RightFemoral);
+        nerve_list.push(HumanNerve::RightInferiorRectal);
+        nerve_list.push(HumanNerve::RightSaphenous);
+        nerve_list.push(HumanNerve::RightSuperficialFibular);
+        nerve_list.push(HumanNerve::RightDeepFibular);
+        nerve_list.push(HumanNerve::RightSural);
+        nerve_list.push(HumanNerve::RightPlantal);
         nerve_list
     };
 }
 
 lazy_static! {
 
-    static ref BRAIN_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref BRAIN_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTOCCULOMOTOR_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTOCCULOMOTOR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTOCCULOMOTOR_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTOCCULOMOTOR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref BRAINSTEM_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref BRAINSTEM_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTTRIGEMINAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTTRIGEMINAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTTRIGEMINAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTTRIGEMINAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTFACIAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTFACIAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTFACIAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTFACIAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTHYPOGLOSSAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTHYPOGLOSSAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTHYPOGLOSSAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTHYPOGLOSSAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTVAGUS_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTVAGUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTSUPERIORLARYNGEAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTSUPERIORLARYNGEAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTRECURRENTLARYNGEAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTRECURRENTLARYNGEAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTVAGUS_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTVAGUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTSUPERIORLARYNGEAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTSUPERIORLARYNGEAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTRECURRENTLARYNGEAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTRECURRENTLARYNGEAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref ESOPHAGEALPLEXUS_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref ESOPHAGEALPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref SUPERFICIALCARDIACPLEXUS_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref SUPERFICIALCARDIACPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref DEEPCARDIACPLEXUS_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref DEEPCARDIACPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref PULMONARYPLEXUS_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref PULMONARYPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref CELIACPLEXUS_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref CELIACPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref SUPERIORMESENTERICPLEXUS_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref SUPERIORMESENTERICPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref INFERIORMESENTERICPLEXUS_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref INFERIORMESENTERICPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref HYPOGASTRICPLEXUS_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref HYPOGASTRICPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref SPINALCORD_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref SPINALCORD_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTSPINALACCESSORY_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTSPINALACCESSORY_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTSPINALACCESSORY_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTSPINALACCESSORY_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTC1_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTC1_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTC2_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTC2_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTC3_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTC3_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTC4_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTC4_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTC5_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTC5_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTC6_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTC6_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTC7_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTC7_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTC8_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTC8_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTT1_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTT1_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTT2_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTT2_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTT3_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTT3_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTT4_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTT4_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTT5_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTT5_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTT6_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTT6_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTT7_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTT7_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTT8_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTT8_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTT9_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTT9_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTT10_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTT10_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTT11_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTT11_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTT12_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTT12_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTL1_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTL1_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref CAUDAEQUINA_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref CAUDAEQUINA_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTL2_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTL2_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTL3_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTL3_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTL4_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTL4_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTL5_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTL5_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTS1_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTS1_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTS2_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTS2_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTS3_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTS3_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTS4_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTS4_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTS5_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTS5_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTINTERNALCAROTID_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTINTERNALCAROTID_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTSYMPATHETICCHAIN_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTSYMPATHETICCHAIN_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTGREATERTHORACICSPLANCHIC_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTGREATERTHORACICSPLANCHIC_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTLESSERTHORACICSPLANCHIC_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTLESSERTHORACICSPLANCHIC_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTLEASTTHORACICSPLANCHIC_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTLEASTTHORACICSPLANCHIC_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTRENALPLEXUS_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTRENALPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTINTERMESENTERICPLEXUS_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTINTERMESENTERICPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTLUMBARSPLANCHIC_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTLUMBARSPLANCHIC_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTGENITOFEMORAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTGENITOFEMORAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTOCCIPITAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTOCCIPITAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTGREATARICULAR_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTGREATARICULAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTANSACERVICALIS_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTANSACERVICALIS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTINTERCOSTAL1_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTINTERCOSTAL1_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTINTERCOSTAL2_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTINTERCOSTAL2_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTINTERCOSTAL3_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTINTERCOSTAL3_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTINTERCOSTAL4_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTINTERCOSTAL4_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTINTERCOSTAL5_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTINTERCOSTAL5_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTINTERCOSTAL6_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTINTERCOSTAL6_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTINTERCOSTAL7_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTINTERCOSTAL7_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTINTERCOSTAL8_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTINTERCOSTAL8_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTINTERCOSTAL9_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTINTERCOSTAL9_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTINTERCOSTAL10_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTINTERCOSTAL10_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTINTERCOSTAL11_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTINTERCOSTAL11_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTSUBCOSTAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTSUBCOSTAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTSUPRACLAVICULAR_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTSUPRACLAVICULAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTPHRENIC_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTPHRENIC_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTLATERALBRACHIALPLEXUS_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTLATERALBRACHIALPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTPOSTERIORBRACHIALPLEXUS_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTPOSTERIORBRACHIALPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTMEDIALBRACHIALPLEXUS_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTMEDIALBRACHIALPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTAXILLARY_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTAXILLARY_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTMUSCULOCUTANEOUS_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTMUSCULOCUTANEOUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTMEDIAN_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTMEDIAN_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTRADIAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTRADIAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTULNAR_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTULNAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTUPPERSUBSCAPULAR_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTUPPERSUBSCAPULAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTLOWERSUBSCAPULAR_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTLOWERSUBSCAPULAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTTHORACODORSAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTTHORACODORSAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTDORSALSCAPULAR_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTDORSALSCAPULAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTLONGTHORACIC_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTLONGTHORACIC_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTSUPRASCAPULAR_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTSUPRASCAPULAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTLATERALPECTORAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTLATERALPECTORAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTMEDIALPECTORAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTMEDIALPECTORAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTMEDIALCUTANEOUS_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTMEDIALCUTANEOUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTILIOHYPOGASTRIC_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTILIOHYPOGASTRIC_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTILIOINGUINAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTILIOINGUINAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTOBTURATOR_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTOBTURATOR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTLUMBARPLEXUS_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTLUMBARPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTSACRALPLEXUS_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTSACRALPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTLATERALFEMORALCUTANEOUS_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTLATERALFEMORALCUTANEOUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTPOSTERIORFEMORALCUTANEOUS_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTPOSTERIORFEMORALCUTANEOUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTFEMORAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTFEMORAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTSCIATIC_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTSCIATIC_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTPUDENDAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTPUDENDAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTINFERIORRECTAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTINFERIORRECTAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTSAPHENOUS_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTSAPHENOUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTCOMMONFIBULAR_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTCOMMONFIBULAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTSUPERFICIALFIBULAR_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTSUPERFICIALFIBULAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTDEEPFIBULAR_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTDEEPFIBULAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTSURAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTSURAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTTIBIAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTTIBIAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTPLANTAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTPLANTAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTC1_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTC1_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTC2_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTC2_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTC3_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTC3_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTC4_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTC4_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTC5_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTC5_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTC6_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTC6_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTC7_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTC7_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTC8_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTC8_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTT1_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTT1_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTT2_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTT2_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTT3_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTT3_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTT4_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTT4_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTT5_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTT5_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTT6_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTT6_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTT7_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTT7_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTT8_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTT8_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTT9_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTT9_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTT10_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTT10_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTT11_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTT11_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTT12_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTT12_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTL1_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTL1_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTL2_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTL2_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTL3_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTL3_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTL4_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTL4_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTL5_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTL5_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTS1_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTS1_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTS2_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTS2_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTS3_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTS3_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTS4_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTS4_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTS5_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTS5_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTINTERNALCAROTID_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTINTERNALCAROTID_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTSYMPATHETICCHAIN_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTSYMPATHETICCHAIN_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTGREATERTHORACICSPLANCHIC_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTGREATERTHORACICSPLANCHIC_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTLESSERTHORACICSPLANCHIC_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTLESSERTHORACICSPLANCHIC_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTLEASTTHORACICSPLANCHIC_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTLEASTTHORACICSPLANCHIC_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTRENALPLEXUS_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTRENALPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTINTERMESENTERICPLEXUS_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTINTERMESENTERICPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTLUMBARSPLANCHIC_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTLUMBARSPLANCHIC_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTGENITOFEMORAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTGENITOFEMORAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTOCCIPITAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTOCCIPITAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTGREATARICULAR_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTGREATARICULAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTANSACERVICALIS_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTANSACERVICALIS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTINTERCOSTAL1_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTINTERCOSTAL1_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTINTERCOSTAL2_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTINTERCOSTAL2_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTINTERCOSTAL3_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTINTERCOSTAL3_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTINTERCOSTAL4_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTINTERCOSTAL4_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTINTERCOSTAL5_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTINTERCOSTAL5_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTINTERCOSTAL6_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTINTERCOSTAL6_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTINTERCOSTAL7_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTINTERCOSTAL7_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTINTERCOSTAL8_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTINTERCOSTAL8_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTINTERCOSTAL9_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTINTERCOSTAL9_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTINTERCOSTAL10_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTINTERCOSTAL10_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTINTERCOSTAL11_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTINTERCOSTAL11_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTSUBCOSTAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTSUBCOSTAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTSUPRACLAVICULAR_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTSUPRACLAVICULAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTPHRENIC_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTPHRENIC_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTLATERALBRACHIALPLEXUS_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTLATERALBRACHIALPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTPOSTERIORBRACHIALPLEXUS_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTPOSTERIORBRACHIALPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTMEDIALBRACHIALPLEXUS_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTMEDIALBRACHIALPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTAXILLARY_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTAXILLARY_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTMUSCULOCUTANEOUS_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTMUSCULOCUTANEOUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTMEDIAN_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTMEDIAN_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTRADIAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTRADIAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTULNAR_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTULNAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTUPPERSUBSCAPULAR_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTUPPERSUBSCAPULAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTLOWERSUBSCAPULAR_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTLOWERSUBSCAPULAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTTHORACODORSAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTTHORACODORSAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTDORSALSCAPULAR_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTDORSALSCAPULAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTLONGTHORACIC_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTLONGTHORACIC_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTSUPRASCAPULAR_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTSUPRASCAPULAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTLATERALPECTORAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTLATERALPECTORAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTMEDIALPECTORAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTMEDIALPECTORAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTMEDIALCUTANEOUS_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTMEDIALCUTANEOUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTILIOHYPOGASTRIC_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTILIOHYPOGASTRIC_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTILIOINGUINAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTILIOINGUINAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTOBTURATOR_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTOBTURATOR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTLUMBARPLEXUS_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTLUMBARPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTSACRALPLEXUS_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTSACRALPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTLATERALFEMORALCUTANEOUS_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTLATERALFEMORALCUTANEOUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTPOSTERIORFEMORALCUTANEOUS_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTPOSTERIORFEMORALCUTANEOUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTFEMORAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTFEMORAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTSCIATIC_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTSCIATIC_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTPUDENDAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTPUDENDAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTINFERIORRECTAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTINFERIORRECTAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTSAPHENOUS_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTSAPHENOUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTCOMMONFIBULAR_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTCOMMONFIBULAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTSUPERFICIALFIBULAR_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTSUPERFICIALFIBULAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTDEEPFIBULAR_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTDEEPFIBULAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTSURAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTSURAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTTIBIAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTTIBIAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTPLANTAL_UPLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTPLANTAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
 }
 
 lazy_static! {
 
-    static ref BRAIN_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightOcculomotor);
-        nerve_list.insert(HumanNerve::LeftOcculomotor);
-        nerve_list.insert(HumanNerve::Brainstem);
+    static ref BRAIN_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightOcculomotor);
+        nerve_list.push(HumanNerve::LeftOcculomotor);
+        nerve_list.push(HumanNerve::Brainstem);
         nerve_list
         
     };
 
-    static ref RIGHTOCCULOMOTOR_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTOCCULOMOTOR_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTOCCULOMOTOR_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTOCCULOMOTOR_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref BRAINSTEM_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftTrigeminal);
-        nerve_list.insert(HumanNerve::RightTrigeminal);
-        nerve_list.insert(HumanNerve::LeftFacial);
-        nerve_list.insert(HumanNerve::RightFacial);
-        nerve_list.insert(HumanNerve::LeftHypoglossal);
-        nerve_list.insert(HumanNerve::RightHypoglossal);
-        nerve_list.insert(HumanNerve::LeftVagus);
-        nerve_list.insert(HumanNerve::RightVagus);
+    static ref BRAINSTEM_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftTrigeminal);
+        nerve_list.push(HumanNerve::RightTrigeminal);
+        nerve_list.push(HumanNerve::LeftFacial);
+        nerve_list.push(HumanNerve::RightFacial);
+        nerve_list.push(HumanNerve::LeftHypoglossal);
+        nerve_list.push(HumanNerve::RightHypoglossal);
+        nerve_list.push(HumanNerve::LeftVagus);
+        nerve_list.push(HumanNerve::RightVagus);
         nerve_list
         
     };
 
-    static ref LEFTTRIGEMINAL_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTTRIGEMINAL_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTTRIGEMINAL_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTTRIGEMINAL_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTFACIAL_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTFACIAL_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTFACIAL_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTFACIAL_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTHYPOGLOSSAL_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTHYPOGLOSSAL_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTHYPOGLOSSAL_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTHYPOGLOSSAL_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTVAGUS_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftSuperiorLaryngeal);
-        nerve_list.insert(HumanNerve::LeftRecurrentLaryngeal);
-        nerve_list.insert(HumanNerve::EsophagealPlexus);
-        nerve_list.insert(HumanNerve::PulmonaryPlexus);
-        nerve_list.insert(HumanNerve::CeliacPlexus);
+    static ref LEFTVAGUS_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftSuperiorLaryngeal);
+        nerve_list.push(HumanNerve::LeftRecurrentLaryngeal);
+        nerve_list.push(HumanNerve::EsophagealPlexus);
+        nerve_list.push(HumanNerve::PulmonaryPlexus);
+        nerve_list.push(HumanNerve::CeliacPlexus);
         nerve_list
         
     };
 
-    static ref LEFTSUPERIORLARYNGEAL_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTSUPERIORLARYNGEAL_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTRECURRENTLARYNGEAL_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTRECURRENTLARYNGEAL_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTVAGUS_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightSuperiorLaryngeal);
-        nerve_list.insert(HumanNerve::RightRecurrentLaryngeal);
-        nerve_list.insert(HumanNerve::EsophagealPlexus);
-        nerve_list.insert(HumanNerve::PulmonaryPlexus);
-        nerve_list.insert(HumanNerve::CeliacPlexus);
+    static ref RIGHTVAGUS_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightSuperiorLaryngeal);
+        nerve_list.push(HumanNerve::RightRecurrentLaryngeal);
+        nerve_list.push(HumanNerve::EsophagealPlexus);
+        nerve_list.push(HumanNerve::PulmonaryPlexus);
+        nerve_list.push(HumanNerve::CeliacPlexus);
         nerve_list
         
     };
 
-    static ref RIGHTSUPERIORLARYNGEAL_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTSUPERIORLARYNGEAL_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTRECURRENTLARYNGEAL_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTRECURRENTLARYNGEAL_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref ESOPHAGEALPLEXUS_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref ESOPHAGEALPLEXUS_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref SUPERFICIALCARDIACPLEXUS_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref SUPERFICIALCARDIACPLEXUS_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref DEEPCARDIACPLEXUS_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::PulmonaryPlexus);
+    static ref DEEPCARDIACPLEXUS_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::PulmonaryPlexus);
         nerve_list
         
     };
 
-    static ref PULMONARYPLEXUS_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref PULMONARYPLEXUS_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref CELIACPLEXUS_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref CELIACPLEXUS_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref SUPERIORMESENTERICPLEXUS_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref SUPERIORMESENTERICPLEXUS_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref INFERIORMESENTERICPLEXUS_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref INFERIORMESENTERICPLEXUS_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref HYPOGASTRICPLEXUS_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref HYPOGASTRICPLEXUS_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref SPINALCORD_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftSpinalAccessory);
-        nerve_list.insert(HumanNerve::RightSpinalAccessory);
-        nerve_list.insert(HumanNerve::LeftC1);
-        nerve_list.insert(HumanNerve::RightC1);
-        nerve_list.insert(HumanNerve::LeftC2);
-        nerve_list.insert(HumanNerve::RightC2);
-        nerve_list.insert(HumanNerve::LeftC3);
-        nerve_list.insert(HumanNerve::RightC3);
-        nerve_list.insert(HumanNerve::LeftC4);
-        nerve_list.insert(HumanNerve::RightC4);
-        nerve_list.insert(HumanNerve::LeftC5);
-        nerve_list.insert(HumanNerve::RightC5);
-        nerve_list.insert(HumanNerve::LeftC6);
-        nerve_list.insert(HumanNerve::RightC6);
-        nerve_list.insert(HumanNerve::LeftC7);
-        nerve_list.insert(HumanNerve::RightC7);
-        nerve_list.insert(HumanNerve::LeftC8);
-        nerve_list.insert(HumanNerve::RightC8);
-        nerve_list.insert(HumanNerve::LeftT1);
-        nerve_list.insert(HumanNerve::RightT1);
-        nerve_list.insert(HumanNerve::LeftT2);
-        nerve_list.insert(HumanNerve::RightT2);
-        nerve_list.insert(HumanNerve::LeftT3);
-        nerve_list.insert(HumanNerve::RightT3);
-        nerve_list.insert(HumanNerve::LeftT4);
-        nerve_list.insert(HumanNerve::RightT4);
-        nerve_list.insert(HumanNerve::LeftT5);
-        nerve_list.insert(HumanNerve::RightT5);
-        nerve_list.insert(HumanNerve::LeftT6);
-        nerve_list.insert(HumanNerve::RightT6);
-        nerve_list.insert(HumanNerve::LeftT7);
-        nerve_list.insert(HumanNerve::RightT7);
-        nerve_list.insert(HumanNerve::LeftT8);
-        nerve_list.insert(HumanNerve::RightT8);
-        nerve_list.insert(HumanNerve::LeftT9);
-        nerve_list.insert(HumanNerve::RightT9);
-        nerve_list.insert(HumanNerve::LeftT10);
-        nerve_list.insert(HumanNerve::RightT10);
-        nerve_list.insert(HumanNerve::LeftT11);
-        nerve_list.insert(HumanNerve::RightT11);
-        nerve_list.insert(HumanNerve::LeftT12);
-        nerve_list.insert(HumanNerve::RightT12);
-        nerve_list.insert(HumanNerve::LeftL1);
-        nerve_list.insert(HumanNerve::RightL1);
-        nerve_list.insert(HumanNerve::CaudaEquina);
+    static ref SPINALCORD_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftSpinalAccessory);
+        nerve_list.push(HumanNerve::RightSpinalAccessory);
+        nerve_list.push(HumanNerve::LeftC1);
+        nerve_list.push(HumanNerve::RightC1);
+        nerve_list.push(HumanNerve::LeftC2);
+        nerve_list.push(HumanNerve::RightC2);
+        nerve_list.push(HumanNerve::LeftC3);
+        nerve_list.push(HumanNerve::RightC3);
+        nerve_list.push(HumanNerve::LeftC4);
+        nerve_list.push(HumanNerve::RightC4);
+        nerve_list.push(HumanNerve::LeftC5);
+        nerve_list.push(HumanNerve::RightC5);
+        nerve_list.push(HumanNerve::LeftC6);
+        nerve_list.push(HumanNerve::RightC6);
+        nerve_list.push(HumanNerve::LeftC7);
+        nerve_list.push(HumanNerve::RightC7);
+        nerve_list.push(HumanNerve::LeftC8);
+        nerve_list.push(HumanNerve::RightC8);
+        nerve_list.push(HumanNerve::LeftT1);
+        nerve_list.push(HumanNerve::RightT1);
+        nerve_list.push(HumanNerve::LeftT2);
+        nerve_list.push(HumanNerve::RightT2);
+        nerve_list.push(HumanNerve::LeftT3);
+        nerve_list.push(HumanNerve::RightT3);
+        nerve_list.push(HumanNerve::LeftT4);
+        nerve_list.push(HumanNerve::RightT4);
+        nerve_list.push(HumanNerve::LeftT5);
+        nerve_list.push(HumanNerve::RightT5);
+        nerve_list.push(HumanNerve::LeftT6);
+        nerve_list.push(HumanNerve::RightT6);
+        nerve_list.push(HumanNerve::LeftT7);
+        nerve_list.push(HumanNerve::RightT7);
+        nerve_list.push(HumanNerve::LeftT8);
+        nerve_list.push(HumanNerve::RightT8);
+        nerve_list.push(HumanNerve::LeftT9);
+        nerve_list.push(HumanNerve::RightT9);
+        nerve_list.push(HumanNerve::LeftT10);
+        nerve_list.push(HumanNerve::RightT10);
+        nerve_list.push(HumanNerve::LeftT11);
+        nerve_list.push(HumanNerve::RightT11);
+        nerve_list.push(HumanNerve::LeftT12);
+        nerve_list.push(HumanNerve::RightT12);
+        nerve_list.push(HumanNerve::LeftL1);
+        nerve_list.push(HumanNerve::RightL1);
+        nerve_list.push(HumanNerve::CaudaEquina);
         nerve_list
         
     };
 
-    static ref LEFTSPINALACCESSORY_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTSPINALACCESSORY_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTSPINALACCESSORY_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTSPINALACCESSORY_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTC1_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftInternalCarotid);
-        nerve_list.insert(HumanNerve::LeftSympatheticChain);
+    static ref LEFTC1_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftInternalCarotid);
+        nerve_list.push(HumanNerve::LeftSympatheticChain);
         nerve_list
         
     };
 
-    static ref LEFTC2_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftSympatheticChain);
-        nerve_list.insert(HumanNerve::LeftOccipital);
-        nerve_list.insert(HumanNerve::LeftGreatAricular);
-        nerve_list.insert(HumanNerve::LeftAnsaCervicalis);
+    static ref LEFTC2_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftSympatheticChain);
+        nerve_list.push(HumanNerve::LeftOccipital);
+        nerve_list.push(HumanNerve::LeftGreatAricular);
+        nerve_list.push(HumanNerve::LeftAnsaCervicalis);
         nerve_list
         
     };
 
-    static ref LEFTC3_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftSympatheticChain);
-        nerve_list.insert(HumanNerve::LeftGreatAricular);
-        nerve_list.insert(HumanNerve::LeftSupraclavicular);
-        nerve_list.insert(HumanNerve::LeftPhrenic);
+    static ref LEFTC3_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftSympatheticChain);
+        nerve_list.push(HumanNerve::LeftGreatAricular);
+        nerve_list.push(HumanNerve::LeftSupraclavicular);
+        nerve_list.push(HumanNerve::LeftPhrenic);
         nerve_list
         
     };
 
-    static ref LEFTC4_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftSympatheticChain);
-        nerve_list.insert(HumanNerve::LeftSupraclavicular);
-        nerve_list.insert(HumanNerve::LeftPhrenic);
+    static ref LEFTC4_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftSympatheticChain);
+        nerve_list.push(HumanNerve::LeftSupraclavicular);
+        nerve_list.push(HumanNerve::LeftPhrenic);
         nerve_list
         
     };
 
-    static ref LEFTC5_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftSympatheticChain);
-        nerve_list.insert(HumanNerve::LeftPhrenic);
-        nerve_list.insert(HumanNerve::LeftLateralBrachialPlexus);
-        nerve_list.insert(HumanNerve::LeftPosteriorBrachialPlexus);
-        nerve_list.insert(HumanNerve::LeftDorsalScapular);
-        nerve_list.insert(HumanNerve::LeftSuprascapular);
+    static ref LEFTC5_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftSympatheticChain);
+        nerve_list.push(HumanNerve::LeftPhrenic);
+        nerve_list.push(HumanNerve::LeftLateralBrachialPlexus);
+        nerve_list.push(HumanNerve::LeftPosteriorBrachialPlexus);
+        nerve_list.push(HumanNerve::LeftDorsalScapular);
+        nerve_list.push(HumanNerve::LeftSuprascapular);
         nerve_list
         
     };
 
-    static ref LEFTC6_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftSympatheticChain);
-        nerve_list.insert(HumanNerve::LeftThoracodorsal);
-        nerve_list.insert(HumanNerve::LeftLateralBrachialPlexus);
-        nerve_list.insert(HumanNerve::LeftPosteriorBrachialPlexus);
-        nerve_list.insert(HumanNerve::LeftSuprascapular);
+    static ref LEFTC6_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftSympatheticChain);
+        nerve_list.push(HumanNerve::LeftThoracodorsal);
+        nerve_list.push(HumanNerve::LeftLateralBrachialPlexus);
+        nerve_list.push(HumanNerve::LeftPosteriorBrachialPlexus);
+        nerve_list.push(HumanNerve::LeftSuprascapular);
         nerve_list
         
     };
 
-    static ref LEFTC7_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftSympatheticChain);
-        nerve_list.insert(HumanNerve::LeftThoracodorsal);
-        nerve_list.insert(HumanNerve::LeftLateralBrachialPlexus);
-        nerve_list.insert(HumanNerve::LeftPosteriorBrachialPlexus);
+    static ref LEFTC7_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftSympatheticChain);
+        nerve_list.push(HumanNerve::LeftThoracodorsal);
+        nerve_list.push(HumanNerve::LeftLateralBrachialPlexus);
+        nerve_list.push(HumanNerve::LeftPosteriorBrachialPlexus);
         nerve_list
         
     };
 
-    static ref LEFTC8_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftSympatheticChain);
-        nerve_list.insert(HumanNerve::LeftThoracodorsal);
-        nerve_list.insert(HumanNerve::LeftPosteriorBrachialPlexus);
-        nerve_list.insert(HumanNerve::LeftMedialBrachialPlexus);
+    static ref LEFTC8_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftSympatheticChain);
+        nerve_list.push(HumanNerve::LeftThoracodorsal);
+        nerve_list.push(HumanNerve::LeftPosteriorBrachialPlexus);
+        nerve_list.push(HumanNerve::LeftMedialBrachialPlexus);
         nerve_list
         
     };
 
-    static ref LEFTT1_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftSympatheticChain);
-        nerve_list.insert(HumanNerve::LeftIntercostal1);
-        nerve_list.insert(HumanNerve::LeftMedialBrachialPlexus);
+    static ref LEFTT1_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftSympatheticChain);
+        nerve_list.push(HumanNerve::LeftIntercostal1);
+        nerve_list.push(HumanNerve::LeftMedialBrachialPlexus);
         nerve_list
         
     };
 
-    static ref LEFTT2_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftSympatheticChain);
-        nerve_list.insert(HumanNerve::LeftIntercostal2);
+    static ref LEFTT2_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftSympatheticChain);
+        nerve_list.push(HumanNerve::LeftIntercostal2);
         nerve_list
         
     };
 
-    static ref LEFTT3_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftSympatheticChain);
-        nerve_list.insert(HumanNerve::LeftIntercostal3);
+    static ref LEFTT3_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftSympatheticChain);
+        nerve_list.push(HumanNerve::LeftIntercostal3);
         nerve_list
         
     };
 
-    static ref LEFTT4_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftSympatheticChain);
-        nerve_list.insert(HumanNerve::LeftIntercostal4);
+    static ref LEFTT4_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftSympatheticChain);
+        nerve_list.push(HumanNerve::LeftIntercostal4);
         nerve_list
         
     };
 
-    static ref LEFTT5_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftSympatheticChain);
-        nerve_list.insert(HumanNerve::LeftIntercostal5);
+    static ref LEFTT5_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftSympatheticChain);
+        nerve_list.push(HumanNerve::LeftIntercostal5);
         nerve_list
         
     };
 
-    static ref LEFTT6_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftSympatheticChain);
-        nerve_list.insert(HumanNerve::LeftIntercostal6);
+    static ref LEFTT6_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftSympatheticChain);
+        nerve_list.push(HumanNerve::LeftIntercostal6);
         nerve_list
         
     };
 
-    static ref LEFTT7_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftSympatheticChain);
-        nerve_list.insert(HumanNerve::LeftIntercostal7);
+    static ref LEFTT7_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftSympatheticChain);
+        nerve_list.push(HumanNerve::LeftIntercostal7);
         nerve_list
         
     };
 
-    static ref LEFTT8_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftSympatheticChain);
-        nerve_list.insert(HumanNerve::LeftIntercostal8);
+    static ref LEFTT8_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftSympatheticChain);
+        nerve_list.push(HumanNerve::LeftIntercostal8);
         nerve_list
         
     };
 
-    static ref LEFTT9_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftSympatheticChain);
-        nerve_list.insert(HumanNerve::LeftIntercostal9);
+    static ref LEFTT9_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftSympatheticChain);
+        nerve_list.push(HumanNerve::LeftIntercostal9);
         nerve_list
         
     };
 
-    static ref LEFTT10_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftSympatheticChain);
-        nerve_list.insert(HumanNerve::LeftIntercostal10);
+    static ref LEFTT10_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftSympatheticChain);
+        nerve_list.push(HumanNerve::LeftIntercostal10);
         nerve_list
         
     };
 
-    static ref LEFTT11_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftSympatheticChain);
-        nerve_list.insert(HumanNerve::LeftIntercostal11);
+    static ref LEFTT11_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftSympatheticChain);
+        nerve_list.push(HumanNerve::LeftIntercostal11);
         nerve_list
         
     };
 
-    static ref LEFTT12_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftSympatheticChain);
-        nerve_list.insert(HumanNerve::LeftSubcostal);
+    static ref LEFTT12_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftSympatheticChain);
+        nerve_list.push(HumanNerve::LeftSubcostal);
         nerve_list
         
     };
 
-    static ref LEFTL1_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftSympatheticChain);
-        nerve_list.insert(HumanNerve::LeftIliohypogastric);
-        nerve_list.insert(HumanNerve::LeftIlioInguinal);
-        nerve_list.insert(HumanNerve::LeftGenitofemoral);
+    static ref LEFTL1_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftSympatheticChain);
+        nerve_list.push(HumanNerve::LeftIliohypogastric);
+        nerve_list.push(HumanNerve::LeftIlioInguinal);
+        nerve_list.push(HumanNerve::LeftGenitofemoral);
         nerve_list
         
     };
 
-    static ref CAUDAEQUINA_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightL2);
-        nerve_list.insert(HumanNerve::RightL3);
-        nerve_list.insert(HumanNerve::RightL4);
-        nerve_list.insert(HumanNerve::RightL5);
-        nerve_list.insert(HumanNerve::RightS1);
-        nerve_list.insert(HumanNerve::RightS2);
-        nerve_list.insert(HumanNerve::RightS3);
-        nerve_list.insert(HumanNerve::RightS4);
-        nerve_list.insert(HumanNerve::RightS5);
+    static ref CAUDAEQUINA_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightL2);
+        nerve_list.push(HumanNerve::RightL3);
+        nerve_list.push(HumanNerve::RightL4);
+        nerve_list.push(HumanNerve::RightL5);
+        nerve_list.push(HumanNerve::RightS1);
+        nerve_list.push(HumanNerve::RightS2);
+        nerve_list.push(HumanNerve::RightS3);
+        nerve_list.push(HumanNerve::RightS4);
+        nerve_list.push(HumanNerve::RightS5);
         nerve_list
         
     };
 
-    static ref LEFTL2_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftSympatheticChain);
-        nerve_list.insert(HumanNerve::LeftLumbarPlexus);
-        nerve_list.insert(HumanNerve::LeftGenitofemoral);
-        nerve_list.insert(HumanNerve::LeftObturator);
+    static ref LEFTL2_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftSympatheticChain);
+        nerve_list.push(HumanNerve::LeftLumbarPlexus);
+        nerve_list.push(HumanNerve::LeftGenitofemoral);
+        nerve_list.push(HumanNerve::LeftObturator);
         nerve_list
         
     };
 
-    static ref LEFTL3_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftSympatheticChain);
-        nerve_list.insert(HumanNerve::LeftLumbarPlexus);
-        nerve_list.insert(HumanNerve::LeftObturator);
+    static ref LEFTL3_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftSympatheticChain);
+        nerve_list.push(HumanNerve::LeftLumbarPlexus);
+        nerve_list.push(HumanNerve::LeftObturator);
         nerve_list
         
     };
 
-    static ref LEFTL4_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftSympatheticChain);
-        nerve_list.insert(HumanNerve::LeftLumbarPlexus);
-        nerve_list.insert(HumanNerve::LeftSacralPlexus);
-        nerve_list.insert(HumanNerve::LeftObturator);
+    static ref LEFTL4_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftSympatheticChain);
+        nerve_list.push(HumanNerve::LeftLumbarPlexus);
+        nerve_list.push(HumanNerve::LeftSacralPlexus);
+        nerve_list.push(HumanNerve::LeftObturator);
         nerve_list
         
     };
 
-    static ref LEFTL5_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftSympatheticChain);
-        nerve_list.insert(HumanNerve::LeftSacralPlexus);
+    static ref LEFTL5_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftSympatheticChain);
+        nerve_list.push(HumanNerve::LeftSacralPlexus);
         nerve_list
         
     };
 
-    static ref LEFTS1_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftSympatheticChain);
-        nerve_list.insert(HumanNerve::LeftSacralPlexus);
+    static ref LEFTS1_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftSympatheticChain);
+        nerve_list.push(HumanNerve::LeftSacralPlexus);
         nerve_list
         
     };
 
-    static ref LEFTS2_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftSympatheticChain);
-        nerve_list.insert(HumanNerve::LeftSacralPlexus);
-        nerve_list.insert(HumanNerve::LeftPudendal);
+    static ref LEFTS2_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftSympatheticChain);
+        nerve_list.push(HumanNerve::LeftSacralPlexus);
+        nerve_list.push(HumanNerve::LeftPudendal);
         nerve_list
         
     };
 
-    static ref LEFTS3_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftSympatheticChain);
-        nerve_list.insert(HumanNerve::LeftSacralPlexus);
-        nerve_list.insert(HumanNerve::LeftPudendal);
+    static ref LEFTS3_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftSympatheticChain);
+        nerve_list.push(HumanNerve::LeftSacralPlexus);
+        nerve_list.push(HumanNerve::LeftPudendal);
         nerve_list
         
     };
 
-    static ref LEFTS4_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftSympatheticChain);
-        nerve_list.insert(HumanNerve::LeftPudendal);
+    static ref LEFTS4_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftSympatheticChain);
+        nerve_list.push(HumanNerve::LeftPudendal);
         nerve_list
         
     };
 
-    static ref LEFTS5_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftSympatheticChain);
+    static ref LEFTS5_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftSympatheticChain);
         nerve_list
         
     };
 
-    static ref LEFTINTERNALCAROTID_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTINTERNALCAROTID_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTSYMPATHETICCHAIN_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::EsophagealPlexus);
-        nerve_list.insert(HumanNerve::SuperficialCardiacPlexus);
-        nerve_list.insert(HumanNerve::DeepCardiacPlexus);
-        nerve_list.insert(HumanNerve::PulmonaryPlexus);
-        nerve_list.insert(HumanNerve::LeftGreaterThoracicSplanchic);
-        nerve_list.insert(HumanNerve::LeftLesserThoracicSplanchic);
-        nerve_list.insert(HumanNerve::LeftLeastThoracicSplanchic);
-        nerve_list.insert(HumanNerve::LeftLumbarSplanchic);
-        nerve_list.insert(HumanNerve::HypogastricPlexus);
+    static ref LEFTSYMPATHETICCHAIN_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::EsophagealPlexus);
+        nerve_list.push(HumanNerve::SuperficialCardiacPlexus);
+        nerve_list.push(HumanNerve::DeepCardiacPlexus);
+        nerve_list.push(HumanNerve::PulmonaryPlexus);
+        nerve_list.push(HumanNerve::LeftGreaterThoracicSplanchic);
+        nerve_list.push(HumanNerve::LeftLesserThoracicSplanchic);
+        nerve_list.push(HumanNerve::LeftLeastThoracicSplanchic);
+        nerve_list.push(HumanNerve::LeftLumbarSplanchic);
+        nerve_list.push(HumanNerve::HypogastricPlexus);
         nerve_list
         
     };
 
-    static ref LEFTGREATERTHORACICSPLANCHIC_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTGREATERTHORACICSPLANCHIC_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTLESSERTHORACICSPLANCHIC_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::CeliacPlexus);
+    static ref LEFTLESSERTHORACICSPLANCHIC_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::CeliacPlexus);
         nerve_list
         
     };
 
-    static ref LEFTLEASTTHORACICSPLANCHIC_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftRenalPlexus);
-        nerve_list.insert(HumanNerve::SuperiorMesentericPlexus);
-        nerve_list.insert(HumanNerve::LeftIntermesentericPlexus);
-        nerve_list.insert(HumanNerve::InferiorMesentericPlexus);
+    static ref LEFTLEASTTHORACICSPLANCHIC_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftRenalPlexus);
+        nerve_list.push(HumanNerve::SuperiorMesentericPlexus);
+        nerve_list.push(HumanNerve::LeftIntermesentericPlexus);
+        nerve_list.push(HumanNerve::InferiorMesentericPlexus);
         nerve_list
         
     };
 
-    static ref LEFTRENALPLEXUS_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTRENALPLEXUS_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTINTERMESENTERICPLEXUS_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTINTERMESENTERICPLEXUS_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTLUMBARSPLANCHIC_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTLUMBARSPLANCHIC_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTGENITOFEMORAL_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftSaphenous);
+    static ref LEFTGENITOFEMORAL_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftSaphenous);
         nerve_list
         
     };
 
-    static ref LEFTOCCIPITAL_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTOCCIPITAL_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTGREATARICULAR_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTGREATARICULAR_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTANSACERVICALIS_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTANSACERVICALIS_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTINTERCOSTAL1_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTINTERCOSTAL1_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTINTERCOSTAL2_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTINTERCOSTAL2_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTINTERCOSTAL3_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTINTERCOSTAL3_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTINTERCOSTAL4_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTINTERCOSTAL4_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTINTERCOSTAL5_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTINTERCOSTAL5_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTINTERCOSTAL6_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTINTERCOSTAL6_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTINTERCOSTAL7_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTINTERCOSTAL7_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTINTERCOSTAL8_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTINTERCOSTAL8_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTINTERCOSTAL9_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTINTERCOSTAL9_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTINTERCOSTAL10_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTINTERCOSTAL10_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTINTERCOSTAL11_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTINTERCOSTAL11_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTSUBCOSTAL_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTSUBCOSTAL_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTSUPRACLAVICULAR_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTSUPRACLAVICULAR_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTPHRENIC_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTPHRENIC_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTLATERALBRACHIALPLEXUS_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftMedian);
-        nerve_list.insert(HumanNerve::LeftMusculocutaneous);
-        nerve_list.insert(HumanNerve::LeftLateralPectoral);
+    static ref LEFTLATERALBRACHIALPLEXUS_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftMedian);
+        nerve_list.push(HumanNerve::LeftMusculocutaneous);
+        nerve_list.push(HumanNerve::LeftLateralPectoral);
         nerve_list
         
     };
 
-    static ref LEFTPOSTERIORBRACHIALPLEXUS_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftAxillary);
-        nerve_list.insert(HumanNerve::LeftRadial);
-        nerve_list.insert(HumanNerve::LeftUpperSubscapular);
-        nerve_list.insert(HumanNerve::LeftThoracodorsal);
-        nerve_list.insert(HumanNerve::LeftLowerSubscapular);
+    static ref LEFTPOSTERIORBRACHIALPLEXUS_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftAxillary);
+        nerve_list.push(HumanNerve::LeftRadial);
+        nerve_list.push(HumanNerve::LeftUpperSubscapular);
+        nerve_list.push(HumanNerve::LeftThoracodorsal);
+        nerve_list.push(HumanNerve::LeftLowerSubscapular);
         nerve_list
         
     };
 
-    static ref LEFTMEDIALBRACHIALPLEXUS_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftMedian);
-        nerve_list.insert(HumanNerve::LeftUlnar);
-        nerve_list.insert(HumanNerve::LeftMedialPectoral);
-        nerve_list.insert(HumanNerve::LeftMedialCutaneous);
+    static ref LEFTMEDIALBRACHIALPLEXUS_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftMedian);
+        nerve_list.push(HumanNerve::LeftUlnar);
+        nerve_list.push(HumanNerve::LeftMedialPectoral);
+        nerve_list.push(HumanNerve::LeftMedialCutaneous);
         nerve_list
         
     };
 
-    static ref LEFTAXILLARY_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTAXILLARY_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTMUSCULOCUTANEOUS_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTMUSCULOCUTANEOUS_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTMEDIAN_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTMEDIAN_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTRADIAL_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTRADIAL_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTULNAR_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTULNAR_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTUPPERSUBSCAPULAR_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTUPPERSUBSCAPULAR_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTLOWERSUBSCAPULAR_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTLOWERSUBSCAPULAR_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTTHORACODORSAL_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTTHORACODORSAL_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTDORSALSCAPULAR_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTDORSALSCAPULAR_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTLONGTHORACIC_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTLONGTHORACIC_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTSUPRASCAPULAR_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTSUPRASCAPULAR_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTLATERALPECTORAL_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTLATERALPECTORAL_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTMEDIALPECTORAL_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTMEDIALPECTORAL_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTMEDIALCUTANEOUS_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTMEDIALCUTANEOUS_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTILIOHYPOGASTRIC_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTILIOHYPOGASTRIC_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTILIOINGUINAL_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTILIOINGUINAL_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTOBTURATOR_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTOBTURATOR_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTLUMBARPLEXUS_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftFemoral);
-        nerve_list.insert(HumanNerve::LeftLateralFemoralCutaneous);
+    static ref LEFTLUMBARPLEXUS_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftFemoral);
+        nerve_list.push(HumanNerve::LeftLateralFemoralCutaneous);
         nerve_list
         
     };
 
-    static ref LEFTSACRALPLEXUS_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftSciatic);
-        nerve_list.insert(HumanNerve::LeftPosteriorFemoralCutaneous);
+    static ref LEFTSACRALPLEXUS_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftSciatic);
+        nerve_list.push(HumanNerve::LeftPosteriorFemoralCutaneous);
         nerve_list
         
     };
 
-    static ref LEFTLATERALFEMORALCUTANEOUS_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTLATERALFEMORALCUTANEOUS_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTPOSTERIORFEMORALCUTANEOUS_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTPOSTERIORFEMORALCUTANEOUS_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTFEMORAL_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTFEMORAL_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTSCIATIC_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftCommonFibular);
+    static ref LEFTSCIATIC_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftCommonFibular);
         nerve_list
         
     };
 
-    static ref LEFTPUDENDAL_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftInferiorRectal);
+    static ref LEFTPUDENDAL_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftInferiorRectal);
         nerve_list
         
     };
 
-    static ref LEFTINFERIORRECTAL_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTINFERIORRECTAL_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTSAPHENOUS_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTSAPHENOUS_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTCOMMONFIBULAR_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftSuperficialFibular);
-        nerve_list.insert(HumanNerve::LeftDeepFibular);
-        nerve_list.insert(HumanNerve::LeftSural);
+    static ref LEFTCOMMONFIBULAR_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftSuperficialFibular);
+        nerve_list.push(HumanNerve::LeftDeepFibular);
+        nerve_list.push(HumanNerve::LeftSural);
         nerve_list
         
     };
 
-    static ref LEFTSUPERFICIALFIBULAR_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTSUPERFICIALFIBULAR_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTDEEPFIBULAR_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTDEEPFIBULAR_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTSURAL_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTSURAL_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref LEFTTIBIAL_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::LeftPlantal);
+    static ref LEFTTIBIAL_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::LeftPlantal);
         nerve_list
         
     };
 
-    static ref LEFTPLANTAL_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref LEFTPLANTAL_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTC1_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightInternalCarotid);
-        nerve_list.insert(HumanNerve::RightSympatheticChain);
+    static ref RIGHTC1_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightInternalCarotid);
+        nerve_list.push(HumanNerve::RightSympatheticChain);
         nerve_list
         
     };
 
-    static ref RIGHTC2_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightSympatheticChain);
-        nerve_list.insert(HumanNerve::RightOccipital);
-        nerve_list.insert(HumanNerve::RightGreatAricular);
-        nerve_list.insert(HumanNerve::RightAnsaCervicalis);
+    static ref RIGHTC2_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightSympatheticChain);
+        nerve_list.push(HumanNerve::RightOccipital);
+        nerve_list.push(HumanNerve::RightGreatAricular);
+        nerve_list.push(HumanNerve::RightAnsaCervicalis);
         nerve_list
         
     };
 
-    static ref RIGHTC3_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightSympatheticChain);
-        nerve_list.insert(HumanNerve::RightGreatAricular);
-        nerve_list.insert(HumanNerve::RightSupraclavicular);
-        nerve_list.insert(HumanNerve::RightPhrenic);
+    static ref RIGHTC3_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightSympatheticChain);
+        nerve_list.push(HumanNerve::RightGreatAricular);
+        nerve_list.push(HumanNerve::RightSupraclavicular);
+        nerve_list.push(HumanNerve::RightPhrenic);
         nerve_list
         
     };
 
-    static ref RIGHTC4_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightSympatheticChain);
-        nerve_list.insert(HumanNerve::RightSupraclavicular);
-        nerve_list.insert(HumanNerve::RightPhrenic);
+    static ref RIGHTC4_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightSympatheticChain);
+        nerve_list.push(HumanNerve::RightSupraclavicular);
+        nerve_list.push(HumanNerve::RightPhrenic);
         nerve_list
         
     };
 
-    static ref RIGHTC5_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightSympatheticChain);
-        nerve_list.insert(HumanNerve::RightPhrenic);
-        nerve_list.insert(HumanNerve::RightLateralBrachialPlexus);
-        nerve_list.insert(HumanNerve::RightPosteriorBrachialPlexus);
-        nerve_list.insert(HumanNerve::RightDorsalScapular);
-        nerve_list.insert(HumanNerve::RightSuprascapular);
+    static ref RIGHTC5_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightSympatheticChain);
+        nerve_list.push(HumanNerve::RightPhrenic);
+        nerve_list.push(HumanNerve::RightLateralBrachialPlexus);
+        nerve_list.push(HumanNerve::RightPosteriorBrachialPlexus);
+        nerve_list.push(HumanNerve::RightDorsalScapular);
+        nerve_list.push(HumanNerve::RightSuprascapular);
         nerve_list
         
     };
 
-    static ref RIGHTC6_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightSympatheticChain);
-        nerve_list.insert(HumanNerve::RightThoracodorsal);
-        nerve_list.insert(HumanNerve::RightLateralBrachialPlexus);
-        nerve_list.insert(HumanNerve::RightPosteriorBrachialPlexus);
-        nerve_list.insert(HumanNerve::RightSuprascapular);
+    static ref RIGHTC6_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightSympatheticChain);
+        nerve_list.push(HumanNerve::RightThoracodorsal);
+        nerve_list.push(HumanNerve::RightLateralBrachialPlexus);
+        nerve_list.push(HumanNerve::RightPosteriorBrachialPlexus);
+        nerve_list.push(HumanNerve::RightSuprascapular);
         nerve_list
         
     };
 
-    static ref RIGHTC7_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightSympatheticChain);
-        nerve_list.insert(HumanNerve::RightThoracodorsal);
-        nerve_list.insert(HumanNerve::RightLateralBrachialPlexus);
-        nerve_list.insert(HumanNerve::RightPosteriorBrachialPlexus);
+    static ref RIGHTC7_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightSympatheticChain);
+        nerve_list.push(HumanNerve::RightThoracodorsal);
+        nerve_list.push(HumanNerve::RightLateralBrachialPlexus);
+        nerve_list.push(HumanNerve::RightPosteriorBrachialPlexus);
         nerve_list
         
     };
 
-    static ref RIGHTC8_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightSympatheticChain);
-        nerve_list.insert(HumanNerve::RightThoracodorsal);
-        nerve_list.insert(HumanNerve::RightPosteriorBrachialPlexus);
-        nerve_list.insert(HumanNerve::RightMedialBrachialPlexus);
+    static ref RIGHTC8_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightSympatheticChain);
+        nerve_list.push(HumanNerve::RightThoracodorsal);
+        nerve_list.push(HumanNerve::RightPosteriorBrachialPlexus);
+        nerve_list.push(HumanNerve::RightMedialBrachialPlexus);
         nerve_list
         
     };
 
-    static ref RIGHTT1_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightSympatheticChain);
-        nerve_list.insert(HumanNerve::RightIntercostal1);
-        nerve_list.insert(HumanNerve::RightMedialBrachialPlexus);
+    static ref RIGHTT1_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightSympatheticChain);
+        nerve_list.push(HumanNerve::RightIntercostal1);
+        nerve_list.push(HumanNerve::RightMedialBrachialPlexus);
         nerve_list
         
     };
 
-    static ref RIGHTT2_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightSympatheticChain);
-        nerve_list.insert(HumanNerve::RightIntercostal2);
+    static ref RIGHTT2_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightSympatheticChain);
+        nerve_list.push(HumanNerve::RightIntercostal2);
         nerve_list
         
     };
 
-    static ref RIGHTT3_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightSympatheticChain);
-        nerve_list.insert(HumanNerve::RightIntercostal3);
+    static ref RIGHTT3_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightSympatheticChain);
+        nerve_list.push(HumanNerve::RightIntercostal3);
         nerve_list
         
     };
 
-    static ref RIGHTT4_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightSympatheticChain);
-        nerve_list.insert(HumanNerve::RightIntercostal4);
+    static ref RIGHTT4_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightSympatheticChain);
+        nerve_list.push(HumanNerve::RightIntercostal4);
         nerve_list
         
     };
 
-    static ref RIGHTT5_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightSympatheticChain);
-        nerve_list.insert(HumanNerve::RightIntercostal5);
+    static ref RIGHTT5_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightSympatheticChain);
+        nerve_list.push(HumanNerve::RightIntercostal5);
         nerve_list
         
     };
 
-    static ref RIGHTT6_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightSympatheticChain);
-        nerve_list.insert(HumanNerve::RightIntercostal6);
+    static ref RIGHTT6_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightSympatheticChain);
+        nerve_list.push(HumanNerve::RightIntercostal6);
         nerve_list
         
     };
 
-    static ref RIGHTT7_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightSympatheticChain);
-        nerve_list.insert(HumanNerve::RightIntercostal7);
+    static ref RIGHTT7_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightSympatheticChain);
+        nerve_list.push(HumanNerve::RightIntercostal7);
         nerve_list
         
     };
 
-    static ref RIGHTT8_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightSympatheticChain);
-        nerve_list.insert(HumanNerve::RightIntercostal8);
+    static ref RIGHTT8_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightSympatheticChain);
+        nerve_list.push(HumanNerve::RightIntercostal8);
         nerve_list
         
     };
 
-    static ref RIGHTT9_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightSympatheticChain);
-        nerve_list.insert(HumanNerve::RightIntercostal9);
+    static ref RIGHTT9_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightSympatheticChain);
+        nerve_list.push(HumanNerve::RightIntercostal9);
         nerve_list
         
     };
 
-    static ref RIGHTT10_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightSympatheticChain);
-        nerve_list.insert(HumanNerve::RightIntercostal10);
+    static ref RIGHTT10_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightSympatheticChain);
+        nerve_list.push(HumanNerve::RightIntercostal10);
         nerve_list
         
     };
 
-    static ref RIGHTT11_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightSympatheticChain);
-        nerve_list.insert(HumanNerve::RightIntercostal11);
+    static ref RIGHTT11_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightSympatheticChain);
+        nerve_list.push(HumanNerve::RightIntercostal11);
         nerve_list
         
     };
 
-    static ref RIGHTT12_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightSympatheticChain);
-        nerve_list.insert(HumanNerve::RightSubcostal);
+    static ref RIGHTT12_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightSympatheticChain);
+        nerve_list.push(HumanNerve::RightSubcostal);
         nerve_list
         
     };
 
-    static ref RIGHTL1_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightSympatheticChain);
-        nerve_list.insert(HumanNerve::RightIliohypogastric);
-        nerve_list.insert(HumanNerve::RightIlioInguinal);
-        nerve_list.insert(HumanNerve::RightGenitofemoral);
+    static ref RIGHTL1_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightSympatheticChain);
+        nerve_list.push(HumanNerve::RightIliohypogastric);
+        nerve_list.push(HumanNerve::RightIlioInguinal);
+        nerve_list.push(HumanNerve::RightGenitofemoral);
         nerve_list
         
     };
 
-    static ref RIGHTL2_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightSympatheticChain);
-        nerve_list.insert(HumanNerve::RightLumbarPlexus);
-        nerve_list.insert(HumanNerve::RightGenitofemoral);
-        nerve_list.insert(HumanNerve::RightObturator);
+    static ref RIGHTL2_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightSympatheticChain);
+        nerve_list.push(HumanNerve::RightLumbarPlexus);
+        nerve_list.push(HumanNerve::RightGenitofemoral);
+        nerve_list.push(HumanNerve::RightObturator);
         nerve_list
         
     };
 
-    static ref RIGHTL3_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightSympatheticChain);
-        nerve_list.insert(HumanNerve::RightLumbarPlexus);
-        nerve_list.insert(HumanNerve::RightObturator);
+    static ref RIGHTL3_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightSympatheticChain);
+        nerve_list.push(HumanNerve::RightLumbarPlexus);
+        nerve_list.push(HumanNerve::RightObturator);
         nerve_list
         
     };
 
-    static ref RIGHTL4_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightSympatheticChain);
-        nerve_list.insert(HumanNerve::RightLumbarPlexus);
-        nerve_list.insert(HumanNerve::RightSacralPlexus);
-        nerve_list.insert(HumanNerve::RightObturator);
+    static ref RIGHTL4_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightSympatheticChain);
+        nerve_list.push(HumanNerve::RightLumbarPlexus);
+        nerve_list.push(HumanNerve::RightSacralPlexus);
+        nerve_list.push(HumanNerve::RightObturator);
         nerve_list
         
     };
 
-    static ref RIGHTL5_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightSympatheticChain);
-        nerve_list.insert(HumanNerve::RightSacralPlexus);
+    static ref RIGHTL5_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightSympatheticChain);
+        nerve_list.push(HumanNerve::RightSacralPlexus);
         nerve_list
         
     };
 
-    static ref RIGHTS1_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightSympatheticChain);
-        nerve_list.insert(HumanNerve::RightSacralPlexus);
+    static ref RIGHTS1_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightSympatheticChain);
+        nerve_list.push(HumanNerve::RightSacralPlexus);
         nerve_list
         
     };
 
-    static ref RIGHTS2_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightSympatheticChain);
-        nerve_list.insert(HumanNerve::RightSacralPlexus);
-        nerve_list.insert(HumanNerve::RightPudendal);
+    static ref RIGHTS2_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightSympatheticChain);
+        nerve_list.push(HumanNerve::RightSacralPlexus);
+        nerve_list.push(HumanNerve::RightPudendal);
         nerve_list
         
     };
 
-    static ref RIGHTS3_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightSympatheticChain);
-        nerve_list.insert(HumanNerve::RightSacralPlexus);
-        nerve_list.insert(HumanNerve::RightPudendal);
+    static ref RIGHTS3_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightSympatheticChain);
+        nerve_list.push(HumanNerve::RightSacralPlexus);
+        nerve_list.push(HumanNerve::RightPudendal);
         nerve_list
         
     };
 
-    static ref RIGHTS4_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightSympatheticChain);
-        nerve_list.insert(HumanNerve::RightPudendal);
+    static ref RIGHTS4_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightSympatheticChain);
+        nerve_list.push(HumanNerve::RightPudendal);
         nerve_list
         
     };
 
-    static ref RIGHTS5_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightSympatheticChain);
+    static ref RIGHTS5_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightSympatheticChain);
         nerve_list
         
     };
 
-    static ref RIGHTINTERNALCAROTID_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTINTERNALCAROTID_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTSYMPATHETICCHAIN_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::EsophagealPlexus);
-        nerve_list.insert(HumanNerve::SuperficialCardiacPlexus);
-        nerve_list.insert(HumanNerve::DeepCardiacPlexus);
-        nerve_list.insert(HumanNerve::PulmonaryPlexus);
-        nerve_list.insert(HumanNerve::RightGreaterThoracicSplanchic);
-        nerve_list.insert(HumanNerve::RightLesserThoracicSplanchic);
-        nerve_list.insert(HumanNerve::RightLeastThoracicSplanchic);
-        nerve_list.insert(HumanNerve::RightLumbarSplanchic);
-        nerve_list.insert(HumanNerve::HypogastricPlexus);
+    static ref RIGHTSYMPATHETICCHAIN_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::EsophagealPlexus);
+        nerve_list.push(HumanNerve::SuperficialCardiacPlexus);
+        nerve_list.push(HumanNerve::DeepCardiacPlexus);
+        nerve_list.push(HumanNerve::PulmonaryPlexus);
+        nerve_list.push(HumanNerve::RightGreaterThoracicSplanchic);
+        nerve_list.push(HumanNerve::RightLesserThoracicSplanchic);
+        nerve_list.push(HumanNerve::RightLeastThoracicSplanchic);
+        nerve_list.push(HumanNerve::RightLumbarSplanchic);
+        nerve_list.push(HumanNerve::HypogastricPlexus);
         nerve_list
         
     };
 
-    static ref RIGHTGREATERTHORACICSPLANCHIC_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTGREATERTHORACICSPLANCHIC_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTLESSERTHORACICSPLANCHIC_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::CeliacPlexus);
+    static ref RIGHTLESSERTHORACICSPLANCHIC_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::CeliacPlexus);
         nerve_list
         
     };
 
-    static ref RIGHTLEASTTHORACICSPLANCHIC_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightRenalPlexus);
-        nerve_list.insert(HumanNerve::SuperiorMesentericPlexus);
-        nerve_list.insert(HumanNerve::RightIntermesentericPlexus);
-        nerve_list.insert(HumanNerve::InferiorMesentericPlexus);
+    static ref RIGHTLEASTTHORACICSPLANCHIC_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightRenalPlexus);
+        nerve_list.push(HumanNerve::SuperiorMesentericPlexus);
+        nerve_list.push(HumanNerve::RightIntermesentericPlexus);
+        nerve_list.push(HumanNerve::InferiorMesentericPlexus);
         nerve_list
         
     };
 
-    static ref RIGHTRENALPLEXUS_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTRENALPLEXUS_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTINTERMESENTERICPLEXUS_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTINTERMESENTERICPLEXUS_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTLUMBARSPLANCHIC_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTLUMBARSPLANCHIC_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTGENITOFEMORAL_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightSaphenous);
+    static ref RIGHTGENITOFEMORAL_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightSaphenous);
         nerve_list
         
     };
 
-    static ref RIGHTOCCIPITAL_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTOCCIPITAL_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTGREATARICULAR_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTGREATARICULAR_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTANSACERVICALIS_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTANSACERVICALIS_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTINTERCOSTAL1_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTINTERCOSTAL1_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTINTERCOSTAL2_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTINTERCOSTAL2_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTINTERCOSTAL3_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTINTERCOSTAL3_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTINTERCOSTAL4_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTINTERCOSTAL4_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTINTERCOSTAL5_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTINTERCOSTAL5_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTINTERCOSTAL6_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTINTERCOSTAL6_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTINTERCOSTAL7_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTINTERCOSTAL7_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTINTERCOSTAL8_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTINTERCOSTAL8_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTINTERCOSTAL9_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTINTERCOSTAL9_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTINTERCOSTAL10_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTINTERCOSTAL10_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTINTERCOSTAL11_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTINTERCOSTAL11_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTSUBCOSTAL_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTSUBCOSTAL_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTSUPRACLAVICULAR_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTSUPRACLAVICULAR_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTPHRENIC_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTPHRENIC_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTLATERALBRACHIALPLEXUS_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightMedian);
-        nerve_list.insert(HumanNerve::RightMusculocutaneous);
-        nerve_list.insert(HumanNerve::RightLateralPectoral);
+    static ref RIGHTLATERALBRACHIALPLEXUS_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightMedian);
+        nerve_list.push(HumanNerve::RightMusculocutaneous);
+        nerve_list.push(HumanNerve::RightLateralPectoral);
         nerve_list
         
     };
 
-    static ref RIGHTPOSTERIORBRACHIALPLEXUS_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightAxillary);
-        nerve_list.insert(HumanNerve::RightRadial);
-        nerve_list.insert(HumanNerve::RightUpperSubscapular);
-        nerve_list.insert(HumanNerve::RightThoracodorsal);
-        nerve_list.insert(HumanNerve::RightLowerSubscapular);
+    static ref RIGHTPOSTERIORBRACHIALPLEXUS_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightAxillary);
+        nerve_list.push(HumanNerve::RightRadial);
+        nerve_list.push(HumanNerve::RightUpperSubscapular);
+        nerve_list.push(HumanNerve::RightThoracodorsal);
+        nerve_list.push(HumanNerve::RightLowerSubscapular);
         nerve_list
         
     };
 
-    static ref RIGHTMEDIALBRACHIALPLEXUS_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightMedian);
-        nerve_list.insert(HumanNerve::RightUlnar);
-        nerve_list.insert(HumanNerve::RightMedialPectoral);
-        nerve_list.insert(HumanNerve::RightMedialCutaneous);
+    static ref RIGHTMEDIALBRACHIALPLEXUS_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightMedian);
+        nerve_list.push(HumanNerve::RightUlnar);
+        nerve_list.push(HumanNerve::RightMedialPectoral);
+        nerve_list.push(HumanNerve::RightMedialCutaneous);
         nerve_list
         
     };
 
-    static ref RIGHTAXILLARY_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTAXILLARY_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTMUSCULOCUTANEOUS_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTMUSCULOCUTANEOUS_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTMEDIAN_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTMEDIAN_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTRADIAL_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTRADIAL_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTULNAR_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTULNAR_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTUPPERSUBSCAPULAR_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTUPPERSUBSCAPULAR_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTLOWERSUBSCAPULAR_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTLOWERSUBSCAPULAR_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTTHORACODORSAL_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTTHORACODORSAL_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTDORSALSCAPULAR_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTDORSALSCAPULAR_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTLONGTHORACIC_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTLONGTHORACIC_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTSUPRASCAPULAR_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTSUPRASCAPULAR_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTLATERALPECTORAL_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTLATERALPECTORAL_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTMEDIALPECTORAL_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTMEDIALPECTORAL_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTMEDIALCUTANEOUS_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTMEDIALCUTANEOUS_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTILIOHYPOGASTRIC_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTILIOHYPOGASTRIC_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTILIOINGUINAL_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTILIOINGUINAL_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTOBTURATOR_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTOBTURATOR_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTLUMBARPLEXUS_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightFemoral);
-        nerve_list.insert(HumanNerve::RightLateralFemoralCutaneous);
+    static ref RIGHTLUMBARPLEXUS_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightFemoral);
+        nerve_list.push(HumanNerve::RightLateralFemoralCutaneous);
         nerve_list
         
     };
 
-    static ref RIGHTSACRALPLEXUS_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightSciatic);
-        nerve_list.insert(HumanNerve::RightPosteriorFemoralCutaneous);
+    static ref RIGHTSACRALPLEXUS_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightSciatic);
+        nerve_list.push(HumanNerve::RightPosteriorFemoralCutaneous);
         nerve_list
         
     };
 
-    static ref RIGHTLATERALFEMORALCUTANEOUS_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTLATERALFEMORALCUTANEOUS_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTPOSTERIORFEMORALCUTANEOUS_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTPOSTERIORFEMORALCUTANEOUS_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTFEMORAL_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTFEMORAL_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTSCIATIC_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightCommonFibular);
+    static ref RIGHTSCIATIC_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightCommonFibular);
         nerve_list
         
     };
 
-    static ref RIGHTPUDENDAL_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightInferiorRectal);
+    static ref RIGHTPUDENDAL_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightInferiorRectal);
         nerve_list
         
     };
 
-    static ref RIGHTINFERIORRECTAL_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTINFERIORRECTAL_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTSAPHENOUS_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTSAPHENOUS_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTCOMMONFIBULAR_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightSuperficialFibular);
-        nerve_list.insert(HumanNerve::RightDeepFibular);
-        nerve_list.insert(HumanNerve::RightSural);
+    static ref RIGHTCOMMONFIBULAR_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightSuperficialFibular);
+        nerve_list.push(HumanNerve::RightDeepFibular);
+        nerve_list.push(HumanNerve::RightSural);
         nerve_list
         
     };
 
-    static ref RIGHTSUPERFICIALFIBULAR_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTSUPERFICIALFIBULAR_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTDEEPFIBULAR_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTDEEPFIBULAR_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTSURAL_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTSURAL_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
-    static ref RIGHTTIBIAL_DOWNLINK: HashSet<HumanNerve> = {
-        let mut nerve_list = HashSet::new();
-        nerve_list.insert(HumanNerve::RightPlantal);
+    static ref RIGHTTIBIAL_DOWNLINK: Vec<HumanNerve> = {
+        let mut nerve_list = Vec::new();
+        nerve_list.push(HumanNerve::RightPlantal);
         nerve_list
         
     };
 
-    static ref RIGHTPLANTAL_DOWNLINK: HashSet<HumanNerve> = {
-        HashSet::new()
+    static ref RIGHTPLANTAL_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
     };
 
 }
