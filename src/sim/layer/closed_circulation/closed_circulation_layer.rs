@@ -41,6 +41,12 @@ impl<O: Organism + 'static> ClosedCirculationLayer<O> {
 }
 
 impl<O: Organism, T: ClosedCircComponent<O>> SimComponentProcessor<O, T> for ClosedCirculationLayer<O> {
+    fn advance(&mut self, sim_time: SimTime) {
+        for (_, store) in self.composition_map.iter_mut() {
+            store.advance(sim_time);
+        }
+    }
+
     fn setup_component(&mut self, _: &mut SimConnector, component: &mut T) {
         let mut initializer = ClosedCircInitializer::new();
         component.cc_init(&mut initializer);
@@ -65,6 +71,7 @@ impl<O: Organism, T: ClosedCircComponent<O>> SimComponentProcessor<O, T> for Clo
         let cc_connector = component.cc_connector();
         cc_connector.sim_time = connector.sim_time;
         let mut trigger = false;
+
         // Determine if any substances have changed beyond the threshold
         for (vessel, track_map) in comp_settings.substance_notifies.iter_mut() {
             for (substance, tracker) in track_map.iter_mut() {

@@ -132,6 +132,10 @@ impl DigestionLayer {
 }
 
 impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessor<O, T> for DigestionLayer {
+    fn advance(&mut self, sim_time: SimTime) {
+        self.update(sim_time)        
+    }
+
     fn setup_component(&mut self, _connector: &mut SimConnector, component: &mut T) {
         let mut initializer = DigestionInitializer::new();
         component.digestion_init(&mut initializer);
@@ -140,9 +144,6 @@ impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessor<O, T> for Dige
     }
 
     fn prepare_component(&mut self, connector: &SimConnector, component: &mut T) -> bool {
-        // advances time and moves any consumables that need to be moved
-        self.update(connector.sim_time);
-
         let component_pos = self.component_map.get(component.id()).expect("Digestion component position is missing!");
         let trigger = self.trigger_map.contains(component_pos);
 

@@ -95,12 +95,7 @@ impl HumanSim {
     }
 
     fn execute_time_step(&mut self) {
-        let pending_updates: Vec<&str> = self.core.pending_updates().collect();
-        for module_name in pending_updates {
-            if self.connector_map.contains_key(module_name) {
-                // TODO execution logic
-            }
-        }
+        // TODO execution logic
     }
 }
 

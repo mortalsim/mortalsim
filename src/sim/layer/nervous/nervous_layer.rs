@@ -33,7 +33,7 @@ pub struct NervousLayer<O: Organism> {
 }
 
 impl<O: Organism + 'static> NervousLayer<O> {
-    fn advance(&mut self, sim_time: SimTime) {
+    fn update(&mut self, sim_time: SimTime) {
         if sim_time == self.sim_time {
             return;
         }
@@ -69,6 +69,10 @@ impl<O: Organism + 'static> NervousLayer<O> {
 }
 
 impl<O: Organism + 'static, T: NervousComponent<O>> SimComponentProcessor<O, T> for NervousLayer<O> {
+    fn advance(&mut self, sim_time: SimTime) {
+        self.update(sim_time)        
+    }
+
     fn setup_component(&mut self, _connector: &mut SimConnector, component: &mut T) {
         let mut initializer = NervousInitializer::new();
         component.nervous_init(&mut initializer);
@@ -86,7 +90,6 @@ impl<O: Organism + 'static, T: NervousComponent<O>> SimComponentProcessor<O, T> 
     }
 
     fn prepare_component(&mut self, connector: &SimConnector, component: &mut T) -> bool {
-        self.advance(connector.sim_time);
 
         if let Some(incoming) = self.notify_map.remove(component.id()) {
             let n_connector = component.nervous_connector();

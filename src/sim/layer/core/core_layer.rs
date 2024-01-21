@@ -43,17 +43,21 @@ impl CoreLayer {
         }
     }
 
-    /// handles internal registrations and initial outputs for modules
-    pub fn pending_updates<'a>(&'a mut self) -> impl Iterator<Item = &'static str> + 'a {
-        self.notify_map.keys().map(|n| *n)
-    }
+    // /// handles internal registrations and initial outputs for modules
+    // pub fn pending_updates<'a>(&'a mut self) -> impl Iterator<Item = &'static str> + 'a {
+    //     self.notify_map.keys().map(|n| *n)
+    // }
 
-    pub fn clear_notifications(&mut self) {
-        self.notify_map.clear()
-    }
+    // pub fn clear_notifications(&mut self) {
+    //     self.notify_map.clear()
+    // }
 }
 
 impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer {
+    fn advance(&mut self, sim_time: crate::sim::SimTime) {
+        // Nothing to do here at the moment        
+    }
+
     fn setup_component(&mut self, connector: &mut SimConnector, component: &mut T) {
         let mut initializer = CoreComponentInitializer::new();
         component.core_init(&mut initializer);
