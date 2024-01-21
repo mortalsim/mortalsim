@@ -1,10 +1,7 @@
 
-use std::borrow::BorrowMut;
-use std::fmt;
 use std::collections::{HashMap, BTreeMap, HashSet};
 use crate::sim::{SimConnector, SimTime};
 use crate::sim::organism::Organism;
-use crate::substance::SubstanceStore;
 use crate::util::{IdType, secs};
 use crate::sim::component::SimComponentProcessor;
 
@@ -143,7 +140,7 @@ impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessor<O, T> for Dige
         self.component_map.insert(component.id(), self.component_map.len());
     }
 
-    fn prepare_component(&mut self, connector: &SimConnector, component: &mut T) -> bool {
+    fn prepare_component(&mut self, _connector: &SimConnector, component: &mut T) -> bool {
         let component_pos = self.component_map.get(component.id()).expect("Digestion component position is missing!");
         let trigger = self.trigger_map.contains(component_pos);
 

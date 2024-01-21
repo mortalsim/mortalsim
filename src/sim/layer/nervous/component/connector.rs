@@ -1,10 +1,7 @@
-use std::collections::{HashMap, HashSet, BTreeMap};
+use std::collections::{HashMap, BTreeMap};
 use std::any::{TypeId, Any};
-use std::iter::Map;
-use std::sync::Arc;
 
 use downcast_rs::Downcast;
-use uuid::Uuid;
 
 use crate::event::Event;
 use crate::sim::organism::Organism;

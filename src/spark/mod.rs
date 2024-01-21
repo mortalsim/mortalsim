@@ -1,3 +1,5 @@
+
+#![allow(dead_code)]
 #[derive(Debug)]
 pub struct InitializerA {}
 #[derive(Debug)]
@@ -296,10 +298,7 @@ impl MainObject {
 mod tests {
     use super::ConnectorA;
     use super::ConnectorB;
-    use super::InitializerA;
-    use super::InitializerB;
     use super::MainObject;
-    use super::Module;
     use super::ModuleAB;
     use super::ModuleSoleA;
     use super::ModuleSoleB;

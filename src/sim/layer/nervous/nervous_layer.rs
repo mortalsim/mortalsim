@@ -1,13 +1,10 @@
 use std::collections::{HashMap, HashSet, BTreeMap};
 use std::any::{TypeId, Any};
 use std::mem::swap;
-use std::sync::Arc;
 
 use uuid::Uuid;
 
-use crate::event::Event;
 use crate::sim::{SimConnector, SimTime};
-use crate::sim::layer::SimLayer;
 use crate::sim::organism::Organism;
 use crate::sim::component::SimComponentProcessor;
 use crate::util::{OrderedTime, IdGenerator, IdType};

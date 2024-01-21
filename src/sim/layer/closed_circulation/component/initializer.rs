@@ -1,7 +1,5 @@
-use super::super::vessel::BloodVessel;
-use crate::event::Event;
 use crate::sim::organism::Organism;
-use crate::substance::{SubstanceConcentration, Substance, SubstanceStore, ConcentrationTracker};
+use crate::substance::{SubstanceConcentration, Substance, ConcentrationTracker};
 use std::collections::{HashMap, HashSet};
 
 pub struct ClosedCircInitializer<O: Organism> {

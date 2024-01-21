@@ -1,14 +1,9 @@
 mod connector;
 mod initializer;
-use crate::event::Event;
 use crate::sim::component::SimComponent;
 use crate::sim::organism::Organism;
 pub use connector::CoreConnector;
 pub use initializer::CoreComponentInitializer;
-use std::any::TypeId;
-use std::cell::RefCell;
-use std::collections::HashMap;
-use std::rc::Rc;
 
 pub trait CoreComponent<O: Organism>: SimComponent<O> {
     /// Initializes the module. Should register any `Event` objects to listen for
@@ -31,19 +26,13 @@ pub mod test {
     use super::CoreComponent;
     use super::{CoreComponentInitializer, CoreConnector};
     use crate::event::test::{TestEventA, TestEventB};
-    use crate::event::Event;
     use crate::sim::component::SimComponent;
     use crate::sim::component::registry::ComponentRegistry;
-    use crate::sim::SimState;
-    use crate::sim::layer::SimLayer;
     use crate::sim::organism::Organism;
     use crate::sim::organism::test::TestSim;
     use crate::units::base::Amount;
     use crate::units::base::Distance;
     use std::any::TypeId;
-    use std::collections::HashSet;
-    use std::path::Component;
-    use std::sync::{Arc, Mutex};
 
     pub struct TestComponentA {
         connector: CoreConnector,

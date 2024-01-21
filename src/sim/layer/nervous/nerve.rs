@@ -1,19 +1,14 @@
 use std::any::{Any, TypeId};
-use std::borrow::BorrowMut;
-use std::collections::hash_set;
-use std::{fmt, vec};
+use std::fmt;
 use std::hash::Hash;
 use std::str::FromStr;
-use std::sync::{Arc, Mutex};
 
-use downcast_rs::DowncastSync;
 use uuid::Uuid;
 
 use crate::event::Event;
 use crate::sim::SimTime;
 use crate::sim::layer::AnatomicalRegionIter;
 use crate::sim::organism::Organism;
-use crate::util::{IdType, IdGenerator};
 
 pub trait Nerve:
     FromStr + Hash + Clone + Copy + Eq + fmt::Debug + fmt::Display + Send + Sync + Into<&'static str>

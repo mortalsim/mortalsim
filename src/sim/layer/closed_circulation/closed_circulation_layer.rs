@@ -1,25 +1,14 @@
+use std::collections::HashMap;
+
 use crate::sim::organism::Organism;
 use crate::sim::{SimTime, SimConnector};
-use crate::sim::component::{SimComponent, SimComponentProcessor};
+use crate::sim::component::SimComponentProcessor;
 use crate::substance::{Substance, SubstanceConcentration, SubstanceStore};
 use crate::util::IdType;
 
-use super::vessel::{BloodVessel, BloodVesselType, VesselIter};
 use super::{
-    ClosedCircConnector, ClosedCircInitializer, ClosedCircComponent, BloodStore
+    ClosedCircInitializer, ClosedCircComponent, BloodStore
 };
-use petgraph::graph::{Graph, Neighbors, NodeIndex};
-use petgraph::Direction;
-use simple_si_units::chemical::Concentration;
-use std::any::{Any, TypeId};
-use std::cmp::Ordering;
-use std::collections::hash_set;
-use std::collections::{HashMap, HashSet};
-use std::hash::{Hash, Hasher};
-use std::mem::swap;
-use std::rc::Rc;
-use std::string;
-use uuid::Uuid;
 
 pub struct ClosedCirculationLayer<O: Organism + 'static> {
     blood_notify_map: HashMap<O::VesselType, HashMap<Substance, Vec<(SubstanceConcentration, &'static str)>>>,
@@ -116,7 +105,7 @@ impl<O: Organism, T: ClosedCircComponent<O>> SimComponentProcessor<O, T> for Clo
 #[cfg(test)]
 mod tests {
     use crate::sim::SimConnector;
-    use crate::sim::organism::test::{TestSim, TestBloodVessel};
+    use crate::sim::organism::test::TestSim;
     use crate::sim::layer::closed_circulation::component::test::TestCircComponentA;
     use crate::sim::component::SimComponentProcessor;
     use super::ClosedCirculationLayer;

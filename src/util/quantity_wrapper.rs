@@ -7,9 +7,14 @@ type Time = crate::units::base::Time<f64>;
 #[repr(transparent)]
 pub struct OrderedTime(pub Time);
 
-impl OrderedTime {
-    /// Get the value out.
-    pub fn get_value(self) -> Time {
+impl Into<Time> for OrderedTime {
+    fn into(self) -> Time {
+        self.0
+    }
+}
+
+impl Into<Time> for &OrderedTime {
+    fn into(self) -> Time {
         self.0
     }
 }

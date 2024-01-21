@@ -3,13 +3,11 @@
 //! Provides an Ord wrapper for `Event` handling functions
 
 use crate::event::Event;
-use crate::event::EventHandler;
 use crate::util::id_gen::{IdGenerator, IdType};
 use std::cmp;
 use std::fmt;
 use std::sync::Arc;
 use std::sync::Mutex;
-use uuid::Uuid;
 
 lazy_static! {
     static ref ID_GEN: Mutex<IdGenerator> = Mutex::new(IdGenerator::new());

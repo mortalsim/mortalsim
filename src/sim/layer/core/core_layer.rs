@@ -1,17 +1,11 @@
-use crate::event::Event;
 use crate::sim::component::SimComponentProcessor;
 use crate::sim::SimConnector;
 use crate::sim::organism::Organism;
-use crate::util::id_gen::{IdType, InvalidIdError};
-use anyhow::Result;
-use either::Either;
+use crate::util::id_gen::IdType;
 use std::any::TypeId;
-use std::cell::{Ref, RefCell};
-use std::collections::{BTreeSet, HashMap, HashSet, VecDeque};
+use std::collections::{HashMap, HashSet};
 use std::fmt;
-use std::rc::Rc;
-use std::sync::{Arc, Mutex};
-use uuid::Uuid;
+use std::sync::Arc;
 
 use super::component::{CoreComponent, CoreComponentInitializer};
 
@@ -54,7 +48,7 @@ impl CoreLayer {
 }
 
 impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer {
-    fn advance(&mut self, sim_time: crate::sim::SimTime) {
+    fn advance(&mut self, _sim_time: crate::sim::SimTime) {
         // Nothing to do here at the moment        
     }
 

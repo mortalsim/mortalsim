@@ -1,6 +1,4 @@
 use crate::event::Event;
-use anyhow::{Error, Result};
-use std::any::Any;
 use std::any::TypeId;
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
@@ -143,14 +141,10 @@ mod tests {
     use super::SimState;
     use crate::event::test::TestEventA;
     use crate::event::test::TestEventB;
-    use crate::event::Event;
     use crate::units::base::Amount;
     use crate::units::base::Distance;
-    use simple_logger::SimpleLogger;
     use std::any::TypeId;
-    use std::cell::{Cell, RefCell};
     use std::collections::hash_set::HashSet;
-    use std::time::{Duration, SystemTime};
 
     #[test]
     fn test_sim_state() {

@@ -1,4 +1,4 @@
-#![allow(dead_code, unused_imports, unused_macros)]
+#![allow(dead_code)]
 #![recursion_limit = "1024"]
 
 #[macro_use]

@@ -1,11 +1,6 @@
 use downcast_rs::DowncastSync;
-use std::any::TypeId;
-use std::fmt::{Debug, Display};
+use std::fmt::Debug;
 use std::sync::Arc;
-use uuid::Uuid;
-
-// mod blood_events;
-// pub use blood_events::*;
 
 pub type EventHandler<T> = dyn FnMut(Arc<T>);
 

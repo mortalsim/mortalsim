@@ -1,6 +1,4 @@
-use ordered_float::NotNan;
 use std::f64::consts::E;
-use std::ops::{Div, Mul};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Copy)]
 pub enum BoundFn {

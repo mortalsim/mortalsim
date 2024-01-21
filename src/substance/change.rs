@@ -1,9 +1,6 @@
 use super::SubstanceConcentration;
 use crate::sim::SimTime;
-use crate::substance::Substance;
-use crate::util::math::{bound_linear, bound_sigmoid};
 use crate::util::BoundFn;
-use anyhow::{Error, Result};
 
 #[derive(Debug, Clone)]
 pub struct SubstanceChange {
@@ -72,7 +69,7 @@ impl SubstanceChange {
 #[cfg(test)]
 mod tests {
 
-    use super::{BoundFn, SubstanceConcentration, SubstanceChange, SimTime};
+    use super::{BoundFn, SubstanceChange};
     use crate::util::{mmol_per_L, secs};
 
     #[test]

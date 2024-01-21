@@ -1,14 +1,7 @@
-use super::{CoreConnector, SimComponent};
 use crate::event::Event;
 use crate::hub::event_transformer::{EventTransformer, TransformerItem};
-use crate::hub::EventHub;
-use crate::sim::{SimState, TimeManager};
-use crate::util::id_gen::IdType;
 use std::any::TypeId;
-use std::cell::RefCell;
 use std::collections::HashSet;
-use std::rc::{Rc, Weak};
-use std::sync::Arc;
 
 pub struct CoreComponentInitializer {
     /// Input events for the associated component

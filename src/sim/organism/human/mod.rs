@@ -9,8 +9,6 @@ pub use human_nervous::HumanNerve;
 
 use super::Organism;
 
-pub mod component;
-
 pub struct HumanSim {}
 
 impl Organism for HumanSim {

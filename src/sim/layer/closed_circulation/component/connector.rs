@@ -1,14 +1,9 @@
-use super::super::vessel::{BloodVessel, BloodVesselType, VesselIter};
 use crate::sim::SimTime;
 use crate::sim::organism::Organism;
 use crate::substance::substance_wrapper::substance_store_wrapper;
-use crate::substance::{SubstanceConcentration, Substance, SubstanceStore, SubstanceChange, ConcentrationTracker};
-use crate::util::{BoundFn, IdType, IdGenerator};
-use super::ClosedCircInitializer;
-use anyhow::{Result, Error};
-use petgraph::Direction;
-use std::collections::{HashMap, HashSet};
-use std::rc::Rc;
+use crate::substance::{Substance, SubstanceStore};
+use crate::util::IdType;
+use std::collections::HashMap;
 
 pub struct BloodStore {
     store: SubstanceStore,
@@ -84,12 +79,9 @@ pub mod test {
 
     use simple_si_units::chemical::Concentration;
     use crate::sim::layer::closed_circulation::component::connector::BloodStore;
-    use crate::sim::organism::test::{TestSim, TestBloodVessel};
     use crate::sim::SimTime;
     use crate::substance::{SubstanceStore, Substance};
     use crate::util::mmol_per_L;
-
-    use super::ClosedCircConnector;
 
     #[test]
     fn test_get_concentration() {

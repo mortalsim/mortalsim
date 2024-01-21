@@ -6,10 +6,6 @@ pub use initializer::ClosedCircInitializer;
 
 use crate::sim::component::SimComponent;
 use crate::sim::organism::Organism;
-use crate::substance::SubstanceConcentration;
-use crate::util::{mmol_per_L, math};
-
-use super::vessel::BloodVessel;
 
 pub trait ClosedCircComponent<O: Organism>: SimComponent<O> {
 
@@ -31,29 +27,15 @@ pub trait ClosedCircComponent<O: Organism>: SimComponent<O> {
 #[cfg(test)]
 pub mod test {
     use simple_si_units::chemical::Concentration;
-    use simple_si_units::chemical::Molality;
-    use simple_si_units::base::Time;
-
-    use crate::sim::component::wrapper::closed_circulation::ClosedCircComponentWrapper;
     use crate::sim::layer::closed_circulation::component::connector::BloodStore;
-    use crate::sim::organism::Organism;
     use crate::sim::organism::test::{TestSim, TestBloodVessel};
-    use super::BloodVessel;
     use super::ClosedCircComponent;
     use super::{ClosedCircConnector, ClosedCircInitializer};
     use crate::sim::SimTime;
     use crate::sim::component::registry::ComponentRegistry;
-    use crate::sim::layer::closed_circulation::VesselIter;
     use crate::sim::component::SimComponent;
-    use crate::event::test::{TestEventA, TestEventB};
-    use crate::event::Event;
     use crate::substance::Substance;
-    use crate::substance::SubstanceStore;
     use crate::util::mmol_per_L;
-    use crate::util::BoundFn;
-    use std::collections::HashMap;
-    use std::collections::HashSet;
-    use std::sync::Arc;
     
     pub struct TestCircComponentA {
         cc_sim_connector: ClosedCircConnector<TestSim>

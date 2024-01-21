@@ -6,11 +6,10 @@
 use super::event_listener::{EventListener, GenericListener, ListenerItem};
 use super::event_transformer::{EventTransformer, TransformerItem};
 use crate::event::Event;
-use crate::util::id_gen::{IdGenerator, IdType, InvalidIdError};
+use crate::util::id_gen::{IdType, InvalidIdError};
 use anyhow::Result;
 use core::any::TypeId;
 use std::collections::HashMap;
-use std::error::Error;
 use std::fmt;
 use std::sync::Arc;
 use uuid::Uuid;
@@ -407,7 +406,6 @@ mod tests {
     use crate::units::base::Amount;
     use std::cell::{Cell, RefCell};
     use std::sync::Arc;
-    use std::time::{Duration, SystemTime};
 
     #[test]
     fn test_hub() {

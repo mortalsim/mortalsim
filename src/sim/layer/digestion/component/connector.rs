@@ -1,12 +1,11 @@
 use std::collections::HashMap;
-use std::process::exit;
 
 use crate::sim::layer::digestion::DigestionDirection;
 use crate::units::geometry::Volume;
 use crate::sim::SimTime;
 use crate::sim::layer::digestion::consumable::Consumable;
 use crate::substance::substance_wrapper::substance_store_wrapper;
-use crate::substance::{Substance, SubstanceChange, SubstanceStore};
+use crate::substance::Substance;
 use crate::util::IdType;
 
 pub struct Consumed {

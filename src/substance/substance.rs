@@ -1,6 +1,4 @@
-use std::collections::HashMap;
 use std::fmt;
-use std::sync::Mutex;
 use crate::units::chemical::MolarMass;
 
 /// Enumeration of chemical substances.
@@ -52,7 +50,7 @@ impl fmt::Display for Substance {
 
 impl Substance {
     /// Full substance name
-    fn name(&self) -> &'static str {
+    pub fn name(&self) -> &'static str {
         match self {
             Substance::ADP => "Adenosine Diphosphate",
             Substance::AMP => "Adenosine Monophosphate",
@@ -80,7 +78,7 @@ impl Substance {
         }
     }
     /// Overall substance charge
-    fn charge(&self) -> i8 {
+    pub fn charge(&self) -> i8 {
         match self {
             Substance::ADP => 0,
             Substance::AMP => 0,
@@ -108,7 +106,7 @@ impl Substance {
         }
     }
     /// Typical molar mass of the substance
-    fn molar_mass(&self) -> MolarMass<f64> {
+    pub fn molar_mass(&self) -> MolarMass<f64> {
         match self {
             Substance::ADP => MolarMass::from_gpmol(427.201),
             Substance::AMP => MolarMass::from_gpmol(347.2212),

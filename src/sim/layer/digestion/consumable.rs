@@ -1,8 +1,5 @@
 use std::collections::HashMap;
-use std::fmt::{self, Debug};
-use std::cell::RefCell;
-use std::sync::{Mutex, Arc};
-use std::rc::Rc;
+use std::fmt;
 use crate::sim::SimTime;
 use crate::substance::{SubstanceStore, Substance};
 use crate::substance::substance_wrapper::substance_store_wrapper;
@@ -56,7 +53,7 @@ impl Consumable {
 pub mod test {
     use crate::units::geometry::Volume;
     use crate::substance::{SubstanceStore, Substance};
-    use crate::util::{mmol_per_L, secs, BoundFn};
+    use crate::util::{mmol_per_L, secs};
 
     use super::Consumable;
 

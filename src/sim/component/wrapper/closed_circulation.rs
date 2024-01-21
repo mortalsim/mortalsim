@@ -1,14 +1,10 @@
 use core::panic;
-use std::{marker::PhantomData, collections::HashSet};
+use std::marker::PhantomData;
 
-use super::{
-    super::{ComponentRegistry, SimComponent},
-    ComponentWrapper,
-};
+use super::super::{ComponentRegistry, SimComponent};
 use crate::sim::layer::core::component::{CoreComponent, CoreComponentInitializer, CoreConnector};
-use crate::sim::layer::SimLayer;
 use crate::sim::organism::Organism;
-use crate::sim::layer::closed_circulation::{ClosedCircComponent, ClosedCircInitializer, ClosedCircConnector, BloodVessel};
+use crate::sim::layer::closed_circulation::{ClosedCircComponent, ClosedCircInitializer, ClosedCircConnector};
 
 pub struct ClosedCircComponentWrapper<O: Organism + 'static, T: ClosedCircComponent<O> + 'static>(pub T, pub PhantomData<O>);
 

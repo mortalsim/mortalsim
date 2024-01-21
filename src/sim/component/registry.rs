@@ -1,8 +1,6 @@
 use crate::sim::{layer::core::component::CoreComponent, organism::Organism};
 use crate::sim::layer::closed_circulation::ClosedCircComponent;
-use std::collections::HashMap;
 use std::marker::PhantomData;
-use std::path::Component;
 
 use super::SimComponent;
 use super::wrapper::closed_circulation::ClosedCircComponentWrapper;

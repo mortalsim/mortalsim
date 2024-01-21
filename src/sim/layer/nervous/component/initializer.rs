@@ -27,6 +27,5 @@ impl<O: Organism> NervousInitializer<O> {
 
 #[cfg(test)]
 pub mod test {
-    use super::NervousInitializer;
     
 }

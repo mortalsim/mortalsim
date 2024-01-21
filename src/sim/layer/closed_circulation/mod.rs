@@ -1,7 +1,3 @@
-use std::any::{Any, TypeId};
-use std::collections::HashMap;
-use std::sync::Mutex;
-
 mod closed_circulation_layer;
 mod component;
 pub mod vessel;

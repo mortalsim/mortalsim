@@ -1,11 +1,9 @@
 use crate::event::Event;
 use crate::sim::{SimState, SimTime};
-use crate::util::IdGenerator;
 use crate::util::id_gen::IdType;
-use anyhow::{Error, Result};
+use anyhow::Result;
 use std::any::TypeId;
 use std::collections::HashMap;
-use std::ptr::null;
 use std::sync::{Arc, Mutex};
 
 /// Provides methods for `Sim` modules to interact with the simulation
@@ -120,10 +118,9 @@ pub mod test {
     use std::collections::HashMap;
     use std::sync::{Arc, Mutex};
 
-    use crate::event::Event;
     use crate::event::test::TestEventB;
     use crate::sim::SimState;
-    use crate::{sim::SimTime, event::test::TestEventA};
+    use crate::event::test::TestEventA;
     use crate::units::base::Amount;
     use crate::units::base::Distance;
     use crate::units::base::Time;

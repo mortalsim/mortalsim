@@ -1,15 +1,11 @@
 use super::{SubstanceConcentration, SubstanceChange, ZERO_CONCENTRATION};
 use crate::sim::SimTime;
 use crate::substance::Substance;
-use crate::util::id_gen::{IdGenerator, IdType, InvalidIdError};
-use crate::util::{mmol_per_L, secs, BoundFn};
-use anyhow::Result;
-use core::any::TypeId;
+use crate::util::id_gen::{IdGenerator, IdType};
+use crate::util::{secs, BoundFn};
 use core::panic;
-use std::cell::RefCell;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::fmt;
-use std::ops::Bound;
 use uuid::Uuid;
 
 /// A storage construct for Substance concentrations in a volume
@@ -161,7 +157,7 @@ impl SubstanceStore {
     /// * `change`     - the change to exert on the substance
     ///
     /// Returns an id corresponding to this change
-    pub(crate) fn schedule_substance_change(
+    pub fn schedule_substance_change(
         &mut self,
         substance: Substance,
         change: SubstanceChange
@@ -181,7 +177,7 @@ impl SubstanceStore {
     /// * `change_id`  - change id returned previously
     ///
     /// Returns a reference to the `SubstanceChange`
-    pub(crate) fn get_substance_change<'a>(
+    pub fn get_substance_change<'a>(
         &'a self,
         substance: &Substance,
         change_id: &IdType,
@@ -245,7 +241,7 @@ impl SubstanceStore {
 #[cfg(test)]
 mod tests {
     use super::{
-        BoundFn, SubstanceConcentration, Substance, SubstanceStore, SimTime,
+        BoundFn, Substance, SubstanceStore,
         ZERO_CONCENTRATION,
     };
     use crate::util::{mmol_per_L, secs};

@@ -11,7 +11,7 @@ use crate::util::quantity_wrapper::OrderedTime;
 use crate::units::base::Time;
 use anyhow::{Error, Result};
 use std::any::TypeId;
-use std::collections::hash_map::{HashMap, Keys};
+use std::collections::hash_map::HashMap;
 use std::collections::BTreeMap;
 use std::fmt;
 use uuid::Uuid;
@@ -74,7 +74,7 @@ impl TimeManager {
         let evt_queue_next = self.event_queue.iter().next();
 
         if evt_queue_next.is_some() {
-            self.sim_time = evt_queue_next.unwrap().0.get_value();
+            self.sim_time = evt_queue_next.unwrap().0.into();
         }
     }
 
@@ -273,7 +273,6 @@ impl TimeManager {
 
 #[cfg(test)]
 mod tests {
-    use super::Event;
     use super::Time;
     use super::TimeManager;
     use crate::event::test::TestEventA;
@@ -282,7 +281,6 @@ mod tests {
     use crate::units::base::Amount;
     use crate::units::base::Distance;
     use std::any::TypeId;
-    use std::cell::Cell;
 
     #[test]
     fn advance_test() {

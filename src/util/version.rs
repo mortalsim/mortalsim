@@ -38,7 +38,7 @@ impl From<&str> for Version {
 
 impl Into<String> for Version {
     fn into(self) -> String {
-        format!("{}.{}.{}", self.major, self.minor, self.patch)
+        self.as_string()
     }
 }
 
