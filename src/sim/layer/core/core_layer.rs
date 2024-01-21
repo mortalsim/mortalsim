@@ -48,9 +48,6 @@ impl CoreLayer {
 }
 
 impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer {
-    fn advance(&mut self, _sim_time: crate::sim::SimTime) {
-        // Nothing to do here at the moment        
-    }
 
     fn setup_component(&mut self, connector: &mut SimConnector, component: &mut T) {
         let mut initializer = CoreComponentInitializer::new();

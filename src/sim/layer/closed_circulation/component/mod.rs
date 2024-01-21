@@ -28,7 +28,8 @@ pub trait ClosedCircComponent<O: Organism>: SimComponent<O> {
 pub mod test {
     use simple_si_units::chemical::Concentration;
     use crate::sim::layer::closed_circulation::component::connector::BloodStore;
-    use crate::sim::organism::test::{TestSim, TestBloodVessel};
+    use crate::sim::layer::closed_circulation::vessel::test::TestBloodVessel;
+    use crate::sim::organism::test::TestSim;
     use super::ClosedCircComponent;
     use super::{ClosedCircConnector, ClosedCircInitializer};
     use crate::sim::SimTime;

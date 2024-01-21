@@ -62,7 +62,8 @@ impl<O: Organism> ClosedCircInitializer<O> {
 
 #[cfg(test)]
 pub mod test {
-    use crate::sim::organism::test::{TestBloodVessel, TestSim};
+    use crate::sim::layer::closed_circulation::vessel::test::TestBloodVessel;
+    use crate::sim::organism::test::TestSim;
     use crate::substance::Substance;
     use crate::util::mmol_per_L;
 

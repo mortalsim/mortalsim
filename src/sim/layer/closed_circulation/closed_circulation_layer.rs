@@ -27,14 +27,15 @@ impl<O: Organism + 'static> ClosedCirculationLayer<O> {
             component_change_maps: HashMap::new(),
         }
     }
-}
 
-impl<O: Organism, T: ClosedCircComponent<O>> SimComponentProcessor<O, T> for ClosedCirculationLayer<O> {
-    fn advance(&mut self, sim_time: SimTime) {
+    pub fn advance(&mut self, sim_time: SimTime) {
         for (_, store) in self.composition_map.iter_mut() {
             store.advance(sim_time);
         }
     }
+}
+
+impl<O: Organism, T: ClosedCircComponent<O>> SimComponentProcessor<O, T> for ClosedCirculationLayer<O> {
 
     fn setup_component(&mut self, _: &mut SimConnector, component: &mut T) {
         let mut initializer = ClosedCircInitializer::new();
@@ -52,6 +53,8 @@ impl<O: Organism, T: ClosedCircComponent<O>> SimComponentProcessor<O, T> for Clo
                 notify_list.push((tracker.threshold, component.id()));
             }
         }
+
+        self.component_settings.insert(component.id(), initializer);
     }
 
     fn prepare_component(&mut self, connector: &SimConnector, component: &mut T) -> bool {
@@ -104,10 +107,14 @@ impl<O: Organism, T: ClosedCircComponent<O>> SimComponentProcessor<O, T> for Clo
 
 #[cfg(test)]
 mod tests {
-    use crate::sim::SimConnector;
+    use crate::sim::{SimConnector, SimTime};
+    use crate::sim::layer::closed_circulation::{BloodStore, ClosedCircComponent};
+    use crate::sim::layer::closed_circulation::vessel::test::TestBloodVessel;
     use crate::sim::organism::test::TestSim;
     use crate::sim::layer::closed_circulation::component::test::TestCircComponentA;
-    use crate::sim::component::SimComponentProcessor;
+    use crate::sim::component::{SimComponentProcessor, SimComponent};
+    use crate::substance::Substance;
+    use crate::util::mmol_per_L;
     use super::ClosedCirculationLayer;
 
     #[test]
@@ -116,10 +123,30 @@ mod tests {
     }
 
     #[test]
-    fn test_setup() {
+    fn test_layer_process() {
         let mut layer = ClosedCirculationLayer::<TestSim>::new();
-        let mut component_a = TestCircComponentA::new();
+        let mut component = TestCircComponentA::new();
         let mut connector = SimConnector::new();
-        layer.setup_component(&mut connector, &mut component_a);
+        layer.setup_component(&mut connector, &mut component);
+
+        component.cc_connector().vessel_map.insert(TestBloodVessel::VenaCava, BloodStore::new());
+
+        layer.prepare_component(&mut connector, &mut component);
+        component.run();
+        layer.process_component(&mut connector, &mut component);
+
+        layer.advance(SimTime::from_s(2.0));
+
+        let glc = layer.composition_map.get(&TestBloodVessel::VenaCava).unwrap().concentration_of(&Substance::GLC);
+        let expected = mmol_per_L!(1.0);
+        let threshold = mmol_per_L!(0.0001);
+        assert!(glc > expected - threshold && glc < expected + threshold, "GLC not within {} of {}", threshold, expected);
+        
+        layer.advance(SimTime::from_s(2.0));
+
+        let glc = layer.composition_map.get(&TestBloodVessel::VenaCava).unwrap().concentration_of(&Substance::GLC);
+        let expected = mmol_per_L!(1.0);
+        let threshold = mmol_per_L!(0.0001);
+        assert!(glc > expected - threshold && glc < expected + threshold, "GLC not within {} of {}", threshold, expected);
     }
 }

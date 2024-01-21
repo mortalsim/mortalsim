@@ -66,7 +66,7 @@ impl DigestionLayer {
         self.elimination_list.drain(..)
     }
 
-    fn update(&mut self, sim_time: SimTime) {
+    fn advance(&mut self, sim_time: SimTime) {
         if sim_time == self.sim_time {
             return;
         }
@@ -129,10 +129,6 @@ impl DigestionLayer {
 }
 
 impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessor<O, T> for DigestionLayer {
-    fn advance(&mut self, sim_time: SimTime) {
-        self.update(sim_time)        
-    }
-
     fn setup_component(&mut self, _connector: &mut SimConnector, component: &mut T) {
         let mut initializer = DigestionInitializer::new();
         component.digestion_init(&mut initializer);
