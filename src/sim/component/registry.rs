@@ -1,13 +1,13 @@
 use crate::sim::layer::{DigestionComponent, NervousComponent};
 use crate::sim::{layer::core::component::CoreComponent, organism::Organism};
-use crate::sim::layer::closed_circulation::ClosedCircComponent;
+use crate::sim::layer::circulation::CirculationComponent;
 use std::marker::PhantomData;
 
-use super::wrapper::digestion::DigestionComponentWrapper;
-use super::wrapper::nervous::NervousComponentWrapper;
+use super::wrapper_ol::digestion::DigestionComponentWrapper;
+use super::wrapper_ol::nervous::NervousComponentWrapper;
 use super::SimComponent;
-use super::wrapper::closed_circulation::ClosedCircComponentWrapper;
-use super::wrapper::core::CoreComponentWrapper;
+use super::wrapper_ol::circulation::CirculationComponentWrapper;
+use super::wrapper_ol::core::CoreComponentWrapper;
 
 pub struct ComponentRegistry<O: Organism>(pub Vec<Box<dyn SimComponent<O>>>);
 
@@ -19,9 +19,9 @@ impl<O: Organism + 'static> ComponentRegistry<O> {
         self.0
             .push(Box::new(CoreComponentWrapper(component, PhantomData)));
     }
-    pub fn add_closed_circulation_component(&mut self, component: impl ClosedCircComponent<O> + 'static) {
+    pub fn add_closed_circ_component(&mut self, component: impl CirculationComponent<O> + 'static) {
         self.0
-            .push(Box::new(ClosedCircComponentWrapper(component, PhantomData)));
+            .push(Box::new(CirculationComponentWrapper(component, PhantomData)));
     }
     pub fn add_digestion_component(&mut self, component: impl DigestionComponent<O> + 'static) {
         self.0

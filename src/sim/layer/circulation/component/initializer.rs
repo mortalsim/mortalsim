@@ -2,7 +2,7 @@ use crate::sim::organism::Organism;
 use crate::substance::{SubstanceConcentration, Substance, ConcentrationTracker};
 use std::collections::{HashMap, HashSet};
 
-pub struct ClosedCircInitializer<O: Organism> {
+pub struct CirculationInitializer<O: Organism> {
     /// BloodVessel connections for the associated component
     pub(crate) vessel_connections: HashSet<O::VesselType>,
     /// Notifications requested for the associated component
@@ -11,16 +11,16 @@ pub struct ClosedCircInitializer<O: Organism> {
     pub(crate) attach_all: bool,
 }
 
-impl<O: Organism> ClosedCircInitializer<O> {
-    pub fn new() -> ClosedCircInitializer<O> {
-        ClosedCircInitializer {
+impl<O: Organism> CirculationInitializer<O> {
+    pub fn new() -> CirculationInitializer<O> {
+        CirculationInitializer {
             vessel_connections: HashSet::new(),
             substance_notifies: HashMap::new(),
             attach_all: false,
         }
     }
 
-    /// Registers the associated `ClosedCircComponent` to `run` whenever the
+    /// Registers the associated `CirculationComponent` to `run` whenever the
     /// provided `BloodVessel` is changed to the indicated threshold. Also
     /// automatically attaches the vessel for use by the component.
     ///
@@ -43,7 +43,7 @@ impl<O: Organism> ClosedCircInitializer<O> {
         substance_map.insert(substance, ConcentrationTracker::new(threshold));
     }
 
-    /// Attaches a vessel for use by the associated `ClosedCircComponent`
+    /// Attaches a vessel for use by the associated `CirculationComponent`
     ///
     /// ### Arguments
     /// * `vessel` - `BloodVessel` this change should take place on
@@ -53,7 +53,7 @@ impl<O: Organism> ClosedCircInitializer<O> {
     }
 
     /// When called, ALL vessels will be attached to the associated
-    /// `ClosedCircComponent`. Note that this will cause the component
+    /// `CirculationComponent`. Note that this will cause the component
     /// to `run` at every simulation step
     pub fn attach_all_vessels(&mut self) {
         self.attach_all = true;
@@ -62,30 +62,30 @@ impl<O: Organism> ClosedCircInitializer<O> {
 
 #[cfg(test)]
 pub mod test {
-    use crate::sim::layer::closed_circulation::vessel::test::TestBloodVessel;
+    use crate::sim::layer::circulation::vessel::test::TestBloodVessel;
     use crate::sim::organism::test::TestSim;
     use crate::substance::Substance;
     use crate::util::mmol_per_L;
 
-    use super::ClosedCircInitializer;
+    use super::CirculationInitializer;
     
     #[test]
     fn test_attach_vessel() {
-        let mut cc_init = ClosedCircInitializer::<TestSim>::new();
+        let mut cc_init = CirculationInitializer::<TestSim>::new();
         cc_init.attach_vessel(TestBloodVessel::Aorta);
         assert!(cc_init.vessel_connections.contains(&TestBloodVessel::Aorta));
     }
 
     #[test]
     fn test_attach_all() {
-        let mut cc_init = ClosedCircInitializer::<TestSim>::new();
+        let mut cc_init = CirculationInitializer::<TestSim>::new();
         cc_init.attach_all_vessels();
         assert!(cc_init.attach_all == true);
     }
 
     #[test]
     fn test_notify() {
-        let mut cc_init = ClosedCircInitializer::<TestSim>::new();
+        let mut cc_init = CirculationInitializer::<TestSim>::new();
         cc_init.notify_composition_change(TestBloodVessel::Aorta, Substance::CO2, mmol_per_L!(1.0));
         assert!(cc_init.substance_notifies.contains_key(&TestBloodVessel::Aorta));
         assert!(!cc_init.substance_notifies.contains_key(&TestBloodVessel::VenaCava));

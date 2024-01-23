@@ -19,7 +19,7 @@ impl<O: Organism + 'static, T: NervousComponent<O>> SimComponent<O> for NervousC
         self.0.id()
     }
     fn attach(self, registry: &mut ComponentRegistry<O>) {
-        registry.add_nervous_component(self);
+        self.0.attach(registry)
     }
     fn run(&mut self) {
         self.0.run();
@@ -35,8 +35,4 @@ impl<O: Organism + 'static, T: NervousComponent<O>> NervousComponent<O> for Nerv
     }
 }
 
-impl<O: Organism + 'static, T: NervousComponent<O>> ComponentWrapper<O> for NervousComponentWrapper<O, T> {
-    fn attach(self, registry: &mut ComponentRegistry<O>) {
-        registry.add_nervous_component(self)
-    }
-}
+impl<O: Organism + 'static, T: NervousComponent<O>> ComponentWrapper<O> for NervousComponentWrapper<O, T> {}

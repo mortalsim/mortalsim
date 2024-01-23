@@ -2,20 +2,21 @@
 use std::collections::hash_set;
 
 pub mod core;
-pub mod closed_circulation;
+pub mod circulation;
 pub mod digestion;
 pub mod nervous;
 
 pub use self::core::component::*;
-pub use closed_circulation::component::*;
+pub use circulation::component::*;
 pub use digestion::component::*;
 pub use nervous::component::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Copy)]
 pub enum SimLayer {
     Core,
-    ClosedCirculation,
+    Circulation,
     Digestion,
+    Nervous,
 }
 
 pub struct AnatomicalRegionIter<'a, T: Clone>(pub hash_set::Iter<'a, T>);

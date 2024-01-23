@@ -36,7 +36,7 @@ impl BloodStore {
     substance_store_wrapper!(store, change_map);
 }
 
-pub struct ClosedCircConnector<O: Organism> {
+pub struct CirculationConnector<O: Organism> {
     /// Mapping of `BloodVessel`s to their corresponding `SubstanceStore`
     pub(crate) vessel_map: HashMap<O::VesselType, BloodStore>,
     /// Copy of the current simulation time
@@ -47,9 +47,9 @@ pub struct ClosedCircConnector<O: Organism> {
     pub(crate) unschedule_all: bool,
 }
 
-impl<O: Organism> ClosedCircConnector<O> {
-    pub fn new() -> ClosedCircConnector<O> {
-        ClosedCircConnector {
+impl<O: Organism> CirculationConnector<O> {
+    pub fn new() -> CirculationConnector<O> {
+        CirculationConnector {
             vessel_map: HashMap::new(),
             sim_time: SimTime::from_s(0.0),
             unschedule_all: true,
@@ -78,7 +78,7 @@ pub mod test {
     use std::collections::HashMap;
 
     use simple_si_units::chemical::Concentration;
-    use crate::sim::layer::closed_circulation::component::connector::BloodStore;
+    use crate::sim::layer::circulation::component::connector::BloodStore;
     use crate::sim::SimTime;
     use crate::substance::{SubstanceStore, Substance};
     use crate::util::mmol_per_L;

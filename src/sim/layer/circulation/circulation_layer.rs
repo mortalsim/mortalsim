@@ -7,20 +7,20 @@ use crate::substance::{Substance, SubstanceConcentration, SubstanceStore};
 use crate::util::IdType;
 
 use super::{
-    ClosedCircInitializer, ClosedCircComponent, BloodStore
+    CirculationInitializer, CirculationComponent, BloodStore
 };
 
-pub struct ClosedCirculationLayer<O: Organism + 'static> {
+pub struct CirculationLayer<O: Organism + 'static> {
     blood_notify_map: HashMap<O::VesselType, HashMap<Substance, Vec<(SubstanceConcentration, &'static str)>>>,
     composition_map: HashMap<O::VesselType, SubstanceStore>,
-    component_settings: HashMap<&'static str, ClosedCircInitializer<O>>,
+    component_settings: HashMap<&'static str, CirculationInitializer<O>>,
     component_change_maps: HashMap<&'static str, HashMap<O::VesselType, HashMap<Substance, Vec<IdType>>>>,
 }
 
-impl<O: Organism + 'static> ClosedCirculationLayer<O> {
-    /// Creates a ClosedCirculationLayer from a Graph representing the circulatory structure
-    pub fn new() -> ClosedCirculationLayer<O> {
-        ClosedCirculationLayer {
+impl<O: Organism + 'static> CirculationLayer<O> {
+    /// Creates a CirculationLayer from a Graph representing the circulatory structure
+    pub fn new() -> CirculationLayer<O> {
+        CirculationLayer {
             blood_notify_map: HashMap::new(),
             composition_map: HashMap::new(),
             component_settings: HashMap::new(),
@@ -35,10 +35,10 @@ impl<O: Organism + 'static> ClosedCirculationLayer<O> {
     }
 }
 
-impl<O: Organism, T: ClosedCircComponent<O>> SimComponentProcessor<O, T> for ClosedCirculationLayer<O> {
+impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessor<O, T> for CirculationLayer<O> {
 
     fn setup_component(&mut self, _: &mut SimConnector, component: &mut T) {
-        let mut initializer = ClosedCircInitializer::new();
+        let mut initializer = CirculationInitializer::new();
         component.cc_init(&mut initializer);
 
         for (vessel, substance_map) in initializer.substance_notifies.drain() {
@@ -108,23 +108,23 @@ impl<O: Organism, T: ClosedCircComponent<O>> SimComponentProcessor<O, T> for Clo
 #[cfg(test)]
 mod tests {
     use crate::sim::{SimConnector, SimTime};
-    use crate::sim::layer::closed_circulation::{BloodStore, ClosedCircComponent};
-    use crate::sim::layer::closed_circulation::vessel::test::TestBloodVessel;
+    use crate::sim::layer::circulation::{BloodStore, CirculationComponent};
+    use crate::sim::layer::circulation::vessel::test::TestBloodVessel;
     use crate::sim::organism::test::TestSim;
-    use crate::sim::layer::closed_circulation::component::test::TestCircComponentA;
+    use crate::sim::layer::circulation::component::test::TestCircComponentA;
     use crate::sim::component::{SimComponentProcessor, SimComponent};
     use crate::substance::Substance;
     use crate::util::mmol_per_L;
-    use super::ClosedCirculationLayer;
+    use super::CirculationLayer;
 
     #[test]
     fn test_layer() {
-        ClosedCirculationLayer::<TestSim>::new();
+        CirculationLayer::<TestSim>::new();
     }
 
     #[test]
     fn test_layer_process() {
-        let mut layer = ClosedCirculationLayer::<TestSim>::new();
+        let mut layer = CirculationLayer::<TestSim>::new();
         let mut component = TestCircComponentA::new();
         let mut connector = SimConnector::new();
         layer.setup_component(&mut connector, &mut component);

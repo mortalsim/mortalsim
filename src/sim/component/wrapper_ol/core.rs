@@ -18,7 +18,7 @@ impl<O: Organism + 'static, T: CoreComponent<O>> SimComponent<O> for CoreCompone
         self.0.id()
     }
     fn attach(self, registry: &mut ComponentRegistry<O>) {
-        registry.add_core_component(self);
+        self.0.attach(registry)
     }
     fn run(&mut self) {
         self.0.run();
@@ -34,8 +34,4 @@ impl<O: Organism + 'static, T: CoreComponent<O>> CoreComponent<O> for CoreCompon
     }
 }
 
-impl<O: Organism + 'static, T: CoreComponent<O>> ComponentWrapper<O> for CoreComponentWrapper<O, T> {
-    fn attach(self, registry: &mut ComponentRegistry<O>) {
-        registry.add_core_component(self)
-    }
-}
+impl<O: Organism + 'static, T: CoreComponent<O>> ComponentWrapper<O> for CoreComponentWrapper<O, T> {}

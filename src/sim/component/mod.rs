@@ -1,5 +1,5 @@
 pub mod registry;
-pub mod wrapper;
+pub mod wrapper_ol;
 
 use self::registry::ComponentRegistry;
 use super::SimConnector;

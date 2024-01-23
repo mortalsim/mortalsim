@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use crate::sim::layer::closed_circulation::vessel::test::TestBloodVessel;
+use crate::sim::layer::circulation::vessel::test::TestBloodVessel;
 use crate::sim::layer::nervous::nerve::test::TestNerve;
 
 use super::Organism;

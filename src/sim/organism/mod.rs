@@ -1,4 +1,4 @@
-use super::layer::closed_circulation::BloodVessel;
+use super::layer::circulation::BloodVessel;
 use super::layer::nervous::Nerve;
 
 #[cfg(test)]

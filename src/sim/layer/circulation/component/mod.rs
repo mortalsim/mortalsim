@@ -1,37 +1,37 @@
 mod connector;
 mod initializer;
-pub use connector::ClosedCircConnector;
+pub use connector::CirculationConnector;
 pub use connector::BloodStore;
-pub use initializer::ClosedCircInitializer;
+pub use initializer::CirculationInitializer;
 
 use crate::sim::component::SimComponent;
 use crate::sim::organism::Organism;
 
-pub trait ClosedCircComponent<O: Organism>: SimComponent<O> {
+pub trait CirculationComponent<O: Organism>: SimComponent<O> {
 
     /// Initializes the module. Should register any `Event` objects to listen for
     /// and set initial state.
     ///
     /// ### Arguments
     /// * `initializer` - Helper object for initializing the module
-    fn cc_init(&mut self, cc_initializer: &mut ClosedCircInitializer<O>);
+    fn cc_init(&mut self, cc_initializer: &mut CirculationInitializer<O>);
 
     /// Used by the Sim to retrieve a mutable reference to this module's
-    /// ClosedCircConnector, which tracks module interactions
+    /// CirculationConnector, which tracks module interactions
     ///
     /// ### returns
     /// SimConnector to interact with the rest of the simulation
-    fn cc_connector(&mut self) -> &mut ClosedCircConnector<O>;
+    fn cc_connector(&mut self) -> &mut CirculationConnector<O>;
 }
 
 #[cfg(test)]
 pub mod test {
     use simple_si_units::chemical::Concentration;
-    use crate::sim::layer::closed_circulation::component::connector::BloodStore;
-    use crate::sim::layer::closed_circulation::vessel::test::TestBloodVessel;
+    use crate::sim::layer::circulation::component::connector::BloodStore;
+    use crate::sim::layer::circulation::vessel::test::TestBloodVessel;
     use crate::sim::organism::test::TestSim;
-    use super::ClosedCircComponent;
-    use super::{ClosedCircConnector, ClosedCircInitializer};
+    use super::CirculationComponent;
+    use super::{CirculationConnector, CirculationInitializer};
     use crate::sim::SimTime;
     use crate::sim::component::registry::ComponentRegistry;
     use crate::sim::component::SimComponent;
@@ -39,20 +39,20 @@ pub mod test {
     use crate::util::mmol_per_L;
     
     pub struct TestCircComponentA {
-        cc_sim_connector: ClosedCircConnector<TestSim>
+        cc_sim_connector: CirculationConnector<TestSim>
     }
 
     impl TestCircComponentA {
         pub fn new() -> TestCircComponentA {
             TestCircComponentA {
-                cc_sim_connector: ClosedCircConnector::new()
+                cc_sim_connector: CirculationConnector::new()
             }
         }
     }
 
-    impl ClosedCircComponent<TestSim> for TestCircComponentA {
+    impl CirculationComponent<TestSim> for TestCircComponentA {
 
-        fn cc_init(&mut self, cc_initializer: &mut ClosedCircInitializer<TestSim>) {
+        fn cc_init(&mut self, cc_initializer: &mut CirculationInitializer<TestSim>) {
             cc_initializer.notify_composition_change(
                 TestBloodVessel::Aorta,
                 Substance::GLC,
@@ -61,7 +61,7 @@ pub mod test {
             cc_initializer.attach_vessel(TestBloodVessel::VenaCava);
         }
 
-        fn cc_connector(&mut self) -> &mut ClosedCircConnector<TestSim> {
+        fn cc_connector(&mut self) -> &mut CirculationConnector<TestSim> {
             &mut self.cc_sim_connector
         }
     }
@@ -92,7 +92,7 @@ pub mod test {
     fn test_component() {
         let mut component = TestCircComponentA::new();
 
-        let mut cc_initializer = ClosedCircInitializer::new();
+        let mut cc_initializer = CirculationInitializer::new();
 
         component.cc_init(&mut cc_initializer);
 

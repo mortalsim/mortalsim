@@ -20,10 +20,10 @@ impl Organism for HumanSim {
 // #[cfg(test)]
 // mod tests {
 //     use super::circulation::{HumanCirculatorySystem, HUMAN_CIRCULATION_FILEPATH};
-//     use super::HumanClosedCirculationSim;
+//     use super::HumanCirculationSim;
 
 //     #[test]
 //     fn test_human_manager() {
-//         let _bm = HumanClosedCirculationSim::new(HumanCirculatorySystem::new());
+//         let _bm = HumanCirculationSim::new(HumanCirculatorySystem::new());
 //     }
 // }

@@ -8,7 +8,7 @@ fs.readdirSync(configPath)
     .filter(f => fs.statSync(path.join(configPath, f)).isDirectory())
     .forEach(dir => {
         console.log(dir);
-        let configFile = fs.readFileSync(path.join(configPath, dir, 'closed_circulation.yaml'), 'utf8');
+        let configFile = fs.readFileSync(path.join(configPath, dir, 'circulation.yaml'), 'utf8');
         let config = yaml.parse(configFile);
         writeCircFile(dir, config);
     });
@@ -68,7 +68,7 @@ function writeCircFile(namespace, config) {
  * SOURCE: config/${namespace}/circulation.yaml
  */
 use std::collections::HashSet;
-use crate::sim::layer::closed_circulation::{BloodVesselType, BloodVessel, VesselIter};
+use crate::sim::layer::circulation::{BloodVesselType, BloodVessel, VesselIter};
 use crate::sim::layer::AnatomicalRegionIter;
 use super::${namespaceCapitalized}AnatomicalRegion;
 

@@ -18,7 +18,7 @@ pub trait NervousComponent<O: Organism>: SimComponent<O> {
     fn nervous_init(&mut self, nervous_initializer: &mut NervousInitializer<O>);
 
     /// Used by the Sim to retrieve a mutable reference to this module's
-    /// ClosedCircConnector, which tracks module interactions
+    /// CirculationConnector, which tracks module interactions
     ///
     /// ### returns
     /// SimConnector to interact with the rest of the simulation

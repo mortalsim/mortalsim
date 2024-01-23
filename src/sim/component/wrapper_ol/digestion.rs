@@ -18,7 +18,7 @@ impl<O: Organism + 'static, T: DigestionComponent<O>> SimComponent<O> for Digest
         self.0.id()
     }
     fn attach(self, registry: &mut ComponentRegistry<O>) {
-        registry.add_digestion_component(self);
+        self.0.attach(registry)
     }
     fn run(&mut self) {
         self.0.run();
@@ -34,8 +34,4 @@ impl<O: Organism + 'static, T: DigestionComponent<O>> DigestionComponent<O> for 
     }
 }
 
-impl<O: Organism + 'static, T: DigestionComponent<O>> ComponentWrapper<O> for DigestionComponentWrapper<O, T> {
-    fn attach(self, registry: &mut ComponentRegistry<O>) {
-        registry.add_digestion_component(self)
-    }
-}
+impl<O: Organism + 'static, T: DigestionComponent<O>> ComponentWrapper<O> for DigestionComponentWrapper<O, T> {}

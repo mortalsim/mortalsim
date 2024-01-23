@@ -1,8 +1,8 @@
 use super::circulation::HumanBloodManager;
 use super::module::{HumanModuleInitializer, HumanSimConnector, HumanSimModule};
 use super::{HumanCirculatorySystem, HUMAN_CIRCULATION_FILEPATH};
-use crate::closed_circulation::{
-    BloodVessel, ClosedCircConnector, ClosedCircInitializer, ClosedCirculatorySystem,
+use crate::circulation::{
+    BloodVessel, CirculationConnector, CirculationInitializer, CirculationulatorySystem,
 };
 use crate::core::sim::{CoreSim, Sim, SimConnector, SimModule};
 use crate::event::Event;
