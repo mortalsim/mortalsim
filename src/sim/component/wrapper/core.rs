@@ -1,12 +1,17 @@
 use std::marker::PhantomData;
 
 use crate::sim::layer::core::component::{CoreComponent, CoreComponentInitializer, CoreConnector};
-use crate::sim::layer::closed_circulation::{ClosedCircComponent, ClosedCircInitializer, ClosedCircConnector};
 use crate::sim::organism::Organism;
 use crate::sim::component::{registry::ComponentRegistry, SimComponent};
 
+use super::empty_wrapper::{empty_cc_wrapper, empty_digestion_wrapper, empty_nervous_wrapper};
+use super::ComponentWrapper;
 
 pub struct CoreComponentWrapper<O: Organism, T: CoreComponent<O> + 'static>(pub T, pub PhantomData<O>);
+
+empty_cc_wrapper!(CoreComponentWrapper<O, T>, CoreComponent<O>);
+empty_digestion_wrapper!(CoreComponentWrapper<O, T>, CoreComponent<O>);
+empty_nervous_wrapper!(CoreComponentWrapper<O, T>, CoreComponent<O>);
 
 impl<O: Organism + 'static, T: CoreComponent<O>> SimComponent<O> for CoreComponentWrapper<O, T> {
     fn id(&self) -> &'static str {
@@ -29,11 +34,8 @@ impl<O: Organism + 'static, T: CoreComponent<O>> CoreComponent<O> for CoreCompon
     }
 }
 
-impl<O: Organism + 'static, T: CoreComponent<O>> ClosedCircComponent<O> for CoreComponentWrapper<O, T> {
-    fn cc_init(&mut self, _initializer: &mut ClosedCircInitializer<O>) {
-        panic!()
-    }
-    fn cc_connector(&mut self) -> &mut ClosedCircConnector<O> {
-        panic!()
+impl<O: Organism + 'static, T: CoreComponent<O>> ComponentWrapper<O> for CoreComponentWrapper<O, T> {
+    fn attach(self, registry: &mut ComponentRegistry<O>) {
+        registry.add_core_component(self)
     }
 }

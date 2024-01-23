@@ -1,8 +1,15 @@
+use std::marker::PhantomData;
 
-pub struct DigestionInitializer {}
+use crate::sim::Organism;
 
-impl DigestionInitializer {
+pub struct DigestionInitializer<O: Organism> {
+    pd: PhantomData<O>
+}
+
+impl<O: Organism> DigestionInitializer<O> {
     pub fn new() -> Self {
-        Self {}
+        Self {
+            pd: PhantomData
+        }
     }
 }

@@ -4,7 +4,7 @@ use crate::sim::organism::Organism;
 pub mod connector;
 pub mod initializer;
 
-use self::connector::DigestionConnector;
+pub use self::connector::DigestionConnector;
 pub use self::initializer::DigestionInitializer;
 
 pub trait DigestionComponent<O: Organism>: SimComponent<O> {
@@ -12,14 +12,14 @@ pub trait DigestionComponent<O: Organism>: SimComponent<O> {
     ///
     /// ### Arguments
     /// * `initializer` - Helper object for initializing the module
-    fn digestion_init(&mut self, _initializer: &mut DigestionInitializer) {}
+    fn digestion_init(&mut self, _initializer: &mut DigestionInitializer<O>) {}
 
     /// Used by the Sim to retrieve a mutable reference to this module's
     /// DigestionConnector, which tracks module interactions
     ///
     /// ### returns
     /// DigestionConnector to interact with the digestion layer
-    fn digestion_connector(&mut self) -> &mut DigestionConnector;
+    fn digestion_connector(&mut self) -> &mut DigestionConnector<O>;
 }
 
 // #[cfg(test)]

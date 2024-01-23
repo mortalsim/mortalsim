@@ -6,6 +6,11 @@ pub mod closed_circulation;
 pub mod digestion;
 pub mod nervous;
 
+pub use self::core::component::*;
+pub use closed_circulation::component::*;
+pub use digestion::component::*;
+pub use nervous::component::*;
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Copy)]
 pub enum SimLayer {
     Core,

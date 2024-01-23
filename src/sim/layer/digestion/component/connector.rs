@@ -1,8 +1,9 @@
 use std::collections::HashMap;
+use std::marker::PhantomData;
 
 use crate::sim::layer::digestion::DigestionDirection;
 use crate::units::geometry::Volume;
-use crate::sim::SimTime;
+use crate::sim::{SimTime, Organism};
 use crate::sim::layer::digestion::consumable::Consumable;
 use crate::substance::substance_wrapper::substance_store_wrapper;
 use crate::substance::Substance;
@@ -78,17 +79,19 @@ impl Consumed {
 }
 
 /// Provides methods for Digestion modules to interact with the simulation
-pub struct DigestionConnector {
+pub struct DigestionConnector<O: Organism> {
+    pd: PhantomData<O>,
     /// Copy of the current simulation time
     pub(crate) sim_time: SimTime,
     /// Consumable which is accessible by the current module
     pub(crate) consumed_list: Vec<Consumed>,
 }
 
-impl DigestionConnector {
+impl<O: Organism> DigestionConnector<O> {
     /// Creates a new CoreConnector
-    pub fn new() -> DigestionConnector {
-        DigestionConnector {
+    pub fn new() -> Self {
+        Self {
+            pd: PhantomData,
             sim_time: SimTime::from_s(0.0),
             consumed_list: Vec::new(),
         }

@@ -8,6 +8,8 @@ pub mod organism;
 pub use sim_state::SimState;
 pub use time_manager::{SimTime, TimeManager};
 
+pub use organism::*;
+
 pub struct SimConnector {
     sim_time: SimTime,
     time_manager: TimeManager,

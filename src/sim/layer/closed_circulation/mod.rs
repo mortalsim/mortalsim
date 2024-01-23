@@ -1,5 +1,5 @@
 mod closed_circulation_layer;
-mod component;
+pub mod component;
 pub mod vessel;
 
 // pub use graph::{BloodEdge, BloodNode};
