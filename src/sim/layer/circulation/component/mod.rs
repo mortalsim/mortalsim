@@ -14,14 +14,14 @@ pub trait CirculationComponent<O: Organism>: SimComponent<O> {
     ///
     /// ### Arguments
     /// * `initializer` - Helper object for initializing the module
-    fn cc_init(&mut self, cc_initializer: &mut CirculationInitializer<O>);
+    fn circulation_init(&mut self, circulation_initializer: &mut CirculationInitializer<O>);
 
     /// Used by the Sim to retrieve a mutable reference to this module's
     /// CirculationConnector, which tracks module interactions
     ///
     /// ### returns
     /// SimConnector to interact with the rest of the simulation
-    fn cc_connector(&mut self) -> &mut CirculationConnector<O>;
+    fn circulation_connector(&mut self) -> &mut CirculationConnector<O>;
 }
 
 #[cfg(test)]
@@ -52,16 +52,16 @@ pub mod test {
 
     impl CirculationComponent<TestSim> for TestCircComponentA {
 
-        fn cc_init(&mut self, cc_initializer: &mut CirculationInitializer<TestSim>) {
-            cc_initializer.notify_composition_change(
+        fn circulation_init(&mut self, circulation_initializer: &mut CirculationInitializer<TestSim>) {
+            circulation_initializer.notify_composition_change(
                 TestBloodVessel::Aorta,
                 Substance::GLC,
                 Concentration::from_mM(0.1),
             );
-            cc_initializer.attach_vessel(TestBloodVessel::VenaCava);
+            circulation_initializer.attach_vessel(TestBloodVessel::VenaCava);
         }
 
-        fn cc_connector(&mut self) -> &mut CirculationConnector<TestSim> {
+        fn circulation_connector(&mut self) -> &mut CirculationConnector<TestSim> {
             &mut self.cc_sim_connector
         }
     }
@@ -92,28 +92,28 @@ pub mod test {
     fn test_component() {
         let mut component = TestCircComponentA::new();
 
-        let mut cc_initializer = CirculationInitializer::new();
+        let mut circulation_initializer = CirculationInitializer::new();
 
-        component.cc_init(&mut cc_initializer);
+        component.circulation_init(&mut circulation_initializer);
 
-        assert_eq!(cc_initializer.substance_notifies.get(&TestBloodVessel::Aorta)
+        assert_eq!(circulation_initializer.substance_notifies.get(&TestBloodVessel::Aorta)
             .unwrap()
             .get(&Substance::GLC).unwrap().threshold, mmol_per_L!(0.1));
         
-        component.cc_connector().vessel_map.insert(TestBloodVessel::VenaCava, BloodStore::new());
+        component.circulation_connector().vessel_map.insert(TestBloodVessel::VenaCava, BloodStore::new());
 
         component.run();
 
-        component.cc_connector().vessel_map.get_mut(&TestBloodVessel::VenaCava).unwrap().advance(SimTime::from_s(2.0));
+        component.circulation_connector().vessel_map.get_mut(&TestBloodVessel::VenaCava).unwrap().advance(SimTime::from_s(2.0));
 
-        let glc = component.cc_connector().blood_store(&TestBloodVessel::VenaCava).unwrap().concentration_of(&Substance::GLC);
+        let glc = component.circulation_connector().blood_store(&TestBloodVessel::VenaCava).unwrap().concentration_of(&Substance::GLC);
         let expected = mmol_per_L!(1.0);
         let threshold = mmol_per_L!(0.0001);
         assert!(glc > expected - threshold && glc < expected + threshold, "GLC not within {} of {}", threshold, expected);
         
-        component.cc_connector().vessel_map.get_mut(&TestBloodVessel::VenaCava).unwrap().advance(SimTime::from_s(2.0));
+        component.circulation_connector().vessel_map.get_mut(&TestBloodVessel::VenaCava).unwrap().advance(SimTime::from_s(2.0));
 
-        let glc = component.cc_connector().blood_store(&TestBloodVessel::VenaCava).unwrap().concentration_of(&Substance::GLC);
+        let glc = component.circulation_connector().blood_store(&TestBloodVessel::VenaCava).unwrap().concentration_of(&Substance::GLC);
         let expected = mmol_per_L!(1.0);
         let threshold = mmol_per_L!(0.0001);
         assert!(glc > expected - threshold && glc < expected + threshold, "GLC not within {} of {}", threshold, expected);

@@ -76,11 +76,11 @@ impl HumanSim {
                         .setup_module(module_name, human_initializer.initializer);
                     self.active_modules.insert(module_name, module);
 
-                    let cc_connector = self
+                    let circulation_connector = self
                         .blood_manager
-                        .setup_module(module_name, human_initializer.cc_initializer);
+                        .setup_module(module_name, human_initializer.circulation_initializer);
 
-                    let human_connector = HumanSimConnector::new(SimConnector::new(), cc_connector);
+                    let human_connector = HumanSimConnector::new(SimConnector::new(), circulation_connector);
                     self.connector_map.insert(module_name, human_connector);
                 }
             }

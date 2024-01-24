@@ -39,7 +39,7 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessor<O, T> for Ci
 
     fn setup_component(&mut self, _: &mut SimConnector, component: &mut T) {
         let mut initializer = CirculationInitializer::new();
-        component.cc_init(&mut initializer);
+        component.circulation_init(&mut initializer);
 
         for (vessel, substance_map) in initializer.substance_notifies.drain() {
             let mut substance_list = Vec::new();
@@ -60,8 +60,8 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessor<O, T> for Ci
     fn prepare_component(&mut self, connector: &SimConnector, component: &mut T) -> bool {
         let comp_id = component.id();
         let comp_settings = self.component_settings.get_mut(component.id()).unwrap();
-        let cc_connector = component.cc_connector();
-        cc_connector.sim_time = connector.sim_time;
+        let circulation_connector = component.circulation_connector();
+        circulation_connector.sim_time = connector.sim_time;
         let mut trigger = false;
 
         // Determine if any substances have changed beyond the threshold
@@ -78,14 +78,14 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessor<O, T> for Ci
             if comp_settings.attach_all {
                 for (vessel, store) in self.composition_map.drain() {
                     let changes = self.component_change_maps.entry(comp_id).or_default().remove(&vessel).unwrap_or_default();
-                    cc_connector.vessel_map.insert(vessel, BloodStore::build(store, changes));
+                    circulation_connector.vessel_map.insert(vessel, BloodStore::build(store, changes));
                 }
             }
             else {
                 for vessel in comp_settings.vessel_connections.iter() {
                     let store = self.composition_map.remove(&vessel).unwrap();
                     let changes = self.component_change_maps.entry(comp_id).or_default().remove(&vessel).unwrap_or_default();
-                    cc_connector.vessel_map.insert(*vessel, BloodStore::build(store, changes));
+                    circulation_connector.vessel_map.insert(*vessel, BloodStore::build(store, changes));
                 }
             }
         }
@@ -94,8 +94,8 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessor<O, T> for Ci
 
     fn process_component(&mut self, _: &mut SimConnector, component: &mut T) {
         let comp_id = component.id();
-        let cc_connector = component.cc_connector();
-        for (vessel, blood_store) in cc_connector.vessel_map.drain() {
+        let circulation_connector = component.circulation_connector();
+        for (vessel, blood_store) in circulation_connector.vessel_map.drain() {
             let (store, change_map) = blood_store.extract();
             self.composition_map.insert(vessel, store);
             self.component_change_maps.entry(comp_id).or_default().insert(vessel, change_map);
@@ -129,7 +129,7 @@ mod tests {
         let mut connector = SimConnector::new();
         layer.setup_component(&mut connector, &mut component);
 
-        component.cc_connector().vessel_map.insert(TestBloodVessel::VenaCava, BloodStore::new());
+        component.circulation_connector().vessel_map.insert(TestBloodVessel::VenaCava, BloodStore::new());
 
         layer.prepare_component(&mut connector, &mut component);
         component.run();

@@ -1,13 +1,15 @@
 use crate::event::Event;
-use crate::sim::{SimState, SimTime};
+use crate::sim::{Organism, SimState, SimTime};
 use crate::util::id_gen::IdType;
 use anyhow::Result;
 use std::any::TypeId;
 use std::collections::HashMap;
+use std::marker::PhantomData;
 use std::sync::{Arc, Mutex};
 
 /// Provides methods for `Sim` modules to interact with the simulation
-pub struct CoreConnector {
+pub struct CoreConnector<O: Organism> {
+    pd: PhantomData<O>,
     /// State specific to the connected module
     pub(crate) sim_state: Arc<Mutex<SimState>>,
     /// Holds a shared reference to the Event which triggered module execution
@@ -26,10 +28,11 @@ pub struct CoreConnector {
     pub(crate) unschedule_all: bool,
 }
 
-impl CoreConnector {
+impl<O: Organism> CoreConnector<O> {
     /// Creates a new CoreConnector
-    pub fn new() -> CoreConnector {
-        CoreConnector {
+    pub fn new() -> Self {
+        Self {
+            pd: PhantomData,
             // Temporary empty state which will be replaced by the canonical state
             sim_state: Arc::new(Mutex::new(SimState::new())),
             trigger_events: Vec::new(),
@@ -119,6 +122,7 @@ pub mod test {
     use std::sync::{Arc, Mutex};
 
     use crate::event::test::TestEventB;
+    use crate::sim::test::TestSim;
     use crate::sim::SimState;
     use crate::event::test::TestEventA;
     use crate::units::base::Amount;
@@ -135,7 +139,7 @@ pub mod test {
         TestEventB::new(Amount::from_mol(1.0))
     }
 
-    fn connector() -> CoreConnector {
+    fn connector() -> CoreConnector<TestSim> {
         let mut connector = CoreConnector::new();
         let mut a_events = HashMap::new();
         a_events.insert(1, Time::from_s(1.0));
@@ -152,7 +156,7 @@ pub mod test {
         connector
     }
     
-    fn connector_with_a_only() -> CoreConnector {
+    fn connector_with_a_only() -> CoreConnector<TestSim> {
         let mut connector = CoreConnector::new();
         let mut a_events = HashMap::new();
         a_events.insert(1, Time::from_s(1.0));
@@ -163,7 +167,7 @@ pub mod test {
 
     #[test]
     pub fn test_emit() {
-        let mut connector = CoreConnector::new();
+        let mut connector = CoreConnector::<TestSim>::new();
         connector.schedule_event(Time::from_s(1.0), basic_event_a())
     }
     
@@ -188,7 +192,7 @@ pub mod test {
     
     #[test]
     pub fn test_unschedule_all() {
-        let mut connector = CoreConnector::new();
+        let mut connector = CoreConnector::<TestSim>::new();
         connector.unschedule_all(true);
         assert!(connector.unschedule_all == true);
     }

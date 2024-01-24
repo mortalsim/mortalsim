@@ -25,7 +25,7 @@ pub trait DigestionComponent<O: Organism>: SimComponent<O> {
 // #[cfg(test)]
 // pub mod test {
 //     use super::{CoreComponent, SimComponent};
-//     use super::{CoreComponentInitializer, CoreConnector};
+//     use super::{CoreInitializer, CoreConnector};
 //     use crate::event::test::{TestEventA, TestEventB};
 //     use crate::event::Event;
 //     use crate::sim::component::registry::ComponentRegistry;
@@ -49,7 +49,7 @@ pub trait DigestionComponent<O: Organism>: SimComponent<O> {
 //         fn core_connector(&mut self) -> &mut CoreConnector {
 //             &mut self.connector
 //         }
-//         fn core_init(&mut self, initializer: &mut CoreComponentInitializer) {
+//         fn core_init(&mut self, initializer: &mut CoreInitializer) {
 //             initializer.notify(TestEventA::new(Distance::from_m(1.0)));
 //             initializer.notify(TestEventB::new(Amount::from_mol(1.0)));
 //             initializer.transform(|evt: &mut TestEventA| {
@@ -93,7 +93,7 @@ pub trait DigestionComponent<O: Organism>: SimComponent<O> {
 //         }
 //     }
 //     impl CoreComponent for TestComponentB {
-//         fn core_init(&mut self, initializer: &mut CoreComponentInitializer) {
+//         fn core_init(&mut self, initializer: &mut CoreInitializer) {
 //             initializer.notify(TestEventA::new(Distance::from_m(2.0)));
 //             initializer.notify(TestEventB::new(Amount::from_mol(2.0)));
 //             initializer.transform(Self::transform_b);
@@ -126,7 +126,7 @@ pub trait DigestionComponent<O: Organism>: SimComponent<O> {
 //     #[test]
 //     fn test_component() {
 //         let mut component = TestComponentA::new();
-//         let mut initializer = CoreComponentInitializer::new();
+//         let mut initializer = CoreInitializer::new();
 //         component.core_init(&mut initializer);
 
 //         assert!(initializer.pending_notifies.len() == 2);

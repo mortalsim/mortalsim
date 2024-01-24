@@ -1,9 +1,12 @@
 use crate::event::Event;
 use crate::hub::event_transformer::{EventTransformer, TransformerItem};
+use crate::sim::Organism;
 use std::any::TypeId;
 use std::collections::HashSet;
+use std::marker::PhantomData;
 
-pub struct CoreComponentInitializer {
+pub struct CoreInitializer<O: Organism> {
+    pd: PhantomData<O>,
     /// Input events for the associated component
     input_events: HashSet<TypeId>,
     /// Output events for the associated component
@@ -16,9 +19,10 @@ pub struct CoreComponentInitializer {
     pub(crate) initial_outputs: Vec<Box<dyn Event>>,
 }
 
-impl CoreComponentInitializer {
-    pub fn new() -> CoreComponentInitializer {
-        CoreComponentInitializer {
+impl<O: Organism> CoreInitializer<O> {
+    pub fn new() -> Self {
+        Self {
+            pd: PhantomData,
             input_events: HashSet::new(),
             output_events: HashSet::new(),
             pending_notifies: Vec::new(),
@@ -101,9 +105,10 @@ impl CoreComponentInitializer {
 #[cfg(test)]
 pub mod test {
     use crate::event::test::TestEventA;
+    use crate::sim::test::TestSim;
     use crate::units::base::Distance;
 
-    use super::CoreComponentInitializer;
+    use super::CoreInitializer;
 
     fn basic_event() -> TestEventA {
         TestEventA::new(Distance::from_m(1.0))
@@ -115,25 +120,25 @@ pub mod test {
 
     #[test]
     fn test_init() {
-        CoreComponentInitializer::new();
+        CoreInitializer::<TestSim>::new();
     }
     
     #[test]
     fn test_notify() {
-        let mut initializer = CoreComponentInitializer::new();
+        let mut initializer = CoreInitializer::<TestSim>::new();
         initializer.notify(basic_event());
     }
     
     #[test]
     fn test_notify_with_priority() {
-        let mut initializer = CoreComponentInitializer::new();
+        let mut initializer = CoreInitializer::<TestSim>::new();
         initializer.notify(basic_event());
         initializer.notify_prioritized(1, basic_event());
     }
     
     #[test]
     fn test_transform() {
-        let mut initializer = CoreComponentInitializer::new();
+        let mut initializer = CoreInitializer::<TestSim>::new();
 
         // Should accept both static functions and closures
         initializer.transform(test_transformer);
@@ -144,7 +149,7 @@ pub mod test {
     
     #[test]
     fn test_transform_with_priority() {
-        let mut initializer = CoreComponentInitializer::new();
+        let mut initializer = CoreInitializer::<TestSim>::new();
 
         // Should accept both static functions and closures
         initializer.transform_prioritized(1, |evt: &mut TestEventA| {
@@ -154,14 +159,14 @@ pub mod test {
     
     #[test]
     fn test_output() {
-        let mut initializer = CoreComponentInitializer::new();
+        let mut initializer = CoreInitializer::<TestSim>::new();
         initializer.set_output(basic_event())
     }
     
     #[test]
     #[should_panic]
     fn test_notify_err() {
-        let mut initializer = CoreComponentInitializer::new();
+        let mut initializer = CoreInitializer::<TestSim>::new();
         initializer.notify(basic_event());
         initializer.set_output(basic_event())
     }
@@ -169,7 +174,7 @@ pub mod test {
     #[test]
     #[should_panic]
     fn test_output_err() {
-        let mut initializer = CoreComponentInitializer::new();
+        let mut initializer = CoreInitializer::<TestSim>::new();
         initializer.set_output(basic_event());
         initializer.notify(basic_event())
     }

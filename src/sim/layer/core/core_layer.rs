@@ -7,7 +7,7 @@ use std::collections::{HashMap, HashSet};
 use std::fmt;
 use std::sync::Arc;
 
-use super::component::{CoreComponent, CoreComponentInitializer};
+use super::component::{CoreComponent, CoreInitializer};
 
 pub struct CoreLayer {
     module_notifications: HashMap<TypeId, Vec<(i32, &'static str)>>,
@@ -50,7 +50,7 @@ impl CoreLayer {
 impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer {
 
     fn setup_component(&mut self, connector: &mut SimConnector, component: &mut T) {
-        let mut initializer = CoreComponentInitializer::new();
+        let mut initializer = CoreInitializer::new();
         component.core_init(&mut initializer);
 
         let mut transformer_ids = Vec::new();

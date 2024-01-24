@@ -71,23 +71,23 @@ pub mod test {
     
     #[test]
     fn test_attach_vessel() {
-        let mut cc_init = CirculationInitializer::<TestSim>::new();
-        cc_init.attach_vessel(TestBloodVessel::Aorta);
-        assert!(cc_init.vessel_connections.contains(&TestBloodVessel::Aorta));
+        let mut circulation_init = CirculationInitializer::<TestSim>::new();
+        circulation_init.attach_vessel(TestBloodVessel::Aorta);
+        assert!(circulation_init.vessel_connections.contains(&TestBloodVessel::Aorta));
     }
 
     #[test]
     fn test_attach_all() {
-        let mut cc_init = CirculationInitializer::<TestSim>::new();
-        cc_init.attach_all_vessels();
-        assert!(cc_init.attach_all == true);
+        let mut circulation_init = CirculationInitializer::<TestSim>::new();
+        circulation_init.attach_all_vessels();
+        assert!(circulation_init.attach_all == true);
     }
 
     #[test]
     fn test_notify() {
-        let mut cc_init = CirculationInitializer::<TestSim>::new();
-        cc_init.notify_composition_change(TestBloodVessel::Aorta, Substance::CO2, mmol_per_L!(1.0));
-        assert!(cc_init.substance_notifies.contains_key(&TestBloodVessel::Aorta));
-        assert!(!cc_init.substance_notifies.contains_key(&TestBloodVessel::VenaCava));
+        let mut circulation_init = CirculationInitializer::<TestSim>::new();
+        circulation_init.notify_composition_change(TestBloodVessel::Aorta, Substance::CO2, mmol_per_L!(1.0));
+        assert!(circulation_init.substance_notifies.contains_key(&TestBloodVessel::Aorta));
+        assert!(!circulation_init.substance_notifies.contains_key(&TestBloodVessel::VenaCava));
     }
 }
