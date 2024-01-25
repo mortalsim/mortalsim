@@ -113,7 +113,11 @@ ${layerList.map(l =>
 };
 use super::SimComponent;
 
-pub trait ComponentWrapper<O: Organism>: SimComponent<O> + ${layerList.map(l => `${l.cap()}Component<O>`).join(' + ')} {}
+pub trait ComponentWrapper<O: Organism>: SimComponent<O> + ${layerList.map(l => `${l.cap()}Component<O>`).join(' + ')} {
+${layerList.map(layer => `
+    fn is_${layer}_component(&self) -> bool;
+`).join('')}
+}
 ${layerCombos.map(items => {
     let wrapperName = getWrapperName(items);
     return `
@@ -131,19 +135,37 @@ impl<O: Organism + 'static, T: ${layersToBounds(items)}> SimComponent<O> for ${w
     }
 }
 ${layerImpl(wrapperName, items, layerList.filter(l => !items.includes(l)))}
-impl<O: Organism + 'static, T: ${layersToBounds(items)}> ComponentWrapper<O> for ${wrapperName}<O,T> {}
+impl<O: Organism + 'static, T: ${layersToBounds(items)}> ComponentWrapper<O> for ${wrapperName}<O,T> {
+${layerList.map(layer => `
+    fn is_${layer}_component(&self) -> bool {
+        ${items.includes(layer)}
+    }
+`).join('')}
+}
 `
 }).join('')}
 
 pub struct ComponentRegistry<O: Organism> (Vec<Box<dyn ComponentWrapper<O>>>);
 
 impl<O: Organism + 'static> ComponentRegistry<O> {
+    pub fn new() -> Self {
+        Self(Vec::new())
+    }
+
     pub fn add_component(&mut self, component: impl SimComponent<O>) {
         component.attach(self)
     }
-${layerCombos.map(items=> `
+${layerCombos.map(items => `
     pub fn add_${items.join('_')}_component(&mut self, component: impl ${layersToBounds(items)} + 'static) {
         self.0.push(Box::new(${getWrapperName(items)}(component, PhantomData)))
+    }
+`).join('')}
+${layerList.map(layer => `
+    pub fn ${layer}_components(&self) -> impl Iterator<Item = &Box<dyn ComponentWrapper<O>>> {
+        self.0.iter().filter(|c| c.is_${layer}_component())
+    }
+    pub fn ${layer}_components_mut(&mut self) -> impl Iterator<Item = &mut Box<dyn ComponentWrapper<O>>> {
+        self.0.iter_mut().filter(|c| c.is_${layer}_component())
     }
 `).join('')}
 }

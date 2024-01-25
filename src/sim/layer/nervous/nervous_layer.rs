@@ -30,7 +30,19 @@ pub struct NervousLayer<O: Organism> {
 }
 
 impl<O: Organism + 'static> NervousLayer<O> {
-    fn advance(&mut self, sim_time: SimTime) {
+    pub fn new() -> Self {
+        Self {
+            sim_time: SimTime::from_s(0.0),
+            id_gen: IdGenerator::new(),
+            signal_notifies: HashMap::new(),
+            notify_map: HashMap::new(),
+            delivery_signals: Vec::new(),
+            transforms: HashMap::new(),
+            pending_signals: BTreeMap::new(),
+        }
+    }
+
+    pub fn advance(&mut self, sim_time: SimTime) {
         if sim_time == self.sim_time {
             return;
         }

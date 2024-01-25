@@ -22,7 +22,17 @@ use crate::sim::layer::{
 };
 use super::SimComponent;
 
-pub trait ComponentWrapper<O: Organism>: SimComponent<O> + CoreComponent<O> + CirculationComponent<O> + DigestionComponent<O> + NervousComponent<O> {}
+pub trait ComponentWrapper<O: Organism>: SimComponent<O> + CoreComponent<O> + CirculationComponent<O> + DigestionComponent<O> + NervousComponent<O> {
+
+    fn is_core_component(&self) -> bool;
+
+    fn is_circulation_component(&self) -> bool;
+
+    fn is_digestion_component(&self) -> bool;
+
+    fn is_nervous_component(&self) -> bool;
+
+}
 
 pub struct CoreCirculationDigestionWrapper<O: Organism, T: CoreComponent<O> + CirculationComponent<O> + DigestionComponent<O> + 'static>(pub T, pub PhantomData<O>);
 
@@ -78,7 +88,25 @@ impl<O: Organism + 'static, T: CoreComponent<O> + CirculationComponent<O> + Dige
 }
 
 
-impl<O: Organism + 'static, T: CoreComponent<O> + CirculationComponent<O> + DigestionComponent<O>> ComponentWrapper<O> for CoreCirculationDigestionWrapper<O,T> {}
+impl<O: Organism + 'static, T: CoreComponent<O> + CirculationComponent<O> + DigestionComponent<O>> ComponentWrapper<O> for CoreCirculationDigestionWrapper<O,T> {
+
+    fn is_core_component(&self) -> bool {
+        true
+    }
+
+    fn is_circulation_component(&self) -> bool {
+        true
+    }
+
+    fn is_digestion_component(&self) -> bool {
+        true
+    }
+
+    fn is_nervous_component(&self) -> bool {
+        false
+    }
+
+}
 
 pub struct CoreCirculationNervousWrapper<O: Organism, T: CoreComponent<O> + CirculationComponent<O> + NervousComponent<O> + 'static>(pub T, pub PhantomData<O>);
 
@@ -134,7 +162,25 @@ impl<O: Organism + 'static, T: CoreComponent<O> + CirculationComponent<O> + Nerv
 }
 
 
-impl<O: Organism + 'static, T: CoreComponent<O> + CirculationComponent<O> + NervousComponent<O>> ComponentWrapper<O> for CoreCirculationNervousWrapper<O,T> {}
+impl<O: Organism + 'static, T: CoreComponent<O> + CirculationComponent<O> + NervousComponent<O>> ComponentWrapper<O> for CoreCirculationNervousWrapper<O,T> {
+
+    fn is_core_component(&self) -> bool {
+        true
+    }
+
+    fn is_circulation_component(&self) -> bool {
+        true
+    }
+
+    fn is_digestion_component(&self) -> bool {
+        false
+    }
+
+    fn is_nervous_component(&self) -> bool {
+        true
+    }
+
+}
 
 pub struct CoreCirculationWrapper<O: Organism, T: CoreComponent<O> + CirculationComponent<O> + 'static>(pub T, pub PhantomData<O>);
 
@@ -190,7 +236,25 @@ impl<O: Organism + 'static, T: CoreComponent<O> + CirculationComponent<O>> Nervo
 }
 
 
-impl<O: Organism + 'static, T: CoreComponent<O> + CirculationComponent<O>> ComponentWrapper<O> for CoreCirculationWrapper<O,T> {}
+impl<O: Organism + 'static, T: CoreComponent<O> + CirculationComponent<O>> ComponentWrapper<O> for CoreCirculationWrapper<O,T> {
+
+    fn is_core_component(&self) -> bool {
+        true
+    }
+
+    fn is_circulation_component(&self) -> bool {
+        true
+    }
+
+    fn is_digestion_component(&self) -> bool {
+        false
+    }
+
+    fn is_nervous_component(&self) -> bool {
+        false
+    }
+
+}
 
 pub struct CoreDigestionNervousWrapper<O: Organism, T: CoreComponent<O> + DigestionComponent<O> + NervousComponent<O> + 'static>(pub T, pub PhantomData<O>);
 
@@ -246,7 +310,25 @@ impl<O: Organism + 'static, T: CoreComponent<O> + DigestionComponent<O> + Nervou
 }
 
 
-impl<O: Organism + 'static, T: CoreComponent<O> + DigestionComponent<O> + NervousComponent<O>> ComponentWrapper<O> for CoreDigestionNervousWrapper<O,T> {}
+impl<O: Organism + 'static, T: CoreComponent<O> + DigestionComponent<O> + NervousComponent<O>> ComponentWrapper<O> for CoreDigestionNervousWrapper<O,T> {
+
+    fn is_core_component(&self) -> bool {
+        true
+    }
+
+    fn is_circulation_component(&self) -> bool {
+        false
+    }
+
+    fn is_digestion_component(&self) -> bool {
+        true
+    }
+
+    fn is_nervous_component(&self) -> bool {
+        true
+    }
+
+}
 
 pub struct CoreDigestionWrapper<O: Organism, T: CoreComponent<O> + DigestionComponent<O> + 'static>(pub T, pub PhantomData<O>);
 
@@ -302,7 +384,25 @@ impl<O: Organism + 'static, T: CoreComponent<O> + DigestionComponent<O>> Nervous
 }
 
 
-impl<O: Organism + 'static, T: CoreComponent<O> + DigestionComponent<O>> ComponentWrapper<O> for CoreDigestionWrapper<O,T> {}
+impl<O: Organism + 'static, T: CoreComponent<O> + DigestionComponent<O>> ComponentWrapper<O> for CoreDigestionWrapper<O,T> {
+
+    fn is_core_component(&self) -> bool {
+        true
+    }
+
+    fn is_circulation_component(&self) -> bool {
+        false
+    }
+
+    fn is_digestion_component(&self) -> bool {
+        true
+    }
+
+    fn is_nervous_component(&self) -> bool {
+        false
+    }
+
+}
 
 pub struct CoreNervousWrapper<O: Organism, T: CoreComponent<O> + NervousComponent<O> + 'static>(pub T, pub PhantomData<O>);
 
@@ -358,7 +458,25 @@ impl<O: Organism + 'static, T: CoreComponent<O> + NervousComponent<O>> Digestion
 }
 
 
-impl<O: Organism + 'static, T: CoreComponent<O> + NervousComponent<O>> ComponentWrapper<O> for CoreNervousWrapper<O,T> {}
+impl<O: Organism + 'static, T: CoreComponent<O> + NervousComponent<O>> ComponentWrapper<O> for CoreNervousWrapper<O,T> {
+
+    fn is_core_component(&self) -> bool {
+        true
+    }
+
+    fn is_circulation_component(&self) -> bool {
+        false
+    }
+
+    fn is_digestion_component(&self) -> bool {
+        false
+    }
+
+    fn is_nervous_component(&self) -> bool {
+        true
+    }
+
+}
 
 pub struct CoreWrapper<O: Organism, T: CoreComponent<O> + 'static>(pub T, pub PhantomData<O>);
 
@@ -414,7 +532,25 @@ impl<O: Organism + 'static, T: CoreComponent<O>> NervousComponent<O> for CoreWra
 }
 
 
-impl<O: Organism + 'static, T: CoreComponent<O>> ComponentWrapper<O> for CoreWrapper<O,T> {}
+impl<O: Organism + 'static, T: CoreComponent<O>> ComponentWrapper<O> for CoreWrapper<O,T> {
+
+    fn is_core_component(&self) -> bool {
+        true
+    }
+
+    fn is_circulation_component(&self) -> bool {
+        false
+    }
+
+    fn is_digestion_component(&self) -> bool {
+        false
+    }
+
+    fn is_nervous_component(&self) -> bool {
+        false
+    }
+
+}
 
 pub struct CirculationDigestionNervousWrapper<O: Organism, T: CirculationComponent<O> + DigestionComponent<O> + NervousComponent<O> + 'static>(pub T, pub PhantomData<O>);
 
@@ -470,7 +606,25 @@ impl<O: Organism + 'static, T: CirculationComponent<O> + DigestionComponent<O> +
 }
 
 
-impl<O: Organism + 'static, T: CirculationComponent<O> + DigestionComponent<O> + NervousComponent<O>> ComponentWrapper<O> for CirculationDigestionNervousWrapper<O,T> {}
+impl<O: Organism + 'static, T: CirculationComponent<O> + DigestionComponent<O> + NervousComponent<O>> ComponentWrapper<O> for CirculationDigestionNervousWrapper<O,T> {
+
+    fn is_core_component(&self) -> bool {
+        false
+    }
+
+    fn is_circulation_component(&self) -> bool {
+        true
+    }
+
+    fn is_digestion_component(&self) -> bool {
+        true
+    }
+
+    fn is_nervous_component(&self) -> bool {
+        true
+    }
+
+}
 
 pub struct CirculationDigestionWrapper<O: Organism, T: CirculationComponent<O> + DigestionComponent<O> + 'static>(pub T, pub PhantomData<O>);
 
@@ -526,7 +680,25 @@ impl<O: Organism + 'static, T: CirculationComponent<O> + DigestionComponent<O>> 
 }
 
 
-impl<O: Organism + 'static, T: CirculationComponent<O> + DigestionComponent<O>> ComponentWrapper<O> for CirculationDigestionWrapper<O,T> {}
+impl<O: Organism + 'static, T: CirculationComponent<O> + DigestionComponent<O>> ComponentWrapper<O> for CirculationDigestionWrapper<O,T> {
+
+    fn is_core_component(&self) -> bool {
+        false
+    }
+
+    fn is_circulation_component(&self) -> bool {
+        true
+    }
+
+    fn is_digestion_component(&self) -> bool {
+        true
+    }
+
+    fn is_nervous_component(&self) -> bool {
+        false
+    }
+
+}
 
 pub struct CirculationNervousWrapper<O: Organism, T: CirculationComponent<O> + NervousComponent<O> + 'static>(pub T, pub PhantomData<O>);
 
@@ -582,7 +754,25 @@ impl<O: Organism + 'static, T: CirculationComponent<O> + NervousComponent<O>> Di
 }
 
 
-impl<O: Organism + 'static, T: CirculationComponent<O> + NervousComponent<O>> ComponentWrapper<O> for CirculationNervousWrapper<O,T> {}
+impl<O: Organism + 'static, T: CirculationComponent<O> + NervousComponent<O>> ComponentWrapper<O> for CirculationNervousWrapper<O,T> {
+
+    fn is_core_component(&self) -> bool {
+        false
+    }
+
+    fn is_circulation_component(&self) -> bool {
+        true
+    }
+
+    fn is_digestion_component(&self) -> bool {
+        false
+    }
+
+    fn is_nervous_component(&self) -> bool {
+        true
+    }
+
+}
 
 pub struct CirculationWrapper<O: Organism, T: CirculationComponent<O> + 'static>(pub T, pub PhantomData<O>);
 
@@ -638,7 +828,25 @@ impl<O: Organism + 'static, T: CirculationComponent<O>> NervousComponent<O> for 
 }
 
 
-impl<O: Organism + 'static, T: CirculationComponent<O>> ComponentWrapper<O> for CirculationWrapper<O,T> {}
+impl<O: Organism + 'static, T: CirculationComponent<O>> ComponentWrapper<O> for CirculationWrapper<O,T> {
+
+    fn is_core_component(&self) -> bool {
+        false
+    }
+
+    fn is_circulation_component(&self) -> bool {
+        true
+    }
+
+    fn is_digestion_component(&self) -> bool {
+        false
+    }
+
+    fn is_nervous_component(&self) -> bool {
+        false
+    }
+
+}
 
 pub struct DigestionNervousWrapper<O: Organism, T: DigestionComponent<O> + NervousComponent<O> + 'static>(pub T, pub PhantomData<O>);
 
@@ -694,7 +902,25 @@ impl<O: Organism + 'static, T: DigestionComponent<O> + NervousComponent<O>> Circ
 }
 
 
-impl<O: Organism + 'static, T: DigestionComponent<O> + NervousComponent<O>> ComponentWrapper<O> for DigestionNervousWrapper<O,T> {}
+impl<O: Organism + 'static, T: DigestionComponent<O> + NervousComponent<O>> ComponentWrapper<O> for DigestionNervousWrapper<O,T> {
+
+    fn is_core_component(&self) -> bool {
+        false
+    }
+
+    fn is_circulation_component(&self) -> bool {
+        false
+    }
+
+    fn is_digestion_component(&self) -> bool {
+        true
+    }
+
+    fn is_nervous_component(&self) -> bool {
+        true
+    }
+
+}
 
 pub struct DigestionWrapper<O: Organism, T: DigestionComponent<O> + 'static>(pub T, pub PhantomData<O>);
 
@@ -750,7 +976,25 @@ impl<O: Organism + 'static, T: DigestionComponent<O>> NervousComponent<O> for Di
 }
 
 
-impl<O: Organism + 'static, T: DigestionComponent<O>> ComponentWrapper<O> for DigestionWrapper<O,T> {}
+impl<O: Organism + 'static, T: DigestionComponent<O>> ComponentWrapper<O> for DigestionWrapper<O,T> {
+
+    fn is_core_component(&self) -> bool {
+        false
+    }
+
+    fn is_circulation_component(&self) -> bool {
+        false
+    }
+
+    fn is_digestion_component(&self) -> bool {
+        true
+    }
+
+    fn is_nervous_component(&self) -> bool {
+        false
+    }
+
+}
 
 pub struct NervousWrapper<O: Organism, T: NervousComponent<O> + 'static>(pub T, pub PhantomData<O>);
 
@@ -806,12 +1050,34 @@ impl<O: Organism + 'static, T: NervousComponent<O>> DigestionComponent<O> for Ne
 }
 
 
-impl<O: Organism + 'static, T: NervousComponent<O>> ComponentWrapper<O> for NervousWrapper<O,T> {}
+impl<O: Organism + 'static, T: NervousComponent<O>> ComponentWrapper<O> for NervousWrapper<O,T> {
+
+    fn is_core_component(&self) -> bool {
+        false
+    }
+
+    fn is_circulation_component(&self) -> bool {
+        false
+    }
+
+    fn is_digestion_component(&self) -> bool {
+        false
+    }
+
+    fn is_nervous_component(&self) -> bool {
+        true
+    }
+
+}
 
 
 pub struct ComponentRegistry<O: Organism> (Vec<Box<dyn ComponentWrapper<O>>>);
 
 impl<O: Organism + 'static> ComponentRegistry<O> {
+    pub fn new() -> Self {
+        Self(Vec::new())
+    }
+
     pub fn add_component(&mut self, component: impl SimComponent<O>) {
         component.attach(self)
     }
@@ -870,6 +1136,35 @@ impl<O: Organism + 'static> ComponentRegistry<O> {
 
     pub fn add_nervous_component(&mut self, component: impl NervousComponent<O> + 'static) {
         self.0.push(Box::new(NervousWrapper(component, PhantomData)))
+    }
+
+
+    pub fn core_components(&self) -> impl Iterator<Item = &Box<dyn ComponentWrapper<O>>> {
+        self.0.iter().filter(|c| c.is_core_component())
+    }
+    pub fn core_components_mut(&mut self) -> impl Iterator<Item = &mut Box<dyn ComponentWrapper<O>>> {
+        self.0.iter_mut().filter(|c| c.is_core_component())
+    }
+
+    pub fn circulation_components(&self) -> impl Iterator<Item = &Box<dyn ComponentWrapper<O>>> {
+        self.0.iter().filter(|c| c.is_circulation_component())
+    }
+    pub fn circulation_components_mut(&mut self) -> impl Iterator<Item = &mut Box<dyn ComponentWrapper<O>>> {
+        self.0.iter_mut().filter(|c| c.is_circulation_component())
+    }
+
+    pub fn digestion_components(&self) -> impl Iterator<Item = &Box<dyn ComponentWrapper<O>>> {
+        self.0.iter().filter(|c| c.is_digestion_component())
+    }
+    pub fn digestion_components_mut(&mut self) -> impl Iterator<Item = &mut Box<dyn ComponentWrapper<O>>> {
+        self.0.iter_mut().filter(|c| c.is_digestion_component())
+    }
+
+    pub fn nervous_components(&self) -> impl Iterator<Item = &Box<dyn ComponentWrapper<O>>> {
+        self.0.iter().filter(|c| c.is_nervous_component())
+    }
+    pub fn nervous_components_mut(&mut self) -> impl Iterator<Item = &mut Box<dyn ComponentWrapper<O>>> {
+        self.0.iter_mut().filter(|c| c.is_nervous_component())
     }
 
 }

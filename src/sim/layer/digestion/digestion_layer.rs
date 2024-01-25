@@ -1,5 +1,6 @@
 
 use std::collections::{HashMap, BTreeMap, HashSet};
+use std::marker::PhantomData;
 use crate::sim::{SimConnector, SimTime};
 use crate::sim::organism::Organism;
 use crate::util::{IdType, secs};
@@ -12,7 +13,8 @@ use super::consumable::Consumable;
 
 type ConsumableId = IdType;
 
-pub struct DigestionLayer {
+pub struct DigestionLayer<O: Organism> {
+    pd: PhantomData<O>,
     /// Default duration each component receives a consumable for
     default_digestion_duration: SimTime,
     /// Current simulation time according to the layer
@@ -41,11 +43,12 @@ pub struct DigestionLayer {
 //     }
 // }
 
-impl DigestionLayer {
+impl<O: Organism> DigestionLayer<O> {
     /// Creates a Sim with the default set of modules which is equal to all registered
     /// modules at the time of execution.
-    pub fn new() -> DigestionLayer {
-        DigestionLayer {
+    pub fn new() -> Self {
+        Self {
+            pd: PhantomData,
             default_digestion_duration: secs!(60.0),
             sim_time: secs!(0.0),
             component_map: HashMap::new(),
@@ -66,7 +69,7 @@ impl DigestionLayer {
         self.elimination_list.drain(..)
     }
 
-    fn advance(&mut self, sim_time: SimTime) {
+    pub fn advance(&mut self, sim_time: SimTime) {
         if sim_time == self.sim_time {
             return;
         }
@@ -128,7 +131,7 @@ impl DigestionLayer {
     }
 }
 
-impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessor<O, T> for DigestionLayer {
+impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessor<O, T> for DigestionLayer<O> {
     fn setup_component(&mut self, _connector: &mut SimConnector, component: &mut T) {
         let mut initializer = DigestionInitializer::new();
         component.digestion_init(&mut initializer);

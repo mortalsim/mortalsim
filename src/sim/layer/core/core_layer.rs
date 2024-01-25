@@ -5,18 +5,20 @@ use crate::util::id_gen::IdType;
 use std::any::TypeId;
 use std::collections::{HashMap, HashSet};
 use std::fmt;
+use std::marker::PhantomData;
 use std::sync::Arc;
 
 use super::component::{CoreComponent, CoreInitializer};
 
-pub struct CoreLayer {
+pub struct CoreLayer<O: Organism> {
+    pd: PhantomData<O>,
     module_notifications: HashMap<TypeId, Vec<(i32, &'static str)>>,
     transformer_id_map: HashMap<&'static str, Vec<IdType>>,
     /// Map of pending updates for each module
     notify_map: HashMap<&'static str, HashSet<TypeId>>,
 }
 
-impl fmt::Debug for CoreLayer {
+impl<O: Organism> fmt::Debug for CoreLayer<O> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
@@ -26,28 +28,21 @@ impl fmt::Debug for CoreLayer {
     }
 }
 
-impl CoreLayer {
+impl<O: Organism> CoreLayer<O> {
     /// Creates a Sim with the default set of modules which is equal to all registered
     /// modules at the time of execution.
-    pub fn new() -> CoreLayer {
-        CoreLayer {
+    pub fn new() -> Self {
+        Self {
+            pd: PhantomData,
             module_notifications: HashMap::new(),
             transformer_id_map: HashMap::new(),
             notify_map: HashMap::new(),
         }
     }
 
-    // /// handles internal registrations and initial outputs for modules
-    // pub fn pending_updates<'a>(&'a mut self) -> impl Iterator<Item = &'static str> + 'a {
-    //     self.notify_map.keys().map(|n| *n)
-    // }
-
-    // pub fn clear_notifications(&mut self) {
-    //     self.notify_map.clear()
-    // }
 }
 
-impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer {
+impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer<O> {
 
     fn setup_component(&mut self, connector: &mut SimConnector, component: &mut T) {
         let mut initializer = CoreInitializer::new();

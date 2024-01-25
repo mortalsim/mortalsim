@@ -10,7 +10,7 @@ use super::{
     CirculationInitializer, CirculationComponent, BloodStore
 };
 
-pub struct CirculationLayer<O: Organism + 'static> {
+pub struct CirculationLayer<O: Organism> {
     blood_notify_map: HashMap<O::VesselType, HashMap<Substance, Vec<(SubstanceConcentration, &'static str)>>>,
     composition_map: HashMap<O::VesselType, SubstanceStore>,
     component_settings: HashMap<&'static str, CirculationInitializer<O>>,

@@ -1,7 +1,3 @@
-//! Base TransformerItem class
-//!
-//! Provides an Ord wrapper for `Event` transforming functions
-
 use crate::event::Event;
 use crate::util::id_gen::{IdGenerator, IdType};
 use std::any::TypeId;
