@@ -1,5 +1,3 @@
-use std::sync::{Arc, Mutex};
-
 pub mod component;
 pub mod layer;
 pub mod sim_state;
@@ -11,17 +9,17 @@ pub use time_manager::{SimTime, TimeManager};
 pub use organism::*;
 
 pub struct SimConnector {
-    sim_time: SimTime,
     time_manager: TimeManager,
-    state: Arc<Mutex<SimState>>,
 }
 
 impl SimConnector {
     pub fn new() -> Self {
         SimConnector {
-            sim_time: SimTime::from_s(0.0),
             time_manager: TimeManager::new(),
-            state: Arc::new(Mutex::new(SimState::new())),
         }
+    }
+
+    pub fn sim_time(&self) -> SimTime {
+        self.time_manager.get_time()
     }
 }

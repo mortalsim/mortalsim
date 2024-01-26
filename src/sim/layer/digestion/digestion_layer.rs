@@ -4,7 +4,7 @@ use std::marker::PhantomData;
 use crate::sim::{SimConnector, SimTime};
 use crate::sim::organism::Organism;
 use crate::util::{IdType, secs};
-use crate::sim::component::SimComponentProcessor;
+use crate::sim::component::{SimComponent, SimComponentProcessor};
 
 use super::DigestionDirection;
 use super::component::{DigestionComponent, DigestionInitializer};
@@ -67,6 +67,10 @@ impl<O: Organism> DigestionLayer<O> {
     /// Eliminate the remains of any SubstanceStores
     pub fn eliminate<'a>(&'a mut self) -> impl Iterator<Item = (Consumable, DigestionDirection)> + 'a {
         self.elimination_list.drain(..)
+    }
+
+    fn component_position<T: SimComponent<O>>(&self, component: &T) -> usize {
+        *self.component_map.get(component.id()).expect("Digestion component position is missing!")
     }
 
     pub fn advance(&mut self, sim_time: SimTime) {
@@ -139,27 +143,27 @@ impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessor<O, T> for Dige
         self.component_map.insert(component.id(), self.component_map.len());
     }
 
-    fn prepare_component(&mut self, _connector: &SimConnector, component: &mut T) -> bool {
-        let component_pos = self.component_map.get(component.id()).expect("Digestion component position is missing!");
-        let trigger = self.trigger_map.contains(component_pos);
+    fn check_component(&mut self, component: &T) -> bool {
+        let component_pos = self.component_position(component);
+        self.trigger_map.contains(&component_pos)
+    }
 
-        if trigger {
-            // move consumed items from the layer map into the component connector
-            let consumed_list = self.consumed_map.entry(*component_pos).or_default();
-            component.digestion_connector().consumed_list.extend(consumed_list.drain(..));
-        }
+    fn prepare_component(&mut self, _connector: &SimConnector, component: &mut T) {
+        let component_pos = self.component_position(component);
 
-        trigger
+        // move consumed items from the layer map into the component connector
+        let consumed_list = self.consumed_map.entry(component_pos).or_default();
+        component.digestion_connector().consumed_list.extend(consumed_list.drain(..));
     }
 
     fn process_component(&mut self, _connector: &mut SimConnector, component: &mut T) {
-        let component_pos = self.component_map.get(component.id()).expect("Digestion component position is missing!");
+        let component_pos = self.component_position(component);
 
         // move consumed items from the component connector back into the layer map
         let consumed_list = &mut component.digestion_connector().consumed_list;
-        self.consumed_map.entry(*component_pos).or_default().extend(consumed_list.drain(..));
+        self.consumed_map.entry(component_pos).or_default().extend(consumed_list.drain(..));
 
         // Reset the trigger
-        self.trigger_map.remove(component_pos);
+        self.trigger_map.remove(&component_pos);
     }
 }

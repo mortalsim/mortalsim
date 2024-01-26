@@ -94,34 +94,34 @@ impl<O: Organism + 'static, T: NervousComponent<O>> SimComponentProcessor<O, T> 
         }
     }
 
-    fn prepare_component(&mut self, connector: &SimConnector, component: &mut T) -> bool {
+    fn check_component(&mut self, component: &T) -> bool {
+        self.notify_map.contains_key(component.id()) 
+    }
 
-        if let Some(incoming) = self.notify_map.remove(component.id()) {
-            let n_connector = component.nervous_connector();
+    fn prepare_component(&mut self, connector: &SimConnector, component: &mut T) {
 
-            // partition the delivery_signals vector to extract the ones which
-            // apply to this component only
-            let (incoming_signals, others) = self.delivery_signals
-                .drain(..)
-                .partition(|s| incoming.contains(s.id()));
+        let incoming = self.notify_map.remove(component.id()).expect("missing component signals");
+        let n_connector = component.nervous_connector();
 
-            // Make sure to keep the rest around so they're not lost
-            self.delivery_signals = others;
+        // partition the delivery_signals vector to extract the ones which
+        // apply to this component only
+        let (incoming_signals, others) = self.delivery_signals
+            .drain(..)
+            .partition(|s| incoming.contains(s.id()));
 
-            // Add the incoming signals to the component's connector
-            for signal in incoming_signals {
-                n_connector.incoming.entry(signal.type_id()).or_default().push(signal);
-            }
+        // Make sure to keep the rest around so they're not lost
+        self.delivery_signals = others;
 
-            // Add some other connector things before the component run
-            n_connector.sim_time = connector.sim_time;
-            swap(&mut n_connector.pending_signals, &mut self.pending_signals);
-            swap(&mut n_connector.transforms, &mut self.transforms);
-
-            // trigger it
-            return true;
+        // Add the incoming signals to the component's connector
+        for signal in incoming_signals {
+            n_connector.incoming.entry(signal.type_id()).or_default().push(signal);
         }
-        false
+
+        // Add some other connector things before the component run
+        n_connector.sim_time = connector.sim_time();
+        swap(&mut n_connector.pending_signals, &mut self.pending_signals);
+        swap(&mut n_connector.transforms, &mut self.transforms);
+
     }
 
     fn process_component(&mut self, _connector: &mut SimConnector, component: &mut T) {

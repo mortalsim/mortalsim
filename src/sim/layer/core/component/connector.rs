@@ -5,13 +5,13 @@ use anyhow::Result;
 use std::any::TypeId;
 use std::collections::HashMap;
 use std::marker::PhantomData;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 /// Provides methods for `Sim` modules to interact with the simulation
 pub struct CoreConnector<O: Organism> {
     pd: PhantomData<O>,
     /// State specific to the connected module
-    pub(crate) sim_state: Arc<Mutex<SimState>>,
+    pub(crate) sim_state: SimState,
     /// Holds a shared reference to the Event which triggered module execution
     pub(crate) trigger_events: Vec<TypeId>,
     /// Map of scheduled event identifiers
@@ -34,7 +34,7 @@ impl<O: Organism> CoreConnector<O> {
         Self {
             pd: PhantomData,
             // Temporary empty state which will be replaced by the canonical state
-            sim_state: Arc::new(Mutex::new(SimState::new())),
+            sim_state: SimState::new(),
             trigger_events: Vec::new(),
             scheduled_events: HashMap::new(),
             schedule_id_type_map: HashMap::new(),
@@ -99,10 +99,7 @@ impl<O: Organism> CoreConnector<O> {
     /// Retrieves the current `Event` object from state as an Arc
     pub fn get<E: Event>(&self) -> Option<Arc<E>> {
         match self
-            .sim_state
-            .lock()
-            .unwrap()
-            .get_state_ref(&TypeId::of::<E>())?.downcast_arc::<E>()
+            .sim_state.get_state_ref(&TypeId::of::<E>())?.downcast_arc::<E>()
         {
             Err(_) => None,
             Ok(typed_evt_rc) => Some(typed_evt_rc),
@@ -119,7 +116,7 @@ impl<O: Organism> CoreConnector<O> {
 pub mod test {
     use std::any::TypeId;
     use std::collections::HashMap;
-    use std::sync::{Arc, Mutex};
+    use std::sync::Arc;
 
     use crate::event::test::TestEventB;
     use crate::sim::test::TestSim;
@@ -147,10 +144,10 @@ pub mod test {
         b_events.insert(2, Time::from_s(2.0));
         connector.scheduled_events.insert(TypeId::of::<TestEventA>(), a_events);
         connector.scheduled_events.insert(TypeId::of::<TestEventB>(), b_events);
-        connector.sim_state = Arc::new(Mutex::new(SimState::new()));
+        connector.sim_state = SimState::new();
 
         let evt_a = Arc::new(basic_event_a());
-        connector.sim_state.lock().unwrap().put_state(TypeId::of::<TestEventA>(), evt_a.clone());
+        connector.sim_state.put_state(TypeId::of::<TestEventA>(), evt_a.clone());
         connector.trigger_events.push(TypeId::of::<TestEventA>());
         connector.sim_time = Time::from_s(0.0);
         connector

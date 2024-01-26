@@ -1,10 +1,13 @@
 
-use std::{collections::hash_set, path::Component};
+use std::collections::hash_set;
+use std::fmt::Debug;
 
 pub mod core;
 pub mod circulation;
 pub mod digestion;
 pub mod nervous;
+
+use crate::event::Event;
 
 pub use self::core::component::*;
 use self::{circulation::CirculationLayer, core::CoreLayer, digestion::digestion_layer::DigestionLayer, nervous::nervous_layer::NervousLayer};
@@ -12,7 +15,8 @@ pub use circulation::component::*;
 pub use digestion::component::*;
 pub use nervous::component::*;
 
-use super::{component::{registry::ComponentRegistry, SimComponentProcessor}, Organism};
+use super::component::registry::ComponentRegistry;
+use super::Organism;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Copy)]
 pub enum SimLayer {
@@ -20,6 +24,21 @@ pub enum SimLayer {
     Circulation,
     Digestion,
     Nervous,
+}
+
+#[derive(Debug)]
+pub(crate) struct InternalLayerTrigger(SimLayer);
+
+impl InternalLayerTrigger {
+    pub fn layer(&self) -> SimLayer {
+        self.0
+    }
+}
+
+impl Event for InternalLayerTrigger {
+    fn event_name(&self) -> &str {
+        "InternalLayerEvent"
+    }
 }
 
 pub struct AnatomicalRegionIter<'a, T: Clone>(pub hash_set::Iter<'a, T>);
