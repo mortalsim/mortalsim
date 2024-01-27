@@ -5,6 +5,7 @@
  */
 
 use std::marker::PhantomData;
+use std::collections::HashSet;
 use crate::sim::organism::Organism;
 use crate::sim::layer::{
     CoreComponent,
@@ -32,6 +33,51 @@ pub trait ComponentWrapper<O: Organism>: SimComponent<O> + CoreComponent<O> + Ci
 
     fn is_nervous_component(&self) -> bool;
 
+}
+
+impl<O: Organism> SimComponent<O> for Box<dyn ComponentWrapper<O>> {
+    fn id(&self) -> &'static str {
+        self.as_ref().id()
+    }
+    fn attach(self, _registry: &mut ComponentRegistry<O>) {
+        panic!("Can't reattach a boxed component wrapper")
+    }
+    fn run(&mut self) {
+        self.as_mut().run()     
+    }
+}
+
+impl<O: Organism> CoreComponent<O> for Box<dyn ComponentWrapper<O>> {
+    fn core_init(&mut self, initializer: &mut CoreInitializer<O>) {
+        self.as_mut().core_init(initializer) 
+    }
+    fn core_connector(&mut self) -> &mut CoreConnector<O> {
+        self.as_mut().core_connector() 
+    }
+}
+impl<O: Organism> CirculationComponent<O> for Box<dyn ComponentWrapper<O>> {
+    fn circulation_init(&mut self, initializer: &mut CirculationInitializer<O>) {
+        self.as_mut().circulation_init(initializer) 
+    }
+    fn circulation_connector(&mut self) -> &mut CirculationConnector<O> {
+        self.as_mut().circulation_connector() 
+    }
+}
+impl<O: Organism> DigestionComponent<O> for Box<dyn ComponentWrapper<O>> {
+    fn digestion_init(&mut self, initializer: &mut DigestionInitializer<O>) {
+        self.as_mut().digestion_init(initializer) 
+    }
+    fn digestion_connector(&mut self) -> &mut DigestionConnector<O> {
+        self.as_mut().digestion_connector() 
+    }
+}
+impl<O: Organism> NervousComponent<O> for Box<dyn ComponentWrapper<O>> {
+    fn nervous_init(&mut self, initializer: &mut NervousInitializer<O>) {
+        self.as_mut().nervous_init(initializer) 
+    }
+    fn nervous_connector(&mut self) -> &mut NervousConnector<O> {
+        self.as_mut().nervous_connector() 
+    }
 }
 
 pub struct CoreCirculationDigestionWrapper<O: Organism, T: CoreComponent<O> + CirculationComponent<O> + DigestionComponent<O> + 'static>(pub T, pub PhantomData<O>);
@@ -1071,100 +1117,118 @@ impl<O: Organism + 'static, T: NervousComponent<O>> ComponentWrapper<O> for Nerv
 }
 
 
-pub struct ComponentRegistry<O: Organism> (Vec<Box<dyn ComponentWrapper<O>>>);
+pub struct ComponentRegistry<O: Organism> {
+    id_set: HashSet<&'static str>,
+    components: Vec<Box<dyn ComponentWrapper<O>>>,
+}
 
 impl<O: Organism + 'static> ComponentRegistry<O> {
     pub fn new() -> Self {
-        Self(Vec::new())
+        Self {
+            id_set: HashSet::new(),
+            components: Vec::new(),
+        }
     }
 
-    pub fn add_component(&mut self, component: impl SimComponent<O>) {
-        component.attach(self)
+    pub(crate) fn add_component(&mut self, component: impl SimComponent<O>) -> anyhow::Result<()> {
+        if self.id_set.contains(&component.id()) {
+            return Err(anyhow!("Component '{}' has already been registered!", component.id()))
+        }
+        self.id_set.insert(component.id());
+        component.attach(self);
+        Ok(())
     }
 
     pub fn add_core_circulation_digestion_component(&mut self, component: impl CoreComponent<O> + CirculationComponent<O> + DigestionComponent<O> + 'static) {
-        self.0.push(Box::new(CoreCirculationDigestionWrapper(component, PhantomData)))
+        self.components.push(Box::new(CoreCirculationDigestionWrapper(component, PhantomData)))
     }
 
     pub fn add_core_circulation_nervous_component(&mut self, component: impl CoreComponent<O> + CirculationComponent<O> + NervousComponent<O> + 'static) {
-        self.0.push(Box::new(CoreCirculationNervousWrapper(component, PhantomData)))
+        self.components.push(Box::new(CoreCirculationNervousWrapper(component, PhantomData)))
     }
 
     pub fn add_core_circulation_component(&mut self, component: impl CoreComponent<O> + CirculationComponent<O> + 'static) {
-        self.0.push(Box::new(CoreCirculationWrapper(component, PhantomData)))
+        self.components.push(Box::new(CoreCirculationWrapper(component, PhantomData)))
     }
 
     pub fn add_core_digestion_nervous_component(&mut self, component: impl CoreComponent<O> + DigestionComponent<O> + NervousComponent<O> + 'static) {
-        self.0.push(Box::new(CoreDigestionNervousWrapper(component, PhantomData)))
+        self.components.push(Box::new(CoreDigestionNervousWrapper(component, PhantomData)))
     }
 
     pub fn add_core_digestion_component(&mut self, component: impl CoreComponent<O> + DigestionComponent<O> + 'static) {
-        self.0.push(Box::new(CoreDigestionWrapper(component, PhantomData)))
+        self.components.push(Box::new(CoreDigestionWrapper(component, PhantomData)))
     }
 
     pub fn add_core_nervous_component(&mut self, component: impl CoreComponent<O> + NervousComponent<O> + 'static) {
-        self.0.push(Box::new(CoreNervousWrapper(component, PhantomData)))
+        self.components.push(Box::new(CoreNervousWrapper(component, PhantomData)))
     }
 
     pub fn add_core_component(&mut self, component: impl CoreComponent<O> + 'static) {
-        self.0.push(Box::new(CoreWrapper(component, PhantomData)))
+        self.components.push(Box::new(CoreWrapper(component, PhantomData)))
     }
 
     pub fn add_circulation_digestion_nervous_component(&mut self, component: impl CirculationComponent<O> + DigestionComponent<O> + NervousComponent<O> + 'static) {
-        self.0.push(Box::new(CirculationDigestionNervousWrapper(component, PhantomData)))
+        self.components.push(Box::new(CirculationDigestionNervousWrapper(component, PhantomData)))
     }
 
     pub fn add_circulation_digestion_component(&mut self, component: impl CirculationComponent<O> + DigestionComponent<O> + 'static) {
-        self.0.push(Box::new(CirculationDigestionWrapper(component, PhantomData)))
+        self.components.push(Box::new(CirculationDigestionWrapper(component, PhantomData)))
     }
 
     pub fn add_circulation_nervous_component(&mut self, component: impl CirculationComponent<O> + NervousComponent<O> + 'static) {
-        self.0.push(Box::new(CirculationNervousWrapper(component, PhantomData)))
+        self.components.push(Box::new(CirculationNervousWrapper(component, PhantomData)))
     }
 
     pub fn add_circulation_component(&mut self, component: impl CirculationComponent<O> + 'static) {
-        self.0.push(Box::new(CirculationWrapper(component, PhantomData)))
+        self.components.push(Box::new(CirculationWrapper(component, PhantomData)))
     }
 
     pub fn add_digestion_nervous_component(&mut self, component: impl DigestionComponent<O> + NervousComponent<O> + 'static) {
-        self.0.push(Box::new(DigestionNervousWrapper(component, PhantomData)))
+        self.components.push(Box::new(DigestionNervousWrapper(component, PhantomData)))
     }
 
     pub fn add_digestion_component(&mut self, component: impl DigestionComponent<O> + 'static) {
-        self.0.push(Box::new(DigestionWrapper(component, PhantomData)))
+        self.components.push(Box::new(DigestionWrapper(component, PhantomData)))
     }
 
     pub fn add_nervous_component(&mut self, component: impl NervousComponent<O> + 'static) {
-        self.0.push(Box::new(NervousWrapper(component, PhantomData)))
+        self.components.push(Box::new(NervousWrapper(component, PhantomData)))
     }
 
+    pub fn all_components(&self) -> impl Iterator<Item = &Box<dyn ComponentWrapper<O>>> {
+        self.components.iter()
+    }
+    
+    pub fn all_components_mut(&mut self) -> impl Iterator<Item = &mut Box<dyn ComponentWrapper<O>>> {
+        self.components.iter_mut()
+    }
 
     pub fn core_components(&self) -> impl Iterator<Item = &Box<dyn ComponentWrapper<O>>> {
-        self.0.iter().filter(|c| c.is_core_component())
+        self.components.iter().filter(|c| c.is_core_component())
     }
     pub fn core_components_mut(&mut self) -> impl Iterator<Item = &mut Box<dyn ComponentWrapper<O>>> {
-        self.0.iter_mut().filter(|c| c.is_core_component())
+        self.components.iter_mut().filter(|c| c.is_core_component())
     }
 
     pub fn circulation_components(&self) -> impl Iterator<Item = &Box<dyn ComponentWrapper<O>>> {
-        self.0.iter().filter(|c| c.is_circulation_component())
+        self.components.iter().filter(|c| c.is_circulation_component())
     }
     pub fn circulation_components_mut(&mut self) -> impl Iterator<Item = &mut Box<dyn ComponentWrapper<O>>> {
-        self.0.iter_mut().filter(|c| c.is_circulation_component())
+        self.components.iter_mut().filter(|c| c.is_circulation_component())
     }
 
     pub fn digestion_components(&self) -> impl Iterator<Item = &Box<dyn ComponentWrapper<O>>> {
-        self.0.iter().filter(|c| c.is_digestion_component())
+        self.components.iter().filter(|c| c.is_digestion_component())
     }
     pub fn digestion_components_mut(&mut self) -> impl Iterator<Item = &mut Box<dyn ComponentWrapper<O>>> {
-        self.0.iter_mut().filter(|c| c.is_digestion_component())
+        self.components.iter_mut().filter(|c| c.is_digestion_component())
     }
 
     pub fn nervous_components(&self) -> impl Iterator<Item = &Box<dyn ComponentWrapper<O>>> {
-        self.0.iter().filter(|c| c.is_nervous_component())
+        self.components.iter().filter(|c| c.is_nervous_component())
     }
     pub fn nervous_components_mut(&mut self) -> impl Iterator<Item = &mut Box<dyn ComponentWrapper<O>>> {
-        self.0.iter_mut().filter(|c| c.is_nervous_component())
+        self.components.iter_mut().filter(|c| c.is_nervous_component())
     }
 
 }

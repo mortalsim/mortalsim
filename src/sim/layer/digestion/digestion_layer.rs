@@ -58,6 +58,10 @@ impl<O: Organism> DigestionLayer<O> {
         }
     }
 
+    pub fn as_processor<T: DigestionComponent<O>>(&mut self) -> &mut dyn SimComponentProcessor<O, T> {
+        self
+    }
+
     /// Consume a new SubstanceStore
     pub fn consume(&mut self, consumable: Consumable) {
         let consumed = Consumed::new(consumable);

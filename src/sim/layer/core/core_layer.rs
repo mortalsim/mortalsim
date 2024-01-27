@@ -41,6 +41,18 @@ impl<O: Organism> CoreLayer<O> {
             notify_map: HashMap::new(),
         }
     }
+    
+    pub fn as_processor<T: CoreComponent<O>>(&mut self) -> &mut dyn SimComponentProcessor<O, T> {
+        self
+    }
+
+    pub fn sim_state(&self) -> &SimState {
+        &self.state
+    }
+    
+    pub fn sim_state_mut(&mut self) -> &mut SimState {
+        &mut self.state
+    }
 
     fn update(&mut self, time_manager: &mut TimeManager) {
         time_manager.next_events()

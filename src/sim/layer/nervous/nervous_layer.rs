@@ -42,6 +42,10 @@ impl<O: Organism + 'static> NervousLayer<O> {
         }
     }
 
+    pub fn as_processor<T: NervousComponent<O>>(&mut self) -> &mut dyn SimComponentProcessor<O, T> {
+        self
+    }
+
     pub fn advance(&mut self, sim_time: SimTime) {
         if sim_time == self.sim_time {
             return;

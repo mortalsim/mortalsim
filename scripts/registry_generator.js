@@ -104,6 +104,7 @@ impl<O: Organism + 'static, T: ${layersToBounds(impls)}> ${impl.cap()}Component<
  */
 
 use std::marker::PhantomData;
+use std::collections::HashSet;
 use crate::sim::organism::Organism;
 use crate::sim::layer::{
 ${layerList.map(l =>
@@ -118,6 +119,28 @@ ${layerList.map(layer => `
     fn is_${layer}_component(&self) -> bool;
 `).join('')}
 }
+
+impl<O: Organism> SimComponent<O> for Box<dyn ComponentWrapper<O>> {
+    fn id(&self) -> &'static str {
+        self.as_ref().id()
+    }
+    fn attach(self, _registry: &mut ComponentRegistry<O>) {
+        panic!("Can't reattach a boxed component wrapper")
+    }
+    fn run(&mut self) {
+        self.as_mut().run()     
+    }
+}
+${layerList.map(layer => `
+impl<O: Organism> ${layer.cap()}Component<O> for Box<dyn ComponentWrapper<O>> {
+    fn ${layer}_init(&mut self, initializer: &mut ${layer.cap()}Initializer<O>) {
+        self.as_mut().${layer}_init(initializer) 
+    }
+    fn ${layer}_connector(&mut self) -> &mut ${layer.cap()}Connector<O> {
+        self.as_mut().${layer}_connector() 
+    }
+}`
+).join('')}
 ${layerCombos.map(items => {
     let wrapperName = getWrapperName(items);
     return `
@@ -145,27 +168,45 @@ ${layerList.map(layer => `
 `
 }).join('')}
 
-pub struct ComponentRegistry<O: Organism> (Vec<Box<dyn ComponentWrapper<O>>>);
+pub struct ComponentRegistry<O: Organism> {
+    id_set: HashSet<&'static str>,
+    components: Vec<Box<dyn ComponentWrapper<O>>>,
+}
 
 impl<O: Organism + 'static> ComponentRegistry<O> {
     pub fn new() -> Self {
-        Self(Vec::new())
+        Self {
+            id_set: HashSet::new(),
+            components: Vec::new(),
+        }
     }
 
-    pub fn add_component(&mut self, component: impl SimComponent<O>) {
-        component.attach(self)
+    pub(crate) fn add_component(&mut self, component: impl SimComponent<O>) -> anyhow::Result<()> {
+        if self.id_set.contains(&component.id()) {
+            return Err(anyhow!("Component '{}' has already been registered!", component.id()))
+        }
+        self.id_set.insert(component.id());
+        component.attach(self);
+        Ok(())
     }
 ${layerCombos.map(items => `
     pub fn add_${items.join('_')}_component(&mut self, component: impl ${layersToBounds(items)} + 'static) {
-        self.0.push(Box::new(${getWrapperName(items)}(component, PhantomData)))
+        self.components.push(Box::new(${getWrapperName(items)}(component, PhantomData)))
     }
 `).join('')}
+    pub fn all_components(&self) -> impl Iterator<Item = &Box<dyn ComponentWrapper<O>>> {
+        self.components.iter()
+    }
+    
+    pub fn all_components_mut(&mut self) -> impl Iterator<Item = &mut Box<dyn ComponentWrapper<O>>> {
+        self.components.iter_mut()
+    }
 ${layerList.map(layer => `
     pub fn ${layer}_components(&self) -> impl Iterator<Item = &Box<dyn ComponentWrapper<O>>> {
-        self.0.iter().filter(|c| c.is_${layer}_component())
+        self.components.iter().filter(|c| c.is_${layer}_component())
     }
     pub fn ${layer}_components_mut(&mut self) -> impl Iterator<Item = &mut Box<dyn ComponentWrapper<O>>> {
-        self.0.iter_mut().filter(|c| c.is_${layer}_component())
+        self.components.iter_mut().filter(|c| c.is_${layer}_component())
     }
 `).join('')}
 }

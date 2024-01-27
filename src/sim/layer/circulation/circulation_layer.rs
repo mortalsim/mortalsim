@@ -28,6 +28,10 @@ impl<O: Organism + 'static> CirculationLayer<O> {
         }
     }
 
+    pub fn as_processor<T: CirculationComponent<O>>(&mut self) -> &mut dyn SimComponentProcessor<O, T> {
+        self
+    }
+
     pub fn advance(&mut self, sim_time: SimTime) {
         for (_, store) in self.composition_map.iter_mut() {
             store.advance(sim_time);
@@ -37,7 +41,7 @@ impl<O: Organism + 'static> CirculationLayer<O> {
 
 impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessor<O, T> for CirculationLayer<O> {
 
-    fn setup_component(&mut self, _: &mut SimConnector, component: &mut T) {
+    fn setup_component(&mut self, _connector: &mut SimConnector, component: &mut T) {
         let mut initializer = CirculationInitializer::new();
         component.circulation_init(&mut initializer);
 
@@ -107,7 +111,6 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessor<O, T> for Ci
         }
     }
 }
-
 
 
 #[cfg(test)]

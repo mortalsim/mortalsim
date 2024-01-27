@@ -75,7 +75,7 @@ pub mod test {
 
         /// Attaches the module to the ComponentKeeper
         fn attach(self, registry: &mut ComponentRegistry<TestSim>) {
-            registry.add_component(self)
+            registry.add_circulation_component(self)
         }
 
         /// Runs an iteration of this module.
