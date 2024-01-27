@@ -65,8 +65,7 @@ impl<'a> EventHub<'a> {
     /// ### Arguments
     /// * `evt` - Event to dispatch
     pub fn emit<T: Event>(&mut self, evt: T) {
-        let type_key = TypeId::of::<T>();
-        self.emit_typed(type_key, Box::new(evt));
+        self.emit_event(Box::new(evt));
     }
 
     /// Dispatches an Event trait object with it's given type.
@@ -74,7 +73,8 @@ impl<'a> EventHub<'a> {
     /// ### Arguments
     /// * `evt`      - Event to dispatch
     /// * `type_key` - TypeId of the event
-    pub(crate) fn emit_typed(&mut self, type_key: TypeId, mut evt: Box<dyn Event>) {
+    pub(crate) fn emit_event(&mut self, mut evt: Box<dyn Event>) {
+        let type_key = evt.type_id();
         // Call each transformer with the event
         match self.event_transformers.get_mut(&type_key) {
             None => {} // No transformers = nothing to do
