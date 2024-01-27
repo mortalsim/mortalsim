@@ -2,10 +2,15 @@ use std::collections::HashSet;
 
 use crate::sim::layer::circulation::vessel::test::TestBloodVessel;
 use crate::sim::layer::nervous::nerve::test::TestNerve;
+use crate::sim::layer::LayerManager;
+use crate::sim::SimConnector;
 
 use super::Organism;
 
-pub struct TestSim;
+pub struct TestSim {
+    connector: SimConnector,
+    layer_manager: LayerManager<Self>,
+}
 
 impl Organism for TestSim {
     type VesselType = TestBloodVessel;

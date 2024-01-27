@@ -1,4 +1,6 @@
+use crate::event::Event;
 use crate::sim::component::SimComponentProcessor;
+use crate::sim::layer::InternalLayerTrigger;
 use crate::sim::SimConnector;
 use crate::sim::organism::Organism;
 use crate::util::id_gen::IdType;
@@ -7,6 +9,7 @@ use std::collections::{HashMap, HashSet};
 use std::fmt;
 use std::marker::PhantomData;
 use std::mem::swap;
+use std::sync::Arc;
 
 use super::component::{CoreComponent, CoreInitializer};
 
@@ -40,10 +43,6 @@ impl<O: Organism> CoreLayer<O> {
         }
     }
     
-    pub fn as_processor<T: CoreComponent<O>>(&mut self) -> &mut dyn SimComponentProcessor<O, T> {
-        self
-    }
-
     pub fn update(&mut self, connector: &mut SimConnector) {
         connector.time_manager.next_events()
             .map(|x| x.1)
@@ -54,7 +53,13 @@ impl<O: Organism> CoreLayer<O> {
                         self.notify_map.entry(comp_id).or_default().insert(evt.type_id());
                     }
                 }
-                connector.state.put_state(evt.type_id(), evt.into());
+                // Internal layer trigger events don't end up on the state
+                // or in the active_events list
+                if evt.type_id() != TypeId::of::<InternalLayerTrigger>() {
+                    let rc_evt: Arc<dyn Event> = evt.into();
+                    connector.active_events.push(rc_evt.clone());
+                    connector.state.put_state(rc_evt);
+                }
         })
     }
 

@@ -147,7 +147,7 @@ pub mod test {
         connector.sim_state = SimState::new();
 
         let evt_a = Arc::new(basic_event_a());
-        connector.sim_state.put_state(TypeId::of::<TestEventA>(), evt_a.clone());
+        connector.sim_state.put_state(evt_a.clone());
         connector.trigger_events.push(TypeId::of::<TestEventA>());
         connector.sim_time = Time::from_s(0.0);
         connector

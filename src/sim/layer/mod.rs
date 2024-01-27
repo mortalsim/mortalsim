@@ -14,24 +14,12 @@ pub use self::core::component::*;
 pub use circulation::component::*;
 pub use digestion::component::*;
 pub use nervous::component::*;
-pub use layer_manager::LayerManager;
+pub use layer_manager::*;
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Copy)]
-pub enum SimLayer {
-    Core,
-    Circulation,
-    Digestion,
-    Nervous,
-}
 
 #[derive(Debug)]
-pub(crate) struct InternalLayerTrigger(SimLayer);
-
-impl InternalLayerTrigger {
-    pub fn layer(&self) -> SimLayer {
-        self.0
-    }
-}
+/// Internal Event used to force layer processing
+pub(crate) struct InternalLayerTrigger;
 
 impl Event for InternalLayerTrigger {
     fn event_name(&self) -> &str {

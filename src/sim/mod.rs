@@ -3,14 +3,19 @@ pub mod layer;
 pub mod sim_state;
 pub mod time_manager;
 pub mod organism;
+use std::sync::Arc;
+
 pub use sim_state::SimState;
 pub use time_manager::{SimTime, TimeManager};
 
 pub use organism::*;
 
+use crate::event::Event;
+
 pub struct SimConnector {
     state: SimState,
     time_manager: TimeManager,
+    active_events: Vec<Arc<dyn Event>>,
 }
 
 impl SimConnector {
@@ -18,6 +23,7 @@ impl SimConnector {
         SimConnector {
             state: SimState::new(),
             time_manager: TimeManager::new(),
+            active_events: Vec::new(),
         }
     }
 

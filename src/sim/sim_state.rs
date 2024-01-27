@@ -61,11 +61,10 @@ impl SimState {
     /// returns previously stored `Event` or `None`
     pub(super) fn put_state(
         &mut self,
-        type_key: TypeId,
         event: Arc<dyn Event>,
     ) -> Option<Arc<dyn Event>> {
-        self.tainted_states.insert(type_key);
-        self.state.insert(type_key, event)
+        self.tainted_states.insert(event.type_id());
+        self.state.insert(event.type_id(), event)
     }
 
     /// Sets an `Event` object on the current state. The previous `Event`
@@ -111,7 +110,7 @@ impl SimState {
     /// * `other` - Other `SimState` to merge into this one
     pub fn merge_tainted(&mut self, other: &Self) {
         for type_key in other.tainted_states.iter() {
-            self.put_state(type_key.clone(), other.get_state_ref(type_key).unwrap());
+            self.put_state(other.get_state_ref(type_key).unwrap());
         }
     }
 
@@ -131,7 +130,7 @@ impl SimState {
                 }
                 None => {}
             }
-            self.put_state(type_key.clone(), evt_rc.clone());
+            self.put_state(evt_rc.clone());
         }
     }
 }

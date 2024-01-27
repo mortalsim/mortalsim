@@ -1,32 +1,24 @@
 use std::collections::HashMap;
-use std::fmt;
 use crate::sim::SimTime;
 use crate::substance::{SubstanceStore, Substance};
 use crate::substance::substance_wrapper::substance_store_wrapper;
 use crate::units::geometry::Volume;
 use crate::util::IdType;
 
+#[derive(Clone, Debug)]
 pub struct Consumable {
+    name: String,
     pub(super) store: SubstanceStore,
     volume: Volume<f64>,
     change_map: HashMap<Substance, Vec<IdType>>,
 }
 
-impl fmt::Debug for Consumable {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "Consumable {{ store: {:?}, volume: {:?} }}",
-            self.store, self.volume
-        )
-    }
-}
-
 impl Consumable {
     substance_store_wrapper!(store, change_map);
 
-    pub fn new(store: SubstanceStore, volume: Volume<f64>) -> Consumable {
+    pub fn new(name: String, store: SubstanceStore, volume: Volume<f64>) -> Consumable {
         Consumable {
+            name: name,
             store: store,
             volume: volume,
             change_map: HashMap::new(),
@@ -60,12 +52,12 @@ pub mod test {
 
     #[test]
     fn test_new_consumable() {
-        Consumable::new(SubstanceStore::new(), Volume::from_L(0.5));
+        Consumable::new(String::new(), SubstanceStore::new(), Volume::from_L(0.5));
     }
 
     #[test]
     fn test_advance() {
-        let mut consumable = Consumable::new(SubstanceStore::new(), Volume::from_L(0.5));
+        let mut consumable = Consumable::new(String::new(), SubstanceStore::new(), Volume::from_L(0.5));
         consumable.schedule_change(Substance::O2, mmol_per_L!(1.0), secs!(0.0));
 
     }

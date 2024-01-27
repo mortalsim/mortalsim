@@ -6,12 +6,10 @@ use crate::util::{secs, BoundFn};
 use core::panic;
 use std::collections::HashMap;
 use std::fmt;
-use uuid::Uuid;
 
+#[derive(Clone)]
 /// A storage construct for Substance concentrations in a volume
 pub struct SubstanceStore {
-    /// Id for this SubstanceStore
-    store_id: Uuid,
     /// Id generator for substance changes
     id_gen: IdGenerator,
     /// Local cache of simulation time
@@ -26,8 +24,8 @@ impl fmt::Debug for SubstanceStore {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "SubstanceStore<{:?}> {{composition = {:?}, substance_changes = {:?}}}",
-            self.store_id, self.composition, self.substance_changes
+            "SubstanceStore {{composition = {:?}, substance_changes = {:?}}}",
+            self.composition, self.substance_changes
         )?;
         Ok(())
     }
@@ -56,7 +54,6 @@ impl SubstanceStore {
     /// * `volume` - initial volume
     pub fn new() -> SubstanceStore {
         SubstanceStore {
-            store_id: Uuid::new_v4(),
             id_gen: IdGenerator::new(),
             sim_time: secs!(0.0),
             composition: HashMap::new(),

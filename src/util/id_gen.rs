@@ -6,7 +6,6 @@
 use anyhow::Result;
 use std::error::Error;
 use std::fmt;
-use uuid::Uuid;
 
 /// The underlying type for identifiers. Can be modified depending
 /// on capacity needs.
@@ -20,8 +19,6 @@ pub type IdType = u32;
 /// If a part of the code thinks that ID is still associated with
 /// something else, that can cause major problems.
 pub struct DuplicateIdReturnError {
-    /// Which IdGenerator object the erroneous id was returned to
-    generator_id: Uuid,
     /// The duplicate id which was returned
     dup_id: IdType,
 }
@@ -32,8 +29,8 @@ impl fmt::Display for DuplicateIdReturnError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "Id {} has already been returned for generator {}",
-            self.dup_id, self.generator_id
+            "Id {} has already been returned",
+            self.dup_id
         )?;
         Ok(())
     }
@@ -42,9 +39,8 @@ impl fmt::Debug for DuplicateIdReturnError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "Id {} has already been returned for generator {}, file: {}, line: {}",
+            "Id {} has already been returned for generator, file: {}, line: {}",
             self.dup_id,
-            self.generator_id,
             file!(),
             line!()
         )?;
@@ -93,10 +89,8 @@ impl InvalidIdError {
 /// Generates IDs in a sequential manner, and reuses IDs
 /// which have been returned to the system. If you don't
 /// want IDs to be reused, just don't return them.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct IdGenerator {
-    /// Unique identifier for this generator
-    generator_id: Uuid,
     /// Current sequential identifier
     cur_id: IdType,
     /// Available identifiers which have been returned
@@ -107,7 +101,6 @@ impl IdGenerator {
     /// Creates a new IdGenerator object
     pub fn new() -> IdGenerator {
         IdGenerator {
-            generator_id: Uuid::new_v4(),
             cur_id: 0,
             available_ids: Vec::new(),
         }
@@ -136,15 +129,13 @@ impl IdGenerator {
         if self.available_ids.iter().any(|&i| i == id) {
             // return an error when an id which was already returned is returned again
             return Err(anyhow::Error::new(DuplicateIdReturnError {
-                generator_id: self.generator_id,
                 dup_id: id,
             }));
         }
         if id >= self.cur_id {
             return Err(anyhow!(
-                "Invalid ID {} returned to IdGenerator {}, file: {}, line: {}",
+                "Invalid ID {} returned to IdGenerator, file: {}, line: {}",
                 id,
-                self.generator_id,
                 file!(),
                 line!()
             ));

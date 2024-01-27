@@ -1,24 +1,14 @@
-use super::Time;
-use crate::{event::Event, util::IdType};
-use anyhow::Result;
-use std::collections::HashSet;
 
 pub trait Sim {
     /// Returns the current simulation time
-    fn get_time(&self) -> Time;
+    fn time(&self) -> SimTime;
 
     /// Determines if the given component name corresponds to an active component
     /// on this Sim
-    fn has_component(&self, component_name: &'static str) -> bool;
+    fn has_component(&self, component_id: &'static str) -> bool;
 
-    /// Retrieves the set of names of components which are active on this Sim
-    fn active_components(&self) -> HashSet<&'static str>;
-
-    /// Adds components to this Sim. Panics if any component names are invalid
-    ///
-    /// ### Arguments
-    /// * `component_names` - Set of components to add
-    fn add_components(&mut self, component_names: HashSet<&'static str>);
+    /// Retrieves a list of components which are active on this Sim
+    fn active_components(&self) -> Vec<&'static str>;
 
     /// Removes a component from this Sim. Panics if any of the component names
     /// are invalid.

@@ -6,7 +6,7 @@ use crate::sim::organism::Organism;
 use crate::util::{IdType, secs};
 use crate::sim::component::{SimComponent, SimComponentProcessor};
 
-use super::DigestionDirection;
+use super::{ConsumeEvent, DigestionDirection, EliminateEvent};
 use super::component::{DigestionComponent, DigestionInitializer};
 use super::component::connector::Consumed;
 use super::consumable::Consumable;
@@ -61,16 +61,16 @@ impl<O: Organism> DigestionLayer<O> {
         self.consumed_map.entry(0).or_default().push(consumed);
     }
 
-    /// Eliminate the remains of any SubstanceStores
-    pub fn eliminate<'a>(&'a mut self) -> impl Iterator<Item = (Consumable, DigestionDirection)> + 'a {
-        self.elimination_list.drain(..)
-    }
-
     fn component_position<T: SimComponent<O>>(&self, component: &T) -> usize {
         *self.component_map.get(component.id()).expect("Digestion component position is missing!")
     }
 
     pub fn update(&mut self, connector: &mut SimConnector) {
+        for evt in connector.active_events.iter() {
+            if let Some(consume_evt) = evt.downcast_ref::<ConsumeEvent>() {
+                self.consume(consume_evt.0.clone());
+            }
+        }
         // Keep track of vector indices of items which need to move
         let mut moving_indices: Vec<Vec<usize>> = vec![vec![]; self.consumed_map.len()];
         for (pos, consumed_list) in self.consumed_map.iter_mut() {
@@ -103,7 +103,8 @@ impl<O: Organism> DigestionLayer<O> {
                 // Check cases for elimination, either forward or backward
                 if  (pos == 0 && removed.exit_direction == DigestionDirection::BACK) ||
                     (pos == last && removed.exit_direction == DigestionDirection::FORWARD) {
-                        self.elimination_list.push((removed.consumable, removed.exit_direction));
+                        let evt = Box::new(EliminateEvent::new(removed.consumable, removed.exit_direction));
+                        connector.time_manager.schedule_event(removed.exit_time - connector.sim_time(), evt);
                     }
                 else {
                     match removed.exit_direction {
