@@ -21,7 +21,7 @@ pub trait NervousComponent<O: Organism>: SimComponent<O> {
     /// CirculationConnector, which tracks module interactions
     ///
     /// ### returns
-    /// SimConnector to interact with the rest of the simulation
+    /// TimeManager to interact with the rest of the simulation
     fn nervous_connector(&mut self) -> &mut NervousConnector<O>;
 }
 

@@ -20,7 +20,7 @@ pub trait CirculationComponent<O: Organism>: SimComponent<O> {
     /// CirculationConnector, which tracks module interactions
     ///
     /// ### returns
-    /// SimConnector to interact with the rest of the simulation
+    /// TimeManager to interact with the rest of the simulation
     fn circulation_connector(&mut self) -> &mut CirculationConnector<O>;
 }
 

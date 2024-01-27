@@ -98,7 +98,7 @@ impl<O: Organism> DigestionConnector<O> {
     }
 
     /// Retrieves the current simulation time
-    pub fn get_time(&self) -> SimTime {
+    pub fn sim_time(&self) -> SimTime {
         self.sim_time
     }
 

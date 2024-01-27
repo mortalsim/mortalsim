@@ -7,9 +7,13 @@ pub use human_circulation::HumanBloodVessel;
 mod human_nervous;
 pub use human_nervous::HumanNerve;
 
+use crate::sim::layer::LayerManager;
+
 use super::Organism;
 
-pub struct HumanSim {}
+pub struct HumanSim {
+    layer_manager: LayerManager<Self>,
+}
 
 impl Organism for HumanSim {
     type VesselType = HumanBloodVessel;

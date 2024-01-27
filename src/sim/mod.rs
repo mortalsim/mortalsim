@@ -23,3 +23,4 @@ impl SimConnector {
         self.time_manager.get_time()
     }
 }
+

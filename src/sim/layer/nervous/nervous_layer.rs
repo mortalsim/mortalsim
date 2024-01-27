@@ -13,8 +13,6 @@ use super::component::{NervousComponent, NervousInitializer};
 use super::nerve::NerveSignal;
 
 pub struct NervousLayer<O: Organism> {
-    /// Local SimTime
-    sim_time: SimTime,
     /// ID generator for transform registration
     id_gen: IdGenerator,
     /// Map to keep track of which modules to notify for certain signals
@@ -32,7 +30,6 @@ pub struct NervousLayer<O: Organism> {
 impl<O: Organism + 'static> NervousLayer<O> {
     pub fn new() -> Self {
         Self {
-            sim_time: SimTime::from_s(0.0),
             id_gen: IdGenerator::new(),
             signal_notifies: HashMap::new(),
             notify_map: HashMap::new(),
@@ -47,10 +44,6 @@ impl<O: Organism + 'static> NervousLayer<O> {
     }
 
     pub fn advance(&mut self, sim_time: SimTime) {
-        if sim_time == self.sim_time {
-            return;
-        }
-
         let otime = OrderedTime(sim_time);
 
         // Do this for all sim times up to the present

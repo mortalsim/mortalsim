@@ -17,8 +17,6 @@ pub struct DigestionLayer<O: Organism> {
     pd: PhantomData<O>,
     /// Default duration each component receives a consumable for
     default_digestion_duration: SimTime,
-    /// Current simulation time according to the layer
-    sim_time: SimTime,
     /// Tracks the order in which substance stores pass
     /// through each component, according to the order
     /// they were added, as well as whether they should
@@ -50,16 +48,11 @@ impl<O: Organism> DigestionLayer<O> {
         Self {
             pd: PhantomData,
             default_digestion_duration: secs!(60.0),
-            sim_time: secs!(0.0),
             component_map: HashMap::new(),
             trigger_map: HashSet::new(),
             consumed_map: BTreeMap::new(),
             elimination_list: Vec::new(),
         }
-    }
-
-    pub fn as_processor<T: DigestionComponent<O>>(&mut self) -> &mut dyn SimComponentProcessor<O, T> {
-        self
     }
 
     /// Consume a new SubstanceStore
@@ -78,11 +71,6 @@ impl<O: Organism> DigestionLayer<O> {
     }
 
     pub fn advance(&mut self, sim_time: SimTime) {
-        if sim_time == self.sim_time {
-            return;
-        }
-        self.sim_time = sim_time;
-
         // Keep track of vector indices of items which need to move
         let mut moving_indices: Vec<Vec<usize>> = vec![vec![]; self.consumed_map.len()];
         for (pos, consumed_list) in self.consumed_map.iter_mut() {

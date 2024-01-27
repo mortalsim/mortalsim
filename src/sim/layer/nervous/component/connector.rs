@@ -54,6 +54,11 @@ impl<O: Organism + 'static> NervousConnector<O> {
             empty: Vec::new(),
         }
     }
+    
+    /// Retrieves the current simulation time
+    pub fn sim_time(&self) -> SimTime {
+        self.sim_time
+    }
 
     pub fn get_messages<T: Event>(&self) -> impl Iterator<Item=&'_ T> {
         match self.incoming.get(&TypeId::of::<T>()) {

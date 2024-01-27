@@ -54,7 +54,7 @@ impl<O: Organism> CoreLayer<O> {
         &mut self.state
     }
 
-    fn update(&mut self, time_manager: &mut TimeManager) {
+    pub fn update(&mut self, time_manager: &mut TimeManager) {
         time_manager.next_events()
             .map(|x| x.1)
             .flatten()
@@ -103,8 +103,6 @@ impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer
     }
 
     fn prepare_component(&mut self, connector: &SimConnector, component: &mut T) {
-        // Update connector before module execution
-
         component.core_connector().trigger_events = {
             let notify_ids = self
                 .notify_map

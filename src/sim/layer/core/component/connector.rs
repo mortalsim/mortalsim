@@ -92,7 +92,7 @@ impl<O: Organism> CoreConnector<O> {
     }
 
     /// Retrieves the current simulation time
-    pub fn get_time(&self) -> SimTime {
+    pub fn sim_time(&self) -> SimTime {
         self.sim_time
     }
 
@@ -211,7 +211,7 @@ pub mod test {
     #[test]
     pub fn test_get_time() {
         let connector = connector();
-        assert!(connector.get_time() == Time::from_s(0.0));
+        assert!(connector.sim_time() == Time::from_s(0.0));
     }
     
     #[test]

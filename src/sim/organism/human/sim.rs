@@ -1,10 +1,10 @@
 use super::circulation::HumanBloodManager;
-use super::module::{HumanModuleInitializer, HumanSimConnector, HumanSimModule};
+use super::module::{HumanModuleInitializer, HumanTimeManager, HumanSimModule};
 use super::{HumanCirculatorySystem, HUMAN_CIRCULATION_FILEPATH};
 use crate::circulation::{
     BloodVessel, CirculationConnector, CirculationInitializer, CirculationulatorySystem,
 };
-use crate::core::sim::{CoreSim, Sim, SimConnector, SimModule};
+use crate::core::sim::{CoreSim, Sim, TimeManager, SimModule};
 use crate::event::Event;
 use crate::substance::{MolarConcentration, Substance, SubstanceStore, Time};
 use crate::util::IdType;
@@ -40,7 +40,7 @@ pub struct HumanSim {
     core: CoreSim,
     blood_manager: HumanBloodManager,
     active_modules: HashMap<&'static str, Box<dyn HumanSimModule>>,
-    connector_map: HashMap<&'static str, HumanSimConnector>,
+    connector_map: HashMap<&'static str, HumanTimeManager>,
 }
 
 impl HumanSim {
@@ -80,7 +80,7 @@ impl HumanSim {
                         .blood_manager
                         .setup_module(module_name, human_initializer.circulation_initializer);
 
-                    let human_connector = HumanSimConnector::new(SimConnector::new(), circulation_connector);
+                    let human_connector = HumanTimeManager::new(TimeManager::new(), circulation_connector);
                     self.connector_map.insert(module_name, human_connector);
                 }
             }
