@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::sim::organism::Organism;
-use crate::sim::{SimTime, SimConnector};
+use crate::sim::SimConnector;
 use crate::sim::component::SimComponentProcessor;
 use crate::substance::{Substance, SubstanceConcentration, SubstanceStore};
 use crate::util::IdType;
@@ -32,9 +32,9 @@ impl<O: Organism + 'static> CirculationLayer<O> {
         self
     }
 
-    pub fn advance(&mut self, sim_time: SimTime) {
+    pub fn update(&mut self, connector: &mut SimConnector) {
         for (_, store) in self.composition_map.iter_mut() {
-            store.advance(sim_time);
+            store.advance(connector.sim_time());
         }
     }
 }
@@ -80,7 +80,7 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessor<O, T> for Ci
         trigger
     }
 
-    fn prepare_component(&mut self, connector: &SimConnector, component: &mut T) {
+    fn prepare_component(&mut self, connector: &mut SimConnector, component: &mut T) {
         let comp_id = component.id();
         let comp_settings = self.component_settings.get_mut(component.id()).unwrap();
         let circulation_connector = component.circulation_connector();
@@ -143,14 +143,16 @@ mod tests {
         component.run();
         layer.process_component(&mut connector, &mut component);
 
-        layer.advance(SimTime::from_s(2.0));
+        connector.time_manager.advance_by(SimTime::from_s(2.0));
+        layer.update(&mut connector);
 
         let glc = layer.composition_map.get(&TestBloodVessel::VenaCava).unwrap().concentration_of(&Substance::GLC);
         let expected = mmol_per_L!(1.0);
         let threshold = mmol_per_L!(0.0001);
         assert!(glc > expected - threshold && glc < expected + threshold, "GLC not within {} of {}", threshold, expected);
         
-        layer.advance(SimTime::from_s(2.0));
+        connector.time_manager.advance_by(SimTime::from_s(2.0));
+        layer.update(&mut connector);
 
         let glc = layer.composition_map.get(&TestBloodVessel::VenaCava).unwrap().concentration_of(&Substance::GLC);
         let expected = mmol_per_L!(1.0);

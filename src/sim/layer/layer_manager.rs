@@ -1,4 +1,4 @@
-use crate::sim::{Organism, SimConnector, SimState, SimTime};
+use crate::sim::{Organism, SimConnector, SimTime};
 use crate::sim::component::registry::ComponentRegistry;
 use crate::sim::component::SimComponentProcessor;
 
@@ -6,7 +6,6 @@ use super::circulation::CirculationLayer;
 use super::core::CoreLayer;
 use super::digestion::digestion_layer::DigestionLayer;
 use super::nervous::nervous_layer::NervousLayer;
-
 
 pub struct LayerManager<O: Organism> {
     sim_connector: SimConnector,
@@ -34,10 +33,10 @@ impl<O: Organism + 'static> LayerManager<O> {
     }
 
     fn update(&mut self) {
-        self.core_layer.update(&mut self.sim_connector.time_manager);
-        self.circulation_layer.advance(self.sim_time());
-        self.digestion_layer.advance(self.sim_time());
-        self.nervous_layer.advance(self.sim_time());
+        self.core_layer.update(&mut self.sim_connector);
+        self.circulation_layer.update(&mut self.sim_connector);
+        self.digestion_layer.update(&mut self.sim_connector);
+        self.nervous_layer.update(&mut self.sim_connector);
 
         let mut update_list = Vec::new();
 
@@ -54,16 +53,16 @@ impl<O: Organism + 'static> LayerManager<O> {
             
             // Prepare the component with each of the associated layers
             if component.is_core_component() {
-                self.core_layer.prepare_component(&self.sim_connector, component);
+                self.core_layer.prepare_component(&mut self.sim_connector, component);
             }
             if component.is_circulation_component() {
-                self.circulation_layer.prepare_component(&self.sim_connector, component);
+                self.circulation_layer.prepare_component(&mut self.sim_connector, component);
             }
             if component.is_digestion_component() {
-                self.digestion_layer.prepare_component(&self.sim_connector, component);
+                self.digestion_layer.prepare_component(&mut self.sim_connector, component);
             }
             if component.is_nervous_component() {
-                self.nervous_layer.prepare_component(&self.sim_connector, component);
+                self.nervous_layer.prepare_component(&mut self.sim_connector, component);
             }
 
             // Execute component logic
@@ -95,11 +94,4 @@ impl<O: Organism + 'static> LayerManager<O> {
         self.update();
     }
 
-    pub fn state(&self) -> &SimState {
-        self.core_layer.sim_state()
-    }
-
-    pub fn state_mut(&mut self) -> &mut SimState {
-        self.core_layer.sim_state_mut()
-    }
 }

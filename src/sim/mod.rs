@@ -9,12 +9,14 @@ pub use time_manager::{SimTime, TimeManager};
 pub use organism::*;
 
 pub struct SimConnector {
+    state: SimState,
     time_manager: TimeManager,
 }
 
 impl SimConnector {
     pub fn new() -> Self {
         SimConnector {
+            state: SimState::new(),
             time_manager: TimeManager::new(),
         }
     }

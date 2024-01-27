@@ -1,5 +1,5 @@
 use crate::sim::component::SimComponentProcessor;
-use crate::sim::{SimConnector, SimState, TimeManager};
+use crate::sim::SimConnector;
 use crate::sim::organism::Organism;
 use crate::util::id_gen::IdType;
 use std::any::TypeId;
@@ -12,7 +12,6 @@ use super::component::{CoreComponent, CoreInitializer};
 
 pub struct CoreLayer<O: Organism> {
     pd: PhantomData<O>,
-    state: SimState,
     module_notifications: HashMap<TypeId, Vec<(i32, &'static str)>>,
     transformer_id_map: HashMap<&'static str, Vec<IdType>>,
     /// Map of pending updates for each module
@@ -35,7 +34,6 @@ impl<O: Organism> CoreLayer<O> {
     pub fn new() -> Self {
         Self {
             pd: PhantomData,
-            state: SimState::new(),
             module_notifications: HashMap::new(),
             transformer_id_map: HashMap::new(),
             notify_map: HashMap::new(),
@@ -46,16 +44,8 @@ impl<O: Organism> CoreLayer<O> {
         self
     }
 
-    pub fn sim_state(&self) -> &SimState {
-        &self.state
-    }
-    
-    pub fn sim_state_mut(&mut self) -> &mut SimState {
-        &mut self.state
-    }
-
-    pub fn update(&mut self, time_manager: &mut TimeManager) {
-        time_manager.next_events()
+    pub fn update(&mut self, connector: &mut SimConnector) {
+        connector.time_manager.next_events()
             .map(|x| x.1)
             .flatten()
             .for_each(|evt| {
@@ -64,7 +54,7 @@ impl<O: Organism> CoreLayer<O> {
                         self.notify_map.entry(comp_id).or_default().insert(evt.type_id());
                     }
                 }
-                self.state.put_state(evt.type_id(), evt.into());
+                connector.state.put_state(evt.type_id(), evt.into());
         })
     }
 
@@ -102,7 +92,7 @@ impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer
         self.notify_map.contains_key(component.id())
     }
 
-    fn prepare_component(&mut self, connector: &SimConnector, component: &mut T) {
+    fn prepare_component(&mut self, connector: &mut SimConnector, component: &mut T) {
         component.core_connector().trigger_events = {
             let notify_ids = self
                 .notify_map
@@ -110,7 +100,7 @@ impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer
                 .unwrap_or(HashSet::new());
             notify_ids
                 .iter()
-                .map(|id| self.state.get_state_ref(id).unwrap().type_id())
+                .map(|id| connector.state.get_state_ref(id).unwrap().type_id())
                 .collect()
         };
 
@@ -118,14 +108,14 @@ impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer
         comp_connector.sim_time = connector.sim_time();
 
         // Swap out state with the connector
-        swap(&mut self.state, &mut comp_connector.sim_state);
+        swap(&mut connector.state, &mut comp_connector.sim_state);
     }
 
     fn process_component(&mut self, connector: &mut SimConnector, component: &mut T) {
         let comp_connector = component.core_connector();
         
         // Swap back state with the connector
-        swap(&mut self.state, &mut comp_connector.sim_state);
+        swap(&mut connector.state, &mut comp_connector.sim_state);
 
         // Unschedule any requested events
         if comp_connector.unschedule_all {

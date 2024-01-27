@@ -70,15 +70,15 @@ impl<O: Organism> DigestionLayer<O> {
         *self.component_map.get(component.id()).expect("Digestion component position is missing!")
     }
 
-    pub fn advance(&mut self, sim_time: SimTime) {
+    pub fn update(&mut self, connector: &mut SimConnector) {
         // Keep track of vector indices of items which need to move
         let mut moving_indices: Vec<Vec<usize>> = vec![vec![]; self.consumed_map.len()];
         for (pos, consumed_list) in self.consumed_map.iter_mut() {
             for (idx, consumed) in consumed_list.iter_mut().enumerate() {
                 // advance time for the consumable
-                consumed.advance(sim_time);
+                consumed.advance(connector.sim_time());
                 // if time has exceeded the exit time, stage it for movement
-                if consumed.exit_time <= sim_time {
+                if consumed.exit_time <= connector.sim_time() {
                     moving_indices.get_mut(*pos)
                                   .expect("moving_indices initialized improperly")
                                   .push(idx);
@@ -140,7 +140,7 @@ impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessor<O, T> for Dige
         self.trigger_map.contains(&component_pos)
     }
 
-    fn prepare_component(&mut self, _connector: &SimConnector, component: &mut T) {
+    fn prepare_component(&mut self, _connector: &mut SimConnector, component: &mut T) {
         let component_pos = self.component_position(component);
 
         // move consumed items from the layer map into the component connector

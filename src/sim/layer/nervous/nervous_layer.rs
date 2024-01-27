@@ -4,7 +4,7 @@ use std::mem::swap;
 
 use uuid::Uuid;
 
-use crate::sim::{SimConnector, SimTime};
+use crate::sim::SimConnector;
 use crate::sim::organism::Organism;
 use crate::sim::component::SimComponentProcessor;
 use crate::util::{OrderedTime, IdGenerator, IdType};
@@ -43,8 +43,8 @@ impl<O: Organism + 'static> NervousLayer<O> {
         self
     }
 
-    pub fn advance(&mut self, sim_time: SimTime) {
-        let otime = OrderedTime(sim_time);
+    pub fn update(&mut self, connector: &mut SimConnector) {
+        let otime = OrderedTime(connector.sim_time());
 
         // Do this for all sim times up to the present
         while self.pending_signals.first_key_value().is_some_and(|(t,_)| t <= &otime) {
@@ -95,7 +95,7 @@ impl<O: Organism + 'static, T: NervousComponent<O>> SimComponentProcessor<O, T> 
         self.notify_map.contains_key(component.id()) 
     }
 
-    fn prepare_component(&mut self, connector: &SimConnector, component: &mut T) {
+    fn prepare_component(&mut self, connector: &mut SimConnector, component: &mut T) {
 
         let incoming = self.notify_map.remove(component.id()).expect("missing component signals");
         let n_connector = component.nervous_connector();
