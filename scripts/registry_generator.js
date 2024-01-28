@@ -188,24 +188,20 @@ impl<O: Organism + 'static> ComponentRegistry<O> {
         component.attach(self);
         Ok(())
     }
-${layerCombos.map(items => `
-    pub fn add_${items.join('_')}_component(&mut self, component: impl ${layersToBounds(items)} + 'static) {
-        self.components.push(Box::new(${getWrapperName(items)}(component, PhantomData)))
+
+    pub(crate) fn remove_component(&mut self, component_id: &'static str) -> anyhow::Result<Box<dyn ComponentWrapper<O>>> {
+        if let Some(index) = self.components.iter().position(|x| x.id() == component_id) {
+            return Ok(self.components.remove(index))
+        }
+        Err(anyhow!("component not found"))
     }
-`).join('')}
-    pub(crate) fn all_components(&self) -> impl Iterator<Item = &Box<dyn ComponentWrapper<O>>> {
-        self.components.iter()
-    }
-    
+
     pub(crate) fn all_components_mut(&mut self) -> impl Iterator<Item = &mut Box<dyn ComponentWrapper<O>>> {
         self.components.iter_mut()
     }
-${layerList.map(layer => `
-    pub(crate) fn ${layer}_components(&self) -> impl Iterator<Item = &Box<dyn ComponentWrapper<O>>> {
-        self.components.iter().filter(|c| c.is_${layer}_component())
-    }
-    pub(crate) fn ${layer}_components_mut(&mut self) -> impl Iterator<Item = &mut Box<dyn ComponentWrapper<O>>> {
-        self.components.iter_mut().filter(|c| c.is_${layer}_component())
+${layerCombos.map(items => `
+    pub fn add_${items.join('_')}_component(&mut self, component: impl ${layersToBounds(items)} + 'static) {
+        self.components.push(Box::new(${getWrapperName(items)}(component, PhantomData)))
     }
 `).join('')}
 }
@@ -213,35 +209,52 @@ ${layerList.map(layer => `
 
 fs.writeFileSync(managerPath, `
 use crate::sim::{Organism, SimConnector};
+use crate::sim::layer::SimLayer;
 use crate::sim::component::registry::ComponentRegistry;
-use crate::sim::component::SimComponentProcessor;
+use crate::sim::component::{SimComponent, SimComponentProcessor};
 
 ${layerList.map(layer => `use super::${layer}::${layer.cap()}Layer;
 `).join('')}
 
 ${layerCoreCombos.map(items => {
     const managerName = items.length == layerList.length ? '' : items.map(l => l.cap()).join('');
+    // const notSupported = layerList.filter(x => items.includes(x));
     return `
-pub struct ${managerName}LayerManager<O: Organism> {${items.map(layer => `
-    ${layer}_layer: ${layer.cap()}Layer<O>,`
-).join('')}
+pub struct ${managerName}LayerManager<O: Organism> {
+    registry: ComponentRegistry<O>,
+${items.map(layer => 
+`    ${layer}_layer: ${layer.cap()}Layer<O>,
+`).join('')}
 }
 
 impl<O: Organism + 'static> ${managerName}LayerManager<O> {
     pub fn new() -> Self {
-        Self {${items.map(layer => `
-            ${layer}_layer: ${layer.cap()}Layer::new(),`
-    ).join('')}
+        Self {
+            registry: ComponentRegistry::new(),
+${items.map(layer =>
+`            ${layer}_layer: ${layer.cap()}Layer::new(),
+`).join('')}
         }
     }
 
-    pub fn update(&mut self, component_registry: &mut ComponentRegistry<O>, connector: &mut SimConnector) {
+    pub fn add_component(&mut self, component: impl SimComponent<O>) -> anyhow::Result<()> {
+        self.registry.add_component(component)
+    }
+    
+    pub fn remove_component(&mut self, component_id: &'static str) -> anyhow::Result<()> {
+        match self.registry.remove_component(component_id) {
+            Ok(_) => Ok(()),
+            Err(msg) => Err(msg),
+        }
+    }
+
+    pub fn update(&mut self, connector: &mut SimConnector) {
     ${items.map(layer => `
-        self.${layer}_layer.update(connector);`
+        self.${layer}_layer.pre_exec(connector);`
     ).join('')}
         let mut update_list = Vec::new();
 
-        for component in component_registry.all_components_mut() {
+        for component in self.registry.all_components_mut() {
             if ${items.map(layer=> `
                 ${items.length > 1 ? '(' : ''} component.is_${layer}_component() &&
                     self.${layer}_layer.check_component(component) ${items.length > 1 ? ')' : ''}`
@@ -267,6 +280,9 @@ impl<O: Organism + 'static> ${managerName}LayerManager<O> {
             }`
     ).join('')}
         }
+    ${items.map(layer => `
+        self.${layer}_layer.post_exec(connector);`
+    ).join('')}
     }
 }
 `

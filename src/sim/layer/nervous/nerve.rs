@@ -43,7 +43,7 @@ pub struct NerveSignal<O: Organism>  {
     blocked: bool,
 }
 
-impl<O: Organism + 'static> NerveSignal<O> {
+impl<O: Organism> NerveSignal<O> {
     pub fn new<T: Event>(message: T, neural_path: Vec<O::NerveType>, send_time: SimTime) -> anyhow::Result<Self> {
         if neural_path.is_empty() {
             return Err(anyhow!("Neural path cannot be empty!"));

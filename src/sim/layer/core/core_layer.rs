@@ -1,6 +1,5 @@
-use crate::event::Event;
 use crate::sim::component::SimComponentProcessor;
-use crate::sim::layer::InternalLayerTrigger;
+use crate::sim::layer::{InternalLayerTrigger, SimLayer};
 use crate::sim::SimConnector;
 use crate::sim::organism::Organism;
 use crate::util::id_gen::IdType;
@@ -9,7 +8,6 @@ use std::collections::{HashMap, HashSet};
 use std::fmt;
 use std::marker::PhantomData;
 use std::mem::swap;
-use std::sync::Arc;
 
 use super::component::{CoreComponent, CoreInitializer};
 
@@ -42,7 +40,34 @@ impl<O: Organism> CoreLayer<O> {
             notify_map: HashMap::new(),
         }
     }
+}
+
+impl<O: Organism> SimLayer for CoreLayer<O> {
+
+    fn pre_exec(&mut self, connector: &mut SimConnector) {
+        connector.time_manager.next_events()
+            .map(|x| x.1)
+            .flatten()
+            .for_each(|evt| {
+                if let Some(notify_list) = self.module_notifications.get(&evt.type_id()) {
+                    for (_, comp_id) in notify_list {
+                        self.notify_map.entry(comp_id).or_default().insert(evt.type_id());
+                    }
+                }
+                // Internal layer trigger events don't end up on the state
+                // or in the active_events list
+                if !evt.is::<InternalLayerTrigger>() {
+                    connector.active_events.push(evt.into());
+                }
+        })
+    }
     
+    fn post_exec(&mut self, connector: &mut SimConnector) {
+        // update state
+        for evt in connector.active_events.drain(..) {
+            connector.state.put_state(evt);
+        }
+    }
 }
 
 impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer<O> {
@@ -72,27 +97,6 @@ impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer
         }
     }
     
-
-    fn pre_exec(&mut self, connector: &mut SimConnector) {
-        connector.time_manager.next_events()
-            .map(|x| x.1)
-            .flatten()
-            .for_each(|evt| {
-                if let Some(notify_list) = self.module_notifications.get(&evt.type_id()) {
-                    for (_, comp_id) in notify_list {
-                        self.notify_map.entry(comp_id).or_default().insert(evt.type_id());
-                    }
-                }
-                // Internal layer trigger events don't end up on the state
-                // or in the active_events list
-                if !evt.is::<InternalLayerTrigger>() {
-                    let rc_evt: Arc<dyn Event> = evt.into();
-                    connector.active_events.push(rc_evt.clone());
-                    connector.state.put_state(rc_evt);
-                }
-        })
-    }
-
 
     fn check_component(&mut self, component: &T) -> bool {
         // Trigger the module only if the notify_list is non empty
@@ -168,7 +172,4 @@ impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer
         }
     }
 
-    fn post_exec(&mut self, connector: &mut SimConnector) {
-        
-    }
 }

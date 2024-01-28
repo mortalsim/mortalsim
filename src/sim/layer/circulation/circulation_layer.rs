@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use crate::sim::layer::SimLayer;
 use crate::sim::organism::Organism;
 use crate::sim::SimConnector;
 use crate::sim::component::SimComponentProcessor;
@@ -32,15 +33,22 @@ impl<O: Organism + 'static> CirculationLayer<O> {
         self
     }
 
-    pub fn update(&mut self, connector: &mut SimConnector) {
+}
+
+impl<O: Organism> SimLayer for CirculationLayer<O> {
+    
+    fn pre_exec(&mut self, connector: &mut SimConnector) {
         for (_, store) in self.composition_map.iter_mut() {
             store.advance(connector.sim_time());
         }
     }
+
+    fn post_exec(&mut self, _connector: &mut SimConnector) {
+        // Nohing to do here
+    }
 }
 
 impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessor<O, T> for CirculationLayer<O> {
-
     fn setup_component(&mut self, _connector: &mut SimConnector, component: &mut T) {
         let mut initializer = CirculationInitializer::new();
         component.circulation_init(&mut initializer);
@@ -116,6 +124,7 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessor<O, T> for Ci
 #[cfg(test)]
 mod tests {
     use crate::sim::{SimConnector, SimTime};
+    use crate::sim::layer::SimLayer;
     use crate::sim::layer::circulation::{BloodStore, CirculationComponent};
     use crate::sim::layer::circulation::vessel::test::TestBloodVessel;
     use crate::sim::organism::test::TestSim;
@@ -144,7 +153,7 @@ mod tests {
         layer.process_component(&mut connector, &mut component);
 
         connector.time_manager.advance_by(SimTime::from_s(2.0));
-        layer.update(&mut connector);
+        layer.pre_exec(&mut connector);
 
         let glc = layer.composition_map.get(&TestBloodVessel::VenaCava).unwrap().concentration_of(&Substance::GLC);
         let expected = mmol_per_L!(1.0);
@@ -152,7 +161,7 @@ mod tests {
         assert!(glc > expected - threshold && glc < expected + threshold, "GLC not within {} of {}", threshold, expected);
         
         connector.time_manager.advance_by(SimTime::from_s(2.0));
-        layer.update(&mut connector);
+        layer.pre_exec(&mut connector);
 
         let glc = layer.composition_map.get(&TestBloodVessel::VenaCava).unwrap().concentration_of(&Substance::GLC);
         let expected = mmol_per_L!(1.0);

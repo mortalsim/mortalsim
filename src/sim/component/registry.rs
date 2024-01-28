@@ -1139,6 +1139,17 @@ impl<O: Organism + 'static> ComponentRegistry<O> {
         Ok(())
     }
 
+    pub(crate) fn remove_component(&mut self, component_id: &'static str) -> anyhow::Result<Box<dyn ComponentWrapper<O>>> {
+        if let Some(index) = self.components.iter().position(|x| x.id() == component_id) {
+            return Ok(self.components.remove(index))
+        }
+        Err(anyhow!("component not found"))
+    }
+
+    pub(crate) fn all_components_mut(&mut self) -> impl Iterator<Item = &mut Box<dyn ComponentWrapper<O>>> {
+        self.components.iter_mut()
+    }
+
     pub fn add_core_circulation_digestion_component(&mut self, component: impl CoreComponent<O> + CirculationComponent<O> + DigestionComponent<O> + 'static) {
         self.components.push(Box::new(CoreCirculationDigestionWrapper(component, PhantomData)))
     }
@@ -1193,42 +1204,6 @@ impl<O: Organism + 'static> ComponentRegistry<O> {
 
     pub fn add_nervous_component(&mut self, component: impl NervousComponent<O> + 'static) {
         self.components.push(Box::new(NervousWrapper(component, PhantomData)))
-    }
-
-    pub(crate) fn all_components(&self) -> impl Iterator<Item = &Box<dyn ComponentWrapper<O>>> {
-        self.components.iter()
-    }
-    
-    pub(crate) fn all_components_mut(&mut self) -> impl Iterator<Item = &mut Box<dyn ComponentWrapper<O>>> {
-        self.components.iter_mut()
-    }
-
-    pub(crate) fn core_components(&self) -> impl Iterator<Item = &Box<dyn ComponentWrapper<O>>> {
-        self.components.iter().filter(|c| c.is_core_component())
-    }
-    pub(crate) fn core_components_mut(&mut self) -> impl Iterator<Item = &mut Box<dyn ComponentWrapper<O>>> {
-        self.components.iter_mut().filter(|c| c.is_core_component())
-    }
-
-    pub(crate) fn circulation_components(&self) -> impl Iterator<Item = &Box<dyn ComponentWrapper<O>>> {
-        self.components.iter().filter(|c| c.is_circulation_component())
-    }
-    pub(crate) fn circulation_components_mut(&mut self) -> impl Iterator<Item = &mut Box<dyn ComponentWrapper<O>>> {
-        self.components.iter_mut().filter(|c| c.is_circulation_component())
-    }
-
-    pub(crate) fn digestion_components(&self) -> impl Iterator<Item = &Box<dyn ComponentWrapper<O>>> {
-        self.components.iter().filter(|c| c.is_digestion_component())
-    }
-    pub(crate) fn digestion_components_mut(&mut self) -> impl Iterator<Item = &mut Box<dyn ComponentWrapper<O>>> {
-        self.components.iter_mut().filter(|c| c.is_digestion_component())
-    }
-
-    pub(crate) fn nervous_components(&self) -> impl Iterator<Item = &Box<dyn ComponentWrapper<O>>> {
-        self.components.iter().filter(|c| c.is_nervous_component())
-    }
-    pub(crate) fn nervous_components_mut(&mut self) -> impl Iterator<Item = &mut Box<dyn ComponentWrapper<O>>> {
-        self.components.iter_mut().filter(|c| c.is_nervous_component())
     }
 
 }

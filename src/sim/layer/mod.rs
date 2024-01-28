@@ -10,12 +10,21 @@ pub mod layer_manager;
 
 use crate::event::Event;
 
-pub use self::core::component::*;
-pub use circulation::component::*;
-pub use digestion::component::*;
-pub use nervous::component::*;
+pub use self::core::*;
+pub use circulation::*;
+pub use digestion::*;
+pub use nervous::*;
 pub use layer_manager::*;
 
+use super::SimConnector;
+
+/// Trait to outline common methods for all sim layers
+pub trait SimLayer {
+    /// Process layer actions prior to component processing
+    fn pre_exec(&mut self, connector: &mut SimConnector);
+    /// Process layer actions after component processing
+    fn post_exec(&mut self, connector: &mut SimConnector);
+}
 
 #[derive(Debug)]
 /// Internal Event used to force layer processing

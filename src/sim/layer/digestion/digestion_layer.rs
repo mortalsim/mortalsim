@@ -1,7 +1,7 @@
 
 use std::collections::{HashMap, BTreeMap, HashSet};
 use std::marker::PhantomData;
-use crate::sim::layer::InternalLayerTrigger;
+use crate::sim::layer::{InternalLayerTrigger, SimLayer};
 use crate::sim::{SimConnector, SimTime};
 use crate::sim::organism::Organism;
 use crate::util::{IdType, secs};
@@ -71,17 +71,11 @@ impl<O: Organism> DigestionLayer<O> {
 
 }
 
-impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessor<O, T> for DigestionLayer<O> {
-    fn setup_component(&mut self, _connector: &mut SimConnector, component: &mut T) {
-        let mut initializer = DigestionInitializer::new();
-        component.digestion_init(&mut initializer);
-
-        self.component_map.insert(component.id(), self.component_map.len());
-    }
+impl<O: Organism> SimLayer for DigestionLayer<O> {
 
     fn pre_exec(&mut self, connector: &mut SimConnector) {
         if let Some(id) = self.internal_trigger_id.take() {
-            connector.time_manager.unschedule_event(&id);
+            let _ = connector.time_manager.unschedule_event(&id);
         }
 
         for evt in connector.active_events.iter() {
@@ -145,6 +139,30 @@ impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessor<O, T> for Dige
         }
     }
 
+    fn post_exec(&mut self, connector: &mut SimConnector) {
+
+        if let Some(min_consumed) = self.consumed_map.values().flatten()
+            .min_by(|a, b| a.exit_time.partial_cmp(&b.exit_time).unwrap()) {
+            
+            let mut delay = secs!(0.0);
+            if min_consumed.exit_time > connector.sim_time() {
+                delay = min_consumed.exit_time - connector.sim_time();
+            }
+            let id = connector.time_manager.schedule_event(delay, Box::new(InternalLayerTrigger));
+            self.internal_trigger_id = Some(id);
+        }
+    }
+}
+
+impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessor<O, T> for DigestionLayer<O> {
+    fn setup_component(&mut self, _connector: &mut SimConnector, component: &mut T) {
+        let mut initializer = DigestionInitializer::new();
+        component.digestion_init(&mut initializer);
+
+        self.component_map.insert(component.id(), self.component_map.len());
+    }
+
+
     fn check_component(&mut self, component: &T) -> bool {
         let component_pos = self.component_position(component);
         self.trigger_map.contains(&component_pos)
@@ -169,17 +187,4 @@ impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessor<O, T> for Dige
         self.trigger_map.remove(&component_pos);
     }
 
-    fn post_exec(&mut self, connector: &mut SimConnector) {
-
-        if let Some(min_consumed) = self.consumed_map.values().flatten()
-            .min_by(|a, b| a.exit_time.partial_cmp(&b.exit_time).unwrap()) {
-            
-            let mut delay = secs!(0.0);
-            if min_consumed.exit_time > connector.sim_time() {
-                delay = min_consumed.exit_time - connector.sim_time();
-            }
-            let id = connector.time_manager.schedule_event(delay, Box::new(InternalLayerTrigger));
-            self.internal_trigger_id = Some(id);
-        }
-    }
 }
