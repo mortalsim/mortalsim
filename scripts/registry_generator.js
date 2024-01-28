@@ -180,7 +180,7 @@ impl<O: Organism + 'static> ComponentRegistry<O> {
         }
     }
 
-    pub(crate) fn add_component(&mut self, component: impl SimComponent<O>) -> anyhow::Result<()> {
+    pub(crate) fn add_component(&mut self, component: Box<dyn ComponentWrapper>) -> anyhow::Result<()> {
         if self.id_set.contains(&component.id()) {
             return Err(anyhow!("Component '{}' has already been registered!", component.id()))
         }
@@ -210,7 +210,7 @@ ${layerCombos.map(items => `
 fs.writeFileSync(managerPath, `
 use crate::sim::{Organism, SimConnector};
 use crate::sim::layer::SimLayer;
-use crate::sim::component::registry::ComponentRegistry;
+use crate::sim::component::registry::{ComponentWrapper, ComponentRegistry};
 use crate::sim::component::{SimComponent, SimComponentProcessor};
 
 ${layerList.map(layer => `use super::${layer}::${layer.cap()}Layer;
@@ -218,7 +218,7 @@ ${layerList.map(layer => `use super::${layer}::${layer.cap()}Layer;
 
 ${layerCoreCombos.map(items => {
     const managerName = items.length == layerList.length ? '' : items.map(l => l.cap()).join('');
-    // const notSupported = layerList.filter(x => items.includes(x));
+    const notSupported = layerList.filter(x => !items.includes(x));
     return `
 pub struct ${managerName}LayerManager<O: Organism> {
     registry: ComponentRegistry<O>,
@@ -238,7 +238,13 @@ ${items.map(layer =>
     }
 
     pub fn add_component(&mut self, component: impl SimComponent<O>) -> anyhow::Result<()> {
-        self.registry.add_component(component)
+        let wrapper = Box::new(ComponentWrapper(component));
+        ${notSupported.length ? `
+        if ${notSupported.map(x => `wrapper.is_${x}_component()`).join(' || ')} {
+            return Err(anyhow!("component types [${notSupported}] are not supported"));
+        }` : ''}
+
+        self.registry.add_component(wrapper)
     }
     
     pub fn remove_component(&mut self, component_id: &'static str) -> anyhow::Result<()> {

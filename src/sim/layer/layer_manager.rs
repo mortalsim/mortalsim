@@ -1,7 +1,7 @@
 
 use crate::sim::{Organism, SimConnector};
 use crate::sim::layer::SimLayer;
-use crate::sim::component::registry::ComponentRegistry;
+use crate::sim::component::registry::{ComponentWrapper, ComponentRegistry};
 use crate::sim::component::{SimComponent, SimComponentProcessor};
 
 use super::core::CoreLayer;
@@ -33,7 +33,10 @@ impl<O: Organism + 'static> LayerManager<O> {
     }
 
     pub fn add_component(&mut self, component: impl SimComponent<O>) -> anyhow::Result<()> {
-        self.registry.add_component(component)
+        let wrapper = Box::new(ComponentWrapper(component));
+        
+
+        self.registry.add_component(wrapper)
     }
     
     pub fn remove_component(&mut self, component_id: &'static str) -> anyhow::Result<()> {
@@ -126,7 +129,13 @@ impl<O: Organism + 'static> CoreCirculationDigestionLayerManager<O> {
     }
 
     pub fn add_component(&mut self, component: impl SimComponent<O>) -> anyhow::Result<()> {
-        self.registry.add_component(component)
+        let wrapper = Box::new(ComponentWrapper(component));
+        
+        if wrapper.is_nervous_component() {
+            return Err(anyhow!("component types [nervous] are not supported"));
+        }
+
+        self.registry.add_component(wrapper)
     }
     
     pub fn remove_component(&mut self, component_id: &'static str) -> anyhow::Result<()> {
@@ -209,7 +218,13 @@ impl<O: Organism + 'static> CoreCirculationNervousLayerManager<O> {
     }
 
     pub fn add_component(&mut self, component: impl SimComponent<O>) -> anyhow::Result<()> {
-        self.registry.add_component(component)
+        let wrapper = Box::new(ComponentWrapper(component));
+        
+        if wrapper.is_digestion_component() {
+            return Err(anyhow!("component types [digestion] are not supported"));
+        }
+
+        self.registry.add_component(wrapper)
     }
     
     pub fn remove_component(&mut self, component_id: &'static str) -> anyhow::Result<()> {
@@ -290,7 +305,13 @@ impl<O: Organism + 'static> CoreCirculationLayerManager<O> {
     }
 
     pub fn add_component(&mut self, component: impl SimComponent<O>) -> anyhow::Result<()> {
-        self.registry.add_component(component)
+        let wrapper = Box::new(ComponentWrapper(component));
+        
+        if wrapper.is_digestion_component() || wrapper.is_nervous_component() {
+            return Err(anyhow!("component types [digestion,nervous] are not supported"));
+        }
+
+        self.registry.add_component(wrapper)
     }
     
     pub fn remove_component(&mut self, component_id: &'static str) -> anyhow::Result<()> {
@@ -363,7 +384,13 @@ impl<O: Organism + 'static> CoreDigestionNervousLayerManager<O> {
     }
 
     pub fn add_component(&mut self, component: impl SimComponent<O>) -> anyhow::Result<()> {
-        self.registry.add_component(component)
+        let wrapper = Box::new(ComponentWrapper(component));
+        
+        if wrapper.is_circulation_component() {
+            return Err(anyhow!("component types [circulation] are not supported"));
+        }
+
+        self.registry.add_component(wrapper)
     }
     
     pub fn remove_component(&mut self, component_id: &'static str) -> anyhow::Result<()> {
@@ -444,7 +471,13 @@ impl<O: Organism + 'static> CoreDigestionLayerManager<O> {
     }
 
     pub fn add_component(&mut self, component: impl SimComponent<O>) -> anyhow::Result<()> {
-        self.registry.add_component(component)
+        let wrapper = Box::new(ComponentWrapper(component));
+        
+        if wrapper.is_circulation_component() || wrapper.is_nervous_component() {
+            return Err(anyhow!("component types [circulation,nervous] are not supported"));
+        }
+
+        self.registry.add_component(wrapper)
     }
     
     pub fn remove_component(&mut self, component_id: &'static str) -> anyhow::Result<()> {
@@ -515,7 +548,13 @@ impl<O: Organism + 'static> CoreNervousLayerManager<O> {
     }
 
     pub fn add_component(&mut self, component: impl SimComponent<O>) -> anyhow::Result<()> {
-        self.registry.add_component(component)
+        let wrapper = Box::new(ComponentWrapper(component));
+        
+        if wrapper.is_circulation_component() || wrapper.is_digestion_component() {
+            return Err(anyhow!("component types [circulation,digestion] are not supported"));
+        }
+
+        self.registry.add_component(wrapper)
     }
     
     pub fn remove_component(&mut self, component_id: &'static str) -> anyhow::Result<()> {
@@ -584,7 +623,13 @@ impl<O: Organism + 'static> CoreLayerManager<O> {
     }
 
     pub fn add_component(&mut self, component: impl SimComponent<O>) -> anyhow::Result<()> {
-        self.registry.add_component(component)
+        let wrapper = Box::new(ComponentWrapper(component));
+        
+        if wrapper.is_circulation_component() || wrapper.is_digestion_component() || wrapper.is_nervous_component() {
+            return Err(anyhow!("component types [circulation,digestion,nervous] are not supported"));
+        }
+
+        self.registry.add_component(wrapper)
     }
     
     pub fn remove_component(&mut self, component_id: &'static str) -> anyhow::Result<()> {

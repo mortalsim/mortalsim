@@ -1130,7 +1130,7 @@ impl<O: Organism + 'static> ComponentRegistry<O> {
         }
     }
 
-    pub(crate) fn add_component(&mut self, component: impl SimComponent<O>) -> anyhow::Result<()> {
+    pub(crate) fn add_component(&mut self, component: Box<dyn ComponentWrapper>) -> anyhow::Result<()> {
         if self.id_set.contains(&component.id()) {
             return Err(anyhow!("Component '{}' has already been registered!", component.id()))
         }
