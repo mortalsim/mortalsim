@@ -7,6 +7,7 @@ pub mod circulation;
 pub mod digestion;
 pub mod nervous;
 pub mod layer_manager;
+pub mod layer_processor;
 
 use crate::event::Event;
 
@@ -17,6 +18,14 @@ pub use nervous::*;
 pub use layer_manager::*;
 
 use super::SimConnector;
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Copy, EnumCount, VariantArray)]
+pub enum LayerType {
+    Core,
+    Circulation,
+    Digestion,
+    Nervous,
+}
 
 /// Trait to outline common methods for all sim layers
 pub trait SimLayer {

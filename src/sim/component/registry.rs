@@ -8,6 +8,7 @@ use std::marker::PhantomData;
 use std::collections::HashSet;
 use crate::sim::organism::Organism;
 use crate::sim::layer::{
+    LayerType,
     CoreComponent,
     CoreInitializer,
     CoreConnector,
@@ -33,6 +34,30 @@ pub trait ComponentWrapper<O: Organism>: SimComponent<O> + CoreComponent<O> + Ci
 
     fn is_nervous_component(&self) -> bool;
 
+    fn has_layer(&self, layer_type: &LayerType) -> bool;
+}
+
+impl<O: Organism> ComponentWrapper<O> for Box<dyn ComponentWrapper<O>> {
+
+    fn is_core_component(&self) -> bool {
+        self.as_ref().is_core_component()
+    }
+
+    fn is_circulation_component(&self) -> bool {
+        self.as_ref().is_circulation_component()
+    }
+
+    fn is_digestion_component(&self) -> bool {
+        self.as_ref().is_digestion_component()
+    }
+
+    fn is_nervous_component(&self) -> bool {
+        self.as_ref().is_nervous_component()
+    }
+
+    fn has_layer(&self, layer_type: &LayerType) -> bool {
+        self.as_ref().has_layer(layer_type)
+    }
 }
 
 impl<O: Organism> SimComponent<O> for Box<dyn ComponentWrapper<O>> {
@@ -152,6 +177,19 @@ impl<O: Organism + 'static, T: CoreComponent<O> + CirculationComponent<O> + Dige
         false
     }
 
+    fn has_layer(&self, layer_type: &LayerType) -> bool {
+        match layer_type {
+
+            LayerType::Core => true,
+
+            LayerType::Circulation => true,
+
+            LayerType::Digestion => true,
+
+            LayerType::Nervous => false,
+
+        }
+    }
 }
 
 pub struct CoreCirculationNervousWrapper<O: Organism, T: CoreComponent<O> + CirculationComponent<O> + NervousComponent<O> + 'static>(pub T, pub PhantomData<O>);
@@ -226,6 +264,19 @@ impl<O: Organism + 'static, T: CoreComponent<O> + CirculationComponent<O> + Nerv
         true
     }
 
+    fn has_layer(&self, layer_type: &LayerType) -> bool {
+        match layer_type {
+
+            LayerType::Core => true,
+
+            LayerType::Circulation => true,
+
+            LayerType::Digestion => false,
+
+            LayerType::Nervous => true,
+
+        }
+    }
 }
 
 pub struct CoreCirculationWrapper<O: Organism, T: CoreComponent<O> + CirculationComponent<O> + 'static>(pub T, pub PhantomData<O>);
@@ -300,6 +351,19 @@ impl<O: Organism + 'static, T: CoreComponent<O> + CirculationComponent<O>> Compo
         false
     }
 
+    fn has_layer(&self, layer_type: &LayerType) -> bool {
+        match layer_type {
+
+            LayerType::Core => true,
+
+            LayerType::Circulation => true,
+
+            LayerType::Digestion => false,
+
+            LayerType::Nervous => false,
+
+        }
+    }
 }
 
 pub struct CoreDigestionNervousWrapper<O: Organism, T: CoreComponent<O> + DigestionComponent<O> + NervousComponent<O> + 'static>(pub T, pub PhantomData<O>);
@@ -374,6 +438,19 @@ impl<O: Organism + 'static, T: CoreComponent<O> + DigestionComponent<O> + Nervou
         true
     }
 
+    fn has_layer(&self, layer_type: &LayerType) -> bool {
+        match layer_type {
+
+            LayerType::Core => true,
+
+            LayerType::Circulation => false,
+
+            LayerType::Digestion => true,
+
+            LayerType::Nervous => true,
+
+        }
+    }
 }
 
 pub struct CoreDigestionWrapper<O: Organism, T: CoreComponent<O> + DigestionComponent<O> + 'static>(pub T, pub PhantomData<O>);
@@ -448,6 +525,19 @@ impl<O: Organism + 'static, T: CoreComponent<O> + DigestionComponent<O>> Compone
         false
     }
 
+    fn has_layer(&self, layer_type: &LayerType) -> bool {
+        match layer_type {
+
+            LayerType::Core => true,
+
+            LayerType::Circulation => false,
+
+            LayerType::Digestion => true,
+
+            LayerType::Nervous => false,
+
+        }
+    }
 }
 
 pub struct CoreNervousWrapper<O: Organism, T: CoreComponent<O> + NervousComponent<O> + 'static>(pub T, pub PhantomData<O>);
@@ -522,6 +612,19 @@ impl<O: Organism + 'static, T: CoreComponent<O> + NervousComponent<O>> Component
         true
     }
 
+    fn has_layer(&self, layer_type: &LayerType) -> bool {
+        match layer_type {
+
+            LayerType::Core => true,
+
+            LayerType::Circulation => false,
+
+            LayerType::Digestion => false,
+
+            LayerType::Nervous => true,
+
+        }
+    }
 }
 
 pub struct CoreWrapper<O: Organism, T: CoreComponent<O> + 'static>(pub T, pub PhantomData<O>);
@@ -596,6 +699,19 @@ impl<O: Organism + 'static, T: CoreComponent<O>> ComponentWrapper<O> for CoreWra
         false
     }
 
+    fn has_layer(&self, layer_type: &LayerType) -> bool {
+        match layer_type {
+
+            LayerType::Core => true,
+
+            LayerType::Circulation => false,
+
+            LayerType::Digestion => false,
+
+            LayerType::Nervous => false,
+
+        }
+    }
 }
 
 pub struct CirculationDigestionNervousWrapper<O: Organism, T: CirculationComponent<O> + DigestionComponent<O> + NervousComponent<O> + 'static>(pub T, pub PhantomData<O>);
@@ -670,6 +786,19 @@ impl<O: Organism + 'static, T: CirculationComponent<O> + DigestionComponent<O> +
         true
     }
 
+    fn has_layer(&self, layer_type: &LayerType) -> bool {
+        match layer_type {
+
+            LayerType::Core => false,
+
+            LayerType::Circulation => true,
+
+            LayerType::Digestion => true,
+
+            LayerType::Nervous => true,
+
+        }
+    }
 }
 
 pub struct CirculationDigestionWrapper<O: Organism, T: CirculationComponent<O> + DigestionComponent<O> + 'static>(pub T, pub PhantomData<O>);
@@ -744,6 +873,19 @@ impl<O: Organism + 'static, T: CirculationComponent<O> + DigestionComponent<O>> 
         false
     }
 
+    fn has_layer(&self, layer_type: &LayerType) -> bool {
+        match layer_type {
+
+            LayerType::Core => false,
+
+            LayerType::Circulation => true,
+
+            LayerType::Digestion => true,
+
+            LayerType::Nervous => false,
+
+        }
+    }
 }
 
 pub struct CirculationNervousWrapper<O: Organism, T: CirculationComponent<O> + NervousComponent<O> + 'static>(pub T, pub PhantomData<O>);
@@ -818,6 +960,19 @@ impl<O: Organism + 'static, T: CirculationComponent<O> + NervousComponent<O>> Co
         true
     }
 
+    fn has_layer(&self, layer_type: &LayerType) -> bool {
+        match layer_type {
+
+            LayerType::Core => false,
+
+            LayerType::Circulation => true,
+
+            LayerType::Digestion => false,
+
+            LayerType::Nervous => true,
+
+        }
+    }
 }
 
 pub struct CirculationWrapper<O: Organism, T: CirculationComponent<O> + 'static>(pub T, pub PhantomData<O>);
@@ -892,6 +1047,19 @@ impl<O: Organism + 'static, T: CirculationComponent<O>> ComponentWrapper<O> for 
         false
     }
 
+    fn has_layer(&self, layer_type: &LayerType) -> bool {
+        match layer_type {
+
+            LayerType::Core => false,
+
+            LayerType::Circulation => true,
+
+            LayerType::Digestion => false,
+
+            LayerType::Nervous => false,
+
+        }
+    }
 }
 
 pub struct DigestionNervousWrapper<O: Organism, T: DigestionComponent<O> + NervousComponent<O> + 'static>(pub T, pub PhantomData<O>);
@@ -966,6 +1134,19 @@ impl<O: Organism + 'static, T: DigestionComponent<O> + NervousComponent<O>> Comp
         true
     }
 
+    fn has_layer(&self, layer_type: &LayerType) -> bool {
+        match layer_type {
+
+            LayerType::Core => false,
+
+            LayerType::Circulation => false,
+
+            LayerType::Digestion => true,
+
+            LayerType::Nervous => true,
+
+        }
+    }
 }
 
 pub struct DigestionWrapper<O: Organism, T: DigestionComponent<O> + 'static>(pub T, pub PhantomData<O>);
@@ -1040,6 +1221,19 @@ impl<O: Organism + 'static, T: DigestionComponent<O>> ComponentWrapper<O> for Di
         false
     }
 
+    fn has_layer(&self, layer_type: &LayerType) -> bool {
+        match layer_type {
+
+            LayerType::Core => false,
+
+            LayerType::Circulation => false,
+
+            LayerType::Digestion => true,
+
+            LayerType::Nervous => false,
+
+        }
+    }
 }
 
 pub struct NervousWrapper<O: Organism, T: NervousComponent<O> + 'static>(pub T, pub PhantomData<O>);
@@ -1114,6 +1308,19 @@ impl<O: Organism + 'static, T: NervousComponent<O>> ComponentWrapper<O> for Nerv
         true
     }
 
+    fn has_layer(&self, layer_type: &LayerType) -> bool {
+        match layer_type {
+
+            LayerType::Core => false,
+
+            LayerType::Circulation => false,
+
+            LayerType::Digestion => false,
+
+            LayerType::Nervous => true,
+
+        }
+    }
 }
 
 
@@ -1130,13 +1337,13 @@ impl<O: Organism + 'static> ComponentRegistry<O> {
         }
     }
 
-    pub(crate) fn add_component(&mut self, component: Box<dyn ComponentWrapper>) -> anyhow::Result<()> {
+    pub(crate) fn add_component(&mut self, component: impl SimComponent<O>) -> anyhow::Result<&'_ dyn ComponentWrapper<O>> {
         if self.id_set.contains(&component.id()) {
             return Err(anyhow!("Component '{}' has already been registered!", component.id()))
         }
         self.id_set.insert(component.id());
         component.attach(self);
-        Ok(())
+        Ok(self.components.last().unwrap().as_ref())
     }
 
     pub(crate) fn remove_component(&mut self, component_id: &'static str) -> anyhow::Result<Box<dyn ComponentWrapper<O>>> {

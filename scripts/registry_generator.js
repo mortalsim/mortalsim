@@ -106,6 +106,7 @@ use std::marker::PhantomData;
 use std::collections::HashSet;
 use crate::sim::organism::Organism;
 use crate::sim::layer::{
+    LayerType,
 ${layerList.map(l =>
 `    ${l.cap()}Component,
     ${l.cap()}Initializer,
@@ -117,6 +118,18 @@ pub trait ComponentWrapper<O: Organism>: SimComponent<O> + ${layerList.map(l => 
 ${layerList.map(layer => `
     fn is_${layer}_component(&self) -> bool;
 `).join('')}
+    fn has_layer(&self, layer_type: &LayerType) -> bool;
+}
+
+impl<O: Organism> ComponentWrapper<O> for Box<dyn ComponentWrapper<O>> {
+${layerList.map(layer => `
+    fn is_${layer}_component(&self) -> bool {
+        self.as_ref().is_${layer}_component()
+    }
+`).join('')}
+    fn has_layer(&self, layer_type: &LayerType) -> bool {
+        self.as_ref().has_layer(layer_type)
+    }
 }
 
 impl<O: Organism> SimComponent<O> for Box<dyn ComponentWrapper<O>> {
@@ -163,6 +176,13 @@ ${layerList.map(layer => `
         ${items.includes(layer)}
     }
 `).join('')}
+    fn has_layer(&self, layer_type: &LayerType) -> bool {
+        match layer_type {
+${layerList.map(layer => `
+            LayerType::${layer.cap()} => ${items.includes(layer)},
+`).join('')}
+        }
+    }
 }
 `
 }).join('')}
@@ -180,13 +200,13 @@ impl<O: Organism + 'static> ComponentRegistry<O> {
         }
     }
 
-    pub(crate) fn add_component(&mut self, component: Box<dyn ComponentWrapper>) -> anyhow::Result<()> {
+    pub(crate) fn add_component(&mut self, component: impl SimComponent<O>) -> anyhow::Result<&'_ dyn ComponentWrapper<O>> {
         if self.id_set.contains(&component.id()) {
             return Err(anyhow!("Component '{}' has already been registered!", component.id()))
         }
         self.id_set.insert(component.id());
         component.attach(self);
-        Ok(())
+        Ok(self.components.last().unwrap().as_ref())
     }
 
     pub(crate) fn remove_component(&mut self, component_id: &'static str) -> anyhow::Result<Box<dyn ComponentWrapper<O>>> {
@@ -207,90 +227,90 @@ ${layerCombos.map(items => `
 }
 `)
 
-fs.writeFileSync(managerPath, `
-use crate::sim::{Organism, SimConnector};
-use crate::sim::layer::SimLayer;
-use crate::sim::component::registry::{ComponentWrapper, ComponentRegistry};
-use crate::sim::component::{SimComponent, SimComponentProcessor};
+// fs.writeFileSync(managerPath, `
+// use crate::sim::{Organism, SimConnector};
+// use crate::sim::layer::SimLayer;
+// use crate::sim::component::registry::{ComponentWrapper, ComponentRegistry};
+// use crate::sim::component::{SimComponent, SimComponentProcessor};
 
-${layerList.map(layer => `use super::${layer}::${layer.cap()}Layer;
-`).join('')}
+// ${layerList.map(layer => `use super::${layer}::${layer.cap()}Layer;
+// `).join('')}
 
-${layerCoreCombos.map(items => {
-    const managerName = items.length == layerList.length ? '' : items.map(l => l.cap()).join('');
-    const notSupported = layerList.filter(x => !items.includes(x));
-    return `
-pub struct ${managerName}LayerManager<O: Organism> {
-    registry: ComponentRegistry<O>,
-${items.map(layer => 
-`    ${layer}_layer: ${layer.cap()}Layer<O>,
-`).join('')}
-}
+// ${layerCoreCombos.map(items => {
+//     const managerName = items.length == layerList.length ? '' : items.map(l => l.cap()).join('');
+//     const notSupported = layerList.filter(x => !items.includes(x));
+//     return `
+// pub struct ${managerName}LayerManager<O: Organism> {
+//     registry: ComponentRegistry<O>,
+// ${items.map(layer => 
+// `    ${layer}_layer: ${layer.cap()}Layer<O>,
+// `).join('')}
+// }
 
-impl<O: Organism + 'static> ${managerName}LayerManager<O> {
-    pub fn new() -> Self {
-        Self {
-            registry: ComponentRegistry::new(),
-${items.map(layer =>
-`            ${layer}_layer: ${layer.cap()}Layer::new(),
-`).join('')}
-        }
-    }
+// impl<O: Organism + 'static> ${managerName}LayerManager<O> {
+//     pub fn new() -> Self {
+//         Self {
+//             registry: ComponentRegistry::new(),
+// ${items.map(layer =>
+// `            ${layer}_layer: ${layer.cap()}Layer::new(),
+// `).join('')}
+//         }
+//     }
 
-    pub fn add_component(&mut self, component: impl SimComponent<O>) -> anyhow::Result<()> {
-        let wrapper = Box::new(ComponentWrapper(component));
-        ${notSupported.length ? `
-        if ${notSupported.map(x => `wrapper.is_${x}_component()`).join(' || ')} {
-            return Err(anyhow!("component types [${notSupported}] are not supported"));
-        }` : ''}
+//     pub fn add_component(&mut self, component: impl SimComponent<O>) -> anyhow::Result<()> {
+//         let wrapper = Box::new(component);
+//         ${notSupported.length ? `
+//         if ${notSupported.map(x => `wrapper.is_${x}_component()`).join(' || ')} {
+//             return Err(anyhow!("component types [${notSupported}] are not supported"));
+//         }` : ''}
 
-        self.registry.add_component(wrapper)
-    }
+//         self.registry.add_component(wrapper)
+//     }
     
-    pub fn remove_component(&mut self, component_id: &'static str) -> anyhow::Result<()> {
-        match self.registry.remove_component(component_id) {
-            Ok(_) => Ok(()),
-            Err(msg) => Err(msg),
-        }
-    }
+//     pub fn remove_component(&mut self, component_id: &'static str) -> anyhow::Result<()> {
+//         match self.registry.remove_component(component_id) {
+//             Ok(_) => Ok(()),
+//             Err(msg) => Err(msg),
+//         }
+//     }
 
-    pub fn update(&mut self, connector: &mut SimConnector) {
-    ${items.map(layer => `
-        self.${layer}_layer.pre_exec(connector);`
-    ).join('')}
-        let mut update_list = Vec::new();
+//     pub fn update(&mut self, connector: &mut SimConnector) {
+//     ${items.map(layer => `
+//         self.${layer}_layer.pre_exec(connector);`
+//     ).join('')}
+//         let mut update_list = Vec::new();
 
-        for component in self.registry.all_components_mut() {
-            if ${items.map(layer=> `
-                ${items.length > 1 ? '(' : ''} component.is_${layer}_component() &&
-                    self.${layer}_layer.check_component(component) ${items.length > 1 ? ')' : ''}`
-                ).join(' ||')} {
-                update_list.push(component);
-            }
-        }
+//         for component in self.registry.all_components_mut() {
+//             if ${items.map(layer=> `
+//                 ${items.length > 1 ? '(' : ''} component.is_${layer}_component() &&
+//                     self.${layer}_layer.check_component(component) ${items.length > 1 ? ')' : ''}`
+//                 ).join(' ||')} {
+//                 update_list.push(component);
+//             }
+//         }
 
-        for component in update_list {
-            // Prepare the component with each of the associated layers
-    ${items.map(layer => `
-            if component.is_${layer}_component() {
-                self.${layer}_layer.prepare_component(connector, component);
-            }`
-    ).join('')}
+//         for component in update_list {
+//             // Prepare the component with each of the associated layers
+//     ${items.map(layer => `
+//             if component.is_${layer}_component() {
+//                 self.${layer}_layer.prepare_component(connector, component);
+//             }`
+//     ).join('')}
 
-            // Execute component logic
-            component.run();
+//             // Execute component logic
+//             component.run();
 
-    ${items.map(layer => `
-            if component.is_${layer}_component() {
-                self.${layer}_layer.process_component(connector, component);
-            }`
-    ).join('')}
-        }
-    ${items.map(layer => `
-        self.${layer}_layer.post_exec(connector);`
-    ).join('')}
-    }
-}
-`
-}).join('')}
-`)
+//     ${items.map(layer => `
+//             if component.is_${layer}_component() {
+//                 self.${layer}_layer.process_component(connector, component);
+//             }`
+//     ).join('')}
+//         }
+//     ${items.map(layer => `
+//         self.${layer}_layer.post_exec(connector);`
+//     ).join('')}
+//     }
+// }
+// `
+// }).join('')}
+// `)
