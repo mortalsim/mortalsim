@@ -1,6 +1,7 @@
 
 use std::collections::{HashMap, BTreeMap, HashSet};
 use std::marker::PhantomData;
+use crate::sim::layer::InternalLayerTrigger;
 use crate::sim::{SimConnector, SimTime};
 use crate::sim::organism::Organism;
 use crate::util::{IdType, secs};
@@ -29,6 +30,8 @@ pub struct DigestionLayer<O: Organism> {
     consumed_map: BTreeMap<usize, Vec<Consumed>>,
     /// Consumables staged for elimination
     elimination_list: Vec<(Consumable, DigestionDirection)>,
+    /// Internal trigger id to unschedule if needed
+    internal_trigger_id: Option<IdType>,
 }
 
 // impl fmt::Debug for DigestionLayer {
@@ -52,11 +55,12 @@ impl<O: Organism> DigestionLayer<O> {
             trigger_map: HashSet::new(),
             consumed_map: BTreeMap::new(),
             elimination_list: Vec::new(),
+            internal_trigger_id: None,
         }
     }
 
     /// Consume a new SubstanceStore
-    pub fn consume(&mut self, consumable: Consumable) {
+    fn consume(&mut self, consumable: Consumable) {
         let consumed = Consumed::new(consumable);
         self.consumed_map.entry(0).or_default().push(consumed);
     }
@@ -65,7 +69,21 @@ impl<O: Organism> DigestionLayer<O> {
         *self.component_map.get(component.id()).expect("Digestion component position is missing!")
     }
 
-    pub fn update(&mut self, connector: &mut SimConnector) {
+}
+
+impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessor<O, T> for DigestionLayer<O> {
+    fn setup_component(&mut self, _connector: &mut SimConnector, component: &mut T) {
+        let mut initializer = DigestionInitializer::new();
+        component.digestion_init(&mut initializer);
+
+        self.component_map.insert(component.id(), self.component_map.len());
+    }
+
+    fn pre_exec(&mut self, connector: &mut SimConnector) {
+        if let Some(id) = self.internal_trigger_id.take() {
+            connector.time_manager.unschedule_event(&id);
+        }
+
         for evt in connector.active_events.iter() {
             if let Some(consume_evt) = evt.downcast_ref::<ConsumeEvent>() {
                 self.consume(consume_evt.0.clone());
@@ -104,7 +122,7 @@ impl<O: Organism> DigestionLayer<O> {
                 if  (pos == 0 && removed.exit_direction == DigestionDirection::BACK) ||
                     (pos == last && removed.exit_direction == DigestionDirection::FORWARD) {
                         let evt = Box::new(EliminateEvent::new(removed.consumable, removed.exit_direction));
-                        connector.time_manager.schedule_event(removed.exit_time - connector.sim_time(), evt);
+                        connector.time_manager.schedule_event(secs!(0.0), evt);
                     }
                 else {
                     match removed.exit_direction {
@@ -125,15 +143,6 @@ impl<O: Organism> DigestionLayer<O> {
                 }
             }
         }
-    }
-}
-
-impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessor<O, T> for DigestionLayer<O> {
-    fn setup_component(&mut self, _connector: &mut SimConnector, component: &mut T) {
-        let mut initializer = DigestionInitializer::new();
-        component.digestion_init(&mut initializer);
-
-        self.component_map.insert(component.id(), self.component_map.len());
     }
 
     fn check_component(&mut self, component: &T) -> bool {
@@ -158,5 +167,19 @@ impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessor<O, T> for Dige
 
         // Reset the trigger
         self.trigger_map.remove(&component_pos);
+    }
+
+    fn post_exec(&mut self, connector: &mut SimConnector) {
+
+        if let Some(min_consumed) = self.consumed_map.values().flatten()
+            .min_by(|a, b| a.exit_time.partial_cmp(&b.exit_time).unwrap()) {
+            
+            let mut delay = secs!(0.0);
+            if min_consumed.exit_time > connector.sim_time() {
+                delay = min_consumed.exit_time - connector.sim_time();
+            }
+            let id = connector.time_manager.schedule_event(delay, Box::new(InternalLayerTrigger));
+            self.internal_trigger_id = Some(id);
+        }
     }
 }

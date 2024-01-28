@@ -4,10 +4,11 @@ use std::mem::swap;
 
 use uuid::Uuid;
 
+use crate::sim::layer::InternalLayerTrigger;
 use crate::sim::SimConnector;
 use crate::sim::organism::Organism;
 use crate::sim::component::SimComponentProcessor;
-use crate::util::{OrderedTime, IdGenerator, IdType};
+use crate::util::{secs, IdGenerator, IdType, OrderedTime};
 
 use super::component::{NervousComponent, NervousInitializer};
 use super::nerve::NerveSignal;
@@ -24,7 +25,9 @@ pub struct NervousLayer<O: Organism> {
     /// Signal transformers on given nerve segments
     transforms: HashMap<O::NerveType, HashMap<TypeId, HashMap<IdType, Box<dyn Any>>>>,
     /// Pending notifies
-    pending_signals: BTreeMap<OrderedTime, Vec<NerveSignal<O>>>
+    pending_signals: BTreeMap<OrderedTime, Vec<NerveSignal<O>>>,
+    /// Internal trigger id to unschedule if needed
+    internal_trigger_id: Option<IdType>,
 }
 
 impl<O: Organism + 'static> NervousLayer<O> {
@@ -36,15 +39,35 @@ impl<O: Organism + 'static> NervousLayer<O> {
             delivery_signals: Vec::new(),
             transforms: HashMap::new(),
             pending_signals: BTreeMap::new(),
+            internal_trigger_id: None,
         }
     }
 
-    pub fn as_processor<T: NervousComponent<O>>(&mut self) -> &mut dyn SimComponentProcessor<O, T> {
-        self
+}
+
+impl<O: Organism + 'static, T: NervousComponent<O>> SimComponentProcessor<O, T> for NervousLayer<O> {
+    fn setup_component(&mut self, _connector: &mut SimConnector, component: &mut T) {
+        let mut initializer = NervousInitializer::new();
+        component.nervous_init(&mut initializer);
+
+        for (nerve, type_ids) in initializer.signal_notifies.into_iter() {
+            for type_id in type_ids {
+                self.signal_notifies
+                    .entry(nerve)
+                    .or_default()
+                    .entry(type_id)
+                    .or_default()
+                    .insert(component.id());
+            }
+        }
     }
 
-    pub fn update(&mut self, connector: &mut SimConnector) {
+    fn pre_exec(&mut self, connector: &mut SimConnector) {
         let otime = OrderedTime(connector.sim_time());
+
+        if let Some(id) = self.internal_trigger_id.take() {
+            connector.time_manager.unschedule_event(&id);
+        }
 
         // Do this for all sim times up to the present
         while self.pending_signals.first_key_value().is_some_and(|(t,_)| t <= &otime) {
@@ -69,24 +92,6 @@ impl<O: Organism + 'static> NervousLayer<O> {
 
                 // Stage the signals for delivery
                 self.delivery_signals.append(&mut signals);
-            }
-        }
-    }
-}
-
-impl<O: Organism + 'static, T: NervousComponent<O>> SimComponentProcessor<O, T> for NervousLayer<O> {
-    fn setup_component(&mut self, _connector: &mut SimConnector, component: &mut T) {
-        let mut initializer = NervousInitializer::new();
-        component.nervous_init(&mut initializer);
-
-        for (nerve, type_ids) in initializer.signal_notifies.into_iter() {
-            for type_id in type_ids {
-                self.signal_notifies
-                    .entry(nerve)
-                    .or_default()
-                    .entry(type_id)
-                    .or_default()
-                    .insert(component.id());
             }
         }
     }
@@ -170,6 +175,19 @@ impl<O: Organism + 'static, T: NervousComponent<O>> SimComponentProcessor<O, T> 
                 .entry(signal_time)
                 .or_default()
                 .push(signal);
+        }
+    }
+
+    fn post_exec(&mut self, connector: &mut SimConnector) {
+
+        if let Some(min_time) = self.pending_signals.keys().min() {
+            
+            let mut delay = secs!(0.0);
+            if min_time.0 > connector.sim_time() {
+                delay = min_time.0 - connector.sim_time();
+            }
+            let id = connector.time_manager.schedule_event(delay, Box::new(InternalLayerTrigger));
+            self.internal_trigger_id = Some(id);
         }
     }
 }

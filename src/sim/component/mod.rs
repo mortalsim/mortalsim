@@ -19,10 +19,14 @@ pub trait SimComponent<O: Organism> {
 pub trait SimComponentProcessor<O: Organism, T: SimComponent<O>> {
     /// Execute initial setup for a component
     fn setup_component(&mut self, connector: &mut SimConnector, component: &mut T);
+    /// Update prior to component processing
+    fn pre_exec(&mut self, connector: &mut SimConnector);
     /// Indicate if the given component should trigger a run
     fn check_component(&mut self, component: &T) -> bool;
     /// Prepare a component for their run
     fn prepare_component(&mut self, connector: &mut SimConnector, component: &mut T);
     /// Process a component after their run.
     fn process_component(&mut self, connector: &mut SimConnector, component: &mut T);
+    /// Update after component processing
+    fn post_exec(&mut self, connector: &mut SimConnector);
 }

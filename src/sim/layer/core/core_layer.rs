@@ -43,26 +43,6 @@ impl<O: Organism> CoreLayer<O> {
         }
     }
     
-    pub fn update(&mut self, connector: &mut SimConnector) {
-        connector.time_manager.next_events()
-            .map(|x| x.1)
-            .flatten()
-            .for_each(|evt| {
-                if let Some(notify_list) = self.module_notifications.get(&evt.type_id()) {
-                    for (_, comp_id) in notify_list {
-                        self.notify_map.entry(comp_id).or_default().insert(evt.type_id());
-                    }
-                }
-                // Internal layer trigger events don't end up on the state
-                // or in the active_events list
-                if evt.type_id() != TypeId::of::<InternalLayerTrigger>() {
-                    let rc_evt: Arc<dyn Event> = evt.into();
-                    connector.active_events.push(rc_evt.clone());
-                    connector.state.put_state(rc_evt);
-                }
-        })
-    }
-
 }
 
 impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer<O> {
@@ -91,6 +71,28 @@ impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer
             }
         }
     }
+    
+
+    fn pre_exec(&mut self, connector: &mut SimConnector) {
+        connector.time_manager.next_events()
+            .map(|x| x.1)
+            .flatten()
+            .for_each(|evt| {
+                if let Some(notify_list) = self.module_notifications.get(&evt.type_id()) {
+                    for (_, comp_id) in notify_list {
+                        self.notify_map.entry(comp_id).or_default().insert(evt.type_id());
+                    }
+                }
+                // Internal layer trigger events don't end up on the state
+                // or in the active_events list
+                if !evt.is::<InternalLayerTrigger>() {
+                    let rc_evt: Arc<dyn Event> = evt.into();
+                    connector.active_events.push(rc_evt.clone());
+                    connector.state.put_state(rc_evt);
+                }
+        })
+    }
+
 
     fn check_component(&mut self, component: &T) -> bool {
         // Trigger the module only if the notify_list is non empty
@@ -164,5 +166,9 @@ impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer
                 }
             }
         }
+    }
+
+    fn post_exec(&mut self, connector: &mut SimConnector) {
+        
     }
 }
