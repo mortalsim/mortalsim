@@ -11,10 +11,10 @@ pub mod layer_processor;
 
 use crate::event::Event;
 
-pub use self::core::*;
-pub use circulation::*;
-pub use digestion::*;
-pub use nervous::*;
+pub use self::core::{CoreComponent, CoreConnector, CoreInitializer, CoreLayer};
+pub use circulation::{CirculationComponent, BloodStore, BloodVessel, CirculationConnector, CirculationInitializer, CirculationLayer};
+pub use digestion::{DigestionComponent, DigestionConnector, DigestionDirection, DigestionInitializer, DigestionLayer};
+pub use nervous::{NervousComponent, Nerve, NerveIter, NervousConnector, NervousInitializer, NervousLayer};
 pub use layer_manager::*;
 
 use super::SimConnector;

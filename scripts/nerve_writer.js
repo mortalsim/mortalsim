@@ -59,8 +59,8 @@ lazy_static! {
     };
 }
 
-lazy_static! {
 ${allNerves.map(n => `
+lazy_static! {
     static ref ${n.id.toUpperCase()}_UPLINK: Vec<${nerveEnum}> = {
         ${n.uplink.length > 0 ? `let mut nerve_list = Vec::new();
         ${n.uplink.map(x => `nerve_list.push(${nerveEnum}::${x});`).join('\n        ')}
@@ -68,11 +68,11 @@ ${allNerves.map(n => `
         ` :
         `Vec::new()`}
     };
-`).join('')}
 }
+`).join('')}
 
-lazy_static! {
 ${allNerves.filter(n => n.downlink).map(n => `
+lazy_static! {
     static ref ${n.id.toUpperCase()}_DOWNLINK: Vec<${nerveEnum}> = {
         ${n.downlink.length > 0 ? `let mut nerve_list = Vec::new();
         ${n.downlink.map(x => `nerve_list.push(${nerveEnum}::${x});`).join('\n        ')}
@@ -80,18 +80,18 @@ ${allNerves.filter(n => n.downlink).map(n => `
         ` :
         `Vec::new()`}
     };
-`).join('')}
 }
+`).join('')}
 
-lazy_static! {
 ${allNerves.map(n => `
+lazy_static! {
     static ref ${n.id.toUpperCase()}_REGIONS: HashSet<${anatomyEnum}> = {
         let mut region_list = HashSet::new();
         ${n.regions.map(x => `region_list.insert(${anatomyEnum}::${x});`).join('\n        ')}
         region_list
     };
-`).join('')}
 }
+`).join('')}
 
 impl Nerve for ${nerveEnum} {
     type AnatomyType = ${anatomyEnum};

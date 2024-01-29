@@ -87,7 +87,9 @@ lazy_static! {
             .join('\n        ')}
         vessel_list
     };
+}
 
+lazy_static! {
     static ref ARTERIES: HashSet<${vesselEnum}> = {
         let mut vessel_list = HashSet::new();
         ${Object.values(arteries)
@@ -95,7 +97,9 @@ lazy_static! {
             .join('\n        ')}
         vessel_list
     };
+}
 
+lazy_static! {
     static ref VEINS: HashSet<${vesselEnum}> = {
         let mut vessel_list = HashSet::new();
         ${Object.values(veins)
@@ -103,7 +107,9 @@ lazy_static! {
             .join('\n        ')}
         vessel_list
     };
+}
 
+lazy_static! {
     static ref PRE_CAPILLARIES: HashSet<${vesselEnum}> = {
         let mut vessel_list = HashSet::new();
         ${Object.keys(bridges)
@@ -111,7 +117,9 @@ lazy_static! {
             .join('\n        ')}
         vessel_list
     };
+}
 
+lazy_static! {
     static ref POST_CAPILLARIES: HashSet<${vesselEnum}> = {
         let mut vessel_list = HashSet::new();
         ${Object.values(bridges)
@@ -122,8 +130,8 @@ lazy_static! {
     };
 }
 
-lazy_static! {
 ${allVessels.map(v => `
+lazy_static! {
     static ref ${v.id.toUpperCase()}_UPSTREAM: HashSet<${vesselEnum}> = {
         ${v.upstream.length > 0 ? `let mut vessel_list = HashSet::new();
         ${v.upstream.map(x => `vessel_list.insert(${vesselEnum}::${x});`).join('\n        ')}
@@ -131,11 +139,11 @@ ${allVessels.map(v => `
         ` :
         `HashSet::new()`}
     };
-`).join('')}
 }
+`).join('')}
 
-lazy_static! {
 ${allVessels.filter(v => v.downstream).map(v => `
+lazy_static! {
     static ref ${v.id.toUpperCase()}_DOWNSTREAM: HashSet<${vesselEnum}> = {
         ${v.downstream.length > 0 ? `let mut vessel_list = HashSet::new();
         ${v.downstream.map(x => `vessel_list.insert(${vesselEnum}::${x});`).join('\n        ')}
@@ -143,18 +151,18 @@ ${allVessels.filter(v => v.downstream).map(v => `
         ` :
         `HashSet::new()`}
     };
-`).join('')}
 }
+`).join('')}
 
-lazy_static! {
 ${allVessels.map(v => `
+lazy_static! {
     static ref ${v.id.toUpperCase()}_REGIONS: HashSet<${anatomyEnum}> = {
         let mut region_list = HashSet::new();
         ${v.regions.map(x => `region_list.insert(${anatomyEnum}::${x});`).join('\n        ')}
         region_list
     };
-`).join('')}
 }
+`).join('')}
 
 impl BloodVessel for ${vesselEnum} {
     type AnatomyType = ${anatomyEnum};

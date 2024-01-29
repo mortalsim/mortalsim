@@ -1,5 +1,4 @@
-#![allow(dead_code)]
-#![recursion_limit = "1024"]
+#![allow(dead_code, unused_imports)]
 
 #[macro_use]
 extern crate anyhow;
@@ -10,7 +9,7 @@ extern crate lazy_static;
 #[macro_use]
 extern crate strum_macros;
 
-mod sim;
+pub mod sim;
 // mod hub;
 mod spark;
 mod util;

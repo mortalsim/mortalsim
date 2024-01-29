@@ -9,8 +9,6 @@ pub use component::*;
 
 use crate::event::Event;
 
-use self::consumable::Consumable;
-
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Copy)]
 pub enum DigestionDirection {
     FORWARD,

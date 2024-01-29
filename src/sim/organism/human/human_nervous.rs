@@ -346,852 +346,1270 @@ lazy_static! {
     };
 }
 
-lazy_static! {
 
+lazy_static! {
     static ref BRAIN_UPLINK: Vec<HumanNerve> = {
         Vec::new()
     };
-
-    static ref RIGHTOCCULOMOTOR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTOCCULOMOTOR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref BRAINSTEM_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTTRIGEMINAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTTRIGEMINAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTFACIAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTFACIAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTHYPOGLOSSAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTHYPOGLOSSAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTVAGUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTSUPERIORLARYNGEAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTRECURRENTLARYNGEAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTVAGUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTSUPERIORLARYNGEAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTRECURRENTLARYNGEAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref ESOPHAGEALPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref SUPERFICIALCARDIACPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref DEEPCARDIACPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref PULMONARYPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref CELIACPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref SUPERIORMESENTERICPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref INFERIORMESENTERICPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref HYPOGASTRICPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref SPINALCORD_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTSPINALACCESSORY_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTSPINALACCESSORY_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTC1_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTC2_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTC3_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTC4_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTC5_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTC6_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTC7_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTC8_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTT1_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTT2_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTT3_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTT4_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTT5_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTT6_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTT7_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTT8_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTT9_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTT10_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTT11_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTT12_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTL1_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref CAUDAEQUINA_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTL2_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTL3_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTL4_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTL5_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTS1_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTS2_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTS3_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTS4_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTS5_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTINTERNALCAROTID_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTSYMPATHETICCHAIN_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTGREATERTHORACICSPLANCHIC_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTLESSERTHORACICSPLANCHIC_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTLEASTTHORACICSPLANCHIC_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTRENALPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTINTERMESENTERICPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTLUMBARSPLANCHIC_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTGENITOFEMORAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTOCCIPITAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTGREATARICULAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTANSACERVICALIS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTINTERCOSTAL1_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTINTERCOSTAL2_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTINTERCOSTAL3_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTINTERCOSTAL4_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTINTERCOSTAL5_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTINTERCOSTAL6_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTINTERCOSTAL7_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTINTERCOSTAL8_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTINTERCOSTAL9_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTINTERCOSTAL10_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTINTERCOSTAL11_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTSUBCOSTAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTSUPRACLAVICULAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTPHRENIC_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTLATERALBRACHIALPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTPOSTERIORBRACHIALPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTMEDIALBRACHIALPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTAXILLARY_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTMUSCULOCUTANEOUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTMEDIAN_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTRADIAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTULNAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTUPPERSUBSCAPULAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTLOWERSUBSCAPULAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTTHORACODORSAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTDORSALSCAPULAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTLONGTHORACIC_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTSUPRASCAPULAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTLATERALPECTORAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTMEDIALPECTORAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTMEDIALCUTANEOUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTILIOHYPOGASTRIC_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTILIOINGUINAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTOBTURATOR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTLUMBARPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTSACRALPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTLATERALFEMORALCUTANEOUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTPOSTERIORFEMORALCUTANEOUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTFEMORAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTSCIATIC_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTPUDENDAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTINFERIORRECTAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTSAPHENOUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTCOMMONFIBULAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTSUPERFICIALFIBULAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTDEEPFIBULAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTSURAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTTIBIAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref LEFTPLANTAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTC1_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTC2_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTC3_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTC4_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTC5_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTC6_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTC7_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTC8_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTT1_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTT2_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTT3_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTT4_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTT5_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTT6_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTT7_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTT8_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTT9_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTT10_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTT11_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTT12_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTL1_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTL2_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTL3_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTL4_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTL5_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTS1_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTS2_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTS3_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTS4_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTS5_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTINTERNALCAROTID_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTSYMPATHETICCHAIN_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTGREATERTHORACICSPLANCHIC_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTLESSERTHORACICSPLANCHIC_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTLEASTTHORACICSPLANCHIC_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTRENALPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTINTERMESENTERICPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTLUMBARSPLANCHIC_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTGENITOFEMORAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTOCCIPITAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTGREATARICULAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTANSACERVICALIS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTINTERCOSTAL1_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTINTERCOSTAL2_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTINTERCOSTAL3_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTINTERCOSTAL4_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTINTERCOSTAL5_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTINTERCOSTAL6_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTINTERCOSTAL7_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTINTERCOSTAL8_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTINTERCOSTAL9_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTINTERCOSTAL10_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTINTERCOSTAL11_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTSUBCOSTAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTSUPRACLAVICULAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTPHRENIC_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTLATERALBRACHIALPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTPOSTERIORBRACHIALPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTMEDIALBRACHIALPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTAXILLARY_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTMUSCULOCUTANEOUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTMEDIAN_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTRADIAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTULNAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTUPPERSUBSCAPULAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTLOWERSUBSCAPULAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTTHORACODORSAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTDORSALSCAPULAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTLONGTHORACIC_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTSUPRASCAPULAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTLATERALPECTORAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTMEDIALPECTORAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTMEDIALCUTANEOUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTILIOHYPOGASTRIC_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTILIOINGUINAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTOBTURATOR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTLUMBARPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTSACRALPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTLATERALFEMORALCUTANEOUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTPOSTERIORFEMORALCUTANEOUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTFEMORAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTSCIATIC_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTPUDENDAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTINFERIORRECTAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTSAPHENOUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTCOMMONFIBULAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTSUPERFICIALFIBULAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTDEEPFIBULAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTSURAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTTIBIAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
-    static ref RIGHTPLANTAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
 }
 
 lazy_static! {
+    static ref RIGHTOCCULOMOTOR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
 
+lazy_static! {
+    static ref LEFTOCCULOMOTOR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref BRAINSTEM_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTTRIGEMINAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTTRIGEMINAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTFACIAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTFACIAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTHYPOGLOSSAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTHYPOGLOSSAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTVAGUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTSUPERIORLARYNGEAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTRECURRENTLARYNGEAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTVAGUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTSUPERIORLARYNGEAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTRECURRENTLARYNGEAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref ESOPHAGEALPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref SUPERFICIALCARDIACPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref DEEPCARDIACPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref PULMONARYPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref CELIACPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref SUPERIORMESENTERICPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref INFERIORMESENTERICPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref HYPOGASTRICPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref SPINALCORD_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTSPINALACCESSORY_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTSPINALACCESSORY_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTC1_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTC2_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTC3_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTC4_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTC5_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTC6_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTC7_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTC8_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTT1_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTT2_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTT3_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTT4_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTT5_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTT6_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTT7_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTT8_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTT9_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTT10_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTT11_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTT12_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTL1_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref CAUDAEQUINA_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTL2_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTL3_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTL4_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTL5_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTS1_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTS2_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTS3_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTS4_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTS5_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTINTERNALCAROTID_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTSYMPATHETICCHAIN_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTGREATERTHORACICSPLANCHIC_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTLESSERTHORACICSPLANCHIC_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTLEASTTHORACICSPLANCHIC_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTRENALPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTINTERMESENTERICPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTLUMBARSPLANCHIC_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTGENITOFEMORAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTOCCIPITAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTGREATARICULAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTANSACERVICALIS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTINTERCOSTAL1_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTINTERCOSTAL2_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTINTERCOSTAL3_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTINTERCOSTAL4_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTINTERCOSTAL5_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTINTERCOSTAL6_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTINTERCOSTAL7_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTINTERCOSTAL8_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTINTERCOSTAL9_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTINTERCOSTAL10_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTINTERCOSTAL11_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTSUBCOSTAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTSUPRACLAVICULAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTPHRENIC_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTLATERALBRACHIALPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTPOSTERIORBRACHIALPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTMEDIALBRACHIALPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTAXILLARY_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTMUSCULOCUTANEOUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTMEDIAN_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTRADIAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTULNAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTUPPERSUBSCAPULAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTLOWERSUBSCAPULAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTTHORACODORSAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTDORSALSCAPULAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTLONGTHORACIC_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTSUPRASCAPULAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTLATERALPECTORAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTMEDIALPECTORAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTMEDIALCUTANEOUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTILIOHYPOGASTRIC_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTILIOINGUINAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTOBTURATOR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTLUMBARPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTSACRALPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTLATERALFEMORALCUTANEOUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTPOSTERIORFEMORALCUTANEOUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTFEMORAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTSCIATIC_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTPUDENDAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTINFERIORRECTAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTSAPHENOUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTCOMMONFIBULAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTSUPERFICIALFIBULAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTDEEPFIBULAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTSURAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTTIBIAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref LEFTPLANTAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTC1_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTC2_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTC3_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTC4_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTC5_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTC6_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTC7_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTC8_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTT1_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTT2_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTT3_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTT4_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTT5_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTT6_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTT7_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTT8_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTT9_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTT10_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTT11_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTT12_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTL1_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTL2_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTL3_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTL4_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTL5_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTS1_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTS2_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTS3_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTS4_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTS5_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTINTERNALCAROTID_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTSYMPATHETICCHAIN_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTGREATERTHORACICSPLANCHIC_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTLESSERTHORACICSPLANCHIC_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTLEASTTHORACICSPLANCHIC_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTRENALPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTINTERMESENTERICPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTLUMBARSPLANCHIC_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTGENITOFEMORAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTOCCIPITAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTGREATARICULAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTANSACERVICALIS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTINTERCOSTAL1_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTINTERCOSTAL2_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTINTERCOSTAL3_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTINTERCOSTAL4_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTINTERCOSTAL5_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTINTERCOSTAL6_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTINTERCOSTAL7_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTINTERCOSTAL8_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTINTERCOSTAL9_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTINTERCOSTAL10_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTINTERCOSTAL11_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTSUBCOSTAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTSUPRACLAVICULAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTPHRENIC_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTLATERALBRACHIALPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTPOSTERIORBRACHIALPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTMEDIALBRACHIALPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTAXILLARY_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTMUSCULOCUTANEOUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTMEDIAN_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTRADIAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTULNAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTUPPERSUBSCAPULAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTLOWERSUBSCAPULAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTTHORACODORSAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTDORSALSCAPULAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTLONGTHORACIC_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTSUPRASCAPULAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTLATERALPECTORAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTMEDIALPECTORAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTMEDIALCUTANEOUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTILIOHYPOGASTRIC_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTILIOINGUINAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTOBTURATOR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTLUMBARPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTSACRALPLEXUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTLATERALFEMORALCUTANEOUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTPOSTERIORFEMORALCUTANEOUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTFEMORAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTSCIATIC_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTPUDENDAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTINFERIORRECTAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTSAPHENOUS_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTCOMMONFIBULAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTSUPERFICIALFIBULAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTDEEPFIBULAR_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTSURAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTTIBIAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+lazy_static! {
+    static ref RIGHTPLANTAL_UPLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
+
+
+
+lazy_static! {
     static ref BRAIN_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightOcculomotor);
@@ -1200,15 +1618,21 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTOCCULOMOTOR_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTOCCULOMOTOR_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref BRAINSTEM_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftTrigeminal);
@@ -1222,31 +1646,45 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTTRIGEMINAL_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTTRIGEMINAL_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTFACIAL_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTFACIAL_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTHYPOGLOSSAL_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTHYPOGLOSSAL_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTVAGUS_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftSuperiorLaryngeal);
@@ -1257,15 +1695,21 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTSUPERIORLARYNGEAL_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTRECURRENTLARYNGEAL_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTVAGUS_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightSuperiorLaryngeal);
@@ -1276,50 +1720,72 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTSUPERIORLARYNGEAL_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTRECURRENTLARYNGEAL_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref ESOPHAGEALPLEXUS_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref SUPERFICIALCARDIACPLEXUS_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref DEEPCARDIACPLEXUS_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::PulmonaryPlexus);
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref PULMONARYPLEXUS_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref CELIACPLEXUS_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref SUPERIORMESENTERICPLEXUS_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref INFERIORMESENTERICPLEXUS_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref HYPOGASTRICPLEXUS_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref SPINALCORD_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftSpinalAccessory);
@@ -1370,15 +1836,21 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTSPINALACCESSORY_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTSPINALACCESSORY_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTC1_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftInternalCarotid);
@@ -1386,7 +1858,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTC2_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftSympatheticChain);
@@ -1396,7 +1870,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTC3_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftSympatheticChain);
@@ -1406,7 +1882,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTC4_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftSympatheticChain);
@@ -1415,7 +1893,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTC5_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftSympatheticChain);
@@ -1427,7 +1907,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTC6_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftSympatheticChain);
@@ -1438,7 +1920,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTC7_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftSympatheticChain);
@@ -1448,7 +1932,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTC8_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftSympatheticChain);
@@ -1458,7 +1944,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTT1_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftSympatheticChain);
@@ -1467,7 +1955,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTT2_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftSympatheticChain);
@@ -1475,7 +1965,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTT3_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftSympatheticChain);
@@ -1483,7 +1975,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTT4_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftSympatheticChain);
@@ -1491,7 +1985,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTT5_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftSympatheticChain);
@@ -1499,7 +1995,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTT6_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftSympatheticChain);
@@ -1507,7 +2005,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTT7_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftSympatheticChain);
@@ -1515,7 +2015,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTT8_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftSympatheticChain);
@@ -1523,7 +2025,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTT9_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftSympatheticChain);
@@ -1531,7 +2035,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTT10_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftSympatheticChain);
@@ -1539,7 +2045,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTT11_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftSympatheticChain);
@@ -1547,7 +2055,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTT12_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftSympatheticChain);
@@ -1555,7 +2065,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTL1_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftSympatheticChain);
@@ -1565,7 +2077,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref CAUDAEQUINA_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightL2);
@@ -1580,7 +2094,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTL2_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftSympatheticChain);
@@ -1590,7 +2106,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTL3_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftSympatheticChain);
@@ -1599,7 +2117,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTL4_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftSympatheticChain);
@@ -1609,7 +2129,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTL5_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftSympatheticChain);
@@ -1617,7 +2139,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTS1_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftSympatheticChain);
@@ -1625,7 +2149,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTS2_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftSympatheticChain);
@@ -1634,7 +2160,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTS3_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftSympatheticChain);
@@ -1643,7 +2171,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTS4_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftSympatheticChain);
@@ -1651,18 +2181,24 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTS5_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftSympatheticChain);
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTINTERNALCAROTID_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTSYMPATHETICCHAIN_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::EsophagealPlexus);
@@ -1677,18 +2213,24 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTGREATERTHORACICSPLANCHIC_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTLESSERTHORACICSPLANCHIC_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::CeliacPlexus);
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTLEASTTHORACICSPLANCHIC_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftRenalPlexus);
@@ -1698,94 +2240,138 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTRENALPLEXUS_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTINTERMESENTERICPLEXUS_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTLUMBARSPLANCHIC_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTGENITOFEMORAL_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftSaphenous);
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTOCCIPITAL_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTGREATARICULAR_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTANSACERVICALIS_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTINTERCOSTAL1_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTINTERCOSTAL2_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTINTERCOSTAL3_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTINTERCOSTAL4_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTINTERCOSTAL5_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTINTERCOSTAL6_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTINTERCOSTAL7_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTINTERCOSTAL8_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTINTERCOSTAL9_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTINTERCOSTAL10_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTINTERCOSTAL11_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTSUBCOSTAL_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTSUPRACLAVICULAR_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTPHRENIC_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTLATERALBRACHIALPLEXUS_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftMedian);
@@ -1794,7 +2380,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTPOSTERIORBRACHIALPLEXUS_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftAxillary);
@@ -1805,7 +2393,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTMEDIALBRACHIALPLEXUS_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftMedian);
@@ -1815,75 +2405,111 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTAXILLARY_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTMUSCULOCUTANEOUS_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTMEDIAN_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTRADIAL_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTULNAR_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTUPPERSUBSCAPULAR_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTLOWERSUBSCAPULAR_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTTHORACODORSAL_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTDORSALSCAPULAR_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTLONGTHORACIC_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTSUPRASCAPULAR_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTLATERALPECTORAL_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTMEDIALPECTORAL_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTMEDIALCUTANEOUS_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTILIOHYPOGASTRIC_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTILIOINGUINAL_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTOBTURATOR_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTLUMBARPLEXUS_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftFemoral);
@@ -1891,7 +2517,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTSACRALPLEXUS_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftSciatic);
@@ -1899,41 +2527,57 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTLATERALFEMORALCUTANEOUS_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTPOSTERIORFEMORALCUTANEOUS_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTFEMORAL_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTSCIATIC_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftCommonFibular);
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTPUDENDAL_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftInferiorRectal);
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTINFERIORRECTAL_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTSAPHENOUS_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTCOMMONFIBULAR_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftSuperficialFibular);
@@ -1942,30 +2586,42 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTSUPERFICIALFIBULAR_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTDEEPFIBULAR_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTSURAL_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref LEFTTIBIAL_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::LeftPlantal);
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref LEFTPLANTAL_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTC1_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightInternalCarotid);
@@ -1973,7 +2629,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTC2_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightSympatheticChain);
@@ -1983,7 +2641,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTC3_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightSympatheticChain);
@@ -1993,7 +2653,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTC4_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightSympatheticChain);
@@ -2002,7 +2664,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTC5_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightSympatheticChain);
@@ -2014,7 +2678,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTC6_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightSympatheticChain);
@@ -2025,7 +2691,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTC7_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightSympatheticChain);
@@ -2035,7 +2703,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTC8_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightSympatheticChain);
@@ -2045,7 +2715,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTT1_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightSympatheticChain);
@@ -2054,7 +2726,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTT2_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightSympatheticChain);
@@ -2062,7 +2736,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTT3_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightSympatheticChain);
@@ -2070,7 +2746,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTT4_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightSympatheticChain);
@@ -2078,7 +2756,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTT5_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightSympatheticChain);
@@ -2086,7 +2766,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTT6_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightSympatheticChain);
@@ -2094,7 +2776,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTT7_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightSympatheticChain);
@@ -2102,7 +2786,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTT8_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightSympatheticChain);
@@ -2110,7 +2796,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTT9_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightSympatheticChain);
@@ -2118,7 +2806,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTT10_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightSympatheticChain);
@@ -2126,7 +2816,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTT11_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightSympatheticChain);
@@ -2134,7 +2826,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTT12_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightSympatheticChain);
@@ -2142,7 +2836,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTL1_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightSympatheticChain);
@@ -2152,7 +2848,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTL2_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightSympatheticChain);
@@ -2162,7 +2860,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTL3_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightSympatheticChain);
@@ -2171,7 +2871,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTL4_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightSympatheticChain);
@@ -2181,7 +2883,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTL5_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightSympatheticChain);
@@ -2189,7 +2893,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTS1_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightSympatheticChain);
@@ -2197,7 +2903,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTS2_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightSympatheticChain);
@@ -2206,7 +2914,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTS3_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightSympatheticChain);
@@ -2215,7 +2925,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTS4_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightSympatheticChain);
@@ -2223,18 +2935,24 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTS5_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightSympatheticChain);
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTINTERNALCAROTID_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTSYMPATHETICCHAIN_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::EsophagealPlexus);
@@ -2249,18 +2967,24 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTGREATERTHORACICSPLANCHIC_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTLESSERTHORACICSPLANCHIC_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::CeliacPlexus);
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTLEASTTHORACICSPLANCHIC_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightRenalPlexus);
@@ -2270,94 +2994,138 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTRENALPLEXUS_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTINTERMESENTERICPLEXUS_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTLUMBARSPLANCHIC_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTGENITOFEMORAL_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightSaphenous);
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTOCCIPITAL_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTGREATARICULAR_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTANSACERVICALIS_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTINTERCOSTAL1_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTINTERCOSTAL2_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTINTERCOSTAL3_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTINTERCOSTAL4_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTINTERCOSTAL5_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTINTERCOSTAL6_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTINTERCOSTAL7_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTINTERCOSTAL8_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTINTERCOSTAL9_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTINTERCOSTAL10_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTINTERCOSTAL11_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTSUBCOSTAL_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTSUPRACLAVICULAR_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTPHRENIC_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTLATERALBRACHIALPLEXUS_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightMedian);
@@ -2366,7 +3134,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTPOSTERIORBRACHIALPLEXUS_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightAxillary);
@@ -2377,7 +3147,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTMEDIALBRACHIALPLEXUS_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightMedian);
@@ -2387,75 +3159,111 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTAXILLARY_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTMUSCULOCUTANEOUS_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTMEDIAN_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTRADIAL_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTULNAR_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTUPPERSUBSCAPULAR_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTLOWERSUBSCAPULAR_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTTHORACODORSAL_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTDORSALSCAPULAR_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTLONGTHORACIC_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTSUPRASCAPULAR_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTLATERALPECTORAL_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTMEDIALPECTORAL_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTMEDIALCUTANEOUS_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTILIOHYPOGASTRIC_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTILIOINGUINAL_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTOBTURATOR_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTLUMBARPLEXUS_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightFemoral);
@@ -2463,7 +3271,9 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTSACRALPLEXUS_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightSciatic);
@@ -2471,41 +3281,57 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTLATERALFEMORALCUTANEOUS_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTPOSTERIORFEMORALCUTANEOUS_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTFEMORAL_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTSCIATIC_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightCommonFibular);
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTPUDENDAL_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightInferiorRectal);
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTINFERIORRECTAL_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTSAPHENOUS_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTCOMMONFIBULAR_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightSuperficialFibular);
@@ -2514,100 +3340,130 @@ lazy_static! {
         nerve_list
         
     };
+}
 
+lazy_static! {
     static ref RIGHTSUPERFICIALFIBULAR_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTDEEPFIBULAR_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTSURAL_DOWNLINK: Vec<HumanNerve> = {
         Vec::new()
     };
+}
 
+lazy_static! {
     static ref RIGHTTIBIAL_DOWNLINK: Vec<HumanNerve> = {
         let mut nerve_list = Vec::new();
         nerve_list.push(HumanNerve::RightPlantal);
         nerve_list
         
     };
-
-    static ref RIGHTPLANTAL_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-
 }
 
 lazy_static! {
+    static ref RIGHTPLANTAL_DOWNLINK: Vec<HumanNerve> = {
+        Vec::new()
+    };
+}
 
+
+
+lazy_static! {
     static ref BRAIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cranial);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTOCCULOMOTOR_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightFacial);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTOCCULOMOTOR_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftFacial);
         region_list
     };
+}
 
+lazy_static! {
     static ref BRAINSTEM_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cranial);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTTRIGEMINAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cranial);
         region_list.insert(HumanAnatomicalRegion::LeftFacial);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTTRIGEMINAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cranial);
         region_list.insert(HumanAnatomicalRegion::RightFacial);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTFACIAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cranial);
         region_list.insert(HumanAnatomicalRegion::LeftFacial);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTFACIAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cranial);
         region_list.insert(HumanAnatomicalRegion::RightFacial);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTHYPOGLOSSAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cranial);
         region_list.insert(HumanAnatomicalRegion::LeftFacial);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTHYPOGLOSSAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cranial);
         region_list.insert(HumanAnatomicalRegion::RightFacial);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTVAGUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cranial);
@@ -2615,20 +3471,26 @@ lazy_static! {
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTSUPERIORLARYNGEAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTRECURRENTLARYNGEAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTVAGUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cranial);
@@ -2636,280 +3498,372 @@ lazy_static! {
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTSUPERIORLARYNGEAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTRECURRENTLARYNGEAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list
     };
+}
 
+lazy_static! {
     static ref ESOPHAGEALPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list
     };
+}
 
+lazy_static! {
     static ref SUPERFICIALCARDIACPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref DEEPCARDIACPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref PULMONARYPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref CELIACPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref SUPERIORMESENTERICPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref INFERIORMESENTERICPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref HYPOGASTRICPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Sacral);
         region_list
     };
+}
 
+lazy_static! {
     static ref SPINALCORD_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTSPINALACCESSORY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTSPINALACCESSORY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTC1_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTC2_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTC3_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTC4_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTC5_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTC6_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTC7_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTC8_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTT1_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTT2_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTT3_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTT4_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTT5_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTT6_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTT7_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTT8_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTT9_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTT10_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTT11_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTT12_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTL1_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Lumbar);
         region_list
     };
+}
 
+lazy_static! {
     static ref CAUDAEQUINA_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Lumbar);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTL2_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Lumbar);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTL3_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Lumbar);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTL4_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Lumbar);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTL5_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Lumbar);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTS1_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Sacral);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTS2_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Sacral);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTS3_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Sacral);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTS4_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Sacral);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTS5_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Sacral);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTINTERNALCAROTID_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list.insert(HumanAnatomicalRegion::Cranial);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTSYMPATHETICCHAIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
@@ -2919,182 +3873,240 @@ lazy_static! {
         region_list.insert(HumanAnatomicalRegion::Sacral);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTGREATERTHORACICSPLANCHIC_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTLESSERTHORACICSPLANCHIC_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTLEASTTHORACICSPLANCHIC_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTRENALPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTINTERMESENTERICPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTLUMBARSPLANCHIC_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Lumbar);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTGENITOFEMORAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Lumbar);
         region_list.insert(HumanAnatomicalRegion::LeftFemoral);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTOCCIPITAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list.insert(HumanAnatomicalRegion::Cranial);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTGREATARICULAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list.insert(HumanAnatomicalRegion::Cranial);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTANSACERVICALIS_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTINTERCOSTAL1_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTINTERCOSTAL2_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTINTERCOSTAL3_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTINTERCOSTAL4_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTINTERCOSTAL5_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTINTERCOSTAL6_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTINTERCOSTAL7_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTINTERCOSTAL8_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTINTERCOSTAL9_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTINTERCOSTAL10_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTINTERCOSTAL11_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTSUBCOSTAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTSUPRACLAVICULAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTPHRENIC_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTLATERALBRACHIALPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftScapular);
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTPOSTERIORBRACHIALPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftScapular);
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTMEDIALBRACHIALPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftScapular);
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTAXILLARY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftAxillary);
         region_list.insert(HumanAnatomicalRegion::LeftBrachial);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTMUSCULOCUTANEOUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftBrachial);
@@ -3102,7 +4114,9 @@ lazy_static! {
         region_list.insert(HumanAnatomicalRegion::LeftCarpal);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTMEDIAN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftBrachial);
@@ -3113,7 +4127,9 @@ lazy_static! {
         region_list.insert(HumanAnatomicalRegion::LeftUpperPhalangeal);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTRADIAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftBrachial);
@@ -3124,7 +4140,9 @@ lazy_static! {
         region_list.insert(HumanAnatomicalRegion::LeftUpperPhalangeal);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTULNAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftBrachial);
@@ -3135,28 +4153,36 @@ lazy_static! {
         region_list.insert(HumanAnatomicalRegion::LeftUpperPhalangeal);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTUPPERSUBSCAPULAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list.insert(HumanAnatomicalRegion::LeftScapular);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTLOWERSUBSCAPULAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list.insert(HumanAnatomicalRegion::LeftScapular);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTTHORACODORSAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTDORSALSCAPULAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
@@ -3164,78 +4190,102 @@ lazy_static! {
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTLONGTHORACIC_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTSUPRASCAPULAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftScapular);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTLATERALPECTORAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTMEDIALPECTORAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTMEDIALCUTANEOUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftAxillary);
         region_list.insert(HumanAnatomicalRegion::LeftBrachial);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTILIOHYPOGASTRIC_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Lumbar);
         region_list.insert(HumanAnatomicalRegion::LeftLowerAbdominal);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTILIOINGUINAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Lumbar);
         region_list.insert(HumanAnatomicalRegion::LeftInguinal);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTOBTURATOR_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Lumbar);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTLUMBARPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Lumbar);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTSACRALPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Sacral);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTLATERALFEMORALCUTANEOUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Lumbar);
         region_list.insert(HumanAnatomicalRegion::LeftFemoral);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTPOSTERIORFEMORALCUTANEOUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Sacral);
@@ -3243,14 +4293,18 @@ lazy_static! {
         region_list.insert(HumanAnatomicalRegion::LeftFemoral);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTFEMORAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Lumbar);
         region_list.insert(HumanAnatomicalRegion::LeftFemoral);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTSCIATIC_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Sacral);
@@ -3259,21 +4313,27 @@ lazy_static! {
         region_list.insert(HumanAnatomicalRegion::LeftPopliteal);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTPUDENDAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Sacral);
         region_list.insert(HumanAnatomicalRegion::LeftGluteal);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTINFERIORRECTAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Sacral);
         region_list.insert(HumanAnatomicalRegion::LeftGluteal);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTSAPHENOUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftFemoral);
@@ -3282,13 +4342,17 @@ lazy_static! {
         region_list.insert(HumanAnatomicalRegion::LeftTarsal);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTCOMMONFIBULAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftPopliteal);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTSUPERFICIALFIBULAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftPopliteal);
@@ -3299,7 +4363,9 @@ lazy_static! {
         region_list.insert(HumanAnatomicalRegion::LeftLowerPhalangeal);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTDEEPFIBULAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftPopliteal);
@@ -3310,7 +4376,9 @@ lazy_static! {
         region_list.insert(HumanAnatomicalRegion::LeftLowerPhalangeal);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTSURAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftPopliteal);
@@ -3319,7 +4387,9 @@ lazy_static! {
         region_list.insert(HumanAnatomicalRegion::LeftPedal);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTTIBIAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftPopliteal);
@@ -3328,200 +4398,266 @@ lazy_static! {
         region_list.insert(HumanAnatomicalRegion::LeftCalcaneal);
         region_list
     };
+}
 
+lazy_static! {
     static ref LEFTPLANTAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::LeftPlantar);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTC1_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTC2_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTC3_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTC4_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTC5_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTC6_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTC7_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTC8_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTT1_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTT2_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTT3_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTT4_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTT5_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTT6_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTT7_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTT8_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTT9_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTT10_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTT11_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTT12_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTL1_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Lumbar);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTL2_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Lumbar);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTL3_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Lumbar);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTL4_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Lumbar);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTL5_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Lumbar);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTS1_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Sacral);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTS2_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Sacral);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTS3_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Sacral);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTS4_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Sacral);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTS5_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Sacral);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTINTERNALCAROTID_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list.insert(HumanAnatomicalRegion::Cranial);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTSYMPATHETICCHAIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
@@ -3531,182 +4667,240 @@ lazy_static! {
         region_list.insert(HumanAnatomicalRegion::Sacral);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTGREATERTHORACICSPLANCHIC_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTLESSERTHORACICSPLANCHIC_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTLEASTTHORACICSPLANCHIC_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTRENALPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTINTERMESENTERICPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTLUMBARSPLANCHIC_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Lumbar);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTGENITOFEMORAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Lumbar);
         region_list.insert(HumanAnatomicalRegion::RightFemoral);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTOCCIPITAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list.insert(HumanAnatomicalRegion::Cranial);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTGREATARICULAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list.insert(HumanAnatomicalRegion::Cranial);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTANSACERVICALIS_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTINTERCOSTAL1_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTINTERCOSTAL2_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTINTERCOSTAL3_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTINTERCOSTAL4_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTINTERCOSTAL5_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTINTERCOSTAL6_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTINTERCOSTAL7_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTINTERCOSTAL8_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTINTERCOSTAL9_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTINTERCOSTAL10_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTINTERCOSTAL11_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTSUBCOSTAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTSUPRACLAVICULAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTPHRENIC_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTLATERALBRACHIALPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightScapular);
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTPOSTERIORBRACHIALPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightScapular);
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTMEDIALBRACHIALPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightScapular);
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTAXILLARY_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightAxillary);
         region_list.insert(HumanAnatomicalRegion::RightBrachial);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTMUSCULOCUTANEOUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightBrachial);
@@ -3714,7 +4908,9 @@ lazy_static! {
         region_list.insert(HumanAnatomicalRegion::RightCarpal);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTMEDIAN_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightBrachial);
@@ -3725,7 +4921,9 @@ lazy_static! {
         region_list.insert(HumanAnatomicalRegion::RightUpperPhalangeal);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTRADIAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightBrachial);
@@ -3736,7 +4934,9 @@ lazy_static! {
         region_list.insert(HumanAnatomicalRegion::RightUpperPhalangeal);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTULNAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightBrachial);
@@ -3747,28 +4947,36 @@ lazy_static! {
         region_list.insert(HumanAnatomicalRegion::RightUpperPhalangeal);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTUPPERSUBSCAPULAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list.insert(HumanAnatomicalRegion::RightScapular);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTLOWERSUBSCAPULAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list.insert(HumanAnatomicalRegion::RightScapular);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTTHORACODORSAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTDORSALSCAPULAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
@@ -3776,78 +4984,102 @@ lazy_static! {
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTLONGTHORACIC_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Cervical);
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTSUPRASCAPULAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightScapular);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTLATERALPECTORAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTMEDIALPECTORAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Thoracic);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTMEDIALCUTANEOUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightAxillary);
         region_list.insert(HumanAnatomicalRegion::RightBrachial);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTILIOHYPOGASTRIC_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Lumbar);
         region_list.insert(HumanAnatomicalRegion::RightLowerAbdominal);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTILIOINGUINAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Lumbar);
         region_list.insert(HumanAnatomicalRegion::RightInguinal);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTOBTURATOR_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Lumbar);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTLUMBARPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Lumbar);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTSACRALPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Sacral);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTLATERALFEMORALCUTANEOUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Lumbar);
         region_list.insert(HumanAnatomicalRegion::RightFemoral);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTPOSTERIORFEMORALCUTANEOUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Sacral);
@@ -3855,14 +5087,18 @@ lazy_static! {
         region_list.insert(HumanAnatomicalRegion::RightFemoral);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTFEMORAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Lumbar);
         region_list.insert(HumanAnatomicalRegion::RightFemoral);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTSCIATIC_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Sacral);
@@ -3871,21 +5107,27 @@ lazy_static! {
         region_list.insert(HumanAnatomicalRegion::RightPopliteal);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTPUDENDAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Sacral);
         region_list.insert(HumanAnatomicalRegion::RightGluteal);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTINFERIORRECTAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::Sacral);
         region_list.insert(HumanAnatomicalRegion::RightGluteal);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTSAPHENOUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightFemoral);
@@ -3894,13 +5136,17 @@ lazy_static! {
         region_list.insert(HumanAnatomicalRegion::RightTarsal);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTCOMMONFIBULAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightPopliteal);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTSUPERFICIALFIBULAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightPopliteal);
@@ -3911,7 +5157,9 @@ lazy_static! {
         region_list.insert(HumanAnatomicalRegion::RightLowerPhalangeal);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTDEEPFIBULAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightPopliteal);
@@ -3922,7 +5170,9 @@ lazy_static! {
         region_list.insert(HumanAnatomicalRegion::RightLowerPhalangeal);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTSURAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightPopliteal);
@@ -3931,7 +5181,9 @@ lazy_static! {
         region_list.insert(HumanAnatomicalRegion::RightPedal);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTTIBIAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightPopliteal);
@@ -3940,14 +5192,16 @@ lazy_static! {
         region_list.insert(HumanAnatomicalRegion::RightCalcaneal);
         region_list
     };
+}
 
+lazy_static! {
     static ref RIGHTPLANTAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
         let mut region_list = HashSet::new();
         region_list.insert(HumanAnatomicalRegion::RightPlantar);
         region_list
     };
-
 }
+
 
 impl Nerve for HumanNerve {
     type AnatomyType = HumanAnatomicalRegion;
