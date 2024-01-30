@@ -68,6 +68,7 @@ function writeCircFile(namespace, config) {
  * SOURCE: config/${namespace}/circulation.yaml
  */
 use std::collections::HashSet;
+use std::sync::OnceLock;
 use crate::sim::layer::circulation::{BloodVesselType, BloodVessel, VesselIter};
 use crate::sim::layer::AnatomicalRegionIter;
 use super::${namespaceCapitalized}AnatomicalRegion;
@@ -78,109 +79,66 @@ pub enum ${vesselEnum} {
     ${Object.keys(veins).join(',\n    ')}
 }
 
-lazy_static! {
-    static ref START_VESSELS: HashSet<${vesselEnum}> = {
-        let mut vessel_list = HashSet::new();
-        ${Object.values(arteries)
-            .filter(a => a.upstream.length == 0)
-            .map(a => `vessel_list.insert(${vesselEnum}::${a.id});`)
-            .join('\n        ')}
-        vessel_list
-    };
-}
-
-lazy_static! {
-    static ref ARTERIES: HashSet<${vesselEnum}> = {
-        let mut vessel_list = HashSet::new();
-        ${Object.values(arteries)
-            .map(a => `vessel_list.insert(${vesselEnum}::${a.id});`)
-            .join('\n        ')}
-        vessel_list
-    };
-}
-
-lazy_static! {
-    static ref VEINS: HashSet<${vesselEnum}> = {
-        let mut vessel_list = HashSet::new();
-        ${Object.values(veins)
-            .map(a => `vessel_list.insert(${vesselEnum}::${a.id});`)
-            .join('\n        ')}
-        vessel_list
-    };
-}
-
-lazy_static! {
-    static ref PRE_CAPILLARIES: HashSet<${vesselEnum}> = {
-        let mut vessel_list = HashSet::new();
-        ${Object.keys(bridges)
-            .map(v => `vessel_list.insert(${vesselEnum}::${v});`)
-            .join('\n        ')}
-        vessel_list
-    };
-}
-
-lazy_static! {
-    static ref POST_CAPILLARIES: HashSet<${vesselEnum}> = {
-        let mut vessel_list = HashSet::new();
-        ${Object.values(bridges)
-            .flat()
-            .map(v => `vessel_list.insert(${vesselEnum}::${v});`)
-            .join('\n        ')}
-        vessel_list
-    };
-}
-
+static START_VESSELS: OnceLock<HashSet<${vesselEnum}>> = OnceLock::new();
+static ARTERIES: OnceLock<HashSet<${vesselEnum}>> = OnceLock::new();
+static VEINS: OnceLock<HashSet<${vesselEnum}>> = OnceLock::new();
+static PRE_CAPILLARIES: OnceLock<HashSet<${vesselEnum}>> = OnceLock::new();
+static POST_CAPILLARIES: OnceLock<HashSet<${vesselEnum}>> = OnceLock::new();
 ${allVessels.map(v => `
-lazy_static! {
-    static ref ${v.id.toUpperCase()}_UPSTREAM: HashSet<${vesselEnum}> = {
-        ${v.upstream.length > 0 ? `let mut vessel_list = HashSet::new();
-        ${v.upstream.map(x => `vessel_list.insert(${vesselEnum}::${x});`).join('\n        ')}
-        vessel_list
-        ` :
-        `HashSet::new()`}
-    };
-}
-`).join('')}
-
-${allVessels.filter(v => v.downstream).map(v => `
-lazy_static! {
-    static ref ${v.id.toUpperCase()}_DOWNSTREAM: HashSet<${vesselEnum}> = {
-        ${v.downstream.length > 0 ? `let mut vessel_list = HashSet::new();
-        ${v.downstream.map(x => `vessel_list.insert(${vesselEnum}::${x});`).join('\n        ')}
-        vessel_list
-        ` :
-        `HashSet::new()`}
-    };
-}
-`).join('')}
-
-${allVessels.map(v => `
-lazy_static! {
-    static ref ${v.id.toUpperCase()}_REGIONS: HashSet<${anatomyEnum}> = {
-        let mut region_list = HashSet::new();
-        ${v.regions.map(x => `region_list.insert(${anatomyEnum}::${x});`).join('\n        ')}
-        region_list
-    };
-}
+static ${v.id.toUpperCase()}_UPSTREAM: OnceLock<HashSet<${vesselEnum}>> = OnceLock::new();
+static ${v.id.toUpperCase()}_DOWNSTREAM: OnceLock<HashSet<${vesselEnum}>> = OnceLock::new();
+static ${v.id.toUpperCase()}_REGIONS: OnceLock<HashSet<${namespaceCapitalized}AnatomicalRegion>> = OnceLock::new();
 `).join('')}
 
 impl BloodVessel for ${vesselEnum} {
     type AnatomyType = ${anatomyEnum};
 
     fn start_vessels<'a>() -> VesselIter<'a, Self> {
-        VesselIter(START_VESSELS.iter())
+        VesselIter(START_VESSELS.get_or_init(|| {
+            let mut vessel_list = HashSet::new();
+            ${Object.values(arteries)
+                .filter(a => a.upstream.length == 0)
+                .map(a => `vessel_list.insert(${vesselEnum}::${a.id});`)
+                .join('\n            ')}
+            vessel_list
+        }).iter())
     }
     fn arteries<'a>() -> VesselIter<'a, Self> {
-        VesselIter(ARTERIES.iter())
+        VesselIter(ARTERIES.get_or_init(|| {
+            let mut vessel_list = HashSet::new();
+            ${Object.values(arteries)
+                .map(a => `vessel_list.insert(${vesselEnum}::${a.id});`)
+                .join('\n            ')}
+            vessel_list
+        }).iter())
     }
     fn veins<'a>() -> VesselIter<'a, Self> {
-        VesselIter(VEINS.iter())
+        VesselIter(VEINS.get_or_init(|| {
+            let mut vessel_list = HashSet::new();
+            ${Object.values(veins)
+                .map(v => `vessel_list.insert(${vesselEnum}::${v.id});`)
+                .join('\n            ')}
+            vessel_list
+        }).iter())
     }
     fn pre_capillaries<'a>() -> VesselIter<'a, Self> {
-        VesselIter(PRE_CAPILLARIES.iter())
+        VesselIter(PRE_CAPILLARIES.get_or_init(|| {
+            let mut vessel_list = HashSet::new();
+            ${Object.keys(bridges)
+                .map(vid => `vessel_list.insert(${vesselEnum}::${vid});`)
+                .join('\n            ')}
+            vessel_list
+        }).iter())
     }
     fn post_capillaries<'a>() -> VesselIter<'a, Self> {
-        VesselIter(POST_CAPILLARIES.iter())
+        VesselIter(POST_CAPILLARIES.get_or_init(|| {
+            let mut vessel_list = HashSet::new();
+            ${Object.values(bridges)
+                .flat()
+                .map(vid => `vessel_list.insert(${vesselEnum}::${vid});`)
+                .join('\n            ')}
+            vessel_list
+        }).iter())
     }
     fn max_arterial_depth() -> u32 {${maxArterial}}
     fn max_venous_depth() -> u32 {${maxVenous}}
@@ -199,24 +157,42 @@ impl BloodVessel for ${vesselEnum} {
     fn upstream<'a>(&self) -> VesselIter<'a, Self> {
         match self {
             ${allVessels.map(v => `
-            ${vesselEnum}::${v.id} => VesselIter(${v.id.toUpperCase()}_UPSTREAM.iter())`
+            ${vesselEnum}::${v.id} => VesselIter(${v.id.toUpperCase()}_UPSTREAM.get_or_init(|| {
+                ${v.upstream.length ? `
+                let mut vessel_list = HashSet::new();
+                ${v.upstream.map(x => `vessel_list.insert(${vesselEnum}::${x});`).join('\n                ')}
+                vessel_list
+                ` : `HashSet::new()`
+                }
+            }).iter())`
             )}
         }
     }
     fn downstream<'a>(&self) -> VesselIter<'a, Self> {
         match self {
             ${allVessels.map(v => `
-            ${vesselEnum}::${v.id} => VesselIter(${v.id.toUpperCase()}_DOWNSTREAM.iter())`
+            ${vesselEnum}::${v.id} => VesselIter(${v.id.toUpperCase()}_DOWNSTREAM.get_or_init(|| {
+                ${v.downstream.length ? `
+                let mut vessel_list = HashSet::new();
+                ${(v.downstream || []).map(x => `vessel_list.insert(${vesselEnum}::${x});`).join('\n                ')}
+                vessel_list
+                `: `HashSet::new()`
+                }
+            }).iter())`
             )}
         }
     }
     fn regions<'a>(&self) -> AnatomicalRegionIter<Self::AnatomyType> {
         match self {
             ${allVessels.map(v => `
-            ${vesselEnum}::${v.id} => AnatomicalRegionIter(${v.id.toUpperCase()}_REGIONS.iter())`
+            ${vesselEnum}::${v.id} => AnatomicalRegionIter(${v.id.toUpperCase()}_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                ${v.regions.map(x => `region_list.insert(${namespaceCapitalized}AnatomicalRegion::${x});`).join('\n                ')}
+                region_list
+            }).iter())`
             )}
         }
     }
 }
-    `)
+`)
 }

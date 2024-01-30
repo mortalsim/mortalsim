@@ -9,17 +9,14 @@ extern crate lazy_static;
 #[macro_use]
 extern crate strum_macros;
 
-pub mod sim;
-// mod hub;
 mod spark;
 mod util;
 
+pub mod sim;
 pub mod substance;
 pub mod event;
 pub mod hub;
 pub mod units;
-// pub mod circulation;
-// pub mod human;
 
 #[cfg(test)]
 mod test {

@@ -14,24 +14,28 @@ fs.readdirSync(configPath)
     });
 
 function writeNeuralFile(namespace, config) {
-    let namespaceCapitalized = namespace.charAt(0).toUpperCase() + namespace.slice(1);
-    let nerveEnum = `${namespaceCapitalized}Nerve`;
-    let anatomyEnum = `${namespaceCapitalized}AnatomicalRegion`;
-    let nerveMap = {};
+    const namespaceCapitalized = namespace.charAt(0).toUpperCase() + namespace.slice(1);
+    const nerveEnum = `${namespaceCapitalized}Nerve`;
+    const anatomyEnum = `${namespaceCapitalized}AnatomicalRegion`;
+    const nerveMap = {};
 
-    function processNerve(entry, upstream) {
+    function processNerve(entry) {
         let nerve = {
             id: entry.id,
             regions: entry.regions,
-            uplink: upstream ? [upstream.id] : [],
+            uplink: [],
             downlink: entry.links || [],
         }
         nerveMap[entry.id] = nerve;
     }
 
     config.sections.forEach(e => processNerve(e, null, 0));
-
-    let allNerves = [...Object.values(nerveMap)];
+    const allNerves = [...Object.values(nerveMap)];
+    allNerves.forEach(n => {
+        n.downlink.forEach(did => {
+            nerveMap[did].uplink.push(n.id);
+        });
+    });
 
     fs.writeFileSync(path.join(configPath, '..', config.path), `
 /*
@@ -39,6 +43,7 @@ function writeNeuralFile(namespace, config) {
  * SOURCE: config/${namespace}/nervous_system.yaml
  */
 use std::collections::HashSet;
+use std::sync::OnceLock;
 use crate::sim::layer::nervous::{Nerve, NerveIter};
 use crate::sim::layer::AnatomicalRegionIter;
 use super::${namespaceCapitalized}AnatomicalRegion;
@@ -48,75 +53,64 @@ pub enum ${nerveEnum} {
     ${Object.keys(nerveMap).join(',\n    ')},
 }
 
-lazy_static! {
-    static ref TERMINAL_NERVES: Vec<${nerveEnum}> = {
-        let mut nerve_list = Vec::new();
-        ${allNerves
-            .filter(a => a.downlink.length == 0)
-            .map(a => `nerve_list.push(${nerveEnum}::${a.id});`)
-            .join('\n        ')}
-        nerve_list
-    };
-}
-
+static TERMINAL_NERVES: OnceLock<Vec<${nerveEnum}>> = OnceLock::new();
 ${allNerves.map(n => `
-lazy_static! {
-    static ref ${n.id.toUpperCase()}_UPLINK: Vec<${nerveEnum}> = {
-        ${n.uplink.length > 0 ? `let mut nerve_list = Vec::new();
-        ${n.uplink.map(x => `nerve_list.push(${nerveEnum}::${x});`).join('\n        ')}
-        nerve_list
-        ` :
-        `Vec::new()`}
-    };
-}
-`).join('')}
-
-${allNerves.filter(n => n.downlink).map(n => `
-lazy_static! {
-    static ref ${n.id.toUpperCase()}_DOWNLINK: Vec<${nerveEnum}> = {
-        ${n.downlink.length > 0 ? `let mut nerve_list = Vec::new();
-        ${n.downlink.map(x => `nerve_list.push(${nerveEnum}::${x});`).join('\n        ')}
-        nerve_list
-        ` :
-        `Vec::new()`}
-    };
-}
-`).join('')}
-
-${allNerves.map(n => `
-lazy_static! {
-    static ref ${n.id.toUpperCase()}_REGIONS: HashSet<${anatomyEnum}> = {
-        let mut region_list = HashSet::new();
-        ${n.regions.map(x => `region_list.insert(${anatomyEnum}::${x});`).join('\n        ')}
-        region_list
-    };
-}
+static ${n.id.toUpperCase()}_UPLINK: OnceLock<Vec<${nerveEnum}>> = OnceLock::new();
+static ${n.id.toUpperCase()}_DOWNLINK: OnceLock<Vec<${nerveEnum}>> = OnceLock::new();
+static ${n.id.toUpperCase()}_REGIONS: OnceLock<HashSet<${namespaceCapitalized}AnatomicalRegion>> = OnceLock::new();
 `).join('')}
 
 impl Nerve for ${nerveEnum} {
     type AnatomyType = ${anatomyEnum};
 
     fn terminal_nerves<'a>() -> NerveIter<'a, Self> {
-        NerveIter(TERMINAL_NERVES.iter())
+        NerveIter(TERMINAL_NERVES.get_or_init(|| {
+            let mut nerve_list = Vec::new();
+            ${allNerves
+                .filter(n => n.downlink.length == 0)
+                .map(n => `nerve_list.push(${nerveEnum}::${n.id});`)
+                .join('\n               ')}
+            nerve_list
+        }).iter())
     }
     fn uplink<'a>(&self) -> NerveIter<'a, Self> {
         match self {
-            ${allNerves.map(v => `
-            ${nerveEnum}::${v.id} => NerveIter(${v.id.toUpperCase()}_UPLINK.iter())`
+            ${allNerves.map(n => `
+            ${nerveEnum}::${n.id} => NerveIter(${n.id.toUpperCase()}_UPLINK.get_or_init(|| {
+                ${n.uplink.length ? `
+                let mut nerve_list = Vec::new();
+                ${n.uplink.map(x => `nerve_list.push(${nerveEnum}::${x});`)
+                .join('\n                ')}
+                nerve_list
+                ` : `Vec::new()`
+                }
+            }).iter())`
             )}
         }
     }
     fn downlink<'a>(&self) -> NerveIter<'a, Self> {
         match self {
-            ${allNerves.map(v => `
-            ${nerveEnum}::${v.id} => NerveIter(${v.id.toUpperCase()}_DOWNLINK.iter())`
+            ${allNerves.map(n => `
+            ${nerveEnum}::${n.id} => NerveIter(${n.id.toUpperCase()}_DOWNLINK.get_or_init(|| {
+                ${n.downlink.length ? `
+                let mut nerve_list = Vec::new();
+                ${n.downlink.map(x => `nerve_list.push(${nerveEnum}::${x});`)
+                .join('\n                ')}
+                nerve_list
+                ` : `Vec::new()`}
+            }).iter())`
             )}
         }
     }
     fn regions<'a>(&self) -> AnatomicalRegionIter<Self::AnatomyType> {
         match self {
-            ${allNerves.map(v => `
-            ${nerveEnum}::${v.id} => AnatomicalRegionIter(${v.id.toUpperCase()}_REGIONS.iter())`
+            ${allNerves.map(n => `
+            ${nerveEnum}::${n.id} => AnatomicalRegionIter(${n.id.toUpperCase()}_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                ${n.regions.map(x => `region_list.insert(${namespaceCapitalized}AnatomicalRegion::${x});`)
+                .join('\n                ')}
+                region_list
+            }).iter())`
             )}
         }
     }

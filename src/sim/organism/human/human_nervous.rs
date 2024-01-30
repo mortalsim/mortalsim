@@ -4,6 +4,7 @@
  * SOURCE: config/human/nervous_system.yaml
  */
 use std::collections::HashSet;
+use std::sync::OnceLock;
 use crate::sim::layer::nervous::{Nerve, NerveIter};
 use crate::sim::layer::AnatomicalRegionIter;
 use super::HumanAnatomicalRegion;
@@ -222,5636 +223,4947 @@ pub enum HumanNerve {
     RightPlantal,
 }
 
-lazy_static! {
-    static ref TERMINAL_NERVES: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightOcculomotor);
-        nerve_list.push(HumanNerve::LeftOcculomotor);
-        nerve_list.push(HumanNerve::LeftTrigeminal);
-        nerve_list.push(HumanNerve::RightTrigeminal);
-        nerve_list.push(HumanNerve::LeftFacial);
-        nerve_list.push(HumanNerve::RightFacial);
-        nerve_list.push(HumanNerve::LeftHypoglossal);
-        nerve_list.push(HumanNerve::RightHypoglossal);
-        nerve_list.push(HumanNerve::LeftSuperiorLaryngeal);
-        nerve_list.push(HumanNerve::LeftRecurrentLaryngeal);
-        nerve_list.push(HumanNerve::RightSuperiorLaryngeal);
-        nerve_list.push(HumanNerve::RightRecurrentLaryngeal);
-        nerve_list.push(HumanNerve::EsophagealPlexus);
-        nerve_list.push(HumanNerve::SuperficialCardiacPlexus);
-        nerve_list.push(HumanNerve::PulmonaryPlexus);
-        nerve_list.push(HumanNerve::CeliacPlexus);
-        nerve_list.push(HumanNerve::SuperiorMesentericPlexus);
-        nerve_list.push(HumanNerve::InferiorMesentericPlexus);
-        nerve_list.push(HumanNerve::HypogastricPlexus);
-        nerve_list.push(HumanNerve::LeftSpinalAccessory);
-        nerve_list.push(HumanNerve::RightSpinalAccessory);
-        nerve_list.push(HumanNerve::LeftInternalCarotid);
-        nerve_list.push(HumanNerve::LeftGreaterThoracicSplanchic);
-        nerve_list.push(HumanNerve::LeftRenalPlexus);
-        nerve_list.push(HumanNerve::LeftIntermesentericPlexus);
-        nerve_list.push(HumanNerve::LeftLumbarSplanchic);
-        nerve_list.push(HumanNerve::LeftOccipital);
-        nerve_list.push(HumanNerve::LeftGreatAricular);
-        nerve_list.push(HumanNerve::LeftAnsaCervicalis);
-        nerve_list.push(HumanNerve::LeftIntercostal1);
-        nerve_list.push(HumanNerve::LeftIntercostal2);
-        nerve_list.push(HumanNerve::LeftIntercostal3);
-        nerve_list.push(HumanNerve::LeftIntercostal4);
-        nerve_list.push(HumanNerve::LeftIntercostal5);
-        nerve_list.push(HumanNerve::LeftIntercostal6);
-        nerve_list.push(HumanNerve::LeftIntercostal7);
-        nerve_list.push(HumanNerve::LeftIntercostal8);
-        nerve_list.push(HumanNerve::LeftIntercostal9);
-        nerve_list.push(HumanNerve::LeftIntercostal10);
-        nerve_list.push(HumanNerve::LeftIntercostal11);
-        nerve_list.push(HumanNerve::LeftSubcostal);
-        nerve_list.push(HumanNerve::LeftSupraclavicular);
-        nerve_list.push(HumanNerve::LeftPhrenic);
-        nerve_list.push(HumanNerve::LeftAxillary);
-        nerve_list.push(HumanNerve::LeftMusculocutaneous);
-        nerve_list.push(HumanNerve::LeftMedian);
-        nerve_list.push(HumanNerve::LeftRadial);
-        nerve_list.push(HumanNerve::LeftUlnar);
-        nerve_list.push(HumanNerve::LeftUpperSubscapular);
-        nerve_list.push(HumanNerve::LeftLowerSubscapular);
-        nerve_list.push(HumanNerve::LeftThoracodorsal);
-        nerve_list.push(HumanNerve::LeftDorsalScapular);
-        nerve_list.push(HumanNerve::LeftLongThoracic);
-        nerve_list.push(HumanNerve::LeftSuprascapular);
-        nerve_list.push(HumanNerve::LeftLateralPectoral);
-        nerve_list.push(HumanNerve::LeftMedialPectoral);
-        nerve_list.push(HumanNerve::LeftMedialCutaneous);
-        nerve_list.push(HumanNerve::LeftIliohypogastric);
-        nerve_list.push(HumanNerve::LeftIlioInguinal);
-        nerve_list.push(HumanNerve::LeftObturator);
-        nerve_list.push(HumanNerve::LeftLateralFemoralCutaneous);
-        nerve_list.push(HumanNerve::LeftPosteriorFemoralCutaneous);
-        nerve_list.push(HumanNerve::LeftFemoral);
-        nerve_list.push(HumanNerve::LeftInferiorRectal);
-        nerve_list.push(HumanNerve::LeftSaphenous);
-        nerve_list.push(HumanNerve::LeftSuperficialFibular);
-        nerve_list.push(HumanNerve::LeftDeepFibular);
-        nerve_list.push(HumanNerve::LeftSural);
-        nerve_list.push(HumanNerve::LeftPlantal);
-        nerve_list.push(HumanNerve::RightInternalCarotid);
-        nerve_list.push(HumanNerve::RightGreaterThoracicSplanchic);
-        nerve_list.push(HumanNerve::RightRenalPlexus);
-        nerve_list.push(HumanNerve::RightIntermesentericPlexus);
-        nerve_list.push(HumanNerve::RightLumbarSplanchic);
-        nerve_list.push(HumanNerve::RightOccipital);
-        nerve_list.push(HumanNerve::RightGreatAricular);
-        nerve_list.push(HumanNerve::RightAnsaCervicalis);
-        nerve_list.push(HumanNerve::RightIntercostal1);
-        nerve_list.push(HumanNerve::RightIntercostal2);
-        nerve_list.push(HumanNerve::RightIntercostal3);
-        nerve_list.push(HumanNerve::RightIntercostal4);
-        nerve_list.push(HumanNerve::RightIntercostal5);
-        nerve_list.push(HumanNerve::RightIntercostal6);
-        nerve_list.push(HumanNerve::RightIntercostal7);
-        nerve_list.push(HumanNerve::RightIntercostal8);
-        nerve_list.push(HumanNerve::RightIntercostal9);
-        nerve_list.push(HumanNerve::RightIntercostal10);
-        nerve_list.push(HumanNerve::RightIntercostal11);
-        nerve_list.push(HumanNerve::RightSubcostal);
-        nerve_list.push(HumanNerve::RightSupraclavicular);
-        nerve_list.push(HumanNerve::RightPhrenic);
-        nerve_list.push(HumanNerve::RightAxillary);
-        nerve_list.push(HumanNerve::RightMusculocutaneous);
-        nerve_list.push(HumanNerve::RightMedian);
-        nerve_list.push(HumanNerve::RightRadial);
-        nerve_list.push(HumanNerve::RightUlnar);
-        nerve_list.push(HumanNerve::RightUpperSubscapular);
-        nerve_list.push(HumanNerve::RightLowerSubscapular);
-        nerve_list.push(HumanNerve::RightThoracodorsal);
-        nerve_list.push(HumanNerve::RightDorsalScapular);
-        nerve_list.push(HumanNerve::RightLongThoracic);
-        nerve_list.push(HumanNerve::RightSuprascapular);
-        nerve_list.push(HumanNerve::RightLateralPectoral);
-        nerve_list.push(HumanNerve::RightMedialPectoral);
-        nerve_list.push(HumanNerve::RightMedialCutaneous);
-        nerve_list.push(HumanNerve::RightIliohypogastric);
-        nerve_list.push(HumanNerve::RightIlioInguinal);
-        nerve_list.push(HumanNerve::RightObturator);
-        nerve_list.push(HumanNerve::RightLateralFemoralCutaneous);
-        nerve_list.push(HumanNerve::RightPosteriorFemoralCutaneous);
-        nerve_list.push(HumanNerve::RightFemoral);
-        nerve_list.push(HumanNerve::RightInferiorRectal);
-        nerve_list.push(HumanNerve::RightSaphenous);
-        nerve_list.push(HumanNerve::RightSuperficialFibular);
-        nerve_list.push(HumanNerve::RightDeepFibular);
-        nerve_list.push(HumanNerve::RightSural);
-        nerve_list.push(HumanNerve::RightPlantal);
-        nerve_list
-    };
-}
-
-
-lazy_static! {
-    static ref BRAIN_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTOCCULOMOTOR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTOCCULOMOTOR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref BRAINSTEM_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTTRIGEMINAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTTRIGEMINAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTFACIAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTFACIAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTHYPOGLOSSAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTHYPOGLOSSAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTVAGUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTSUPERIORLARYNGEAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTRECURRENTLARYNGEAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTVAGUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTSUPERIORLARYNGEAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTRECURRENTLARYNGEAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref ESOPHAGEALPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref SUPERFICIALCARDIACPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref DEEPCARDIACPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref PULMONARYPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref CELIACPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref SUPERIORMESENTERICPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref INFERIORMESENTERICPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref HYPOGASTRICPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref SPINALCORD_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTSPINALACCESSORY_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTSPINALACCESSORY_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTC1_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTC2_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTC3_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTC4_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTC5_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTC6_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTC7_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTC8_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTT1_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTT2_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTT3_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTT4_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTT5_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTT6_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTT7_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTT8_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTT9_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTT10_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTT11_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTT12_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTL1_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref CAUDAEQUINA_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTL2_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTL3_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTL4_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTL5_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTS1_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTS2_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTS3_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTS4_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTS5_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERNALCAROTID_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTSYMPATHETICCHAIN_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTGREATERTHORACICSPLANCHIC_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTLESSERTHORACICSPLANCHIC_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTLEASTTHORACICSPLANCHIC_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTRENALPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERMESENTERICPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTLUMBARSPLANCHIC_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTGENITOFEMORAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTOCCIPITAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTGREATARICULAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTANSACERVICALIS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERCOSTAL1_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERCOSTAL2_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERCOSTAL3_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERCOSTAL4_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERCOSTAL5_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERCOSTAL6_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERCOSTAL7_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERCOSTAL8_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERCOSTAL9_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERCOSTAL10_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERCOSTAL11_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTSUBCOSTAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTSUPRACLAVICULAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTPHRENIC_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTLATERALBRACHIALPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTPOSTERIORBRACHIALPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTMEDIALBRACHIALPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTAXILLARY_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTMUSCULOCUTANEOUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTMEDIAN_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTRADIAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTULNAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTUPPERSUBSCAPULAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTLOWERSUBSCAPULAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTTHORACODORSAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTDORSALSCAPULAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTLONGTHORACIC_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTSUPRASCAPULAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTLATERALPECTORAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTMEDIALPECTORAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTMEDIALCUTANEOUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTILIOHYPOGASTRIC_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTILIOINGUINAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTOBTURATOR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTLUMBARPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTSACRALPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTLATERALFEMORALCUTANEOUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTPOSTERIORFEMORALCUTANEOUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTFEMORAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTSCIATIC_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTPUDENDAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTINFERIORRECTAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTSAPHENOUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTCOMMONFIBULAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTSUPERFICIALFIBULAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTDEEPFIBULAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTSURAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTTIBIAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTPLANTAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTC1_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTC2_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTC3_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTC4_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTC5_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTC6_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTC7_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTC8_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTT1_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTT2_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTT3_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTT4_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTT5_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTT6_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTT7_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTT8_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTT9_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTT10_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTT11_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTT12_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTL1_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTL2_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTL3_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTL4_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTL5_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTS1_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTS2_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTS3_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTS4_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTS5_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERNALCAROTID_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTSYMPATHETICCHAIN_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTGREATERTHORACICSPLANCHIC_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTLESSERTHORACICSPLANCHIC_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTLEASTTHORACICSPLANCHIC_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTRENALPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERMESENTERICPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTLUMBARSPLANCHIC_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTGENITOFEMORAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTOCCIPITAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTGREATARICULAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTANSACERVICALIS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERCOSTAL1_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERCOSTAL2_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERCOSTAL3_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERCOSTAL4_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERCOSTAL5_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERCOSTAL6_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERCOSTAL7_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERCOSTAL8_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERCOSTAL9_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERCOSTAL10_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERCOSTAL11_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTSUBCOSTAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTSUPRACLAVICULAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTPHRENIC_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTLATERALBRACHIALPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTPOSTERIORBRACHIALPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTMEDIALBRACHIALPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTAXILLARY_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTMUSCULOCUTANEOUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTMEDIAN_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTRADIAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTULNAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTUPPERSUBSCAPULAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTLOWERSUBSCAPULAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTTHORACODORSAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTDORSALSCAPULAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTLONGTHORACIC_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTSUPRASCAPULAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTLATERALPECTORAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTMEDIALPECTORAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTMEDIALCUTANEOUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTILIOHYPOGASTRIC_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTILIOINGUINAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTOBTURATOR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTLUMBARPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTSACRALPLEXUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTLATERALFEMORALCUTANEOUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTPOSTERIORFEMORALCUTANEOUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTFEMORAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTSCIATIC_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTPUDENDAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINFERIORRECTAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTSAPHENOUS_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTCOMMONFIBULAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTSUPERFICIALFIBULAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTDEEPFIBULAR_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTSURAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTTIBIAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTPLANTAL_UPLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-
-
-lazy_static! {
-    static ref BRAIN_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightOcculomotor);
-        nerve_list.push(HumanNerve::LeftOcculomotor);
-        nerve_list.push(HumanNerve::Brainstem);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTOCCULOMOTOR_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTOCCULOMOTOR_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref BRAINSTEM_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftTrigeminal);
-        nerve_list.push(HumanNerve::RightTrigeminal);
-        nerve_list.push(HumanNerve::LeftFacial);
-        nerve_list.push(HumanNerve::RightFacial);
-        nerve_list.push(HumanNerve::LeftHypoglossal);
-        nerve_list.push(HumanNerve::RightHypoglossal);
-        nerve_list.push(HumanNerve::LeftVagus);
-        nerve_list.push(HumanNerve::RightVagus);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTTRIGEMINAL_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTTRIGEMINAL_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTFACIAL_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTFACIAL_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTHYPOGLOSSAL_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTHYPOGLOSSAL_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTVAGUS_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftSuperiorLaryngeal);
-        nerve_list.push(HumanNerve::LeftRecurrentLaryngeal);
-        nerve_list.push(HumanNerve::EsophagealPlexus);
-        nerve_list.push(HumanNerve::PulmonaryPlexus);
-        nerve_list.push(HumanNerve::CeliacPlexus);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTSUPERIORLARYNGEAL_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTRECURRENTLARYNGEAL_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTVAGUS_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightSuperiorLaryngeal);
-        nerve_list.push(HumanNerve::RightRecurrentLaryngeal);
-        nerve_list.push(HumanNerve::EsophagealPlexus);
-        nerve_list.push(HumanNerve::PulmonaryPlexus);
-        nerve_list.push(HumanNerve::CeliacPlexus);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTSUPERIORLARYNGEAL_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTRECURRENTLARYNGEAL_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref ESOPHAGEALPLEXUS_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref SUPERFICIALCARDIACPLEXUS_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref DEEPCARDIACPLEXUS_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::PulmonaryPlexus);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref PULMONARYPLEXUS_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref CELIACPLEXUS_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref SUPERIORMESENTERICPLEXUS_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref INFERIORMESENTERICPLEXUS_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref HYPOGASTRICPLEXUS_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref SPINALCORD_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftSpinalAccessory);
-        nerve_list.push(HumanNerve::RightSpinalAccessory);
-        nerve_list.push(HumanNerve::LeftC1);
-        nerve_list.push(HumanNerve::RightC1);
-        nerve_list.push(HumanNerve::LeftC2);
-        nerve_list.push(HumanNerve::RightC2);
-        nerve_list.push(HumanNerve::LeftC3);
-        nerve_list.push(HumanNerve::RightC3);
-        nerve_list.push(HumanNerve::LeftC4);
-        nerve_list.push(HumanNerve::RightC4);
-        nerve_list.push(HumanNerve::LeftC5);
-        nerve_list.push(HumanNerve::RightC5);
-        nerve_list.push(HumanNerve::LeftC6);
-        nerve_list.push(HumanNerve::RightC6);
-        nerve_list.push(HumanNerve::LeftC7);
-        nerve_list.push(HumanNerve::RightC7);
-        nerve_list.push(HumanNerve::LeftC8);
-        nerve_list.push(HumanNerve::RightC8);
-        nerve_list.push(HumanNerve::LeftT1);
-        nerve_list.push(HumanNerve::RightT1);
-        nerve_list.push(HumanNerve::LeftT2);
-        nerve_list.push(HumanNerve::RightT2);
-        nerve_list.push(HumanNerve::LeftT3);
-        nerve_list.push(HumanNerve::RightT3);
-        nerve_list.push(HumanNerve::LeftT4);
-        nerve_list.push(HumanNerve::RightT4);
-        nerve_list.push(HumanNerve::LeftT5);
-        nerve_list.push(HumanNerve::RightT5);
-        nerve_list.push(HumanNerve::LeftT6);
-        nerve_list.push(HumanNerve::RightT6);
-        nerve_list.push(HumanNerve::LeftT7);
-        nerve_list.push(HumanNerve::RightT7);
-        nerve_list.push(HumanNerve::LeftT8);
-        nerve_list.push(HumanNerve::RightT8);
-        nerve_list.push(HumanNerve::LeftT9);
-        nerve_list.push(HumanNerve::RightT9);
-        nerve_list.push(HumanNerve::LeftT10);
-        nerve_list.push(HumanNerve::RightT10);
-        nerve_list.push(HumanNerve::LeftT11);
-        nerve_list.push(HumanNerve::RightT11);
-        nerve_list.push(HumanNerve::LeftT12);
-        nerve_list.push(HumanNerve::RightT12);
-        nerve_list.push(HumanNerve::LeftL1);
-        nerve_list.push(HumanNerve::RightL1);
-        nerve_list.push(HumanNerve::CaudaEquina);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTSPINALACCESSORY_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTSPINALACCESSORY_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTC1_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftInternalCarotid);
-        nerve_list.push(HumanNerve::LeftSympatheticChain);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTC2_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftSympatheticChain);
-        nerve_list.push(HumanNerve::LeftOccipital);
-        nerve_list.push(HumanNerve::LeftGreatAricular);
-        nerve_list.push(HumanNerve::LeftAnsaCervicalis);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTC3_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftSympatheticChain);
-        nerve_list.push(HumanNerve::LeftGreatAricular);
-        nerve_list.push(HumanNerve::LeftSupraclavicular);
-        nerve_list.push(HumanNerve::LeftPhrenic);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTC4_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftSympatheticChain);
-        nerve_list.push(HumanNerve::LeftSupraclavicular);
-        nerve_list.push(HumanNerve::LeftPhrenic);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTC5_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftSympatheticChain);
-        nerve_list.push(HumanNerve::LeftPhrenic);
-        nerve_list.push(HumanNerve::LeftLateralBrachialPlexus);
-        nerve_list.push(HumanNerve::LeftPosteriorBrachialPlexus);
-        nerve_list.push(HumanNerve::LeftDorsalScapular);
-        nerve_list.push(HumanNerve::LeftSuprascapular);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTC6_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftSympatheticChain);
-        nerve_list.push(HumanNerve::LeftThoracodorsal);
-        nerve_list.push(HumanNerve::LeftLateralBrachialPlexus);
-        nerve_list.push(HumanNerve::LeftPosteriorBrachialPlexus);
-        nerve_list.push(HumanNerve::LeftSuprascapular);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTC7_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftSympatheticChain);
-        nerve_list.push(HumanNerve::LeftThoracodorsal);
-        nerve_list.push(HumanNerve::LeftLateralBrachialPlexus);
-        nerve_list.push(HumanNerve::LeftPosteriorBrachialPlexus);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTC8_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftSympatheticChain);
-        nerve_list.push(HumanNerve::LeftThoracodorsal);
-        nerve_list.push(HumanNerve::LeftPosteriorBrachialPlexus);
-        nerve_list.push(HumanNerve::LeftMedialBrachialPlexus);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTT1_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftSympatheticChain);
-        nerve_list.push(HumanNerve::LeftIntercostal1);
-        nerve_list.push(HumanNerve::LeftMedialBrachialPlexus);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTT2_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftSympatheticChain);
-        nerve_list.push(HumanNerve::LeftIntercostal2);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTT3_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftSympatheticChain);
-        nerve_list.push(HumanNerve::LeftIntercostal3);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTT4_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftSympatheticChain);
-        nerve_list.push(HumanNerve::LeftIntercostal4);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTT5_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftSympatheticChain);
-        nerve_list.push(HumanNerve::LeftIntercostal5);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTT6_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftSympatheticChain);
-        nerve_list.push(HumanNerve::LeftIntercostal6);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTT7_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftSympatheticChain);
-        nerve_list.push(HumanNerve::LeftIntercostal7);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTT8_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftSympatheticChain);
-        nerve_list.push(HumanNerve::LeftIntercostal8);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTT9_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftSympatheticChain);
-        nerve_list.push(HumanNerve::LeftIntercostal9);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTT10_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftSympatheticChain);
-        nerve_list.push(HumanNerve::LeftIntercostal10);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTT11_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftSympatheticChain);
-        nerve_list.push(HumanNerve::LeftIntercostal11);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTT12_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftSympatheticChain);
-        nerve_list.push(HumanNerve::LeftSubcostal);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTL1_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftSympatheticChain);
-        nerve_list.push(HumanNerve::LeftIliohypogastric);
-        nerve_list.push(HumanNerve::LeftIlioInguinal);
-        nerve_list.push(HumanNerve::LeftGenitofemoral);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref CAUDAEQUINA_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightL2);
-        nerve_list.push(HumanNerve::RightL3);
-        nerve_list.push(HumanNerve::RightL4);
-        nerve_list.push(HumanNerve::RightL5);
-        nerve_list.push(HumanNerve::RightS1);
-        nerve_list.push(HumanNerve::RightS2);
-        nerve_list.push(HumanNerve::RightS3);
-        nerve_list.push(HumanNerve::RightS4);
-        nerve_list.push(HumanNerve::RightS5);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTL2_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftSympatheticChain);
-        nerve_list.push(HumanNerve::LeftLumbarPlexus);
-        nerve_list.push(HumanNerve::LeftGenitofemoral);
-        nerve_list.push(HumanNerve::LeftObturator);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTL3_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftSympatheticChain);
-        nerve_list.push(HumanNerve::LeftLumbarPlexus);
-        nerve_list.push(HumanNerve::LeftObturator);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTL4_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftSympatheticChain);
-        nerve_list.push(HumanNerve::LeftLumbarPlexus);
-        nerve_list.push(HumanNerve::LeftSacralPlexus);
-        nerve_list.push(HumanNerve::LeftObturator);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTL5_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftSympatheticChain);
-        nerve_list.push(HumanNerve::LeftSacralPlexus);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTS1_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftSympatheticChain);
-        nerve_list.push(HumanNerve::LeftSacralPlexus);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTS2_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftSympatheticChain);
-        nerve_list.push(HumanNerve::LeftSacralPlexus);
-        nerve_list.push(HumanNerve::LeftPudendal);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTS3_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftSympatheticChain);
-        nerve_list.push(HumanNerve::LeftSacralPlexus);
-        nerve_list.push(HumanNerve::LeftPudendal);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTS4_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftSympatheticChain);
-        nerve_list.push(HumanNerve::LeftPudendal);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTS5_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftSympatheticChain);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERNALCAROTID_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTSYMPATHETICCHAIN_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::EsophagealPlexus);
-        nerve_list.push(HumanNerve::SuperficialCardiacPlexus);
-        nerve_list.push(HumanNerve::DeepCardiacPlexus);
-        nerve_list.push(HumanNerve::PulmonaryPlexus);
-        nerve_list.push(HumanNerve::LeftGreaterThoracicSplanchic);
-        nerve_list.push(HumanNerve::LeftLesserThoracicSplanchic);
-        nerve_list.push(HumanNerve::LeftLeastThoracicSplanchic);
-        nerve_list.push(HumanNerve::LeftLumbarSplanchic);
-        nerve_list.push(HumanNerve::HypogastricPlexus);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTGREATERTHORACICSPLANCHIC_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTLESSERTHORACICSPLANCHIC_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::CeliacPlexus);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTLEASTTHORACICSPLANCHIC_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftRenalPlexus);
-        nerve_list.push(HumanNerve::SuperiorMesentericPlexus);
-        nerve_list.push(HumanNerve::LeftIntermesentericPlexus);
-        nerve_list.push(HumanNerve::InferiorMesentericPlexus);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTRENALPLEXUS_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERMESENTERICPLEXUS_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTLUMBARSPLANCHIC_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTGENITOFEMORAL_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftSaphenous);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTOCCIPITAL_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTGREATARICULAR_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTANSACERVICALIS_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERCOSTAL1_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERCOSTAL2_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERCOSTAL3_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERCOSTAL4_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERCOSTAL5_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERCOSTAL6_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERCOSTAL7_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERCOSTAL8_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERCOSTAL9_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERCOSTAL10_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERCOSTAL11_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTSUBCOSTAL_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTSUPRACLAVICULAR_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTPHRENIC_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTLATERALBRACHIALPLEXUS_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftMedian);
-        nerve_list.push(HumanNerve::LeftMusculocutaneous);
-        nerve_list.push(HumanNerve::LeftLateralPectoral);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTPOSTERIORBRACHIALPLEXUS_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftAxillary);
-        nerve_list.push(HumanNerve::LeftRadial);
-        nerve_list.push(HumanNerve::LeftUpperSubscapular);
-        nerve_list.push(HumanNerve::LeftThoracodorsal);
-        nerve_list.push(HumanNerve::LeftLowerSubscapular);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTMEDIALBRACHIALPLEXUS_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftMedian);
-        nerve_list.push(HumanNerve::LeftUlnar);
-        nerve_list.push(HumanNerve::LeftMedialPectoral);
-        nerve_list.push(HumanNerve::LeftMedialCutaneous);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTAXILLARY_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTMUSCULOCUTANEOUS_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTMEDIAN_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTRADIAL_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTULNAR_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTUPPERSUBSCAPULAR_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTLOWERSUBSCAPULAR_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTTHORACODORSAL_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTDORSALSCAPULAR_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTLONGTHORACIC_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTSUPRASCAPULAR_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTLATERALPECTORAL_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTMEDIALPECTORAL_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTMEDIALCUTANEOUS_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTILIOHYPOGASTRIC_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTILIOINGUINAL_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTOBTURATOR_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTLUMBARPLEXUS_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftFemoral);
-        nerve_list.push(HumanNerve::LeftLateralFemoralCutaneous);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTSACRALPLEXUS_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftSciatic);
-        nerve_list.push(HumanNerve::LeftPosteriorFemoralCutaneous);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTLATERALFEMORALCUTANEOUS_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTPOSTERIORFEMORALCUTANEOUS_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTFEMORAL_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTSCIATIC_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftCommonFibular);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTPUDENDAL_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftInferiorRectal);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTINFERIORRECTAL_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTSAPHENOUS_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTCOMMONFIBULAR_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftSuperficialFibular);
-        nerve_list.push(HumanNerve::LeftDeepFibular);
-        nerve_list.push(HumanNerve::LeftSural);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTSUPERFICIALFIBULAR_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTDEEPFIBULAR_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTSURAL_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref LEFTTIBIAL_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::LeftPlantal);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref LEFTPLANTAL_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTC1_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightInternalCarotid);
-        nerve_list.push(HumanNerve::RightSympatheticChain);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTC2_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightSympatheticChain);
-        nerve_list.push(HumanNerve::RightOccipital);
-        nerve_list.push(HumanNerve::RightGreatAricular);
-        nerve_list.push(HumanNerve::RightAnsaCervicalis);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTC3_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightSympatheticChain);
-        nerve_list.push(HumanNerve::RightGreatAricular);
-        nerve_list.push(HumanNerve::RightSupraclavicular);
-        nerve_list.push(HumanNerve::RightPhrenic);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTC4_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightSympatheticChain);
-        nerve_list.push(HumanNerve::RightSupraclavicular);
-        nerve_list.push(HumanNerve::RightPhrenic);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTC5_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightSympatheticChain);
-        nerve_list.push(HumanNerve::RightPhrenic);
-        nerve_list.push(HumanNerve::RightLateralBrachialPlexus);
-        nerve_list.push(HumanNerve::RightPosteriorBrachialPlexus);
-        nerve_list.push(HumanNerve::RightDorsalScapular);
-        nerve_list.push(HumanNerve::RightSuprascapular);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTC6_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightSympatheticChain);
-        nerve_list.push(HumanNerve::RightThoracodorsal);
-        nerve_list.push(HumanNerve::RightLateralBrachialPlexus);
-        nerve_list.push(HumanNerve::RightPosteriorBrachialPlexus);
-        nerve_list.push(HumanNerve::RightSuprascapular);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTC7_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightSympatheticChain);
-        nerve_list.push(HumanNerve::RightThoracodorsal);
-        nerve_list.push(HumanNerve::RightLateralBrachialPlexus);
-        nerve_list.push(HumanNerve::RightPosteriorBrachialPlexus);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTC8_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightSympatheticChain);
-        nerve_list.push(HumanNerve::RightThoracodorsal);
-        nerve_list.push(HumanNerve::RightPosteriorBrachialPlexus);
-        nerve_list.push(HumanNerve::RightMedialBrachialPlexus);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTT1_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightSympatheticChain);
-        nerve_list.push(HumanNerve::RightIntercostal1);
-        nerve_list.push(HumanNerve::RightMedialBrachialPlexus);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTT2_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightSympatheticChain);
-        nerve_list.push(HumanNerve::RightIntercostal2);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTT3_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightSympatheticChain);
-        nerve_list.push(HumanNerve::RightIntercostal3);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTT4_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightSympatheticChain);
-        nerve_list.push(HumanNerve::RightIntercostal4);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTT5_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightSympatheticChain);
-        nerve_list.push(HumanNerve::RightIntercostal5);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTT6_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightSympatheticChain);
-        nerve_list.push(HumanNerve::RightIntercostal6);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTT7_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightSympatheticChain);
-        nerve_list.push(HumanNerve::RightIntercostal7);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTT8_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightSympatheticChain);
-        nerve_list.push(HumanNerve::RightIntercostal8);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTT9_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightSympatheticChain);
-        nerve_list.push(HumanNerve::RightIntercostal9);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTT10_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightSympatheticChain);
-        nerve_list.push(HumanNerve::RightIntercostal10);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTT11_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightSympatheticChain);
-        nerve_list.push(HumanNerve::RightIntercostal11);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTT12_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightSympatheticChain);
-        nerve_list.push(HumanNerve::RightSubcostal);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTL1_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightSympatheticChain);
-        nerve_list.push(HumanNerve::RightIliohypogastric);
-        nerve_list.push(HumanNerve::RightIlioInguinal);
-        nerve_list.push(HumanNerve::RightGenitofemoral);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTL2_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightSympatheticChain);
-        nerve_list.push(HumanNerve::RightLumbarPlexus);
-        nerve_list.push(HumanNerve::RightGenitofemoral);
-        nerve_list.push(HumanNerve::RightObturator);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTL3_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightSympatheticChain);
-        nerve_list.push(HumanNerve::RightLumbarPlexus);
-        nerve_list.push(HumanNerve::RightObturator);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTL4_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightSympatheticChain);
-        nerve_list.push(HumanNerve::RightLumbarPlexus);
-        nerve_list.push(HumanNerve::RightSacralPlexus);
-        nerve_list.push(HumanNerve::RightObturator);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTL5_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightSympatheticChain);
-        nerve_list.push(HumanNerve::RightSacralPlexus);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTS1_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightSympatheticChain);
-        nerve_list.push(HumanNerve::RightSacralPlexus);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTS2_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightSympatheticChain);
-        nerve_list.push(HumanNerve::RightSacralPlexus);
-        nerve_list.push(HumanNerve::RightPudendal);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTS3_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightSympatheticChain);
-        nerve_list.push(HumanNerve::RightSacralPlexus);
-        nerve_list.push(HumanNerve::RightPudendal);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTS4_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightSympatheticChain);
-        nerve_list.push(HumanNerve::RightPudendal);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTS5_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightSympatheticChain);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERNALCAROTID_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTSYMPATHETICCHAIN_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::EsophagealPlexus);
-        nerve_list.push(HumanNerve::SuperficialCardiacPlexus);
-        nerve_list.push(HumanNerve::DeepCardiacPlexus);
-        nerve_list.push(HumanNerve::PulmonaryPlexus);
-        nerve_list.push(HumanNerve::RightGreaterThoracicSplanchic);
-        nerve_list.push(HumanNerve::RightLesserThoracicSplanchic);
-        nerve_list.push(HumanNerve::RightLeastThoracicSplanchic);
-        nerve_list.push(HumanNerve::RightLumbarSplanchic);
-        nerve_list.push(HumanNerve::HypogastricPlexus);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTGREATERTHORACICSPLANCHIC_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTLESSERTHORACICSPLANCHIC_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::CeliacPlexus);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTLEASTTHORACICSPLANCHIC_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightRenalPlexus);
-        nerve_list.push(HumanNerve::SuperiorMesentericPlexus);
-        nerve_list.push(HumanNerve::RightIntermesentericPlexus);
-        nerve_list.push(HumanNerve::InferiorMesentericPlexus);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTRENALPLEXUS_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERMESENTERICPLEXUS_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTLUMBARSPLANCHIC_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTGENITOFEMORAL_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightSaphenous);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTOCCIPITAL_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTGREATARICULAR_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTANSACERVICALIS_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERCOSTAL1_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERCOSTAL2_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERCOSTAL3_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERCOSTAL4_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERCOSTAL5_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERCOSTAL6_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERCOSTAL7_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERCOSTAL8_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERCOSTAL9_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERCOSTAL10_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERCOSTAL11_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTSUBCOSTAL_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTSUPRACLAVICULAR_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTPHRENIC_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTLATERALBRACHIALPLEXUS_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightMedian);
-        nerve_list.push(HumanNerve::RightMusculocutaneous);
-        nerve_list.push(HumanNerve::RightLateralPectoral);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTPOSTERIORBRACHIALPLEXUS_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightAxillary);
-        nerve_list.push(HumanNerve::RightRadial);
-        nerve_list.push(HumanNerve::RightUpperSubscapular);
-        nerve_list.push(HumanNerve::RightThoracodorsal);
-        nerve_list.push(HumanNerve::RightLowerSubscapular);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTMEDIALBRACHIALPLEXUS_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightMedian);
-        nerve_list.push(HumanNerve::RightUlnar);
-        nerve_list.push(HumanNerve::RightMedialPectoral);
-        nerve_list.push(HumanNerve::RightMedialCutaneous);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTAXILLARY_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTMUSCULOCUTANEOUS_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTMEDIAN_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTRADIAL_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTULNAR_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTUPPERSUBSCAPULAR_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTLOWERSUBSCAPULAR_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTTHORACODORSAL_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTDORSALSCAPULAR_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTLONGTHORACIC_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTSUPRASCAPULAR_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTLATERALPECTORAL_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTMEDIALPECTORAL_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTMEDIALCUTANEOUS_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTILIOHYPOGASTRIC_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTILIOINGUINAL_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTOBTURATOR_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTLUMBARPLEXUS_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightFemoral);
-        nerve_list.push(HumanNerve::RightLateralFemoralCutaneous);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTSACRALPLEXUS_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightSciatic);
-        nerve_list.push(HumanNerve::RightPosteriorFemoralCutaneous);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTLATERALFEMORALCUTANEOUS_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTPOSTERIORFEMORALCUTANEOUS_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTFEMORAL_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTSCIATIC_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightCommonFibular);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTPUDENDAL_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightInferiorRectal);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINFERIORRECTAL_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTSAPHENOUS_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTCOMMONFIBULAR_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightSuperficialFibular);
-        nerve_list.push(HumanNerve::RightDeepFibular);
-        nerve_list.push(HumanNerve::RightSural);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTSUPERFICIALFIBULAR_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTDEEPFIBULAR_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTSURAL_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-lazy_static! {
-    static ref RIGHTTIBIAL_DOWNLINK: Vec<HumanNerve> = {
-        let mut nerve_list = Vec::new();
-        nerve_list.push(HumanNerve::RightPlantal);
-        nerve_list
-        
-    };
-}
-
-lazy_static! {
-    static ref RIGHTPLANTAL_DOWNLINK: Vec<HumanNerve> = {
-        Vec::new()
-    };
-}
-
-
-
-lazy_static! {
-    static ref BRAIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cranial);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTOCCULOMOTOR_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::RightFacial);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTOCCULOMOTOR_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::LeftFacial);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref BRAINSTEM_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cranial);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTTRIGEMINAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cranial);
-        region_list.insert(HumanAnatomicalRegion::LeftFacial);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTTRIGEMINAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cranial);
-        region_list.insert(HumanAnatomicalRegion::RightFacial);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTFACIAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cranial);
-        region_list.insert(HumanAnatomicalRegion::LeftFacial);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTFACIAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cranial);
-        region_list.insert(HumanAnatomicalRegion::RightFacial);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTHYPOGLOSSAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cranial);
-        region_list.insert(HumanAnatomicalRegion::LeftFacial);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTHYPOGLOSSAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cranial);
-        region_list.insert(HumanAnatomicalRegion::RightFacial);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTVAGUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cranial);
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTSUPERIORLARYNGEAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTRECURRENTLARYNGEAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTVAGUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cranial);
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTSUPERIORLARYNGEAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTRECURRENTLARYNGEAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref ESOPHAGEALPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref SUPERFICIALCARDIACPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref DEEPCARDIACPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref PULMONARYPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref CELIACPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref SUPERIORMESENTERICPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref INFERIORMESENTERICPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref HYPOGASTRICPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Sacral);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref SPINALCORD_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTSPINALACCESSORY_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTSPINALACCESSORY_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTC1_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTC2_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTC3_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTC4_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTC5_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTC6_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTC7_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTC8_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTT1_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTT2_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTT3_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTT4_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTT5_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTT6_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTT7_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTT8_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTT9_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTT10_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTT11_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTT12_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTL1_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Lumbar);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref CAUDAEQUINA_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Lumbar);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTL2_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Lumbar);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTL3_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Lumbar);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTL4_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Lumbar);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTL5_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Lumbar);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTS1_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Sacral);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTS2_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Sacral);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTS3_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Sacral);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTS4_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Sacral);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTS5_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Sacral);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERNALCAROTID_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list.insert(HumanAnatomicalRegion::Cranial);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTSYMPATHETICCHAIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list.insert(HumanAnatomicalRegion::Cranial);
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list.insert(HumanAnatomicalRegion::Lumbar);
-        region_list.insert(HumanAnatomicalRegion::Sacral);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTGREATERTHORACICSPLANCHIC_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTLESSERTHORACICSPLANCHIC_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTLEASTTHORACICSPLANCHIC_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTRENALPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERMESENTERICPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTLUMBARSPLANCHIC_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Lumbar);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTGENITOFEMORAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Lumbar);
-        region_list.insert(HumanAnatomicalRegion::LeftFemoral);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTOCCIPITAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list.insert(HumanAnatomicalRegion::Cranial);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTGREATARICULAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list.insert(HumanAnatomicalRegion::Cranial);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTANSACERVICALIS_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERCOSTAL1_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERCOSTAL2_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERCOSTAL3_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERCOSTAL4_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERCOSTAL5_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERCOSTAL6_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERCOSTAL7_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERCOSTAL8_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERCOSTAL9_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERCOSTAL10_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTINTERCOSTAL11_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTSUBCOSTAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTSUPRACLAVICULAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTPHRENIC_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTLATERALBRACHIALPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::LeftScapular);
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTPOSTERIORBRACHIALPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::LeftScapular);
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTMEDIALBRACHIALPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::LeftScapular);
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTAXILLARY_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::LeftAxillary);
-        region_list.insert(HumanAnatomicalRegion::LeftBrachial);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTMUSCULOCUTANEOUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::LeftBrachial);
-        region_list.insert(HumanAnatomicalRegion::LeftAntebrachial);
-        region_list.insert(HumanAnatomicalRegion::LeftCarpal);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTMEDIAN_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::LeftBrachial);
-        region_list.insert(HumanAnatomicalRegion::LeftAntebrachial);
-        region_list.insert(HumanAnatomicalRegion::LeftCarpal);
-        region_list.insert(HumanAnatomicalRegion::LeftPalmar);
-        region_list.insert(HumanAnatomicalRegion::LeftManus);
-        region_list.insert(HumanAnatomicalRegion::LeftUpperPhalangeal);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTRADIAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::LeftBrachial);
-        region_list.insert(HumanAnatomicalRegion::LeftAntebrachial);
-        region_list.insert(HumanAnatomicalRegion::LeftCarpal);
-        region_list.insert(HumanAnatomicalRegion::LeftPalmar);
-        region_list.insert(HumanAnatomicalRegion::LeftManus);
-        region_list.insert(HumanAnatomicalRegion::LeftUpperPhalangeal);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTULNAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::LeftBrachial);
-        region_list.insert(HumanAnatomicalRegion::LeftAntebrachial);
-        region_list.insert(HumanAnatomicalRegion::LeftCarpal);
-        region_list.insert(HumanAnatomicalRegion::LeftPalmar);
-        region_list.insert(HumanAnatomicalRegion::LeftManus);
-        region_list.insert(HumanAnatomicalRegion::LeftUpperPhalangeal);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTUPPERSUBSCAPULAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list.insert(HumanAnatomicalRegion::LeftScapular);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTLOWERSUBSCAPULAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list.insert(HumanAnatomicalRegion::LeftScapular);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTTHORACODORSAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTDORSALSCAPULAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list.insert(HumanAnatomicalRegion::LeftScapular);
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTLONGTHORACIC_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTSUPRASCAPULAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::LeftScapular);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTLATERALPECTORAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTMEDIALPECTORAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTMEDIALCUTANEOUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::LeftAxillary);
-        region_list.insert(HumanAnatomicalRegion::LeftBrachial);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTILIOHYPOGASTRIC_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Lumbar);
-        region_list.insert(HumanAnatomicalRegion::LeftLowerAbdominal);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTILIOINGUINAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Lumbar);
-        region_list.insert(HumanAnatomicalRegion::LeftInguinal);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTOBTURATOR_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Lumbar);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTLUMBARPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Lumbar);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTSACRALPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Sacral);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTLATERALFEMORALCUTANEOUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Lumbar);
-        region_list.insert(HumanAnatomicalRegion::LeftFemoral);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTPOSTERIORFEMORALCUTANEOUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Sacral);
-        region_list.insert(HumanAnatomicalRegion::LeftGluteal);
-        region_list.insert(HumanAnatomicalRegion::LeftFemoral);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTFEMORAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Lumbar);
-        region_list.insert(HumanAnatomicalRegion::LeftFemoral);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTSCIATIC_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Sacral);
-        region_list.insert(HumanAnatomicalRegion::LeftGluteal);
-        region_list.insert(HumanAnatomicalRegion::LeftFemoral);
-        region_list.insert(HumanAnatomicalRegion::LeftPopliteal);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTPUDENDAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Sacral);
-        region_list.insert(HumanAnatomicalRegion::LeftGluteal);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTINFERIORRECTAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Sacral);
-        region_list.insert(HumanAnatomicalRegion::LeftGluteal);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTSAPHENOUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::LeftFemoral);
-        region_list.insert(HumanAnatomicalRegion::LeftPopliteal);
-        region_list.insert(HumanAnatomicalRegion::LeftCrural);
-        region_list.insert(HumanAnatomicalRegion::LeftTarsal);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTCOMMONFIBULAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::LeftPopliteal);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTSUPERFICIALFIBULAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::LeftPopliteal);
-        region_list.insert(HumanAnatomicalRegion::LeftFibular);
-        region_list.insert(HumanAnatomicalRegion::LeftCrural);
-        region_list.insert(HumanAnatomicalRegion::LeftTarsal);
-        region_list.insert(HumanAnatomicalRegion::LeftPedal);
-        region_list.insert(HumanAnatomicalRegion::LeftLowerPhalangeal);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTDEEPFIBULAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::LeftPopliteal);
-        region_list.insert(HumanAnatomicalRegion::LeftFibular);
-        region_list.insert(HumanAnatomicalRegion::LeftCrural);
-        region_list.insert(HumanAnatomicalRegion::LeftTarsal);
-        region_list.insert(HumanAnatomicalRegion::LeftPedal);
-        region_list.insert(HumanAnatomicalRegion::LeftLowerPhalangeal);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTSURAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::LeftPopliteal);
-        region_list.insert(HumanAnatomicalRegion::LeftSural);
-        region_list.insert(HumanAnatomicalRegion::LeftTarsal);
-        region_list.insert(HumanAnatomicalRegion::LeftPedal);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTTIBIAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::LeftPopliteal);
-        region_list.insert(HumanAnatomicalRegion::LeftSural);
-        region_list.insert(HumanAnatomicalRegion::LeftTarsal);
-        region_list.insert(HumanAnatomicalRegion::LeftCalcaneal);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref LEFTPLANTAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::LeftPlantar);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTC1_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTC2_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTC3_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTC4_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTC5_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTC6_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTC7_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTC8_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTT1_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTT2_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTT3_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTT4_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTT5_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTT6_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTT7_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTT8_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTT9_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTT10_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTT11_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTT12_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTL1_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Lumbar);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTL2_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Lumbar);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTL3_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Lumbar);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTL4_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Lumbar);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTL5_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Lumbar);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTS1_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Sacral);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTS2_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Sacral);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTS3_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Sacral);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTS4_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Sacral);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTS5_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Sacral);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERNALCAROTID_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list.insert(HumanAnatomicalRegion::Cranial);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTSYMPATHETICCHAIN_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list.insert(HumanAnatomicalRegion::Cranial);
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list.insert(HumanAnatomicalRegion::Lumbar);
-        region_list.insert(HumanAnatomicalRegion::Sacral);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTGREATERTHORACICSPLANCHIC_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTLESSERTHORACICSPLANCHIC_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTLEASTTHORACICSPLANCHIC_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTRENALPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERMESENTERICPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTLUMBARSPLANCHIC_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Lumbar);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTGENITOFEMORAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Lumbar);
-        region_list.insert(HumanAnatomicalRegion::RightFemoral);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTOCCIPITAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list.insert(HumanAnatomicalRegion::Cranial);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTGREATARICULAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list.insert(HumanAnatomicalRegion::Cranial);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTANSACERVICALIS_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERCOSTAL1_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERCOSTAL2_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERCOSTAL3_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERCOSTAL4_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERCOSTAL5_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERCOSTAL6_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERCOSTAL7_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERCOSTAL8_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERCOSTAL9_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERCOSTAL10_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINTERCOSTAL11_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTSUBCOSTAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTSUPRACLAVICULAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTPHRENIC_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTLATERALBRACHIALPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::RightScapular);
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTPOSTERIORBRACHIALPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::RightScapular);
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTMEDIALBRACHIALPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::RightScapular);
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTAXILLARY_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::RightAxillary);
-        region_list.insert(HumanAnatomicalRegion::RightBrachial);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTMUSCULOCUTANEOUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::RightBrachial);
-        region_list.insert(HumanAnatomicalRegion::RightAntebrachial);
-        region_list.insert(HumanAnatomicalRegion::RightCarpal);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTMEDIAN_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::RightBrachial);
-        region_list.insert(HumanAnatomicalRegion::RightAntebrachial);
-        region_list.insert(HumanAnatomicalRegion::RightCarpal);
-        region_list.insert(HumanAnatomicalRegion::RightPalmar);
-        region_list.insert(HumanAnatomicalRegion::RightManus);
-        region_list.insert(HumanAnatomicalRegion::RightUpperPhalangeal);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTRADIAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::RightBrachial);
-        region_list.insert(HumanAnatomicalRegion::RightAntebrachial);
-        region_list.insert(HumanAnatomicalRegion::RightCarpal);
-        region_list.insert(HumanAnatomicalRegion::RightPalmar);
-        region_list.insert(HumanAnatomicalRegion::RightManus);
-        region_list.insert(HumanAnatomicalRegion::RightUpperPhalangeal);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTULNAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::RightBrachial);
-        region_list.insert(HumanAnatomicalRegion::RightAntebrachial);
-        region_list.insert(HumanAnatomicalRegion::RightCarpal);
-        region_list.insert(HumanAnatomicalRegion::RightPalmar);
-        region_list.insert(HumanAnatomicalRegion::RightManus);
-        region_list.insert(HumanAnatomicalRegion::RightUpperPhalangeal);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTUPPERSUBSCAPULAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list.insert(HumanAnatomicalRegion::RightScapular);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTLOWERSUBSCAPULAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list.insert(HumanAnatomicalRegion::RightScapular);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTTHORACODORSAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTDORSALSCAPULAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list.insert(HumanAnatomicalRegion::RightScapular);
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTLONGTHORACIC_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Cervical);
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTSUPRASCAPULAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::RightScapular);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTLATERALPECTORAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTMEDIALPECTORAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Thoracic);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTMEDIALCUTANEOUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::RightAxillary);
-        region_list.insert(HumanAnatomicalRegion::RightBrachial);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTILIOHYPOGASTRIC_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Lumbar);
-        region_list.insert(HumanAnatomicalRegion::RightLowerAbdominal);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTILIOINGUINAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Lumbar);
-        region_list.insert(HumanAnatomicalRegion::RightInguinal);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTOBTURATOR_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Lumbar);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTLUMBARPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Lumbar);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTSACRALPLEXUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Sacral);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTLATERALFEMORALCUTANEOUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Lumbar);
-        region_list.insert(HumanAnatomicalRegion::RightFemoral);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTPOSTERIORFEMORALCUTANEOUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Sacral);
-        region_list.insert(HumanAnatomicalRegion::RightGluteal);
-        region_list.insert(HumanAnatomicalRegion::RightFemoral);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTFEMORAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Lumbar);
-        region_list.insert(HumanAnatomicalRegion::RightFemoral);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTSCIATIC_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Sacral);
-        region_list.insert(HumanAnatomicalRegion::RightGluteal);
-        region_list.insert(HumanAnatomicalRegion::RightFemoral);
-        region_list.insert(HumanAnatomicalRegion::RightPopliteal);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTPUDENDAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Sacral);
-        region_list.insert(HumanAnatomicalRegion::RightGluteal);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTINFERIORRECTAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::Sacral);
-        region_list.insert(HumanAnatomicalRegion::RightGluteal);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTSAPHENOUS_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::RightFemoral);
-        region_list.insert(HumanAnatomicalRegion::RightPopliteal);
-        region_list.insert(HumanAnatomicalRegion::RightCrural);
-        region_list.insert(HumanAnatomicalRegion::RightTarsal);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTCOMMONFIBULAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::RightPopliteal);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTSUPERFICIALFIBULAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::RightPopliteal);
-        region_list.insert(HumanAnatomicalRegion::RightFibular);
-        region_list.insert(HumanAnatomicalRegion::RightCrural);
-        region_list.insert(HumanAnatomicalRegion::RightTarsal);
-        region_list.insert(HumanAnatomicalRegion::RightPedal);
-        region_list.insert(HumanAnatomicalRegion::RightLowerPhalangeal);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTDEEPFIBULAR_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::RightPopliteal);
-        region_list.insert(HumanAnatomicalRegion::RightFibular);
-        region_list.insert(HumanAnatomicalRegion::RightCrural);
-        region_list.insert(HumanAnatomicalRegion::RightTarsal);
-        region_list.insert(HumanAnatomicalRegion::RightPedal);
-        region_list.insert(HumanAnatomicalRegion::RightLowerPhalangeal);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTSURAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::RightPopliteal);
-        region_list.insert(HumanAnatomicalRegion::RightSural);
-        region_list.insert(HumanAnatomicalRegion::RightTarsal);
-        region_list.insert(HumanAnatomicalRegion::RightPedal);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTTIBIAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::RightPopliteal);
-        region_list.insert(HumanAnatomicalRegion::RightSural);
-        region_list.insert(HumanAnatomicalRegion::RightTarsal);
-        region_list.insert(HumanAnatomicalRegion::RightCalcaneal);
-        region_list
-    };
-}
-
-lazy_static! {
-    static ref RIGHTPLANTAL_REGIONS: HashSet<HumanAnatomicalRegion> = {
-        let mut region_list = HashSet::new();
-        region_list.insert(HumanAnatomicalRegion::RightPlantar);
-        region_list
-    };
-}
+static TERMINAL_NERVES: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+
+static BRAIN_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static BRAIN_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static BRAIN_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTOCCULOMOTOR_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTOCCULOMOTOR_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTOCCULOMOTOR_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTOCCULOMOTOR_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTOCCULOMOTOR_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTOCCULOMOTOR_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static BRAINSTEM_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static BRAINSTEM_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static BRAINSTEM_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTTRIGEMINAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTTRIGEMINAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTTRIGEMINAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTTRIGEMINAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTTRIGEMINAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTTRIGEMINAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTFACIAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTFACIAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTFACIAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTFACIAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTFACIAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTFACIAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTHYPOGLOSSAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTHYPOGLOSSAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTHYPOGLOSSAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTHYPOGLOSSAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTHYPOGLOSSAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTHYPOGLOSSAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTVAGUS_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTVAGUS_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTVAGUS_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTSUPERIORLARYNGEAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTSUPERIORLARYNGEAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTSUPERIORLARYNGEAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTRECURRENTLARYNGEAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTRECURRENTLARYNGEAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTRECURRENTLARYNGEAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTVAGUS_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTVAGUS_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTVAGUS_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTSUPERIORLARYNGEAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTSUPERIORLARYNGEAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTSUPERIORLARYNGEAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTRECURRENTLARYNGEAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTRECURRENTLARYNGEAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTRECURRENTLARYNGEAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static ESOPHAGEALPLEXUS_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static ESOPHAGEALPLEXUS_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static ESOPHAGEALPLEXUS_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static SUPERFICIALCARDIACPLEXUS_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static SUPERFICIALCARDIACPLEXUS_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static SUPERFICIALCARDIACPLEXUS_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static DEEPCARDIACPLEXUS_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static DEEPCARDIACPLEXUS_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static DEEPCARDIACPLEXUS_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static PULMONARYPLEXUS_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static PULMONARYPLEXUS_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static PULMONARYPLEXUS_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static CELIACPLEXUS_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static CELIACPLEXUS_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static CELIACPLEXUS_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static SUPERIORMESENTERICPLEXUS_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static SUPERIORMESENTERICPLEXUS_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static SUPERIORMESENTERICPLEXUS_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static INFERIORMESENTERICPLEXUS_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static INFERIORMESENTERICPLEXUS_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static INFERIORMESENTERICPLEXUS_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static HYPOGASTRICPLEXUS_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static HYPOGASTRICPLEXUS_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static HYPOGASTRICPLEXUS_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static SPINALCORD_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static SPINALCORD_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static SPINALCORD_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTSPINALACCESSORY_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTSPINALACCESSORY_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTSPINALACCESSORY_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTSPINALACCESSORY_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTSPINALACCESSORY_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTSPINALACCESSORY_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTC1_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTC1_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTC1_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTC2_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTC2_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTC2_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTC3_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTC3_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTC3_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTC4_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTC4_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTC4_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTC5_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTC5_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTC5_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTC6_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTC6_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTC6_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTC7_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTC7_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTC7_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTC8_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTC8_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTC8_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTT1_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTT1_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTT1_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTT2_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTT2_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTT2_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTT3_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTT3_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTT3_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTT4_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTT4_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTT4_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTT5_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTT5_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTT5_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTT6_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTT6_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTT6_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTT7_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTT7_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTT7_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTT8_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTT8_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTT8_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTT9_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTT9_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTT9_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTT10_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTT10_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTT10_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTT11_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTT11_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTT11_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTT12_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTT12_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTT12_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTL1_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTL1_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTL1_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static CAUDAEQUINA_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static CAUDAEQUINA_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static CAUDAEQUINA_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTL2_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTL2_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTL2_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTL3_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTL3_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTL3_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTL4_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTL4_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTL4_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTL5_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTL5_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTL5_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTS1_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTS1_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTS1_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTS2_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTS2_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTS2_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTS3_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTS3_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTS3_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTS4_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTS4_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTS4_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTS5_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTS5_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTS5_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTINTERNALCAROTID_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTINTERNALCAROTID_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTINTERNALCAROTID_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTSYMPATHETICCHAIN_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTSYMPATHETICCHAIN_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTSYMPATHETICCHAIN_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTGREATERTHORACICSPLANCHIC_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTGREATERTHORACICSPLANCHIC_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTGREATERTHORACICSPLANCHIC_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTLESSERTHORACICSPLANCHIC_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTLESSERTHORACICSPLANCHIC_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTLESSERTHORACICSPLANCHIC_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTLEASTTHORACICSPLANCHIC_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTLEASTTHORACICSPLANCHIC_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTLEASTTHORACICSPLANCHIC_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTRENALPLEXUS_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTRENALPLEXUS_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTRENALPLEXUS_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTINTERMESENTERICPLEXUS_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTINTERMESENTERICPLEXUS_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTINTERMESENTERICPLEXUS_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTLUMBARSPLANCHIC_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTLUMBARSPLANCHIC_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTLUMBARSPLANCHIC_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTGENITOFEMORAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTGENITOFEMORAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTGENITOFEMORAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTOCCIPITAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTOCCIPITAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTOCCIPITAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTGREATARICULAR_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTGREATARICULAR_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTGREATARICULAR_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTANSACERVICALIS_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTANSACERVICALIS_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTANSACERVICALIS_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTINTERCOSTAL1_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTINTERCOSTAL1_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTINTERCOSTAL1_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTINTERCOSTAL2_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTINTERCOSTAL2_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTINTERCOSTAL2_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTINTERCOSTAL3_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTINTERCOSTAL3_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTINTERCOSTAL3_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTINTERCOSTAL4_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTINTERCOSTAL4_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTINTERCOSTAL4_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTINTERCOSTAL5_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTINTERCOSTAL5_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTINTERCOSTAL5_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTINTERCOSTAL6_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTINTERCOSTAL6_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTINTERCOSTAL6_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTINTERCOSTAL7_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTINTERCOSTAL7_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTINTERCOSTAL7_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTINTERCOSTAL8_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTINTERCOSTAL8_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTINTERCOSTAL8_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTINTERCOSTAL9_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTINTERCOSTAL9_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTINTERCOSTAL9_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTINTERCOSTAL10_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTINTERCOSTAL10_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTINTERCOSTAL10_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTINTERCOSTAL11_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTINTERCOSTAL11_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTINTERCOSTAL11_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTSUBCOSTAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTSUBCOSTAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTSUBCOSTAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTSUPRACLAVICULAR_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTSUPRACLAVICULAR_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTSUPRACLAVICULAR_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTPHRENIC_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTPHRENIC_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTPHRENIC_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTLATERALBRACHIALPLEXUS_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTLATERALBRACHIALPLEXUS_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTLATERALBRACHIALPLEXUS_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTPOSTERIORBRACHIALPLEXUS_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTPOSTERIORBRACHIALPLEXUS_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTPOSTERIORBRACHIALPLEXUS_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTMEDIALBRACHIALPLEXUS_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTMEDIALBRACHIALPLEXUS_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTMEDIALBRACHIALPLEXUS_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTAXILLARY_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTAXILLARY_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTAXILLARY_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTMUSCULOCUTANEOUS_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTMUSCULOCUTANEOUS_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTMUSCULOCUTANEOUS_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTMEDIAN_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTMEDIAN_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTMEDIAN_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTRADIAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTRADIAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTRADIAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTULNAR_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTULNAR_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTULNAR_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTUPPERSUBSCAPULAR_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTUPPERSUBSCAPULAR_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTUPPERSUBSCAPULAR_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTLOWERSUBSCAPULAR_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTLOWERSUBSCAPULAR_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTLOWERSUBSCAPULAR_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTTHORACODORSAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTTHORACODORSAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTTHORACODORSAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTDORSALSCAPULAR_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTDORSALSCAPULAR_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTDORSALSCAPULAR_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTLONGTHORACIC_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTLONGTHORACIC_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTLONGTHORACIC_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTSUPRASCAPULAR_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTSUPRASCAPULAR_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTSUPRASCAPULAR_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTLATERALPECTORAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTLATERALPECTORAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTLATERALPECTORAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTMEDIALPECTORAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTMEDIALPECTORAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTMEDIALPECTORAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTMEDIALCUTANEOUS_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTMEDIALCUTANEOUS_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTMEDIALCUTANEOUS_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTILIOHYPOGASTRIC_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTILIOHYPOGASTRIC_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTILIOHYPOGASTRIC_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTILIOINGUINAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTILIOINGUINAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTILIOINGUINAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTOBTURATOR_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTOBTURATOR_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTOBTURATOR_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTLUMBARPLEXUS_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTLUMBARPLEXUS_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTLUMBARPLEXUS_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTSACRALPLEXUS_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTSACRALPLEXUS_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTSACRALPLEXUS_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTLATERALFEMORALCUTANEOUS_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTLATERALFEMORALCUTANEOUS_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTLATERALFEMORALCUTANEOUS_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTPOSTERIORFEMORALCUTANEOUS_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTPOSTERIORFEMORALCUTANEOUS_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTPOSTERIORFEMORALCUTANEOUS_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTFEMORAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTFEMORAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTFEMORAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTSCIATIC_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTSCIATIC_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTSCIATIC_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTPUDENDAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTPUDENDAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTPUDENDAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTINFERIORRECTAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTINFERIORRECTAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTINFERIORRECTAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTSAPHENOUS_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTSAPHENOUS_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTSAPHENOUS_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTCOMMONFIBULAR_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTCOMMONFIBULAR_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTCOMMONFIBULAR_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTSUPERFICIALFIBULAR_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTSUPERFICIALFIBULAR_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTSUPERFICIALFIBULAR_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTDEEPFIBULAR_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTDEEPFIBULAR_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTDEEPFIBULAR_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTSURAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTSURAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTSURAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTTIBIAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTTIBIAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTTIBIAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static LEFTPLANTAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTPLANTAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static LEFTPLANTAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTC1_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTC1_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTC1_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTC2_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTC2_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTC2_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTC3_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTC3_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTC3_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTC4_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTC4_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTC4_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTC5_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTC5_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTC5_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTC6_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTC6_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTC6_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTC7_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTC7_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTC7_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTC8_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTC8_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTC8_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTT1_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTT1_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTT1_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTT2_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTT2_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTT2_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTT3_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTT3_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTT3_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTT4_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTT4_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTT4_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTT5_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTT5_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTT5_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTT6_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTT6_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTT6_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTT7_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTT7_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTT7_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTT8_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTT8_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTT8_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTT9_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTT9_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTT9_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTT10_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTT10_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTT10_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTT11_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTT11_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTT11_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTT12_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTT12_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTT12_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTL1_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTL1_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTL1_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTL2_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTL2_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTL2_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTL3_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTL3_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTL3_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTL4_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTL4_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTL4_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTL5_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTL5_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTL5_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTS1_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTS1_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTS1_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTS2_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTS2_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTS2_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTS3_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTS3_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTS3_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTS4_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTS4_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTS4_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTS5_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTS5_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTS5_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTINTERNALCAROTID_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTINTERNALCAROTID_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTINTERNALCAROTID_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTSYMPATHETICCHAIN_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTSYMPATHETICCHAIN_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTSYMPATHETICCHAIN_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTGREATERTHORACICSPLANCHIC_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTGREATERTHORACICSPLANCHIC_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTGREATERTHORACICSPLANCHIC_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTLESSERTHORACICSPLANCHIC_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTLESSERTHORACICSPLANCHIC_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTLESSERTHORACICSPLANCHIC_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTLEASTTHORACICSPLANCHIC_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTLEASTTHORACICSPLANCHIC_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTLEASTTHORACICSPLANCHIC_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTRENALPLEXUS_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTRENALPLEXUS_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTRENALPLEXUS_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTINTERMESENTERICPLEXUS_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTINTERMESENTERICPLEXUS_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTINTERMESENTERICPLEXUS_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTLUMBARSPLANCHIC_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTLUMBARSPLANCHIC_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTLUMBARSPLANCHIC_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTGENITOFEMORAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTGENITOFEMORAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTGENITOFEMORAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTOCCIPITAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTOCCIPITAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTOCCIPITAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTGREATARICULAR_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTGREATARICULAR_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTGREATARICULAR_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTANSACERVICALIS_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTANSACERVICALIS_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTANSACERVICALIS_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTINTERCOSTAL1_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTINTERCOSTAL1_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTINTERCOSTAL1_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTINTERCOSTAL2_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTINTERCOSTAL2_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTINTERCOSTAL2_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTINTERCOSTAL3_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTINTERCOSTAL3_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTINTERCOSTAL3_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTINTERCOSTAL4_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTINTERCOSTAL4_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTINTERCOSTAL4_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTINTERCOSTAL5_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTINTERCOSTAL5_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTINTERCOSTAL5_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTINTERCOSTAL6_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTINTERCOSTAL6_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTINTERCOSTAL6_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTINTERCOSTAL7_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTINTERCOSTAL7_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTINTERCOSTAL7_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTINTERCOSTAL8_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTINTERCOSTAL8_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTINTERCOSTAL8_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTINTERCOSTAL9_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTINTERCOSTAL9_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTINTERCOSTAL9_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTINTERCOSTAL10_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTINTERCOSTAL10_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTINTERCOSTAL10_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTINTERCOSTAL11_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTINTERCOSTAL11_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTINTERCOSTAL11_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTSUBCOSTAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTSUBCOSTAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTSUBCOSTAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTSUPRACLAVICULAR_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTSUPRACLAVICULAR_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTSUPRACLAVICULAR_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTPHRENIC_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTPHRENIC_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTPHRENIC_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTLATERALBRACHIALPLEXUS_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTLATERALBRACHIALPLEXUS_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTLATERALBRACHIALPLEXUS_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTPOSTERIORBRACHIALPLEXUS_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTPOSTERIORBRACHIALPLEXUS_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTPOSTERIORBRACHIALPLEXUS_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTMEDIALBRACHIALPLEXUS_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTMEDIALBRACHIALPLEXUS_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTMEDIALBRACHIALPLEXUS_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTAXILLARY_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTAXILLARY_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTAXILLARY_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTMUSCULOCUTANEOUS_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTMUSCULOCUTANEOUS_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTMUSCULOCUTANEOUS_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTMEDIAN_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTMEDIAN_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTMEDIAN_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTRADIAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTRADIAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTRADIAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTULNAR_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTULNAR_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTULNAR_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTUPPERSUBSCAPULAR_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTUPPERSUBSCAPULAR_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTUPPERSUBSCAPULAR_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTLOWERSUBSCAPULAR_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTLOWERSUBSCAPULAR_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTLOWERSUBSCAPULAR_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTTHORACODORSAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTTHORACODORSAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTTHORACODORSAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTDORSALSCAPULAR_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTDORSALSCAPULAR_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTDORSALSCAPULAR_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTLONGTHORACIC_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTLONGTHORACIC_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTLONGTHORACIC_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTSUPRASCAPULAR_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTSUPRASCAPULAR_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTSUPRASCAPULAR_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTLATERALPECTORAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTLATERALPECTORAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTLATERALPECTORAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTMEDIALPECTORAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTMEDIALPECTORAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTMEDIALPECTORAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTMEDIALCUTANEOUS_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTMEDIALCUTANEOUS_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTMEDIALCUTANEOUS_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTILIOHYPOGASTRIC_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTILIOHYPOGASTRIC_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTILIOHYPOGASTRIC_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTILIOINGUINAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTILIOINGUINAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTILIOINGUINAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTOBTURATOR_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTOBTURATOR_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTOBTURATOR_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTLUMBARPLEXUS_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTLUMBARPLEXUS_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTLUMBARPLEXUS_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTSACRALPLEXUS_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTSACRALPLEXUS_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTSACRALPLEXUS_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTLATERALFEMORALCUTANEOUS_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTLATERALFEMORALCUTANEOUS_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTLATERALFEMORALCUTANEOUS_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTPOSTERIORFEMORALCUTANEOUS_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTPOSTERIORFEMORALCUTANEOUS_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTPOSTERIORFEMORALCUTANEOUS_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTFEMORAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTFEMORAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTFEMORAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTSCIATIC_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTSCIATIC_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTSCIATIC_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTPUDENDAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTPUDENDAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTPUDENDAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTINFERIORRECTAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTINFERIORRECTAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTINFERIORRECTAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTSAPHENOUS_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTSAPHENOUS_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTSAPHENOUS_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTCOMMONFIBULAR_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTCOMMONFIBULAR_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTCOMMONFIBULAR_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTSUPERFICIALFIBULAR_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTSUPERFICIALFIBULAR_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTSUPERFICIALFIBULAR_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTDEEPFIBULAR_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTDEEPFIBULAR_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTDEEPFIBULAR_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTSURAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTSURAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTSURAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTTIBIAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTTIBIAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTTIBIAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
+
+static RIGHTPLANTAL_UPLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTPLANTAL_DOWNLINK: OnceLock<Vec<HumanNerve>> = OnceLock::new();
+static RIGHTPLANTAL_REGIONS: OnceLock<HashSet<HumanAnatomicalRegion>> = OnceLock::new();
 
 
 impl Nerve for HumanNerve {
     type AnatomyType = HumanAnatomicalRegion;
 
     fn terminal_nerves<'a>() -> NerveIter<'a, Self> {
-        NerveIter(TERMINAL_NERVES.iter())
+        NerveIter(TERMINAL_NERVES.get_or_init(|| {
+            let mut nerve_list = Vec::new();
+            nerve_list.push(HumanNerve::RightOcculomotor);
+               nerve_list.push(HumanNerve::LeftOcculomotor);
+               nerve_list.push(HumanNerve::LeftTrigeminal);
+               nerve_list.push(HumanNerve::RightTrigeminal);
+               nerve_list.push(HumanNerve::LeftFacial);
+               nerve_list.push(HumanNerve::RightFacial);
+               nerve_list.push(HumanNerve::LeftHypoglossal);
+               nerve_list.push(HumanNerve::RightHypoglossal);
+               nerve_list.push(HumanNerve::LeftSuperiorLaryngeal);
+               nerve_list.push(HumanNerve::LeftRecurrentLaryngeal);
+               nerve_list.push(HumanNerve::RightSuperiorLaryngeal);
+               nerve_list.push(HumanNerve::RightRecurrentLaryngeal);
+               nerve_list.push(HumanNerve::EsophagealPlexus);
+               nerve_list.push(HumanNerve::SuperficialCardiacPlexus);
+               nerve_list.push(HumanNerve::PulmonaryPlexus);
+               nerve_list.push(HumanNerve::CeliacPlexus);
+               nerve_list.push(HumanNerve::SuperiorMesentericPlexus);
+               nerve_list.push(HumanNerve::InferiorMesentericPlexus);
+               nerve_list.push(HumanNerve::HypogastricPlexus);
+               nerve_list.push(HumanNerve::LeftSpinalAccessory);
+               nerve_list.push(HumanNerve::RightSpinalAccessory);
+               nerve_list.push(HumanNerve::LeftInternalCarotid);
+               nerve_list.push(HumanNerve::LeftGreaterThoracicSplanchic);
+               nerve_list.push(HumanNerve::LeftRenalPlexus);
+               nerve_list.push(HumanNerve::LeftIntermesentericPlexus);
+               nerve_list.push(HumanNerve::LeftLumbarSplanchic);
+               nerve_list.push(HumanNerve::LeftOccipital);
+               nerve_list.push(HumanNerve::LeftGreatAricular);
+               nerve_list.push(HumanNerve::LeftAnsaCervicalis);
+               nerve_list.push(HumanNerve::LeftIntercostal1);
+               nerve_list.push(HumanNerve::LeftIntercostal2);
+               nerve_list.push(HumanNerve::LeftIntercostal3);
+               nerve_list.push(HumanNerve::LeftIntercostal4);
+               nerve_list.push(HumanNerve::LeftIntercostal5);
+               nerve_list.push(HumanNerve::LeftIntercostal6);
+               nerve_list.push(HumanNerve::LeftIntercostal7);
+               nerve_list.push(HumanNerve::LeftIntercostal8);
+               nerve_list.push(HumanNerve::LeftIntercostal9);
+               nerve_list.push(HumanNerve::LeftIntercostal10);
+               nerve_list.push(HumanNerve::LeftIntercostal11);
+               nerve_list.push(HumanNerve::LeftSubcostal);
+               nerve_list.push(HumanNerve::LeftSupraclavicular);
+               nerve_list.push(HumanNerve::LeftPhrenic);
+               nerve_list.push(HumanNerve::LeftAxillary);
+               nerve_list.push(HumanNerve::LeftMusculocutaneous);
+               nerve_list.push(HumanNerve::LeftMedian);
+               nerve_list.push(HumanNerve::LeftRadial);
+               nerve_list.push(HumanNerve::LeftUlnar);
+               nerve_list.push(HumanNerve::LeftUpperSubscapular);
+               nerve_list.push(HumanNerve::LeftLowerSubscapular);
+               nerve_list.push(HumanNerve::LeftThoracodorsal);
+               nerve_list.push(HumanNerve::LeftDorsalScapular);
+               nerve_list.push(HumanNerve::LeftLongThoracic);
+               nerve_list.push(HumanNerve::LeftSuprascapular);
+               nerve_list.push(HumanNerve::LeftLateralPectoral);
+               nerve_list.push(HumanNerve::LeftMedialPectoral);
+               nerve_list.push(HumanNerve::LeftMedialCutaneous);
+               nerve_list.push(HumanNerve::LeftIliohypogastric);
+               nerve_list.push(HumanNerve::LeftIlioInguinal);
+               nerve_list.push(HumanNerve::LeftObturator);
+               nerve_list.push(HumanNerve::LeftLateralFemoralCutaneous);
+               nerve_list.push(HumanNerve::LeftPosteriorFemoralCutaneous);
+               nerve_list.push(HumanNerve::LeftFemoral);
+               nerve_list.push(HumanNerve::LeftInferiorRectal);
+               nerve_list.push(HumanNerve::LeftSaphenous);
+               nerve_list.push(HumanNerve::LeftSuperficialFibular);
+               nerve_list.push(HumanNerve::LeftDeepFibular);
+               nerve_list.push(HumanNerve::LeftSural);
+               nerve_list.push(HumanNerve::LeftPlantal);
+               nerve_list.push(HumanNerve::RightInternalCarotid);
+               nerve_list.push(HumanNerve::RightGreaterThoracicSplanchic);
+               nerve_list.push(HumanNerve::RightRenalPlexus);
+               nerve_list.push(HumanNerve::RightIntermesentericPlexus);
+               nerve_list.push(HumanNerve::RightLumbarSplanchic);
+               nerve_list.push(HumanNerve::RightOccipital);
+               nerve_list.push(HumanNerve::RightGreatAricular);
+               nerve_list.push(HumanNerve::RightAnsaCervicalis);
+               nerve_list.push(HumanNerve::RightIntercostal1);
+               nerve_list.push(HumanNerve::RightIntercostal2);
+               nerve_list.push(HumanNerve::RightIntercostal3);
+               nerve_list.push(HumanNerve::RightIntercostal4);
+               nerve_list.push(HumanNerve::RightIntercostal5);
+               nerve_list.push(HumanNerve::RightIntercostal6);
+               nerve_list.push(HumanNerve::RightIntercostal7);
+               nerve_list.push(HumanNerve::RightIntercostal8);
+               nerve_list.push(HumanNerve::RightIntercostal9);
+               nerve_list.push(HumanNerve::RightIntercostal10);
+               nerve_list.push(HumanNerve::RightIntercostal11);
+               nerve_list.push(HumanNerve::RightSubcostal);
+               nerve_list.push(HumanNerve::RightSupraclavicular);
+               nerve_list.push(HumanNerve::RightPhrenic);
+               nerve_list.push(HumanNerve::RightAxillary);
+               nerve_list.push(HumanNerve::RightMusculocutaneous);
+               nerve_list.push(HumanNerve::RightMedian);
+               nerve_list.push(HumanNerve::RightRadial);
+               nerve_list.push(HumanNerve::RightUlnar);
+               nerve_list.push(HumanNerve::RightUpperSubscapular);
+               nerve_list.push(HumanNerve::RightLowerSubscapular);
+               nerve_list.push(HumanNerve::RightThoracodorsal);
+               nerve_list.push(HumanNerve::RightDorsalScapular);
+               nerve_list.push(HumanNerve::RightLongThoracic);
+               nerve_list.push(HumanNerve::RightSuprascapular);
+               nerve_list.push(HumanNerve::RightLateralPectoral);
+               nerve_list.push(HumanNerve::RightMedialPectoral);
+               nerve_list.push(HumanNerve::RightMedialCutaneous);
+               nerve_list.push(HumanNerve::RightIliohypogastric);
+               nerve_list.push(HumanNerve::RightIlioInguinal);
+               nerve_list.push(HumanNerve::RightObturator);
+               nerve_list.push(HumanNerve::RightLateralFemoralCutaneous);
+               nerve_list.push(HumanNerve::RightPosteriorFemoralCutaneous);
+               nerve_list.push(HumanNerve::RightFemoral);
+               nerve_list.push(HumanNerve::RightInferiorRectal);
+               nerve_list.push(HumanNerve::RightSaphenous);
+               nerve_list.push(HumanNerve::RightSuperficialFibular);
+               nerve_list.push(HumanNerve::RightDeepFibular);
+               nerve_list.push(HumanNerve::RightSural);
+               nerve_list.push(HumanNerve::RightPlantal);
+            nerve_list
+        }).iter())
     }
     fn uplink<'a>(&self) -> NerveIter<'a, Self> {
         match self {
             
-            HumanNerve::Brain => NerveIter(BRAIN_UPLINK.iter()),
-            HumanNerve::RightOcculomotor => NerveIter(RIGHTOCCULOMOTOR_UPLINK.iter()),
-            HumanNerve::LeftOcculomotor => NerveIter(LEFTOCCULOMOTOR_UPLINK.iter()),
-            HumanNerve::Brainstem => NerveIter(BRAINSTEM_UPLINK.iter()),
-            HumanNerve::LeftTrigeminal => NerveIter(LEFTTRIGEMINAL_UPLINK.iter()),
-            HumanNerve::RightTrigeminal => NerveIter(RIGHTTRIGEMINAL_UPLINK.iter()),
-            HumanNerve::LeftFacial => NerveIter(LEFTFACIAL_UPLINK.iter()),
-            HumanNerve::RightFacial => NerveIter(RIGHTFACIAL_UPLINK.iter()),
-            HumanNerve::LeftHypoglossal => NerveIter(LEFTHYPOGLOSSAL_UPLINK.iter()),
-            HumanNerve::RightHypoglossal => NerveIter(RIGHTHYPOGLOSSAL_UPLINK.iter()),
-            HumanNerve::LeftVagus => NerveIter(LEFTVAGUS_UPLINK.iter()),
-            HumanNerve::LeftSuperiorLaryngeal => NerveIter(LEFTSUPERIORLARYNGEAL_UPLINK.iter()),
-            HumanNerve::LeftRecurrentLaryngeal => NerveIter(LEFTRECURRENTLARYNGEAL_UPLINK.iter()),
-            HumanNerve::RightVagus => NerveIter(RIGHTVAGUS_UPLINK.iter()),
-            HumanNerve::RightSuperiorLaryngeal => NerveIter(RIGHTSUPERIORLARYNGEAL_UPLINK.iter()),
-            HumanNerve::RightRecurrentLaryngeal => NerveIter(RIGHTRECURRENTLARYNGEAL_UPLINK.iter()),
-            HumanNerve::EsophagealPlexus => NerveIter(ESOPHAGEALPLEXUS_UPLINK.iter()),
-            HumanNerve::SuperficialCardiacPlexus => NerveIter(SUPERFICIALCARDIACPLEXUS_UPLINK.iter()),
-            HumanNerve::DeepCardiacPlexus => NerveIter(DEEPCARDIACPLEXUS_UPLINK.iter()),
-            HumanNerve::PulmonaryPlexus => NerveIter(PULMONARYPLEXUS_UPLINK.iter()),
-            HumanNerve::CeliacPlexus => NerveIter(CELIACPLEXUS_UPLINK.iter()),
-            HumanNerve::SuperiorMesentericPlexus => NerveIter(SUPERIORMESENTERICPLEXUS_UPLINK.iter()),
-            HumanNerve::InferiorMesentericPlexus => NerveIter(INFERIORMESENTERICPLEXUS_UPLINK.iter()),
-            HumanNerve::HypogastricPlexus => NerveIter(HYPOGASTRICPLEXUS_UPLINK.iter()),
-            HumanNerve::SpinalCord => NerveIter(SPINALCORD_UPLINK.iter()),
-            HumanNerve::LeftSpinalAccessory => NerveIter(LEFTSPINALACCESSORY_UPLINK.iter()),
-            HumanNerve::RightSpinalAccessory => NerveIter(RIGHTSPINALACCESSORY_UPLINK.iter()),
-            HumanNerve::LeftC1 => NerveIter(LEFTC1_UPLINK.iter()),
-            HumanNerve::LeftC2 => NerveIter(LEFTC2_UPLINK.iter()),
-            HumanNerve::LeftC3 => NerveIter(LEFTC3_UPLINK.iter()),
-            HumanNerve::LeftC4 => NerveIter(LEFTC4_UPLINK.iter()),
-            HumanNerve::LeftC5 => NerveIter(LEFTC5_UPLINK.iter()),
-            HumanNerve::LeftC6 => NerveIter(LEFTC6_UPLINK.iter()),
-            HumanNerve::LeftC7 => NerveIter(LEFTC7_UPLINK.iter()),
-            HumanNerve::LeftC8 => NerveIter(LEFTC8_UPLINK.iter()),
-            HumanNerve::LeftT1 => NerveIter(LEFTT1_UPLINK.iter()),
-            HumanNerve::LeftT2 => NerveIter(LEFTT2_UPLINK.iter()),
-            HumanNerve::LeftT3 => NerveIter(LEFTT3_UPLINK.iter()),
-            HumanNerve::LeftT4 => NerveIter(LEFTT4_UPLINK.iter()),
-            HumanNerve::LeftT5 => NerveIter(LEFTT5_UPLINK.iter()),
-            HumanNerve::LeftT6 => NerveIter(LEFTT6_UPLINK.iter()),
-            HumanNerve::LeftT7 => NerveIter(LEFTT7_UPLINK.iter()),
-            HumanNerve::LeftT8 => NerveIter(LEFTT8_UPLINK.iter()),
-            HumanNerve::LeftT9 => NerveIter(LEFTT9_UPLINK.iter()),
-            HumanNerve::LeftT10 => NerveIter(LEFTT10_UPLINK.iter()),
-            HumanNerve::LeftT11 => NerveIter(LEFTT11_UPLINK.iter()),
-            HumanNerve::LeftT12 => NerveIter(LEFTT12_UPLINK.iter()),
-            HumanNerve::LeftL1 => NerveIter(LEFTL1_UPLINK.iter()),
-            HumanNerve::CaudaEquina => NerveIter(CAUDAEQUINA_UPLINK.iter()),
-            HumanNerve::LeftL2 => NerveIter(LEFTL2_UPLINK.iter()),
-            HumanNerve::LeftL3 => NerveIter(LEFTL3_UPLINK.iter()),
-            HumanNerve::LeftL4 => NerveIter(LEFTL4_UPLINK.iter()),
-            HumanNerve::LeftL5 => NerveIter(LEFTL5_UPLINK.iter()),
-            HumanNerve::LeftS1 => NerveIter(LEFTS1_UPLINK.iter()),
-            HumanNerve::LeftS2 => NerveIter(LEFTS2_UPLINK.iter()),
-            HumanNerve::LeftS3 => NerveIter(LEFTS3_UPLINK.iter()),
-            HumanNerve::LeftS4 => NerveIter(LEFTS4_UPLINK.iter()),
-            HumanNerve::LeftS5 => NerveIter(LEFTS5_UPLINK.iter()),
-            HumanNerve::LeftInternalCarotid => NerveIter(LEFTINTERNALCAROTID_UPLINK.iter()),
-            HumanNerve::LeftSympatheticChain => NerveIter(LEFTSYMPATHETICCHAIN_UPLINK.iter()),
-            HumanNerve::LeftGreaterThoracicSplanchic => NerveIter(LEFTGREATERTHORACICSPLANCHIC_UPLINK.iter()),
-            HumanNerve::LeftLesserThoracicSplanchic => NerveIter(LEFTLESSERTHORACICSPLANCHIC_UPLINK.iter()),
-            HumanNerve::LeftLeastThoracicSplanchic => NerveIter(LEFTLEASTTHORACICSPLANCHIC_UPLINK.iter()),
-            HumanNerve::LeftRenalPlexus => NerveIter(LEFTRENALPLEXUS_UPLINK.iter()),
-            HumanNerve::LeftIntermesentericPlexus => NerveIter(LEFTINTERMESENTERICPLEXUS_UPLINK.iter()),
-            HumanNerve::LeftLumbarSplanchic => NerveIter(LEFTLUMBARSPLANCHIC_UPLINK.iter()),
-            HumanNerve::LeftGenitofemoral => NerveIter(LEFTGENITOFEMORAL_UPLINK.iter()),
-            HumanNerve::LeftOccipital => NerveIter(LEFTOCCIPITAL_UPLINK.iter()),
-            HumanNerve::LeftGreatAricular => NerveIter(LEFTGREATARICULAR_UPLINK.iter()),
-            HumanNerve::LeftAnsaCervicalis => NerveIter(LEFTANSACERVICALIS_UPLINK.iter()),
-            HumanNerve::LeftIntercostal1 => NerveIter(LEFTINTERCOSTAL1_UPLINK.iter()),
-            HumanNerve::LeftIntercostal2 => NerveIter(LEFTINTERCOSTAL2_UPLINK.iter()),
-            HumanNerve::LeftIntercostal3 => NerveIter(LEFTINTERCOSTAL3_UPLINK.iter()),
-            HumanNerve::LeftIntercostal4 => NerveIter(LEFTINTERCOSTAL4_UPLINK.iter()),
-            HumanNerve::LeftIntercostal5 => NerveIter(LEFTINTERCOSTAL5_UPLINK.iter()),
-            HumanNerve::LeftIntercostal6 => NerveIter(LEFTINTERCOSTAL6_UPLINK.iter()),
-            HumanNerve::LeftIntercostal7 => NerveIter(LEFTINTERCOSTAL7_UPLINK.iter()),
-            HumanNerve::LeftIntercostal8 => NerveIter(LEFTINTERCOSTAL8_UPLINK.iter()),
-            HumanNerve::LeftIntercostal9 => NerveIter(LEFTINTERCOSTAL9_UPLINK.iter()),
-            HumanNerve::LeftIntercostal10 => NerveIter(LEFTINTERCOSTAL10_UPLINK.iter()),
-            HumanNerve::LeftIntercostal11 => NerveIter(LEFTINTERCOSTAL11_UPLINK.iter()),
-            HumanNerve::LeftSubcostal => NerveIter(LEFTSUBCOSTAL_UPLINK.iter()),
-            HumanNerve::LeftSupraclavicular => NerveIter(LEFTSUPRACLAVICULAR_UPLINK.iter()),
-            HumanNerve::LeftPhrenic => NerveIter(LEFTPHRENIC_UPLINK.iter()),
-            HumanNerve::LeftLateralBrachialPlexus => NerveIter(LEFTLATERALBRACHIALPLEXUS_UPLINK.iter()),
-            HumanNerve::LeftPosteriorBrachialPlexus => NerveIter(LEFTPOSTERIORBRACHIALPLEXUS_UPLINK.iter()),
-            HumanNerve::LeftMedialBrachialPlexus => NerveIter(LEFTMEDIALBRACHIALPLEXUS_UPLINK.iter()),
-            HumanNerve::LeftAxillary => NerveIter(LEFTAXILLARY_UPLINK.iter()),
-            HumanNerve::LeftMusculocutaneous => NerveIter(LEFTMUSCULOCUTANEOUS_UPLINK.iter()),
-            HumanNerve::LeftMedian => NerveIter(LEFTMEDIAN_UPLINK.iter()),
-            HumanNerve::LeftRadial => NerveIter(LEFTRADIAL_UPLINK.iter()),
-            HumanNerve::LeftUlnar => NerveIter(LEFTULNAR_UPLINK.iter()),
-            HumanNerve::LeftUpperSubscapular => NerveIter(LEFTUPPERSUBSCAPULAR_UPLINK.iter()),
-            HumanNerve::LeftLowerSubscapular => NerveIter(LEFTLOWERSUBSCAPULAR_UPLINK.iter()),
-            HumanNerve::LeftThoracodorsal => NerveIter(LEFTTHORACODORSAL_UPLINK.iter()),
-            HumanNerve::LeftDorsalScapular => NerveIter(LEFTDORSALSCAPULAR_UPLINK.iter()),
-            HumanNerve::LeftLongThoracic => NerveIter(LEFTLONGTHORACIC_UPLINK.iter()),
-            HumanNerve::LeftSuprascapular => NerveIter(LEFTSUPRASCAPULAR_UPLINK.iter()),
-            HumanNerve::LeftLateralPectoral => NerveIter(LEFTLATERALPECTORAL_UPLINK.iter()),
-            HumanNerve::LeftMedialPectoral => NerveIter(LEFTMEDIALPECTORAL_UPLINK.iter()),
-            HumanNerve::LeftMedialCutaneous => NerveIter(LEFTMEDIALCUTANEOUS_UPLINK.iter()),
-            HumanNerve::LeftIliohypogastric => NerveIter(LEFTILIOHYPOGASTRIC_UPLINK.iter()),
-            HumanNerve::LeftIlioInguinal => NerveIter(LEFTILIOINGUINAL_UPLINK.iter()),
-            HumanNerve::LeftObturator => NerveIter(LEFTOBTURATOR_UPLINK.iter()),
-            HumanNerve::LeftLumbarPlexus => NerveIter(LEFTLUMBARPLEXUS_UPLINK.iter()),
-            HumanNerve::LeftSacralPlexus => NerveIter(LEFTSACRALPLEXUS_UPLINK.iter()),
-            HumanNerve::LeftLateralFemoralCutaneous => NerveIter(LEFTLATERALFEMORALCUTANEOUS_UPLINK.iter()),
-            HumanNerve::LeftPosteriorFemoralCutaneous => NerveIter(LEFTPOSTERIORFEMORALCUTANEOUS_UPLINK.iter()),
-            HumanNerve::LeftFemoral => NerveIter(LEFTFEMORAL_UPLINK.iter()),
-            HumanNerve::LeftSciatic => NerveIter(LEFTSCIATIC_UPLINK.iter()),
-            HumanNerve::LeftPudendal => NerveIter(LEFTPUDENDAL_UPLINK.iter()),
-            HumanNerve::LeftInferiorRectal => NerveIter(LEFTINFERIORRECTAL_UPLINK.iter()),
-            HumanNerve::LeftSaphenous => NerveIter(LEFTSAPHENOUS_UPLINK.iter()),
-            HumanNerve::LeftCommonFibular => NerveIter(LEFTCOMMONFIBULAR_UPLINK.iter()),
-            HumanNerve::LeftSuperficialFibular => NerveIter(LEFTSUPERFICIALFIBULAR_UPLINK.iter()),
-            HumanNerve::LeftDeepFibular => NerveIter(LEFTDEEPFIBULAR_UPLINK.iter()),
-            HumanNerve::LeftSural => NerveIter(LEFTSURAL_UPLINK.iter()),
-            HumanNerve::LeftTibial => NerveIter(LEFTTIBIAL_UPLINK.iter()),
-            HumanNerve::LeftPlantal => NerveIter(LEFTPLANTAL_UPLINK.iter()),
-            HumanNerve::RightC1 => NerveIter(RIGHTC1_UPLINK.iter()),
-            HumanNerve::RightC2 => NerveIter(RIGHTC2_UPLINK.iter()),
-            HumanNerve::RightC3 => NerveIter(RIGHTC3_UPLINK.iter()),
-            HumanNerve::RightC4 => NerveIter(RIGHTC4_UPLINK.iter()),
-            HumanNerve::RightC5 => NerveIter(RIGHTC5_UPLINK.iter()),
-            HumanNerve::RightC6 => NerveIter(RIGHTC6_UPLINK.iter()),
-            HumanNerve::RightC7 => NerveIter(RIGHTC7_UPLINK.iter()),
-            HumanNerve::RightC8 => NerveIter(RIGHTC8_UPLINK.iter()),
-            HumanNerve::RightT1 => NerveIter(RIGHTT1_UPLINK.iter()),
-            HumanNerve::RightT2 => NerveIter(RIGHTT2_UPLINK.iter()),
-            HumanNerve::RightT3 => NerveIter(RIGHTT3_UPLINK.iter()),
-            HumanNerve::RightT4 => NerveIter(RIGHTT4_UPLINK.iter()),
-            HumanNerve::RightT5 => NerveIter(RIGHTT5_UPLINK.iter()),
-            HumanNerve::RightT6 => NerveIter(RIGHTT6_UPLINK.iter()),
-            HumanNerve::RightT7 => NerveIter(RIGHTT7_UPLINK.iter()),
-            HumanNerve::RightT8 => NerveIter(RIGHTT8_UPLINK.iter()),
-            HumanNerve::RightT9 => NerveIter(RIGHTT9_UPLINK.iter()),
-            HumanNerve::RightT10 => NerveIter(RIGHTT10_UPLINK.iter()),
-            HumanNerve::RightT11 => NerveIter(RIGHTT11_UPLINK.iter()),
-            HumanNerve::RightT12 => NerveIter(RIGHTT12_UPLINK.iter()),
-            HumanNerve::RightL1 => NerveIter(RIGHTL1_UPLINK.iter()),
-            HumanNerve::RightL2 => NerveIter(RIGHTL2_UPLINK.iter()),
-            HumanNerve::RightL3 => NerveIter(RIGHTL3_UPLINK.iter()),
-            HumanNerve::RightL4 => NerveIter(RIGHTL4_UPLINK.iter()),
-            HumanNerve::RightL5 => NerveIter(RIGHTL5_UPLINK.iter()),
-            HumanNerve::RightS1 => NerveIter(RIGHTS1_UPLINK.iter()),
-            HumanNerve::RightS2 => NerveIter(RIGHTS2_UPLINK.iter()),
-            HumanNerve::RightS3 => NerveIter(RIGHTS3_UPLINK.iter()),
-            HumanNerve::RightS4 => NerveIter(RIGHTS4_UPLINK.iter()),
-            HumanNerve::RightS5 => NerveIter(RIGHTS5_UPLINK.iter()),
-            HumanNerve::RightInternalCarotid => NerveIter(RIGHTINTERNALCAROTID_UPLINK.iter()),
-            HumanNerve::RightSympatheticChain => NerveIter(RIGHTSYMPATHETICCHAIN_UPLINK.iter()),
-            HumanNerve::RightGreaterThoracicSplanchic => NerveIter(RIGHTGREATERTHORACICSPLANCHIC_UPLINK.iter()),
-            HumanNerve::RightLesserThoracicSplanchic => NerveIter(RIGHTLESSERTHORACICSPLANCHIC_UPLINK.iter()),
-            HumanNerve::RightLeastThoracicSplanchic => NerveIter(RIGHTLEASTTHORACICSPLANCHIC_UPLINK.iter()),
-            HumanNerve::RightRenalPlexus => NerveIter(RIGHTRENALPLEXUS_UPLINK.iter()),
-            HumanNerve::RightIntermesentericPlexus => NerveIter(RIGHTINTERMESENTERICPLEXUS_UPLINK.iter()),
-            HumanNerve::RightLumbarSplanchic => NerveIter(RIGHTLUMBARSPLANCHIC_UPLINK.iter()),
-            HumanNerve::RightGenitofemoral => NerveIter(RIGHTGENITOFEMORAL_UPLINK.iter()),
-            HumanNerve::RightOccipital => NerveIter(RIGHTOCCIPITAL_UPLINK.iter()),
-            HumanNerve::RightGreatAricular => NerveIter(RIGHTGREATARICULAR_UPLINK.iter()),
-            HumanNerve::RightAnsaCervicalis => NerveIter(RIGHTANSACERVICALIS_UPLINK.iter()),
-            HumanNerve::RightIntercostal1 => NerveIter(RIGHTINTERCOSTAL1_UPLINK.iter()),
-            HumanNerve::RightIntercostal2 => NerveIter(RIGHTINTERCOSTAL2_UPLINK.iter()),
-            HumanNerve::RightIntercostal3 => NerveIter(RIGHTINTERCOSTAL3_UPLINK.iter()),
-            HumanNerve::RightIntercostal4 => NerveIter(RIGHTINTERCOSTAL4_UPLINK.iter()),
-            HumanNerve::RightIntercostal5 => NerveIter(RIGHTINTERCOSTAL5_UPLINK.iter()),
-            HumanNerve::RightIntercostal6 => NerveIter(RIGHTINTERCOSTAL6_UPLINK.iter()),
-            HumanNerve::RightIntercostal7 => NerveIter(RIGHTINTERCOSTAL7_UPLINK.iter()),
-            HumanNerve::RightIntercostal8 => NerveIter(RIGHTINTERCOSTAL8_UPLINK.iter()),
-            HumanNerve::RightIntercostal9 => NerveIter(RIGHTINTERCOSTAL9_UPLINK.iter()),
-            HumanNerve::RightIntercostal10 => NerveIter(RIGHTINTERCOSTAL10_UPLINK.iter()),
-            HumanNerve::RightIntercostal11 => NerveIter(RIGHTINTERCOSTAL11_UPLINK.iter()),
-            HumanNerve::RightSubcostal => NerveIter(RIGHTSUBCOSTAL_UPLINK.iter()),
-            HumanNerve::RightSupraclavicular => NerveIter(RIGHTSUPRACLAVICULAR_UPLINK.iter()),
-            HumanNerve::RightPhrenic => NerveIter(RIGHTPHRENIC_UPLINK.iter()),
-            HumanNerve::RightLateralBrachialPlexus => NerveIter(RIGHTLATERALBRACHIALPLEXUS_UPLINK.iter()),
-            HumanNerve::RightPosteriorBrachialPlexus => NerveIter(RIGHTPOSTERIORBRACHIALPLEXUS_UPLINK.iter()),
-            HumanNerve::RightMedialBrachialPlexus => NerveIter(RIGHTMEDIALBRACHIALPLEXUS_UPLINK.iter()),
-            HumanNerve::RightAxillary => NerveIter(RIGHTAXILLARY_UPLINK.iter()),
-            HumanNerve::RightMusculocutaneous => NerveIter(RIGHTMUSCULOCUTANEOUS_UPLINK.iter()),
-            HumanNerve::RightMedian => NerveIter(RIGHTMEDIAN_UPLINK.iter()),
-            HumanNerve::RightRadial => NerveIter(RIGHTRADIAL_UPLINK.iter()),
-            HumanNerve::RightUlnar => NerveIter(RIGHTULNAR_UPLINK.iter()),
-            HumanNerve::RightUpperSubscapular => NerveIter(RIGHTUPPERSUBSCAPULAR_UPLINK.iter()),
-            HumanNerve::RightLowerSubscapular => NerveIter(RIGHTLOWERSUBSCAPULAR_UPLINK.iter()),
-            HumanNerve::RightThoracodorsal => NerveIter(RIGHTTHORACODORSAL_UPLINK.iter()),
-            HumanNerve::RightDorsalScapular => NerveIter(RIGHTDORSALSCAPULAR_UPLINK.iter()),
-            HumanNerve::RightLongThoracic => NerveIter(RIGHTLONGTHORACIC_UPLINK.iter()),
-            HumanNerve::RightSuprascapular => NerveIter(RIGHTSUPRASCAPULAR_UPLINK.iter()),
-            HumanNerve::RightLateralPectoral => NerveIter(RIGHTLATERALPECTORAL_UPLINK.iter()),
-            HumanNerve::RightMedialPectoral => NerveIter(RIGHTMEDIALPECTORAL_UPLINK.iter()),
-            HumanNerve::RightMedialCutaneous => NerveIter(RIGHTMEDIALCUTANEOUS_UPLINK.iter()),
-            HumanNerve::RightIliohypogastric => NerveIter(RIGHTILIOHYPOGASTRIC_UPLINK.iter()),
-            HumanNerve::RightIlioInguinal => NerveIter(RIGHTILIOINGUINAL_UPLINK.iter()),
-            HumanNerve::RightObturator => NerveIter(RIGHTOBTURATOR_UPLINK.iter()),
-            HumanNerve::RightLumbarPlexus => NerveIter(RIGHTLUMBARPLEXUS_UPLINK.iter()),
-            HumanNerve::RightSacralPlexus => NerveIter(RIGHTSACRALPLEXUS_UPLINK.iter()),
-            HumanNerve::RightLateralFemoralCutaneous => NerveIter(RIGHTLATERALFEMORALCUTANEOUS_UPLINK.iter()),
-            HumanNerve::RightPosteriorFemoralCutaneous => NerveIter(RIGHTPOSTERIORFEMORALCUTANEOUS_UPLINK.iter()),
-            HumanNerve::RightFemoral => NerveIter(RIGHTFEMORAL_UPLINK.iter()),
-            HumanNerve::RightSciatic => NerveIter(RIGHTSCIATIC_UPLINK.iter()),
-            HumanNerve::RightPudendal => NerveIter(RIGHTPUDENDAL_UPLINK.iter()),
-            HumanNerve::RightInferiorRectal => NerveIter(RIGHTINFERIORRECTAL_UPLINK.iter()),
-            HumanNerve::RightSaphenous => NerveIter(RIGHTSAPHENOUS_UPLINK.iter()),
-            HumanNerve::RightCommonFibular => NerveIter(RIGHTCOMMONFIBULAR_UPLINK.iter()),
-            HumanNerve::RightSuperficialFibular => NerveIter(RIGHTSUPERFICIALFIBULAR_UPLINK.iter()),
-            HumanNerve::RightDeepFibular => NerveIter(RIGHTDEEPFIBULAR_UPLINK.iter()),
-            HumanNerve::RightSural => NerveIter(RIGHTSURAL_UPLINK.iter()),
-            HumanNerve::RightTibial => NerveIter(RIGHTTIBIAL_UPLINK.iter()),
-            HumanNerve::RightPlantal => NerveIter(RIGHTPLANTAL_UPLINK.iter())
+            HumanNerve::Brain => NerveIter(BRAIN_UPLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightOcculomotor => NerveIter(RIGHTOCCULOMOTOR_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::Brain);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftOcculomotor => NerveIter(LEFTOCCULOMOTOR_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::Brain);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::Brainstem => NerveIter(BRAINSTEM_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::Brain);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftTrigeminal => NerveIter(LEFTTRIGEMINAL_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::Brainstem);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightTrigeminal => NerveIter(RIGHTTRIGEMINAL_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::Brainstem);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftFacial => NerveIter(LEFTFACIAL_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::Brainstem);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightFacial => NerveIter(RIGHTFACIAL_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::Brainstem);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftHypoglossal => NerveIter(LEFTHYPOGLOSSAL_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::Brainstem);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightHypoglossal => NerveIter(RIGHTHYPOGLOSSAL_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::Brainstem);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftVagus => NerveIter(LEFTVAGUS_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::Brainstem);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftSuperiorLaryngeal => NerveIter(LEFTSUPERIORLARYNGEAL_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftVagus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftRecurrentLaryngeal => NerveIter(LEFTRECURRENTLARYNGEAL_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftVagus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightVagus => NerveIter(RIGHTVAGUS_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::Brainstem);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightSuperiorLaryngeal => NerveIter(RIGHTSUPERIORLARYNGEAL_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightVagus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightRecurrentLaryngeal => NerveIter(RIGHTRECURRENTLARYNGEAL_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightVagus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::EsophagealPlexus => NerveIter(ESOPHAGEALPLEXUS_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftVagus);
+                nerve_list.push(HumanNerve::RightVagus);
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::SuperficialCardiacPlexus => NerveIter(SUPERFICIALCARDIACPLEXUS_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::DeepCardiacPlexus => NerveIter(DEEPCARDIACPLEXUS_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::PulmonaryPlexus => NerveIter(PULMONARYPLEXUS_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftVagus);
+                nerve_list.push(HumanNerve::RightVagus);
+                nerve_list.push(HumanNerve::DeepCardiacPlexus);
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::CeliacPlexus => NerveIter(CELIACPLEXUS_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftVagus);
+                nerve_list.push(HumanNerve::RightVagus);
+                nerve_list.push(HumanNerve::LeftLesserThoracicSplanchic);
+                nerve_list.push(HumanNerve::RightLesserThoracicSplanchic);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::SuperiorMesentericPlexus => NerveIter(SUPERIORMESENTERICPLEXUS_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftLeastThoracicSplanchic);
+                nerve_list.push(HumanNerve::RightLeastThoracicSplanchic);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::InferiorMesentericPlexus => NerveIter(INFERIORMESENTERICPLEXUS_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftLeastThoracicSplanchic);
+                nerve_list.push(HumanNerve::RightLeastThoracicSplanchic);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::HypogastricPlexus => NerveIter(HYPOGASTRICPLEXUS_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::SpinalCord => NerveIter(SPINALCORD_UPLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftSpinalAccessory => NerveIter(LEFTSPINALACCESSORY_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightSpinalAccessory => NerveIter(RIGHTSPINALACCESSORY_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftC1 => NerveIter(LEFTC1_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftC2 => NerveIter(LEFTC2_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftC3 => NerveIter(LEFTC3_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftC4 => NerveIter(LEFTC4_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftC5 => NerveIter(LEFTC5_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftC6 => NerveIter(LEFTC6_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftC7 => NerveIter(LEFTC7_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftC8 => NerveIter(LEFTC8_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftT1 => NerveIter(LEFTT1_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftT2 => NerveIter(LEFTT2_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftT3 => NerveIter(LEFTT3_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftT4 => NerveIter(LEFTT4_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftT5 => NerveIter(LEFTT5_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftT6 => NerveIter(LEFTT6_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftT7 => NerveIter(LEFTT7_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftT8 => NerveIter(LEFTT8_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftT9 => NerveIter(LEFTT9_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftT10 => NerveIter(LEFTT10_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftT11 => NerveIter(LEFTT11_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftT12 => NerveIter(LEFTT12_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftL1 => NerveIter(LEFTL1_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::CaudaEquina => NerveIter(CAUDAEQUINA_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftL2 => NerveIter(LEFTL2_UPLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftL3 => NerveIter(LEFTL3_UPLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftL4 => NerveIter(LEFTL4_UPLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftL5 => NerveIter(LEFTL5_UPLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftS1 => NerveIter(LEFTS1_UPLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftS2 => NerveIter(LEFTS2_UPLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftS3 => NerveIter(LEFTS3_UPLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftS4 => NerveIter(LEFTS4_UPLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftS5 => NerveIter(LEFTS5_UPLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftInternalCarotid => NerveIter(LEFTINTERNALCAROTID_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftC1);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftSympatheticChain => NerveIter(LEFTSYMPATHETICCHAIN_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftC1);
+                nerve_list.push(HumanNerve::LeftC2);
+                nerve_list.push(HumanNerve::LeftC3);
+                nerve_list.push(HumanNerve::LeftC4);
+                nerve_list.push(HumanNerve::LeftC5);
+                nerve_list.push(HumanNerve::LeftC6);
+                nerve_list.push(HumanNerve::LeftC7);
+                nerve_list.push(HumanNerve::LeftC8);
+                nerve_list.push(HumanNerve::LeftT1);
+                nerve_list.push(HumanNerve::LeftT2);
+                nerve_list.push(HumanNerve::LeftT3);
+                nerve_list.push(HumanNerve::LeftT4);
+                nerve_list.push(HumanNerve::LeftT5);
+                nerve_list.push(HumanNerve::LeftT6);
+                nerve_list.push(HumanNerve::LeftT7);
+                nerve_list.push(HumanNerve::LeftT8);
+                nerve_list.push(HumanNerve::LeftT9);
+                nerve_list.push(HumanNerve::LeftT10);
+                nerve_list.push(HumanNerve::LeftT11);
+                nerve_list.push(HumanNerve::LeftT12);
+                nerve_list.push(HumanNerve::LeftL1);
+                nerve_list.push(HumanNerve::LeftL2);
+                nerve_list.push(HumanNerve::LeftL3);
+                nerve_list.push(HumanNerve::LeftL4);
+                nerve_list.push(HumanNerve::LeftL5);
+                nerve_list.push(HumanNerve::LeftS1);
+                nerve_list.push(HumanNerve::LeftS2);
+                nerve_list.push(HumanNerve::LeftS3);
+                nerve_list.push(HumanNerve::LeftS4);
+                nerve_list.push(HumanNerve::LeftS5);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftGreaterThoracicSplanchic => NerveIter(LEFTGREATERTHORACICSPLANCHIC_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftLesserThoracicSplanchic => NerveIter(LEFTLESSERTHORACICSPLANCHIC_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftLeastThoracicSplanchic => NerveIter(LEFTLEASTTHORACICSPLANCHIC_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftRenalPlexus => NerveIter(LEFTRENALPLEXUS_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftLeastThoracicSplanchic);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftIntermesentericPlexus => NerveIter(LEFTINTERMESENTERICPLEXUS_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftLeastThoracicSplanchic);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftLumbarSplanchic => NerveIter(LEFTLUMBARSPLANCHIC_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftGenitofemoral => NerveIter(LEFTGENITOFEMORAL_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftL1);
+                nerve_list.push(HumanNerve::LeftL2);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftOccipital => NerveIter(LEFTOCCIPITAL_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftC2);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftGreatAricular => NerveIter(LEFTGREATARICULAR_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftC2);
+                nerve_list.push(HumanNerve::LeftC3);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftAnsaCervicalis => NerveIter(LEFTANSACERVICALIS_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftC2);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftIntercostal1 => NerveIter(LEFTINTERCOSTAL1_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftT1);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftIntercostal2 => NerveIter(LEFTINTERCOSTAL2_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftT2);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftIntercostal3 => NerveIter(LEFTINTERCOSTAL3_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftT3);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftIntercostal4 => NerveIter(LEFTINTERCOSTAL4_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftT4);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftIntercostal5 => NerveIter(LEFTINTERCOSTAL5_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftT5);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftIntercostal6 => NerveIter(LEFTINTERCOSTAL6_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftT6);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftIntercostal7 => NerveIter(LEFTINTERCOSTAL7_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftT7);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftIntercostal8 => NerveIter(LEFTINTERCOSTAL8_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftT8);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftIntercostal9 => NerveIter(LEFTINTERCOSTAL9_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftT9);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftIntercostal10 => NerveIter(LEFTINTERCOSTAL10_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftT10);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftIntercostal11 => NerveIter(LEFTINTERCOSTAL11_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftT11);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftSubcostal => NerveIter(LEFTSUBCOSTAL_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftT12);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftSupraclavicular => NerveIter(LEFTSUPRACLAVICULAR_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftC3);
+                nerve_list.push(HumanNerve::LeftC4);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftPhrenic => NerveIter(LEFTPHRENIC_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftC3);
+                nerve_list.push(HumanNerve::LeftC4);
+                nerve_list.push(HumanNerve::LeftC5);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftLateralBrachialPlexus => NerveIter(LEFTLATERALBRACHIALPLEXUS_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftC5);
+                nerve_list.push(HumanNerve::LeftC6);
+                nerve_list.push(HumanNerve::LeftC7);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftPosteriorBrachialPlexus => NerveIter(LEFTPOSTERIORBRACHIALPLEXUS_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftC5);
+                nerve_list.push(HumanNerve::LeftC6);
+                nerve_list.push(HumanNerve::LeftC7);
+                nerve_list.push(HumanNerve::LeftC8);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftMedialBrachialPlexus => NerveIter(LEFTMEDIALBRACHIALPLEXUS_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftC8);
+                nerve_list.push(HumanNerve::LeftT1);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftAxillary => NerveIter(LEFTAXILLARY_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftPosteriorBrachialPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftMusculocutaneous => NerveIter(LEFTMUSCULOCUTANEOUS_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftLateralBrachialPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftMedian => NerveIter(LEFTMEDIAN_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftLateralBrachialPlexus);
+                nerve_list.push(HumanNerve::LeftMedialBrachialPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftRadial => NerveIter(LEFTRADIAL_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftPosteriorBrachialPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftUlnar => NerveIter(LEFTULNAR_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftMedialBrachialPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftUpperSubscapular => NerveIter(LEFTUPPERSUBSCAPULAR_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftPosteriorBrachialPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftLowerSubscapular => NerveIter(LEFTLOWERSUBSCAPULAR_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftPosteriorBrachialPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftThoracodorsal => NerveIter(LEFTTHORACODORSAL_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftC6);
+                nerve_list.push(HumanNerve::LeftC7);
+                nerve_list.push(HumanNerve::LeftC8);
+                nerve_list.push(HumanNerve::LeftPosteriorBrachialPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftDorsalScapular => NerveIter(LEFTDORSALSCAPULAR_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftC5);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftLongThoracic => NerveIter(LEFTLONGTHORACIC_UPLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftSuprascapular => NerveIter(LEFTSUPRASCAPULAR_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftC5);
+                nerve_list.push(HumanNerve::LeftC6);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftLateralPectoral => NerveIter(LEFTLATERALPECTORAL_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftLateralBrachialPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftMedialPectoral => NerveIter(LEFTMEDIALPECTORAL_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftMedialBrachialPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftMedialCutaneous => NerveIter(LEFTMEDIALCUTANEOUS_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftMedialBrachialPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftIliohypogastric => NerveIter(LEFTILIOHYPOGASTRIC_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftL1);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftIlioInguinal => NerveIter(LEFTILIOINGUINAL_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftL1);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftObturator => NerveIter(LEFTOBTURATOR_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftL2);
+                nerve_list.push(HumanNerve::LeftL3);
+                nerve_list.push(HumanNerve::LeftL4);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftLumbarPlexus => NerveIter(LEFTLUMBARPLEXUS_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftL2);
+                nerve_list.push(HumanNerve::LeftL3);
+                nerve_list.push(HumanNerve::LeftL4);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftSacralPlexus => NerveIter(LEFTSACRALPLEXUS_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftL4);
+                nerve_list.push(HumanNerve::LeftL5);
+                nerve_list.push(HumanNerve::LeftS1);
+                nerve_list.push(HumanNerve::LeftS2);
+                nerve_list.push(HumanNerve::LeftS3);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftLateralFemoralCutaneous => NerveIter(LEFTLATERALFEMORALCUTANEOUS_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftLumbarPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftPosteriorFemoralCutaneous => NerveIter(LEFTPOSTERIORFEMORALCUTANEOUS_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSacralPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftFemoral => NerveIter(LEFTFEMORAL_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftLumbarPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftSciatic => NerveIter(LEFTSCIATIC_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSacralPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftPudendal => NerveIter(LEFTPUDENDAL_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftS2);
+                nerve_list.push(HumanNerve::LeftS3);
+                nerve_list.push(HumanNerve::LeftS4);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftInferiorRectal => NerveIter(LEFTINFERIORRECTAL_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftPudendal);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftSaphenous => NerveIter(LEFTSAPHENOUS_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftGenitofemoral);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftCommonFibular => NerveIter(LEFTCOMMONFIBULAR_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSciatic);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftSuperficialFibular => NerveIter(LEFTSUPERFICIALFIBULAR_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftCommonFibular);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftDeepFibular => NerveIter(LEFTDEEPFIBULAR_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftCommonFibular);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftSural => NerveIter(LEFTSURAL_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftCommonFibular);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftTibial => NerveIter(LEFTTIBIAL_UPLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftPlantal => NerveIter(LEFTPLANTAL_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftTibial);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightC1 => NerveIter(RIGHTC1_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightC2 => NerveIter(RIGHTC2_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightC3 => NerveIter(RIGHTC3_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightC4 => NerveIter(RIGHTC4_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightC5 => NerveIter(RIGHTC5_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightC6 => NerveIter(RIGHTC6_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightC7 => NerveIter(RIGHTC7_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightC8 => NerveIter(RIGHTC8_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightT1 => NerveIter(RIGHTT1_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightT2 => NerveIter(RIGHTT2_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightT3 => NerveIter(RIGHTT3_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightT4 => NerveIter(RIGHTT4_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightT5 => NerveIter(RIGHTT5_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightT6 => NerveIter(RIGHTT6_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightT7 => NerveIter(RIGHTT7_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightT8 => NerveIter(RIGHTT8_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightT9 => NerveIter(RIGHTT9_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightT10 => NerveIter(RIGHTT10_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightT11 => NerveIter(RIGHTT11_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightT12 => NerveIter(RIGHTT12_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightL1 => NerveIter(RIGHTL1_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightL2 => NerveIter(RIGHTL2_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::CaudaEquina);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightL3 => NerveIter(RIGHTL3_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::CaudaEquina);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightL4 => NerveIter(RIGHTL4_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::CaudaEquina);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightL5 => NerveIter(RIGHTL5_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::CaudaEquina);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightS1 => NerveIter(RIGHTS1_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::CaudaEquina);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightS2 => NerveIter(RIGHTS2_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::CaudaEquina);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightS3 => NerveIter(RIGHTS3_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::CaudaEquina);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightS4 => NerveIter(RIGHTS4_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::CaudaEquina);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightS5 => NerveIter(RIGHTS5_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::CaudaEquina);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightInternalCarotid => NerveIter(RIGHTINTERNALCAROTID_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightC1);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightSympatheticChain => NerveIter(RIGHTSYMPATHETICCHAIN_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightC1);
+                nerve_list.push(HumanNerve::RightC2);
+                nerve_list.push(HumanNerve::RightC3);
+                nerve_list.push(HumanNerve::RightC4);
+                nerve_list.push(HumanNerve::RightC5);
+                nerve_list.push(HumanNerve::RightC6);
+                nerve_list.push(HumanNerve::RightC7);
+                nerve_list.push(HumanNerve::RightC8);
+                nerve_list.push(HumanNerve::RightT1);
+                nerve_list.push(HumanNerve::RightT2);
+                nerve_list.push(HumanNerve::RightT3);
+                nerve_list.push(HumanNerve::RightT4);
+                nerve_list.push(HumanNerve::RightT5);
+                nerve_list.push(HumanNerve::RightT6);
+                nerve_list.push(HumanNerve::RightT7);
+                nerve_list.push(HumanNerve::RightT8);
+                nerve_list.push(HumanNerve::RightT9);
+                nerve_list.push(HumanNerve::RightT10);
+                nerve_list.push(HumanNerve::RightT11);
+                nerve_list.push(HumanNerve::RightT12);
+                nerve_list.push(HumanNerve::RightL1);
+                nerve_list.push(HumanNerve::RightL2);
+                nerve_list.push(HumanNerve::RightL3);
+                nerve_list.push(HumanNerve::RightL4);
+                nerve_list.push(HumanNerve::RightL5);
+                nerve_list.push(HumanNerve::RightS1);
+                nerve_list.push(HumanNerve::RightS2);
+                nerve_list.push(HumanNerve::RightS3);
+                nerve_list.push(HumanNerve::RightS4);
+                nerve_list.push(HumanNerve::RightS5);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightGreaterThoracicSplanchic => NerveIter(RIGHTGREATERTHORACICSPLANCHIC_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightLesserThoracicSplanchic => NerveIter(RIGHTLESSERTHORACICSPLANCHIC_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightLeastThoracicSplanchic => NerveIter(RIGHTLEASTTHORACICSPLANCHIC_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightRenalPlexus => NerveIter(RIGHTRENALPLEXUS_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightLeastThoracicSplanchic);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightIntermesentericPlexus => NerveIter(RIGHTINTERMESENTERICPLEXUS_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightLeastThoracicSplanchic);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightLumbarSplanchic => NerveIter(RIGHTLUMBARSPLANCHIC_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightGenitofemoral => NerveIter(RIGHTGENITOFEMORAL_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightL1);
+                nerve_list.push(HumanNerve::RightL2);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightOccipital => NerveIter(RIGHTOCCIPITAL_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightC2);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightGreatAricular => NerveIter(RIGHTGREATARICULAR_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightC2);
+                nerve_list.push(HumanNerve::RightC3);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightAnsaCervicalis => NerveIter(RIGHTANSACERVICALIS_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightC2);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightIntercostal1 => NerveIter(RIGHTINTERCOSTAL1_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightT1);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightIntercostal2 => NerveIter(RIGHTINTERCOSTAL2_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightT2);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightIntercostal3 => NerveIter(RIGHTINTERCOSTAL3_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightT3);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightIntercostal4 => NerveIter(RIGHTINTERCOSTAL4_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightT4);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightIntercostal5 => NerveIter(RIGHTINTERCOSTAL5_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightT5);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightIntercostal6 => NerveIter(RIGHTINTERCOSTAL6_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightT6);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightIntercostal7 => NerveIter(RIGHTINTERCOSTAL7_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightT7);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightIntercostal8 => NerveIter(RIGHTINTERCOSTAL8_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightT8);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightIntercostal9 => NerveIter(RIGHTINTERCOSTAL9_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightT9);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightIntercostal10 => NerveIter(RIGHTINTERCOSTAL10_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightT10);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightIntercostal11 => NerveIter(RIGHTINTERCOSTAL11_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightT11);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightSubcostal => NerveIter(RIGHTSUBCOSTAL_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightT12);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightSupraclavicular => NerveIter(RIGHTSUPRACLAVICULAR_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightC3);
+                nerve_list.push(HumanNerve::RightC4);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightPhrenic => NerveIter(RIGHTPHRENIC_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightC3);
+                nerve_list.push(HumanNerve::RightC4);
+                nerve_list.push(HumanNerve::RightC5);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightLateralBrachialPlexus => NerveIter(RIGHTLATERALBRACHIALPLEXUS_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightC5);
+                nerve_list.push(HumanNerve::RightC6);
+                nerve_list.push(HumanNerve::RightC7);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightPosteriorBrachialPlexus => NerveIter(RIGHTPOSTERIORBRACHIALPLEXUS_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightC5);
+                nerve_list.push(HumanNerve::RightC6);
+                nerve_list.push(HumanNerve::RightC7);
+                nerve_list.push(HumanNerve::RightC8);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightMedialBrachialPlexus => NerveIter(RIGHTMEDIALBRACHIALPLEXUS_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightC8);
+                nerve_list.push(HumanNerve::RightT1);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightAxillary => NerveIter(RIGHTAXILLARY_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightPosteriorBrachialPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightMusculocutaneous => NerveIter(RIGHTMUSCULOCUTANEOUS_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightLateralBrachialPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightMedian => NerveIter(RIGHTMEDIAN_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightLateralBrachialPlexus);
+                nerve_list.push(HumanNerve::RightMedialBrachialPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightRadial => NerveIter(RIGHTRADIAL_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightPosteriorBrachialPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightUlnar => NerveIter(RIGHTULNAR_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightMedialBrachialPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightUpperSubscapular => NerveIter(RIGHTUPPERSUBSCAPULAR_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightPosteriorBrachialPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightLowerSubscapular => NerveIter(RIGHTLOWERSUBSCAPULAR_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightPosteriorBrachialPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightThoracodorsal => NerveIter(RIGHTTHORACODORSAL_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightC6);
+                nerve_list.push(HumanNerve::RightC7);
+                nerve_list.push(HumanNerve::RightC8);
+                nerve_list.push(HumanNerve::RightPosteriorBrachialPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightDorsalScapular => NerveIter(RIGHTDORSALSCAPULAR_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightC5);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightLongThoracic => NerveIter(RIGHTLONGTHORACIC_UPLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightSuprascapular => NerveIter(RIGHTSUPRASCAPULAR_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightC5);
+                nerve_list.push(HumanNerve::RightC6);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightLateralPectoral => NerveIter(RIGHTLATERALPECTORAL_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightLateralBrachialPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightMedialPectoral => NerveIter(RIGHTMEDIALPECTORAL_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightMedialBrachialPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightMedialCutaneous => NerveIter(RIGHTMEDIALCUTANEOUS_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightMedialBrachialPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightIliohypogastric => NerveIter(RIGHTILIOHYPOGASTRIC_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightL1);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightIlioInguinal => NerveIter(RIGHTILIOINGUINAL_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightL1);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightObturator => NerveIter(RIGHTOBTURATOR_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightL2);
+                nerve_list.push(HumanNerve::RightL3);
+                nerve_list.push(HumanNerve::RightL4);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightLumbarPlexus => NerveIter(RIGHTLUMBARPLEXUS_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightL2);
+                nerve_list.push(HumanNerve::RightL3);
+                nerve_list.push(HumanNerve::RightL4);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightSacralPlexus => NerveIter(RIGHTSACRALPLEXUS_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightL4);
+                nerve_list.push(HumanNerve::RightL5);
+                nerve_list.push(HumanNerve::RightS1);
+                nerve_list.push(HumanNerve::RightS2);
+                nerve_list.push(HumanNerve::RightS3);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightLateralFemoralCutaneous => NerveIter(RIGHTLATERALFEMORALCUTANEOUS_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightLumbarPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightPosteriorFemoralCutaneous => NerveIter(RIGHTPOSTERIORFEMORALCUTANEOUS_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSacralPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightFemoral => NerveIter(RIGHTFEMORAL_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightLumbarPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightSciatic => NerveIter(RIGHTSCIATIC_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSacralPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightPudendal => NerveIter(RIGHTPUDENDAL_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightS2);
+                nerve_list.push(HumanNerve::RightS3);
+                nerve_list.push(HumanNerve::RightS4);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightInferiorRectal => NerveIter(RIGHTINFERIORRECTAL_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightPudendal);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightSaphenous => NerveIter(RIGHTSAPHENOUS_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightGenitofemoral);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightCommonFibular => NerveIter(RIGHTCOMMONFIBULAR_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSciatic);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightSuperficialFibular => NerveIter(RIGHTSUPERFICIALFIBULAR_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightCommonFibular);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightDeepFibular => NerveIter(RIGHTDEEPFIBULAR_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightCommonFibular);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightSural => NerveIter(RIGHTSURAL_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightCommonFibular);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightTibial => NerveIter(RIGHTTIBIAL_UPLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightPlantal => NerveIter(RIGHTPLANTAL_UPLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightTibial);
+                nerve_list
+                
+            }).iter())
         }
     }
     fn downlink<'a>(&self) -> NerveIter<'a, Self> {
         match self {
             
-            HumanNerve::Brain => NerveIter(BRAIN_DOWNLINK.iter()),
-            HumanNerve::RightOcculomotor => NerveIter(RIGHTOCCULOMOTOR_DOWNLINK.iter()),
-            HumanNerve::LeftOcculomotor => NerveIter(LEFTOCCULOMOTOR_DOWNLINK.iter()),
-            HumanNerve::Brainstem => NerveIter(BRAINSTEM_DOWNLINK.iter()),
-            HumanNerve::LeftTrigeminal => NerveIter(LEFTTRIGEMINAL_DOWNLINK.iter()),
-            HumanNerve::RightTrigeminal => NerveIter(RIGHTTRIGEMINAL_DOWNLINK.iter()),
-            HumanNerve::LeftFacial => NerveIter(LEFTFACIAL_DOWNLINK.iter()),
-            HumanNerve::RightFacial => NerveIter(RIGHTFACIAL_DOWNLINK.iter()),
-            HumanNerve::LeftHypoglossal => NerveIter(LEFTHYPOGLOSSAL_DOWNLINK.iter()),
-            HumanNerve::RightHypoglossal => NerveIter(RIGHTHYPOGLOSSAL_DOWNLINK.iter()),
-            HumanNerve::LeftVagus => NerveIter(LEFTVAGUS_DOWNLINK.iter()),
-            HumanNerve::LeftSuperiorLaryngeal => NerveIter(LEFTSUPERIORLARYNGEAL_DOWNLINK.iter()),
-            HumanNerve::LeftRecurrentLaryngeal => NerveIter(LEFTRECURRENTLARYNGEAL_DOWNLINK.iter()),
-            HumanNerve::RightVagus => NerveIter(RIGHTVAGUS_DOWNLINK.iter()),
-            HumanNerve::RightSuperiorLaryngeal => NerveIter(RIGHTSUPERIORLARYNGEAL_DOWNLINK.iter()),
-            HumanNerve::RightRecurrentLaryngeal => NerveIter(RIGHTRECURRENTLARYNGEAL_DOWNLINK.iter()),
-            HumanNerve::EsophagealPlexus => NerveIter(ESOPHAGEALPLEXUS_DOWNLINK.iter()),
-            HumanNerve::SuperficialCardiacPlexus => NerveIter(SUPERFICIALCARDIACPLEXUS_DOWNLINK.iter()),
-            HumanNerve::DeepCardiacPlexus => NerveIter(DEEPCARDIACPLEXUS_DOWNLINK.iter()),
-            HumanNerve::PulmonaryPlexus => NerveIter(PULMONARYPLEXUS_DOWNLINK.iter()),
-            HumanNerve::CeliacPlexus => NerveIter(CELIACPLEXUS_DOWNLINK.iter()),
-            HumanNerve::SuperiorMesentericPlexus => NerveIter(SUPERIORMESENTERICPLEXUS_DOWNLINK.iter()),
-            HumanNerve::InferiorMesentericPlexus => NerveIter(INFERIORMESENTERICPLEXUS_DOWNLINK.iter()),
-            HumanNerve::HypogastricPlexus => NerveIter(HYPOGASTRICPLEXUS_DOWNLINK.iter()),
-            HumanNerve::SpinalCord => NerveIter(SPINALCORD_DOWNLINK.iter()),
-            HumanNerve::LeftSpinalAccessory => NerveIter(LEFTSPINALACCESSORY_DOWNLINK.iter()),
-            HumanNerve::RightSpinalAccessory => NerveIter(RIGHTSPINALACCESSORY_DOWNLINK.iter()),
-            HumanNerve::LeftC1 => NerveIter(LEFTC1_DOWNLINK.iter()),
-            HumanNerve::LeftC2 => NerveIter(LEFTC2_DOWNLINK.iter()),
-            HumanNerve::LeftC3 => NerveIter(LEFTC3_DOWNLINK.iter()),
-            HumanNerve::LeftC4 => NerveIter(LEFTC4_DOWNLINK.iter()),
-            HumanNerve::LeftC5 => NerveIter(LEFTC5_DOWNLINK.iter()),
-            HumanNerve::LeftC6 => NerveIter(LEFTC6_DOWNLINK.iter()),
-            HumanNerve::LeftC7 => NerveIter(LEFTC7_DOWNLINK.iter()),
-            HumanNerve::LeftC8 => NerveIter(LEFTC8_DOWNLINK.iter()),
-            HumanNerve::LeftT1 => NerveIter(LEFTT1_DOWNLINK.iter()),
-            HumanNerve::LeftT2 => NerveIter(LEFTT2_DOWNLINK.iter()),
-            HumanNerve::LeftT3 => NerveIter(LEFTT3_DOWNLINK.iter()),
-            HumanNerve::LeftT4 => NerveIter(LEFTT4_DOWNLINK.iter()),
-            HumanNerve::LeftT5 => NerveIter(LEFTT5_DOWNLINK.iter()),
-            HumanNerve::LeftT6 => NerveIter(LEFTT6_DOWNLINK.iter()),
-            HumanNerve::LeftT7 => NerveIter(LEFTT7_DOWNLINK.iter()),
-            HumanNerve::LeftT8 => NerveIter(LEFTT8_DOWNLINK.iter()),
-            HumanNerve::LeftT9 => NerveIter(LEFTT9_DOWNLINK.iter()),
-            HumanNerve::LeftT10 => NerveIter(LEFTT10_DOWNLINK.iter()),
-            HumanNerve::LeftT11 => NerveIter(LEFTT11_DOWNLINK.iter()),
-            HumanNerve::LeftT12 => NerveIter(LEFTT12_DOWNLINK.iter()),
-            HumanNerve::LeftL1 => NerveIter(LEFTL1_DOWNLINK.iter()),
-            HumanNerve::CaudaEquina => NerveIter(CAUDAEQUINA_DOWNLINK.iter()),
-            HumanNerve::LeftL2 => NerveIter(LEFTL2_DOWNLINK.iter()),
-            HumanNerve::LeftL3 => NerveIter(LEFTL3_DOWNLINK.iter()),
-            HumanNerve::LeftL4 => NerveIter(LEFTL4_DOWNLINK.iter()),
-            HumanNerve::LeftL5 => NerveIter(LEFTL5_DOWNLINK.iter()),
-            HumanNerve::LeftS1 => NerveIter(LEFTS1_DOWNLINK.iter()),
-            HumanNerve::LeftS2 => NerveIter(LEFTS2_DOWNLINK.iter()),
-            HumanNerve::LeftS3 => NerveIter(LEFTS3_DOWNLINK.iter()),
-            HumanNerve::LeftS4 => NerveIter(LEFTS4_DOWNLINK.iter()),
-            HumanNerve::LeftS5 => NerveIter(LEFTS5_DOWNLINK.iter()),
-            HumanNerve::LeftInternalCarotid => NerveIter(LEFTINTERNALCAROTID_DOWNLINK.iter()),
-            HumanNerve::LeftSympatheticChain => NerveIter(LEFTSYMPATHETICCHAIN_DOWNLINK.iter()),
-            HumanNerve::LeftGreaterThoracicSplanchic => NerveIter(LEFTGREATERTHORACICSPLANCHIC_DOWNLINK.iter()),
-            HumanNerve::LeftLesserThoracicSplanchic => NerveIter(LEFTLESSERTHORACICSPLANCHIC_DOWNLINK.iter()),
-            HumanNerve::LeftLeastThoracicSplanchic => NerveIter(LEFTLEASTTHORACICSPLANCHIC_DOWNLINK.iter()),
-            HumanNerve::LeftRenalPlexus => NerveIter(LEFTRENALPLEXUS_DOWNLINK.iter()),
-            HumanNerve::LeftIntermesentericPlexus => NerveIter(LEFTINTERMESENTERICPLEXUS_DOWNLINK.iter()),
-            HumanNerve::LeftLumbarSplanchic => NerveIter(LEFTLUMBARSPLANCHIC_DOWNLINK.iter()),
-            HumanNerve::LeftGenitofemoral => NerveIter(LEFTGENITOFEMORAL_DOWNLINK.iter()),
-            HumanNerve::LeftOccipital => NerveIter(LEFTOCCIPITAL_DOWNLINK.iter()),
-            HumanNerve::LeftGreatAricular => NerveIter(LEFTGREATARICULAR_DOWNLINK.iter()),
-            HumanNerve::LeftAnsaCervicalis => NerveIter(LEFTANSACERVICALIS_DOWNLINK.iter()),
-            HumanNerve::LeftIntercostal1 => NerveIter(LEFTINTERCOSTAL1_DOWNLINK.iter()),
-            HumanNerve::LeftIntercostal2 => NerveIter(LEFTINTERCOSTAL2_DOWNLINK.iter()),
-            HumanNerve::LeftIntercostal3 => NerveIter(LEFTINTERCOSTAL3_DOWNLINK.iter()),
-            HumanNerve::LeftIntercostal4 => NerveIter(LEFTINTERCOSTAL4_DOWNLINK.iter()),
-            HumanNerve::LeftIntercostal5 => NerveIter(LEFTINTERCOSTAL5_DOWNLINK.iter()),
-            HumanNerve::LeftIntercostal6 => NerveIter(LEFTINTERCOSTAL6_DOWNLINK.iter()),
-            HumanNerve::LeftIntercostal7 => NerveIter(LEFTINTERCOSTAL7_DOWNLINK.iter()),
-            HumanNerve::LeftIntercostal8 => NerveIter(LEFTINTERCOSTAL8_DOWNLINK.iter()),
-            HumanNerve::LeftIntercostal9 => NerveIter(LEFTINTERCOSTAL9_DOWNLINK.iter()),
-            HumanNerve::LeftIntercostal10 => NerveIter(LEFTINTERCOSTAL10_DOWNLINK.iter()),
-            HumanNerve::LeftIntercostal11 => NerveIter(LEFTINTERCOSTAL11_DOWNLINK.iter()),
-            HumanNerve::LeftSubcostal => NerveIter(LEFTSUBCOSTAL_DOWNLINK.iter()),
-            HumanNerve::LeftSupraclavicular => NerveIter(LEFTSUPRACLAVICULAR_DOWNLINK.iter()),
-            HumanNerve::LeftPhrenic => NerveIter(LEFTPHRENIC_DOWNLINK.iter()),
-            HumanNerve::LeftLateralBrachialPlexus => NerveIter(LEFTLATERALBRACHIALPLEXUS_DOWNLINK.iter()),
-            HumanNerve::LeftPosteriorBrachialPlexus => NerveIter(LEFTPOSTERIORBRACHIALPLEXUS_DOWNLINK.iter()),
-            HumanNerve::LeftMedialBrachialPlexus => NerveIter(LEFTMEDIALBRACHIALPLEXUS_DOWNLINK.iter()),
-            HumanNerve::LeftAxillary => NerveIter(LEFTAXILLARY_DOWNLINK.iter()),
-            HumanNerve::LeftMusculocutaneous => NerveIter(LEFTMUSCULOCUTANEOUS_DOWNLINK.iter()),
-            HumanNerve::LeftMedian => NerveIter(LEFTMEDIAN_DOWNLINK.iter()),
-            HumanNerve::LeftRadial => NerveIter(LEFTRADIAL_DOWNLINK.iter()),
-            HumanNerve::LeftUlnar => NerveIter(LEFTULNAR_DOWNLINK.iter()),
-            HumanNerve::LeftUpperSubscapular => NerveIter(LEFTUPPERSUBSCAPULAR_DOWNLINK.iter()),
-            HumanNerve::LeftLowerSubscapular => NerveIter(LEFTLOWERSUBSCAPULAR_DOWNLINK.iter()),
-            HumanNerve::LeftThoracodorsal => NerveIter(LEFTTHORACODORSAL_DOWNLINK.iter()),
-            HumanNerve::LeftDorsalScapular => NerveIter(LEFTDORSALSCAPULAR_DOWNLINK.iter()),
-            HumanNerve::LeftLongThoracic => NerveIter(LEFTLONGTHORACIC_DOWNLINK.iter()),
-            HumanNerve::LeftSuprascapular => NerveIter(LEFTSUPRASCAPULAR_DOWNLINK.iter()),
-            HumanNerve::LeftLateralPectoral => NerveIter(LEFTLATERALPECTORAL_DOWNLINK.iter()),
-            HumanNerve::LeftMedialPectoral => NerveIter(LEFTMEDIALPECTORAL_DOWNLINK.iter()),
-            HumanNerve::LeftMedialCutaneous => NerveIter(LEFTMEDIALCUTANEOUS_DOWNLINK.iter()),
-            HumanNerve::LeftIliohypogastric => NerveIter(LEFTILIOHYPOGASTRIC_DOWNLINK.iter()),
-            HumanNerve::LeftIlioInguinal => NerveIter(LEFTILIOINGUINAL_DOWNLINK.iter()),
-            HumanNerve::LeftObturator => NerveIter(LEFTOBTURATOR_DOWNLINK.iter()),
-            HumanNerve::LeftLumbarPlexus => NerveIter(LEFTLUMBARPLEXUS_DOWNLINK.iter()),
-            HumanNerve::LeftSacralPlexus => NerveIter(LEFTSACRALPLEXUS_DOWNLINK.iter()),
-            HumanNerve::LeftLateralFemoralCutaneous => NerveIter(LEFTLATERALFEMORALCUTANEOUS_DOWNLINK.iter()),
-            HumanNerve::LeftPosteriorFemoralCutaneous => NerveIter(LEFTPOSTERIORFEMORALCUTANEOUS_DOWNLINK.iter()),
-            HumanNerve::LeftFemoral => NerveIter(LEFTFEMORAL_DOWNLINK.iter()),
-            HumanNerve::LeftSciatic => NerveIter(LEFTSCIATIC_DOWNLINK.iter()),
-            HumanNerve::LeftPudendal => NerveIter(LEFTPUDENDAL_DOWNLINK.iter()),
-            HumanNerve::LeftInferiorRectal => NerveIter(LEFTINFERIORRECTAL_DOWNLINK.iter()),
-            HumanNerve::LeftSaphenous => NerveIter(LEFTSAPHENOUS_DOWNLINK.iter()),
-            HumanNerve::LeftCommonFibular => NerveIter(LEFTCOMMONFIBULAR_DOWNLINK.iter()),
-            HumanNerve::LeftSuperficialFibular => NerveIter(LEFTSUPERFICIALFIBULAR_DOWNLINK.iter()),
-            HumanNerve::LeftDeepFibular => NerveIter(LEFTDEEPFIBULAR_DOWNLINK.iter()),
-            HumanNerve::LeftSural => NerveIter(LEFTSURAL_DOWNLINK.iter()),
-            HumanNerve::LeftTibial => NerveIter(LEFTTIBIAL_DOWNLINK.iter()),
-            HumanNerve::LeftPlantal => NerveIter(LEFTPLANTAL_DOWNLINK.iter()),
-            HumanNerve::RightC1 => NerveIter(RIGHTC1_DOWNLINK.iter()),
-            HumanNerve::RightC2 => NerveIter(RIGHTC2_DOWNLINK.iter()),
-            HumanNerve::RightC3 => NerveIter(RIGHTC3_DOWNLINK.iter()),
-            HumanNerve::RightC4 => NerveIter(RIGHTC4_DOWNLINK.iter()),
-            HumanNerve::RightC5 => NerveIter(RIGHTC5_DOWNLINK.iter()),
-            HumanNerve::RightC6 => NerveIter(RIGHTC6_DOWNLINK.iter()),
-            HumanNerve::RightC7 => NerveIter(RIGHTC7_DOWNLINK.iter()),
-            HumanNerve::RightC8 => NerveIter(RIGHTC8_DOWNLINK.iter()),
-            HumanNerve::RightT1 => NerveIter(RIGHTT1_DOWNLINK.iter()),
-            HumanNerve::RightT2 => NerveIter(RIGHTT2_DOWNLINK.iter()),
-            HumanNerve::RightT3 => NerveIter(RIGHTT3_DOWNLINK.iter()),
-            HumanNerve::RightT4 => NerveIter(RIGHTT4_DOWNLINK.iter()),
-            HumanNerve::RightT5 => NerveIter(RIGHTT5_DOWNLINK.iter()),
-            HumanNerve::RightT6 => NerveIter(RIGHTT6_DOWNLINK.iter()),
-            HumanNerve::RightT7 => NerveIter(RIGHTT7_DOWNLINK.iter()),
-            HumanNerve::RightT8 => NerveIter(RIGHTT8_DOWNLINK.iter()),
-            HumanNerve::RightT9 => NerveIter(RIGHTT9_DOWNLINK.iter()),
-            HumanNerve::RightT10 => NerveIter(RIGHTT10_DOWNLINK.iter()),
-            HumanNerve::RightT11 => NerveIter(RIGHTT11_DOWNLINK.iter()),
-            HumanNerve::RightT12 => NerveIter(RIGHTT12_DOWNLINK.iter()),
-            HumanNerve::RightL1 => NerveIter(RIGHTL1_DOWNLINK.iter()),
-            HumanNerve::RightL2 => NerveIter(RIGHTL2_DOWNLINK.iter()),
-            HumanNerve::RightL3 => NerveIter(RIGHTL3_DOWNLINK.iter()),
-            HumanNerve::RightL4 => NerveIter(RIGHTL4_DOWNLINK.iter()),
-            HumanNerve::RightL5 => NerveIter(RIGHTL5_DOWNLINK.iter()),
-            HumanNerve::RightS1 => NerveIter(RIGHTS1_DOWNLINK.iter()),
-            HumanNerve::RightS2 => NerveIter(RIGHTS2_DOWNLINK.iter()),
-            HumanNerve::RightS3 => NerveIter(RIGHTS3_DOWNLINK.iter()),
-            HumanNerve::RightS4 => NerveIter(RIGHTS4_DOWNLINK.iter()),
-            HumanNerve::RightS5 => NerveIter(RIGHTS5_DOWNLINK.iter()),
-            HumanNerve::RightInternalCarotid => NerveIter(RIGHTINTERNALCAROTID_DOWNLINK.iter()),
-            HumanNerve::RightSympatheticChain => NerveIter(RIGHTSYMPATHETICCHAIN_DOWNLINK.iter()),
-            HumanNerve::RightGreaterThoracicSplanchic => NerveIter(RIGHTGREATERTHORACICSPLANCHIC_DOWNLINK.iter()),
-            HumanNerve::RightLesserThoracicSplanchic => NerveIter(RIGHTLESSERTHORACICSPLANCHIC_DOWNLINK.iter()),
-            HumanNerve::RightLeastThoracicSplanchic => NerveIter(RIGHTLEASTTHORACICSPLANCHIC_DOWNLINK.iter()),
-            HumanNerve::RightRenalPlexus => NerveIter(RIGHTRENALPLEXUS_DOWNLINK.iter()),
-            HumanNerve::RightIntermesentericPlexus => NerveIter(RIGHTINTERMESENTERICPLEXUS_DOWNLINK.iter()),
-            HumanNerve::RightLumbarSplanchic => NerveIter(RIGHTLUMBARSPLANCHIC_DOWNLINK.iter()),
-            HumanNerve::RightGenitofemoral => NerveIter(RIGHTGENITOFEMORAL_DOWNLINK.iter()),
-            HumanNerve::RightOccipital => NerveIter(RIGHTOCCIPITAL_DOWNLINK.iter()),
-            HumanNerve::RightGreatAricular => NerveIter(RIGHTGREATARICULAR_DOWNLINK.iter()),
-            HumanNerve::RightAnsaCervicalis => NerveIter(RIGHTANSACERVICALIS_DOWNLINK.iter()),
-            HumanNerve::RightIntercostal1 => NerveIter(RIGHTINTERCOSTAL1_DOWNLINK.iter()),
-            HumanNerve::RightIntercostal2 => NerveIter(RIGHTINTERCOSTAL2_DOWNLINK.iter()),
-            HumanNerve::RightIntercostal3 => NerveIter(RIGHTINTERCOSTAL3_DOWNLINK.iter()),
-            HumanNerve::RightIntercostal4 => NerveIter(RIGHTINTERCOSTAL4_DOWNLINK.iter()),
-            HumanNerve::RightIntercostal5 => NerveIter(RIGHTINTERCOSTAL5_DOWNLINK.iter()),
-            HumanNerve::RightIntercostal6 => NerveIter(RIGHTINTERCOSTAL6_DOWNLINK.iter()),
-            HumanNerve::RightIntercostal7 => NerveIter(RIGHTINTERCOSTAL7_DOWNLINK.iter()),
-            HumanNerve::RightIntercostal8 => NerveIter(RIGHTINTERCOSTAL8_DOWNLINK.iter()),
-            HumanNerve::RightIntercostal9 => NerveIter(RIGHTINTERCOSTAL9_DOWNLINK.iter()),
-            HumanNerve::RightIntercostal10 => NerveIter(RIGHTINTERCOSTAL10_DOWNLINK.iter()),
-            HumanNerve::RightIntercostal11 => NerveIter(RIGHTINTERCOSTAL11_DOWNLINK.iter()),
-            HumanNerve::RightSubcostal => NerveIter(RIGHTSUBCOSTAL_DOWNLINK.iter()),
-            HumanNerve::RightSupraclavicular => NerveIter(RIGHTSUPRACLAVICULAR_DOWNLINK.iter()),
-            HumanNerve::RightPhrenic => NerveIter(RIGHTPHRENIC_DOWNLINK.iter()),
-            HumanNerve::RightLateralBrachialPlexus => NerveIter(RIGHTLATERALBRACHIALPLEXUS_DOWNLINK.iter()),
-            HumanNerve::RightPosteriorBrachialPlexus => NerveIter(RIGHTPOSTERIORBRACHIALPLEXUS_DOWNLINK.iter()),
-            HumanNerve::RightMedialBrachialPlexus => NerveIter(RIGHTMEDIALBRACHIALPLEXUS_DOWNLINK.iter()),
-            HumanNerve::RightAxillary => NerveIter(RIGHTAXILLARY_DOWNLINK.iter()),
-            HumanNerve::RightMusculocutaneous => NerveIter(RIGHTMUSCULOCUTANEOUS_DOWNLINK.iter()),
-            HumanNerve::RightMedian => NerveIter(RIGHTMEDIAN_DOWNLINK.iter()),
-            HumanNerve::RightRadial => NerveIter(RIGHTRADIAL_DOWNLINK.iter()),
-            HumanNerve::RightUlnar => NerveIter(RIGHTULNAR_DOWNLINK.iter()),
-            HumanNerve::RightUpperSubscapular => NerveIter(RIGHTUPPERSUBSCAPULAR_DOWNLINK.iter()),
-            HumanNerve::RightLowerSubscapular => NerveIter(RIGHTLOWERSUBSCAPULAR_DOWNLINK.iter()),
-            HumanNerve::RightThoracodorsal => NerveIter(RIGHTTHORACODORSAL_DOWNLINK.iter()),
-            HumanNerve::RightDorsalScapular => NerveIter(RIGHTDORSALSCAPULAR_DOWNLINK.iter()),
-            HumanNerve::RightLongThoracic => NerveIter(RIGHTLONGTHORACIC_DOWNLINK.iter()),
-            HumanNerve::RightSuprascapular => NerveIter(RIGHTSUPRASCAPULAR_DOWNLINK.iter()),
-            HumanNerve::RightLateralPectoral => NerveIter(RIGHTLATERALPECTORAL_DOWNLINK.iter()),
-            HumanNerve::RightMedialPectoral => NerveIter(RIGHTMEDIALPECTORAL_DOWNLINK.iter()),
-            HumanNerve::RightMedialCutaneous => NerveIter(RIGHTMEDIALCUTANEOUS_DOWNLINK.iter()),
-            HumanNerve::RightIliohypogastric => NerveIter(RIGHTILIOHYPOGASTRIC_DOWNLINK.iter()),
-            HumanNerve::RightIlioInguinal => NerveIter(RIGHTILIOINGUINAL_DOWNLINK.iter()),
-            HumanNerve::RightObturator => NerveIter(RIGHTOBTURATOR_DOWNLINK.iter()),
-            HumanNerve::RightLumbarPlexus => NerveIter(RIGHTLUMBARPLEXUS_DOWNLINK.iter()),
-            HumanNerve::RightSacralPlexus => NerveIter(RIGHTSACRALPLEXUS_DOWNLINK.iter()),
-            HumanNerve::RightLateralFemoralCutaneous => NerveIter(RIGHTLATERALFEMORALCUTANEOUS_DOWNLINK.iter()),
-            HumanNerve::RightPosteriorFemoralCutaneous => NerveIter(RIGHTPOSTERIORFEMORALCUTANEOUS_DOWNLINK.iter()),
-            HumanNerve::RightFemoral => NerveIter(RIGHTFEMORAL_DOWNLINK.iter()),
-            HumanNerve::RightSciatic => NerveIter(RIGHTSCIATIC_DOWNLINK.iter()),
-            HumanNerve::RightPudendal => NerveIter(RIGHTPUDENDAL_DOWNLINK.iter()),
-            HumanNerve::RightInferiorRectal => NerveIter(RIGHTINFERIORRECTAL_DOWNLINK.iter()),
-            HumanNerve::RightSaphenous => NerveIter(RIGHTSAPHENOUS_DOWNLINK.iter()),
-            HumanNerve::RightCommonFibular => NerveIter(RIGHTCOMMONFIBULAR_DOWNLINK.iter()),
-            HumanNerve::RightSuperficialFibular => NerveIter(RIGHTSUPERFICIALFIBULAR_DOWNLINK.iter()),
-            HumanNerve::RightDeepFibular => NerveIter(RIGHTDEEPFIBULAR_DOWNLINK.iter()),
-            HumanNerve::RightSural => NerveIter(RIGHTSURAL_DOWNLINK.iter()),
-            HumanNerve::RightTibial => NerveIter(RIGHTTIBIAL_DOWNLINK.iter()),
-            HumanNerve::RightPlantal => NerveIter(RIGHTPLANTAL_DOWNLINK.iter())
+            HumanNerve::Brain => NerveIter(BRAIN_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightOcculomotor);
+                nerve_list.push(HumanNerve::LeftOcculomotor);
+                nerve_list.push(HumanNerve::Brainstem);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightOcculomotor => NerveIter(RIGHTOCCULOMOTOR_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftOcculomotor => NerveIter(LEFTOCCULOMOTOR_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::Brainstem => NerveIter(BRAINSTEM_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftTrigeminal);
+                nerve_list.push(HumanNerve::RightTrigeminal);
+                nerve_list.push(HumanNerve::LeftFacial);
+                nerve_list.push(HumanNerve::RightFacial);
+                nerve_list.push(HumanNerve::LeftHypoglossal);
+                nerve_list.push(HumanNerve::RightHypoglossal);
+                nerve_list.push(HumanNerve::LeftVagus);
+                nerve_list.push(HumanNerve::RightVagus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftTrigeminal => NerveIter(LEFTTRIGEMINAL_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightTrigeminal => NerveIter(RIGHTTRIGEMINAL_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftFacial => NerveIter(LEFTFACIAL_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightFacial => NerveIter(RIGHTFACIAL_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftHypoglossal => NerveIter(LEFTHYPOGLOSSAL_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightHypoglossal => NerveIter(RIGHTHYPOGLOSSAL_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftVagus => NerveIter(LEFTVAGUS_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSuperiorLaryngeal);
+                nerve_list.push(HumanNerve::LeftRecurrentLaryngeal);
+                nerve_list.push(HumanNerve::EsophagealPlexus);
+                nerve_list.push(HumanNerve::PulmonaryPlexus);
+                nerve_list.push(HumanNerve::CeliacPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftSuperiorLaryngeal => NerveIter(LEFTSUPERIORLARYNGEAL_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftRecurrentLaryngeal => NerveIter(LEFTRECURRENTLARYNGEAL_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightVagus => NerveIter(RIGHTVAGUS_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSuperiorLaryngeal);
+                nerve_list.push(HumanNerve::RightRecurrentLaryngeal);
+                nerve_list.push(HumanNerve::EsophagealPlexus);
+                nerve_list.push(HumanNerve::PulmonaryPlexus);
+                nerve_list.push(HumanNerve::CeliacPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightSuperiorLaryngeal => NerveIter(RIGHTSUPERIORLARYNGEAL_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightRecurrentLaryngeal => NerveIter(RIGHTRECURRENTLARYNGEAL_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::EsophagealPlexus => NerveIter(ESOPHAGEALPLEXUS_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::SuperficialCardiacPlexus => NerveIter(SUPERFICIALCARDIACPLEXUS_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::DeepCardiacPlexus => NerveIter(DEEPCARDIACPLEXUS_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::PulmonaryPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::PulmonaryPlexus => NerveIter(PULMONARYPLEXUS_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::CeliacPlexus => NerveIter(CELIACPLEXUS_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::SuperiorMesentericPlexus => NerveIter(SUPERIORMESENTERICPLEXUS_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::InferiorMesentericPlexus => NerveIter(INFERIORMESENTERICPLEXUS_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::HypogastricPlexus => NerveIter(HYPOGASTRICPLEXUS_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::SpinalCord => NerveIter(SPINALCORD_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSpinalAccessory);
+                nerve_list.push(HumanNerve::RightSpinalAccessory);
+                nerve_list.push(HumanNerve::LeftC1);
+                nerve_list.push(HumanNerve::RightC1);
+                nerve_list.push(HumanNerve::LeftC2);
+                nerve_list.push(HumanNerve::RightC2);
+                nerve_list.push(HumanNerve::LeftC3);
+                nerve_list.push(HumanNerve::RightC3);
+                nerve_list.push(HumanNerve::LeftC4);
+                nerve_list.push(HumanNerve::RightC4);
+                nerve_list.push(HumanNerve::LeftC5);
+                nerve_list.push(HumanNerve::RightC5);
+                nerve_list.push(HumanNerve::LeftC6);
+                nerve_list.push(HumanNerve::RightC6);
+                nerve_list.push(HumanNerve::LeftC7);
+                nerve_list.push(HumanNerve::RightC7);
+                nerve_list.push(HumanNerve::LeftC8);
+                nerve_list.push(HumanNerve::RightC8);
+                nerve_list.push(HumanNerve::LeftT1);
+                nerve_list.push(HumanNerve::RightT1);
+                nerve_list.push(HumanNerve::LeftT2);
+                nerve_list.push(HumanNerve::RightT2);
+                nerve_list.push(HumanNerve::LeftT3);
+                nerve_list.push(HumanNerve::RightT3);
+                nerve_list.push(HumanNerve::LeftT4);
+                nerve_list.push(HumanNerve::RightT4);
+                nerve_list.push(HumanNerve::LeftT5);
+                nerve_list.push(HumanNerve::RightT5);
+                nerve_list.push(HumanNerve::LeftT6);
+                nerve_list.push(HumanNerve::RightT6);
+                nerve_list.push(HumanNerve::LeftT7);
+                nerve_list.push(HumanNerve::RightT7);
+                nerve_list.push(HumanNerve::LeftT8);
+                nerve_list.push(HumanNerve::RightT8);
+                nerve_list.push(HumanNerve::LeftT9);
+                nerve_list.push(HumanNerve::RightT9);
+                nerve_list.push(HumanNerve::LeftT10);
+                nerve_list.push(HumanNerve::RightT10);
+                nerve_list.push(HumanNerve::LeftT11);
+                nerve_list.push(HumanNerve::RightT11);
+                nerve_list.push(HumanNerve::LeftT12);
+                nerve_list.push(HumanNerve::RightT12);
+                nerve_list.push(HumanNerve::LeftL1);
+                nerve_list.push(HumanNerve::RightL1);
+                nerve_list.push(HumanNerve::CaudaEquina);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftSpinalAccessory => NerveIter(LEFTSPINALACCESSORY_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightSpinalAccessory => NerveIter(RIGHTSPINALACCESSORY_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftC1 => NerveIter(LEFTC1_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftInternalCarotid);
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftC2 => NerveIter(LEFTC2_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list.push(HumanNerve::LeftOccipital);
+                nerve_list.push(HumanNerve::LeftGreatAricular);
+                nerve_list.push(HumanNerve::LeftAnsaCervicalis);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftC3 => NerveIter(LEFTC3_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list.push(HumanNerve::LeftGreatAricular);
+                nerve_list.push(HumanNerve::LeftSupraclavicular);
+                nerve_list.push(HumanNerve::LeftPhrenic);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftC4 => NerveIter(LEFTC4_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list.push(HumanNerve::LeftSupraclavicular);
+                nerve_list.push(HumanNerve::LeftPhrenic);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftC5 => NerveIter(LEFTC5_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list.push(HumanNerve::LeftPhrenic);
+                nerve_list.push(HumanNerve::LeftLateralBrachialPlexus);
+                nerve_list.push(HumanNerve::LeftPosteriorBrachialPlexus);
+                nerve_list.push(HumanNerve::LeftDorsalScapular);
+                nerve_list.push(HumanNerve::LeftSuprascapular);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftC6 => NerveIter(LEFTC6_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list.push(HumanNerve::LeftThoracodorsal);
+                nerve_list.push(HumanNerve::LeftLateralBrachialPlexus);
+                nerve_list.push(HumanNerve::LeftPosteriorBrachialPlexus);
+                nerve_list.push(HumanNerve::LeftSuprascapular);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftC7 => NerveIter(LEFTC7_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list.push(HumanNerve::LeftThoracodorsal);
+                nerve_list.push(HumanNerve::LeftLateralBrachialPlexus);
+                nerve_list.push(HumanNerve::LeftPosteriorBrachialPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftC8 => NerveIter(LEFTC8_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list.push(HumanNerve::LeftThoracodorsal);
+                nerve_list.push(HumanNerve::LeftPosteriorBrachialPlexus);
+                nerve_list.push(HumanNerve::LeftMedialBrachialPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftT1 => NerveIter(LEFTT1_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list.push(HumanNerve::LeftIntercostal1);
+                nerve_list.push(HumanNerve::LeftMedialBrachialPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftT2 => NerveIter(LEFTT2_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list.push(HumanNerve::LeftIntercostal2);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftT3 => NerveIter(LEFTT3_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list.push(HumanNerve::LeftIntercostal3);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftT4 => NerveIter(LEFTT4_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list.push(HumanNerve::LeftIntercostal4);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftT5 => NerveIter(LEFTT5_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list.push(HumanNerve::LeftIntercostal5);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftT6 => NerveIter(LEFTT6_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list.push(HumanNerve::LeftIntercostal6);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftT7 => NerveIter(LEFTT7_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list.push(HumanNerve::LeftIntercostal7);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftT8 => NerveIter(LEFTT8_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list.push(HumanNerve::LeftIntercostal8);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftT9 => NerveIter(LEFTT9_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list.push(HumanNerve::LeftIntercostal9);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftT10 => NerveIter(LEFTT10_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list.push(HumanNerve::LeftIntercostal10);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftT11 => NerveIter(LEFTT11_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list.push(HumanNerve::LeftIntercostal11);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftT12 => NerveIter(LEFTT12_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list.push(HumanNerve::LeftSubcostal);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftL1 => NerveIter(LEFTL1_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list.push(HumanNerve::LeftIliohypogastric);
+                nerve_list.push(HumanNerve::LeftIlioInguinal);
+                nerve_list.push(HumanNerve::LeftGenitofemoral);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::CaudaEquina => NerveIter(CAUDAEQUINA_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightL2);
+                nerve_list.push(HumanNerve::RightL3);
+                nerve_list.push(HumanNerve::RightL4);
+                nerve_list.push(HumanNerve::RightL5);
+                nerve_list.push(HumanNerve::RightS1);
+                nerve_list.push(HumanNerve::RightS2);
+                nerve_list.push(HumanNerve::RightS3);
+                nerve_list.push(HumanNerve::RightS4);
+                nerve_list.push(HumanNerve::RightS5);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftL2 => NerveIter(LEFTL2_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list.push(HumanNerve::LeftLumbarPlexus);
+                nerve_list.push(HumanNerve::LeftGenitofemoral);
+                nerve_list.push(HumanNerve::LeftObturator);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftL3 => NerveIter(LEFTL3_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list.push(HumanNerve::LeftLumbarPlexus);
+                nerve_list.push(HumanNerve::LeftObturator);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftL4 => NerveIter(LEFTL4_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list.push(HumanNerve::LeftLumbarPlexus);
+                nerve_list.push(HumanNerve::LeftSacralPlexus);
+                nerve_list.push(HumanNerve::LeftObturator);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftL5 => NerveIter(LEFTL5_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list.push(HumanNerve::LeftSacralPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftS1 => NerveIter(LEFTS1_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list.push(HumanNerve::LeftSacralPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftS2 => NerveIter(LEFTS2_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list.push(HumanNerve::LeftSacralPlexus);
+                nerve_list.push(HumanNerve::LeftPudendal);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftS3 => NerveIter(LEFTS3_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list.push(HumanNerve::LeftSacralPlexus);
+                nerve_list.push(HumanNerve::LeftPudendal);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftS4 => NerveIter(LEFTS4_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list.push(HumanNerve::LeftPudendal);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftS5 => NerveIter(LEFTS5_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSympatheticChain);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftInternalCarotid => NerveIter(LEFTINTERNALCAROTID_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftSympatheticChain => NerveIter(LEFTSYMPATHETICCHAIN_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::EsophagealPlexus);
+                nerve_list.push(HumanNerve::SuperficialCardiacPlexus);
+                nerve_list.push(HumanNerve::DeepCardiacPlexus);
+                nerve_list.push(HumanNerve::PulmonaryPlexus);
+                nerve_list.push(HumanNerve::LeftGreaterThoracicSplanchic);
+                nerve_list.push(HumanNerve::LeftLesserThoracicSplanchic);
+                nerve_list.push(HumanNerve::LeftLeastThoracicSplanchic);
+                nerve_list.push(HumanNerve::LeftLumbarSplanchic);
+                nerve_list.push(HumanNerve::HypogastricPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftGreaterThoracicSplanchic => NerveIter(LEFTGREATERTHORACICSPLANCHIC_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftLesserThoracicSplanchic => NerveIter(LEFTLESSERTHORACICSPLANCHIC_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::CeliacPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftLeastThoracicSplanchic => NerveIter(LEFTLEASTTHORACICSPLANCHIC_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftRenalPlexus);
+                nerve_list.push(HumanNerve::SuperiorMesentericPlexus);
+                nerve_list.push(HumanNerve::LeftIntermesentericPlexus);
+                nerve_list.push(HumanNerve::InferiorMesentericPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftRenalPlexus => NerveIter(LEFTRENALPLEXUS_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftIntermesentericPlexus => NerveIter(LEFTINTERMESENTERICPLEXUS_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftLumbarSplanchic => NerveIter(LEFTLUMBARSPLANCHIC_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftGenitofemoral => NerveIter(LEFTGENITOFEMORAL_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSaphenous);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftOccipital => NerveIter(LEFTOCCIPITAL_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftGreatAricular => NerveIter(LEFTGREATARICULAR_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftAnsaCervicalis => NerveIter(LEFTANSACERVICALIS_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftIntercostal1 => NerveIter(LEFTINTERCOSTAL1_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftIntercostal2 => NerveIter(LEFTINTERCOSTAL2_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftIntercostal3 => NerveIter(LEFTINTERCOSTAL3_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftIntercostal4 => NerveIter(LEFTINTERCOSTAL4_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftIntercostal5 => NerveIter(LEFTINTERCOSTAL5_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftIntercostal6 => NerveIter(LEFTINTERCOSTAL6_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftIntercostal7 => NerveIter(LEFTINTERCOSTAL7_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftIntercostal8 => NerveIter(LEFTINTERCOSTAL8_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftIntercostal9 => NerveIter(LEFTINTERCOSTAL9_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftIntercostal10 => NerveIter(LEFTINTERCOSTAL10_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftIntercostal11 => NerveIter(LEFTINTERCOSTAL11_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftSubcostal => NerveIter(LEFTSUBCOSTAL_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftSupraclavicular => NerveIter(LEFTSUPRACLAVICULAR_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftPhrenic => NerveIter(LEFTPHRENIC_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftLateralBrachialPlexus => NerveIter(LEFTLATERALBRACHIALPLEXUS_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftMedian);
+                nerve_list.push(HumanNerve::LeftMusculocutaneous);
+                nerve_list.push(HumanNerve::LeftLateralPectoral);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftPosteriorBrachialPlexus => NerveIter(LEFTPOSTERIORBRACHIALPLEXUS_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftAxillary);
+                nerve_list.push(HumanNerve::LeftRadial);
+                nerve_list.push(HumanNerve::LeftUpperSubscapular);
+                nerve_list.push(HumanNerve::LeftThoracodorsal);
+                nerve_list.push(HumanNerve::LeftLowerSubscapular);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftMedialBrachialPlexus => NerveIter(LEFTMEDIALBRACHIALPLEXUS_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftMedian);
+                nerve_list.push(HumanNerve::LeftUlnar);
+                nerve_list.push(HumanNerve::LeftMedialPectoral);
+                nerve_list.push(HumanNerve::LeftMedialCutaneous);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftAxillary => NerveIter(LEFTAXILLARY_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftMusculocutaneous => NerveIter(LEFTMUSCULOCUTANEOUS_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftMedian => NerveIter(LEFTMEDIAN_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftRadial => NerveIter(LEFTRADIAL_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftUlnar => NerveIter(LEFTULNAR_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftUpperSubscapular => NerveIter(LEFTUPPERSUBSCAPULAR_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftLowerSubscapular => NerveIter(LEFTLOWERSUBSCAPULAR_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftThoracodorsal => NerveIter(LEFTTHORACODORSAL_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftDorsalScapular => NerveIter(LEFTDORSALSCAPULAR_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftLongThoracic => NerveIter(LEFTLONGTHORACIC_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftSuprascapular => NerveIter(LEFTSUPRASCAPULAR_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftLateralPectoral => NerveIter(LEFTLATERALPECTORAL_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftMedialPectoral => NerveIter(LEFTMEDIALPECTORAL_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftMedialCutaneous => NerveIter(LEFTMEDIALCUTANEOUS_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftIliohypogastric => NerveIter(LEFTILIOHYPOGASTRIC_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftIlioInguinal => NerveIter(LEFTILIOINGUINAL_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftObturator => NerveIter(LEFTOBTURATOR_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftLumbarPlexus => NerveIter(LEFTLUMBARPLEXUS_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftFemoral);
+                nerve_list.push(HumanNerve::LeftLateralFemoralCutaneous);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftSacralPlexus => NerveIter(LEFTSACRALPLEXUS_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSciatic);
+                nerve_list.push(HumanNerve::LeftPosteriorFemoralCutaneous);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftLateralFemoralCutaneous => NerveIter(LEFTLATERALFEMORALCUTANEOUS_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftPosteriorFemoralCutaneous => NerveIter(LEFTPOSTERIORFEMORALCUTANEOUS_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftFemoral => NerveIter(LEFTFEMORAL_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftSciatic => NerveIter(LEFTSCIATIC_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftCommonFibular);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftPudendal => NerveIter(LEFTPUDENDAL_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftInferiorRectal);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftInferiorRectal => NerveIter(LEFTINFERIORRECTAL_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftSaphenous => NerveIter(LEFTSAPHENOUS_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftCommonFibular => NerveIter(LEFTCOMMONFIBULAR_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSuperficialFibular);
+                nerve_list.push(HumanNerve::LeftDeepFibular);
+                nerve_list.push(HumanNerve::LeftSural);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftSuperficialFibular => NerveIter(LEFTSUPERFICIALFIBULAR_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftDeepFibular => NerveIter(LEFTDEEPFIBULAR_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftSural => NerveIter(LEFTSURAL_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::LeftTibial => NerveIter(LEFTTIBIAL_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftPlantal);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::LeftPlantal => NerveIter(LEFTPLANTAL_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightC1 => NerveIter(RIGHTC1_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightInternalCarotid);
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightC2 => NerveIter(RIGHTC2_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list.push(HumanNerve::RightOccipital);
+                nerve_list.push(HumanNerve::RightGreatAricular);
+                nerve_list.push(HumanNerve::RightAnsaCervicalis);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightC3 => NerveIter(RIGHTC3_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list.push(HumanNerve::RightGreatAricular);
+                nerve_list.push(HumanNerve::RightSupraclavicular);
+                nerve_list.push(HumanNerve::RightPhrenic);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightC4 => NerveIter(RIGHTC4_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list.push(HumanNerve::RightSupraclavicular);
+                nerve_list.push(HumanNerve::RightPhrenic);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightC5 => NerveIter(RIGHTC5_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list.push(HumanNerve::RightPhrenic);
+                nerve_list.push(HumanNerve::RightLateralBrachialPlexus);
+                nerve_list.push(HumanNerve::RightPosteriorBrachialPlexus);
+                nerve_list.push(HumanNerve::RightDorsalScapular);
+                nerve_list.push(HumanNerve::RightSuprascapular);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightC6 => NerveIter(RIGHTC6_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list.push(HumanNerve::RightThoracodorsal);
+                nerve_list.push(HumanNerve::RightLateralBrachialPlexus);
+                nerve_list.push(HumanNerve::RightPosteriorBrachialPlexus);
+                nerve_list.push(HumanNerve::RightSuprascapular);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightC7 => NerveIter(RIGHTC7_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list.push(HumanNerve::RightThoracodorsal);
+                nerve_list.push(HumanNerve::RightLateralBrachialPlexus);
+                nerve_list.push(HumanNerve::RightPosteriorBrachialPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightC8 => NerveIter(RIGHTC8_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list.push(HumanNerve::RightThoracodorsal);
+                nerve_list.push(HumanNerve::RightPosteriorBrachialPlexus);
+                nerve_list.push(HumanNerve::RightMedialBrachialPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightT1 => NerveIter(RIGHTT1_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list.push(HumanNerve::RightIntercostal1);
+                nerve_list.push(HumanNerve::RightMedialBrachialPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightT2 => NerveIter(RIGHTT2_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list.push(HumanNerve::RightIntercostal2);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightT3 => NerveIter(RIGHTT3_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list.push(HumanNerve::RightIntercostal3);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightT4 => NerveIter(RIGHTT4_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list.push(HumanNerve::RightIntercostal4);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightT5 => NerveIter(RIGHTT5_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list.push(HumanNerve::RightIntercostal5);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightT6 => NerveIter(RIGHTT6_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list.push(HumanNerve::RightIntercostal6);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightT7 => NerveIter(RIGHTT7_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list.push(HumanNerve::RightIntercostal7);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightT8 => NerveIter(RIGHTT8_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list.push(HumanNerve::RightIntercostal8);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightT9 => NerveIter(RIGHTT9_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list.push(HumanNerve::RightIntercostal9);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightT10 => NerveIter(RIGHTT10_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list.push(HumanNerve::RightIntercostal10);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightT11 => NerveIter(RIGHTT11_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list.push(HumanNerve::RightIntercostal11);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightT12 => NerveIter(RIGHTT12_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list.push(HumanNerve::RightSubcostal);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightL1 => NerveIter(RIGHTL1_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list.push(HumanNerve::RightIliohypogastric);
+                nerve_list.push(HumanNerve::RightIlioInguinal);
+                nerve_list.push(HumanNerve::RightGenitofemoral);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightL2 => NerveIter(RIGHTL2_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list.push(HumanNerve::RightLumbarPlexus);
+                nerve_list.push(HumanNerve::RightGenitofemoral);
+                nerve_list.push(HumanNerve::RightObturator);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightL3 => NerveIter(RIGHTL3_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list.push(HumanNerve::RightLumbarPlexus);
+                nerve_list.push(HumanNerve::RightObturator);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightL4 => NerveIter(RIGHTL4_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list.push(HumanNerve::RightLumbarPlexus);
+                nerve_list.push(HumanNerve::RightSacralPlexus);
+                nerve_list.push(HumanNerve::RightObturator);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightL5 => NerveIter(RIGHTL5_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list.push(HumanNerve::RightSacralPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightS1 => NerveIter(RIGHTS1_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list.push(HumanNerve::RightSacralPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightS2 => NerveIter(RIGHTS2_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list.push(HumanNerve::RightSacralPlexus);
+                nerve_list.push(HumanNerve::RightPudendal);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightS3 => NerveIter(RIGHTS3_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list.push(HumanNerve::RightSacralPlexus);
+                nerve_list.push(HumanNerve::RightPudendal);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightS4 => NerveIter(RIGHTS4_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list.push(HumanNerve::RightPudendal);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightS5 => NerveIter(RIGHTS5_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSympatheticChain);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightInternalCarotid => NerveIter(RIGHTINTERNALCAROTID_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightSympatheticChain => NerveIter(RIGHTSYMPATHETICCHAIN_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::EsophagealPlexus);
+                nerve_list.push(HumanNerve::SuperficialCardiacPlexus);
+                nerve_list.push(HumanNerve::DeepCardiacPlexus);
+                nerve_list.push(HumanNerve::PulmonaryPlexus);
+                nerve_list.push(HumanNerve::RightGreaterThoracicSplanchic);
+                nerve_list.push(HumanNerve::RightLesserThoracicSplanchic);
+                nerve_list.push(HumanNerve::RightLeastThoracicSplanchic);
+                nerve_list.push(HumanNerve::RightLumbarSplanchic);
+                nerve_list.push(HumanNerve::HypogastricPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightGreaterThoracicSplanchic => NerveIter(RIGHTGREATERTHORACICSPLANCHIC_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightLesserThoracicSplanchic => NerveIter(RIGHTLESSERTHORACICSPLANCHIC_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::CeliacPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightLeastThoracicSplanchic => NerveIter(RIGHTLEASTTHORACICSPLANCHIC_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightRenalPlexus);
+                nerve_list.push(HumanNerve::SuperiorMesentericPlexus);
+                nerve_list.push(HumanNerve::RightIntermesentericPlexus);
+                nerve_list.push(HumanNerve::InferiorMesentericPlexus);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightRenalPlexus => NerveIter(RIGHTRENALPLEXUS_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightIntermesentericPlexus => NerveIter(RIGHTINTERMESENTERICPLEXUS_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightLumbarSplanchic => NerveIter(RIGHTLUMBARSPLANCHIC_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightGenitofemoral => NerveIter(RIGHTGENITOFEMORAL_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSaphenous);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightOccipital => NerveIter(RIGHTOCCIPITAL_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightGreatAricular => NerveIter(RIGHTGREATARICULAR_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightAnsaCervicalis => NerveIter(RIGHTANSACERVICALIS_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightIntercostal1 => NerveIter(RIGHTINTERCOSTAL1_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightIntercostal2 => NerveIter(RIGHTINTERCOSTAL2_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightIntercostal3 => NerveIter(RIGHTINTERCOSTAL3_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightIntercostal4 => NerveIter(RIGHTINTERCOSTAL4_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightIntercostal5 => NerveIter(RIGHTINTERCOSTAL5_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightIntercostal6 => NerveIter(RIGHTINTERCOSTAL6_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightIntercostal7 => NerveIter(RIGHTINTERCOSTAL7_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightIntercostal8 => NerveIter(RIGHTINTERCOSTAL8_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightIntercostal9 => NerveIter(RIGHTINTERCOSTAL9_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightIntercostal10 => NerveIter(RIGHTINTERCOSTAL10_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightIntercostal11 => NerveIter(RIGHTINTERCOSTAL11_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightSubcostal => NerveIter(RIGHTSUBCOSTAL_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightSupraclavicular => NerveIter(RIGHTSUPRACLAVICULAR_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightPhrenic => NerveIter(RIGHTPHRENIC_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightLateralBrachialPlexus => NerveIter(RIGHTLATERALBRACHIALPLEXUS_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightMedian);
+                nerve_list.push(HumanNerve::RightMusculocutaneous);
+                nerve_list.push(HumanNerve::RightLateralPectoral);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightPosteriorBrachialPlexus => NerveIter(RIGHTPOSTERIORBRACHIALPLEXUS_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightAxillary);
+                nerve_list.push(HumanNerve::RightRadial);
+                nerve_list.push(HumanNerve::RightUpperSubscapular);
+                nerve_list.push(HumanNerve::RightThoracodorsal);
+                nerve_list.push(HumanNerve::RightLowerSubscapular);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightMedialBrachialPlexus => NerveIter(RIGHTMEDIALBRACHIALPLEXUS_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightMedian);
+                nerve_list.push(HumanNerve::RightUlnar);
+                nerve_list.push(HumanNerve::RightMedialPectoral);
+                nerve_list.push(HumanNerve::RightMedialCutaneous);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightAxillary => NerveIter(RIGHTAXILLARY_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightMusculocutaneous => NerveIter(RIGHTMUSCULOCUTANEOUS_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightMedian => NerveIter(RIGHTMEDIAN_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightRadial => NerveIter(RIGHTRADIAL_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightUlnar => NerveIter(RIGHTULNAR_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightUpperSubscapular => NerveIter(RIGHTUPPERSUBSCAPULAR_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightLowerSubscapular => NerveIter(RIGHTLOWERSUBSCAPULAR_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightThoracodorsal => NerveIter(RIGHTTHORACODORSAL_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightDorsalScapular => NerveIter(RIGHTDORSALSCAPULAR_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightLongThoracic => NerveIter(RIGHTLONGTHORACIC_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightSuprascapular => NerveIter(RIGHTSUPRASCAPULAR_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightLateralPectoral => NerveIter(RIGHTLATERALPECTORAL_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightMedialPectoral => NerveIter(RIGHTMEDIALPECTORAL_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightMedialCutaneous => NerveIter(RIGHTMEDIALCUTANEOUS_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightIliohypogastric => NerveIter(RIGHTILIOHYPOGASTRIC_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightIlioInguinal => NerveIter(RIGHTILIOINGUINAL_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightObturator => NerveIter(RIGHTOBTURATOR_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightLumbarPlexus => NerveIter(RIGHTLUMBARPLEXUS_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightFemoral);
+                nerve_list.push(HumanNerve::RightLateralFemoralCutaneous);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightSacralPlexus => NerveIter(RIGHTSACRALPLEXUS_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSciatic);
+                nerve_list.push(HumanNerve::RightPosteriorFemoralCutaneous);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightLateralFemoralCutaneous => NerveIter(RIGHTLATERALFEMORALCUTANEOUS_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightPosteriorFemoralCutaneous => NerveIter(RIGHTPOSTERIORFEMORALCUTANEOUS_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightFemoral => NerveIter(RIGHTFEMORAL_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightSciatic => NerveIter(RIGHTSCIATIC_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightCommonFibular);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightPudendal => NerveIter(RIGHTPUDENDAL_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightInferiorRectal);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightInferiorRectal => NerveIter(RIGHTINFERIORRECTAL_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightSaphenous => NerveIter(RIGHTSAPHENOUS_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightCommonFibular => NerveIter(RIGHTCOMMONFIBULAR_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSuperficialFibular);
+                nerve_list.push(HumanNerve::RightDeepFibular);
+                nerve_list.push(HumanNerve::RightSural);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightSuperficialFibular => NerveIter(RIGHTSUPERFICIALFIBULAR_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightDeepFibular => NerveIter(RIGHTDEEPFIBULAR_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightSural => NerveIter(RIGHTSURAL_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter()),
+            HumanNerve::RightTibial => NerveIter(RIGHTTIBIAL_DOWNLINK.get_or_init(|| {
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightPlantal);
+                nerve_list
+                
+            }).iter()),
+            HumanNerve::RightPlantal => NerveIter(RIGHTPLANTAL_DOWNLINK.get_or_init(|| {
+                Vec::new()
+            }).iter())
         }
     }
     fn regions<'a>(&self) -> AnatomicalRegionIter<Self::AnatomyType> {
         match self {
             
-            HumanNerve::Brain => AnatomicalRegionIter(BRAIN_REGIONS.iter()),
-            HumanNerve::RightOcculomotor => AnatomicalRegionIter(RIGHTOCCULOMOTOR_REGIONS.iter()),
-            HumanNerve::LeftOcculomotor => AnatomicalRegionIter(LEFTOCCULOMOTOR_REGIONS.iter()),
-            HumanNerve::Brainstem => AnatomicalRegionIter(BRAINSTEM_REGIONS.iter()),
-            HumanNerve::LeftTrigeminal => AnatomicalRegionIter(LEFTTRIGEMINAL_REGIONS.iter()),
-            HumanNerve::RightTrigeminal => AnatomicalRegionIter(RIGHTTRIGEMINAL_REGIONS.iter()),
-            HumanNerve::LeftFacial => AnatomicalRegionIter(LEFTFACIAL_REGIONS.iter()),
-            HumanNerve::RightFacial => AnatomicalRegionIter(RIGHTFACIAL_REGIONS.iter()),
-            HumanNerve::LeftHypoglossal => AnatomicalRegionIter(LEFTHYPOGLOSSAL_REGIONS.iter()),
-            HumanNerve::RightHypoglossal => AnatomicalRegionIter(RIGHTHYPOGLOSSAL_REGIONS.iter()),
-            HumanNerve::LeftVagus => AnatomicalRegionIter(LEFTVAGUS_REGIONS.iter()),
-            HumanNerve::LeftSuperiorLaryngeal => AnatomicalRegionIter(LEFTSUPERIORLARYNGEAL_REGIONS.iter()),
-            HumanNerve::LeftRecurrentLaryngeal => AnatomicalRegionIter(LEFTRECURRENTLARYNGEAL_REGIONS.iter()),
-            HumanNerve::RightVagus => AnatomicalRegionIter(RIGHTVAGUS_REGIONS.iter()),
-            HumanNerve::RightSuperiorLaryngeal => AnatomicalRegionIter(RIGHTSUPERIORLARYNGEAL_REGIONS.iter()),
-            HumanNerve::RightRecurrentLaryngeal => AnatomicalRegionIter(RIGHTRECURRENTLARYNGEAL_REGIONS.iter()),
-            HumanNerve::EsophagealPlexus => AnatomicalRegionIter(ESOPHAGEALPLEXUS_REGIONS.iter()),
-            HumanNerve::SuperficialCardiacPlexus => AnatomicalRegionIter(SUPERFICIALCARDIACPLEXUS_REGIONS.iter()),
-            HumanNerve::DeepCardiacPlexus => AnatomicalRegionIter(DEEPCARDIACPLEXUS_REGIONS.iter()),
-            HumanNerve::PulmonaryPlexus => AnatomicalRegionIter(PULMONARYPLEXUS_REGIONS.iter()),
-            HumanNerve::CeliacPlexus => AnatomicalRegionIter(CELIACPLEXUS_REGIONS.iter()),
-            HumanNerve::SuperiorMesentericPlexus => AnatomicalRegionIter(SUPERIORMESENTERICPLEXUS_REGIONS.iter()),
-            HumanNerve::InferiorMesentericPlexus => AnatomicalRegionIter(INFERIORMESENTERICPLEXUS_REGIONS.iter()),
-            HumanNerve::HypogastricPlexus => AnatomicalRegionIter(HYPOGASTRICPLEXUS_REGIONS.iter()),
-            HumanNerve::SpinalCord => AnatomicalRegionIter(SPINALCORD_REGIONS.iter()),
-            HumanNerve::LeftSpinalAccessory => AnatomicalRegionIter(LEFTSPINALACCESSORY_REGIONS.iter()),
-            HumanNerve::RightSpinalAccessory => AnatomicalRegionIter(RIGHTSPINALACCESSORY_REGIONS.iter()),
-            HumanNerve::LeftC1 => AnatomicalRegionIter(LEFTC1_REGIONS.iter()),
-            HumanNerve::LeftC2 => AnatomicalRegionIter(LEFTC2_REGIONS.iter()),
-            HumanNerve::LeftC3 => AnatomicalRegionIter(LEFTC3_REGIONS.iter()),
-            HumanNerve::LeftC4 => AnatomicalRegionIter(LEFTC4_REGIONS.iter()),
-            HumanNerve::LeftC5 => AnatomicalRegionIter(LEFTC5_REGIONS.iter()),
-            HumanNerve::LeftC6 => AnatomicalRegionIter(LEFTC6_REGIONS.iter()),
-            HumanNerve::LeftC7 => AnatomicalRegionIter(LEFTC7_REGIONS.iter()),
-            HumanNerve::LeftC8 => AnatomicalRegionIter(LEFTC8_REGIONS.iter()),
-            HumanNerve::LeftT1 => AnatomicalRegionIter(LEFTT1_REGIONS.iter()),
-            HumanNerve::LeftT2 => AnatomicalRegionIter(LEFTT2_REGIONS.iter()),
-            HumanNerve::LeftT3 => AnatomicalRegionIter(LEFTT3_REGIONS.iter()),
-            HumanNerve::LeftT4 => AnatomicalRegionIter(LEFTT4_REGIONS.iter()),
-            HumanNerve::LeftT5 => AnatomicalRegionIter(LEFTT5_REGIONS.iter()),
-            HumanNerve::LeftT6 => AnatomicalRegionIter(LEFTT6_REGIONS.iter()),
-            HumanNerve::LeftT7 => AnatomicalRegionIter(LEFTT7_REGIONS.iter()),
-            HumanNerve::LeftT8 => AnatomicalRegionIter(LEFTT8_REGIONS.iter()),
-            HumanNerve::LeftT9 => AnatomicalRegionIter(LEFTT9_REGIONS.iter()),
-            HumanNerve::LeftT10 => AnatomicalRegionIter(LEFTT10_REGIONS.iter()),
-            HumanNerve::LeftT11 => AnatomicalRegionIter(LEFTT11_REGIONS.iter()),
-            HumanNerve::LeftT12 => AnatomicalRegionIter(LEFTT12_REGIONS.iter()),
-            HumanNerve::LeftL1 => AnatomicalRegionIter(LEFTL1_REGIONS.iter()),
-            HumanNerve::CaudaEquina => AnatomicalRegionIter(CAUDAEQUINA_REGIONS.iter()),
-            HumanNerve::LeftL2 => AnatomicalRegionIter(LEFTL2_REGIONS.iter()),
-            HumanNerve::LeftL3 => AnatomicalRegionIter(LEFTL3_REGIONS.iter()),
-            HumanNerve::LeftL4 => AnatomicalRegionIter(LEFTL4_REGIONS.iter()),
-            HumanNerve::LeftL5 => AnatomicalRegionIter(LEFTL5_REGIONS.iter()),
-            HumanNerve::LeftS1 => AnatomicalRegionIter(LEFTS1_REGIONS.iter()),
-            HumanNerve::LeftS2 => AnatomicalRegionIter(LEFTS2_REGIONS.iter()),
-            HumanNerve::LeftS3 => AnatomicalRegionIter(LEFTS3_REGIONS.iter()),
-            HumanNerve::LeftS4 => AnatomicalRegionIter(LEFTS4_REGIONS.iter()),
-            HumanNerve::LeftS5 => AnatomicalRegionIter(LEFTS5_REGIONS.iter()),
-            HumanNerve::LeftInternalCarotid => AnatomicalRegionIter(LEFTINTERNALCAROTID_REGIONS.iter()),
-            HumanNerve::LeftSympatheticChain => AnatomicalRegionIter(LEFTSYMPATHETICCHAIN_REGIONS.iter()),
-            HumanNerve::LeftGreaterThoracicSplanchic => AnatomicalRegionIter(LEFTGREATERTHORACICSPLANCHIC_REGIONS.iter()),
-            HumanNerve::LeftLesserThoracicSplanchic => AnatomicalRegionIter(LEFTLESSERTHORACICSPLANCHIC_REGIONS.iter()),
-            HumanNerve::LeftLeastThoracicSplanchic => AnatomicalRegionIter(LEFTLEASTTHORACICSPLANCHIC_REGIONS.iter()),
-            HumanNerve::LeftRenalPlexus => AnatomicalRegionIter(LEFTRENALPLEXUS_REGIONS.iter()),
-            HumanNerve::LeftIntermesentericPlexus => AnatomicalRegionIter(LEFTINTERMESENTERICPLEXUS_REGIONS.iter()),
-            HumanNerve::LeftLumbarSplanchic => AnatomicalRegionIter(LEFTLUMBARSPLANCHIC_REGIONS.iter()),
-            HumanNerve::LeftGenitofemoral => AnatomicalRegionIter(LEFTGENITOFEMORAL_REGIONS.iter()),
-            HumanNerve::LeftOccipital => AnatomicalRegionIter(LEFTOCCIPITAL_REGIONS.iter()),
-            HumanNerve::LeftGreatAricular => AnatomicalRegionIter(LEFTGREATARICULAR_REGIONS.iter()),
-            HumanNerve::LeftAnsaCervicalis => AnatomicalRegionIter(LEFTANSACERVICALIS_REGIONS.iter()),
-            HumanNerve::LeftIntercostal1 => AnatomicalRegionIter(LEFTINTERCOSTAL1_REGIONS.iter()),
-            HumanNerve::LeftIntercostal2 => AnatomicalRegionIter(LEFTINTERCOSTAL2_REGIONS.iter()),
-            HumanNerve::LeftIntercostal3 => AnatomicalRegionIter(LEFTINTERCOSTAL3_REGIONS.iter()),
-            HumanNerve::LeftIntercostal4 => AnatomicalRegionIter(LEFTINTERCOSTAL4_REGIONS.iter()),
-            HumanNerve::LeftIntercostal5 => AnatomicalRegionIter(LEFTINTERCOSTAL5_REGIONS.iter()),
-            HumanNerve::LeftIntercostal6 => AnatomicalRegionIter(LEFTINTERCOSTAL6_REGIONS.iter()),
-            HumanNerve::LeftIntercostal7 => AnatomicalRegionIter(LEFTINTERCOSTAL7_REGIONS.iter()),
-            HumanNerve::LeftIntercostal8 => AnatomicalRegionIter(LEFTINTERCOSTAL8_REGIONS.iter()),
-            HumanNerve::LeftIntercostal9 => AnatomicalRegionIter(LEFTINTERCOSTAL9_REGIONS.iter()),
-            HumanNerve::LeftIntercostal10 => AnatomicalRegionIter(LEFTINTERCOSTAL10_REGIONS.iter()),
-            HumanNerve::LeftIntercostal11 => AnatomicalRegionIter(LEFTINTERCOSTAL11_REGIONS.iter()),
-            HumanNerve::LeftSubcostal => AnatomicalRegionIter(LEFTSUBCOSTAL_REGIONS.iter()),
-            HumanNerve::LeftSupraclavicular => AnatomicalRegionIter(LEFTSUPRACLAVICULAR_REGIONS.iter()),
-            HumanNerve::LeftPhrenic => AnatomicalRegionIter(LEFTPHRENIC_REGIONS.iter()),
-            HumanNerve::LeftLateralBrachialPlexus => AnatomicalRegionIter(LEFTLATERALBRACHIALPLEXUS_REGIONS.iter()),
-            HumanNerve::LeftPosteriorBrachialPlexus => AnatomicalRegionIter(LEFTPOSTERIORBRACHIALPLEXUS_REGIONS.iter()),
-            HumanNerve::LeftMedialBrachialPlexus => AnatomicalRegionIter(LEFTMEDIALBRACHIALPLEXUS_REGIONS.iter()),
-            HumanNerve::LeftAxillary => AnatomicalRegionIter(LEFTAXILLARY_REGIONS.iter()),
-            HumanNerve::LeftMusculocutaneous => AnatomicalRegionIter(LEFTMUSCULOCUTANEOUS_REGIONS.iter()),
-            HumanNerve::LeftMedian => AnatomicalRegionIter(LEFTMEDIAN_REGIONS.iter()),
-            HumanNerve::LeftRadial => AnatomicalRegionIter(LEFTRADIAL_REGIONS.iter()),
-            HumanNerve::LeftUlnar => AnatomicalRegionIter(LEFTULNAR_REGIONS.iter()),
-            HumanNerve::LeftUpperSubscapular => AnatomicalRegionIter(LEFTUPPERSUBSCAPULAR_REGIONS.iter()),
-            HumanNerve::LeftLowerSubscapular => AnatomicalRegionIter(LEFTLOWERSUBSCAPULAR_REGIONS.iter()),
-            HumanNerve::LeftThoracodorsal => AnatomicalRegionIter(LEFTTHORACODORSAL_REGIONS.iter()),
-            HumanNerve::LeftDorsalScapular => AnatomicalRegionIter(LEFTDORSALSCAPULAR_REGIONS.iter()),
-            HumanNerve::LeftLongThoracic => AnatomicalRegionIter(LEFTLONGTHORACIC_REGIONS.iter()),
-            HumanNerve::LeftSuprascapular => AnatomicalRegionIter(LEFTSUPRASCAPULAR_REGIONS.iter()),
-            HumanNerve::LeftLateralPectoral => AnatomicalRegionIter(LEFTLATERALPECTORAL_REGIONS.iter()),
-            HumanNerve::LeftMedialPectoral => AnatomicalRegionIter(LEFTMEDIALPECTORAL_REGIONS.iter()),
-            HumanNerve::LeftMedialCutaneous => AnatomicalRegionIter(LEFTMEDIALCUTANEOUS_REGIONS.iter()),
-            HumanNerve::LeftIliohypogastric => AnatomicalRegionIter(LEFTILIOHYPOGASTRIC_REGIONS.iter()),
-            HumanNerve::LeftIlioInguinal => AnatomicalRegionIter(LEFTILIOINGUINAL_REGIONS.iter()),
-            HumanNerve::LeftObturator => AnatomicalRegionIter(LEFTOBTURATOR_REGIONS.iter()),
-            HumanNerve::LeftLumbarPlexus => AnatomicalRegionIter(LEFTLUMBARPLEXUS_REGIONS.iter()),
-            HumanNerve::LeftSacralPlexus => AnatomicalRegionIter(LEFTSACRALPLEXUS_REGIONS.iter()),
-            HumanNerve::LeftLateralFemoralCutaneous => AnatomicalRegionIter(LEFTLATERALFEMORALCUTANEOUS_REGIONS.iter()),
-            HumanNerve::LeftPosteriorFemoralCutaneous => AnatomicalRegionIter(LEFTPOSTERIORFEMORALCUTANEOUS_REGIONS.iter()),
-            HumanNerve::LeftFemoral => AnatomicalRegionIter(LEFTFEMORAL_REGIONS.iter()),
-            HumanNerve::LeftSciatic => AnatomicalRegionIter(LEFTSCIATIC_REGIONS.iter()),
-            HumanNerve::LeftPudendal => AnatomicalRegionIter(LEFTPUDENDAL_REGIONS.iter()),
-            HumanNerve::LeftInferiorRectal => AnatomicalRegionIter(LEFTINFERIORRECTAL_REGIONS.iter()),
-            HumanNerve::LeftSaphenous => AnatomicalRegionIter(LEFTSAPHENOUS_REGIONS.iter()),
-            HumanNerve::LeftCommonFibular => AnatomicalRegionIter(LEFTCOMMONFIBULAR_REGIONS.iter()),
-            HumanNerve::LeftSuperficialFibular => AnatomicalRegionIter(LEFTSUPERFICIALFIBULAR_REGIONS.iter()),
-            HumanNerve::LeftDeepFibular => AnatomicalRegionIter(LEFTDEEPFIBULAR_REGIONS.iter()),
-            HumanNerve::LeftSural => AnatomicalRegionIter(LEFTSURAL_REGIONS.iter()),
-            HumanNerve::LeftTibial => AnatomicalRegionIter(LEFTTIBIAL_REGIONS.iter()),
-            HumanNerve::LeftPlantal => AnatomicalRegionIter(LEFTPLANTAL_REGIONS.iter()),
-            HumanNerve::RightC1 => AnatomicalRegionIter(RIGHTC1_REGIONS.iter()),
-            HumanNerve::RightC2 => AnatomicalRegionIter(RIGHTC2_REGIONS.iter()),
-            HumanNerve::RightC3 => AnatomicalRegionIter(RIGHTC3_REGIONS.iter()),
-            HumanNerve::RightC4 => AnatomicalRegionIter(RIGHTC4_REGIONS.iter()),
-            HumanNerve::RightC5 => AnatomicalRegionIter(RIGHTC5_REGIONS.iter()),
-            HumanNerve::RightC6 => AnatomicalRegionIter(RIGHTC6_REGIONS.iter()),
-            HumanNerve::RightC7 => AnatomicalRegionIter(RIGHTC7_REGIONS.iter()),
-            HumanNerve::RightC8 => AnatomicalRegionIter(RIGHTC8_REGIONS.iter()),
-            HumanNerve::RightT1 => AnatomicalRegionIter(RIGHTT1_REGIONS.iter()),
-            HumanNerve::RightT2 => AnatomicalRegionIter(RIGHTT2_REGIONS.iter()),
-            HumanNerve::RightT3 => AnatomicalRegionIter(RIGHTT3_REGIONS.iter()),
-            HumanNerve::RightT4 => AnatomicalRegionIter(RIGHTT4_REGIONS.iter()),
-            HumanNerve::RightT5 => AnatomicalRegionIter(RIGHTT5_REGIONS.iter()),
-            HumanNerve::RightT6 => AnatomicalRegionIter(RIGHTT6_REGIONS.iter()),
-            HumanNerve::RightT7 => AnatomicalRegionIter(RIGHTT7_REGIONS.iter()),
-            HumanNerve::RightT8 => AnatomicalRegionIter(RIGHTT8_REGIONS.iter()),
-            HumanNerve::RightT9 => AnatomicalRegionIter(RIGHTT9_REGIONS.iter()),
-            HumanNerve::RightT10 => AnatomicalRegionIter(RIGHTT10_REGIONS.iter()),
-            HumanNerve::RightT11 => AnatomicalRegionIter(RIGHTT11_REGIONS.iter()),
-            HumanNerve::RightT12 => AnatomicalRegionIter(RIGHTT12_REGIONS.iter()),
-            HumanNerve::RightL1 => AnatomicalRegionIter(RIGHTL1_REGIONS.iter()),
-            HumanNerve::RightL2 => AnatomicalRegionIter(RIGHTL2_REGIONS.iter()),
-            HumanNerve::RightL3 => AnatomicalRegionIter(RIGHTL3_REGIONS.iter()),
-            HumanNerve::RightL4 => AnatomicalRegionIter(RIGHTL4_REGIONS.iter()),
-            HumanNerve::RightL5 => AnatomicalRegionIter(RIGHTL5_REGIONS.iter()),
-            HumanNerve::RightS1 => AnatomicalRegionIter(RIGHTS1_REGIONS.iter()),
-            HumanNerve::RightS2 => AnatomicalRegionIter(RIGHTS2_REGIONS.iter()),
-            HumanNerve::RightS3 => AnatomicalRegionIter(RIGHTS3_REGIONS.iter()),
-            HumanNerve::RightS4 => AnatomicalRegionIter(RIGHTS4_REGIONS.iter()),
-            HumanNerve::RightS5 => AnatomicalRegionIter(RIGHTS5_REGIONS.iter()),
-            HumanNerve::RightInternalCarotid => AnatomicalRegionIter(RIGHTINTERNALCAROTID_REGIONS.iter()),
-            HumanNerve::RightSympatheticChain => AnatomicalRegionIter(RIGHTSYMPATHETICCHAIN_REGIONS.iter()),
-            HumanNerve::RightGreaterThoracicSplanchic => AnatomicalRegionIter(RIGHTGREATERTHORACICSPLANCHIC_REGIONS.iter()),
-            HumanNerve::RightLesserThoracicSplanchic => AnatomicalRegionIter(RIGHTLESSERTHORACICSPLANCHIC_REGIONS.iter()),
-            HumanNerve::RightLeastThoracicSplanchic => AnatomicalRegionIter(RIGHTLEASTTHORACICSPLANCHIC_REGIONS.iter()),
-            HumanNerve::RightRenalPlexus => AnatomicalRegionIter(RIGHTRENALPLEXUS_REGIONS.iter()),
-            HumanNerve::RightIntermesentericPlexus => AnatomicalRegionIter(RIGHTINTERMESENTERICPLEXUS_REGIONS.iter()),
-            HumanNerve::RightLumbarSplanchic => AnatomicalRegionIter(RIGHTLUMBARSPLANCHIC_REGIONS.iter()),
-            HumanNerve::RightGenitofemoral => AnatomicalRegionIter(RIGHTGENITOFEMORAL_REGIONS.iter()),
-            HumanNerve::RightOccipital => AnatomicalRegionIter(RIGHTOCCIPITAL_REGIONS.iter()),
-            HumanNerve::RightGreatAricular => AnatomicalRegionIter(RIGHTGREATARICULAR_REGIONS.iter()),
-            HumanNerve::RightAnsaCervicalis => AnatomicalRegionIter(RIGHTANSACERVICALIS_REGIONS.iter()),
-            HumanNerve::RightIntercostal1 => AnatomicalRegionIter(RIGHTINTERCOSTAL1_REGIONS.iter()),
-            HumanNerve::RightIntercostal2 => AnatomicalRegionIter(RIGHTINTERCOSTAL2_REGIONS.iter()),
-            HumanNerve::RightIntercostal3 => AnatomicalRegionIter(RIGHTINTERCOSTAL3_REGIONS.iter()),
-            HumanNerve::RightIntercostal4 => AnatomicalRegionIter(RIGHTINTERCOSTAL4_REGIONS.iter()),
-            HumanNerve::RightIntercostal5 => AnatomicalRegionIter(RIGHTINTERCOSTAL5_REGIONS.iter()),
-            HumanNerve::RightIntercostal6 => AnatomicalRegionIter(RIGHTINTERCOSTAL6_REGIONS.iter()),
-            HumanNerve::RightIntercostal7 => AnatomicalRegionIter(RIGHTINTERCOSTAL7_REGIONS.iter()),
-            HumanNerve::RightIntercostal8 => AnatomicalRegionIter(RIGHTINTERCOSTAL8_REGIONS.iter()),
-            HumanNerve::RightIntercostal9 => AnatomicalRegionIter(RIGHTINTERCOSTAL9_REGIONS.iter()),
-            HumanNerve::RightIntercostal10 => AnatomicalRegionIter(RIGHTINTERCOSTAL10_REGIONS.iter()),
-            HumanNerve::RightIntercostal11 => AnatomicalRegionIter(RIGHTINTERCOSTAL11_REGIONS.iter()),
-            HumanNerve::RightSubcostal => AnatomicalRegionIter(RIGHTSUBCOSTAL_REGIONS.iter()),
-            HumanNerve::RightSupraclavicular => AnatomicalRegionIter(RIGHTSUPRACLAVICULAR_REGIONS.iter()),
-            HumanNerve::RightPhrenic => AnatomicalRegionIter(RIGHTPHRENIC_REGIONS.iter()),
-            HumanNerve::RightLateralBrachialPlexus => AnatomicalRegionIter(RIGHTLATERALBRACHIALPLEXUS_REGIONS.iter()),
-            HumanNerve::RightPosteriorBrachialPlexus => AnatomicalRegionIter(RIGHTPOSTERIORBRACHIALPLEXUS_REGIONS.iter()),
-            HumanNerve::RightMedialBrachialPlexus => AnatomicalRegionIter(RIGHTMEDIALBRACHIALPLEXUS_REGIONS.iter()),
-            HumanNerve::RightAxillary => AnatomicalRegionIter(RIGHTAXILLARY_REGIONS.iter()),
-            HumanNerve::RightMusculocutaneous => AnatomicalRegionIter(RIGHTMUSCULOCUTANEOUS_REGIONS.iter()),
-            HumanNerve::RightMedian => AnatomicalRegionIter(RIGHTMEDIAN_REGIONS.iter()),
-            HumanNerve::RightRadial => AnatomicalRegionIter(RIGHTRADIAL_REGIONS.iter()),
-            HumanNerve::RightUlnar => AnatomicalRegionIter(RIGHTULNAR_REGIONS.iter()),
-            HumanNerve::RightUpperSubscapular => AnatomicalRegionIter(RIGHTUPPERSUBSCAPULAR_REGIONS.iter()),
-            HumanNerve::RightLowerSubscapular => AnatomicalRegionIter(RIGHTLOWERSUBSCAPULAR_REGIONS.iter()),
-            HumanNerve::RightThoracodorsal => AnatomicalRegionIter(RIGHTTHORACODORSAL_REGIONS.iter()),
-            HumanNerve::RightDorsalScapular => AnatomicalRegionIter(RIGHTDORSALSCAPULAR_REGIONS.iter()),
-            HumanNerve::RightLongThoracic => AnatomicalRegionIter(RIGHTLONGTHORACIC_REGIONS.iter()),
-            HumanNerve::RightSuprascapular => AnatomicalRegionIter(RIGHTSUPRASCAPULAR_REGIONS.iter()),
-            HumanNerve::RightLateralPectoral => AnatomicalRegionIter(RIGHTLATERALPECTORAL_REGIONS.iter()),
-            HumanNerve::RightMedialPectoral => AnatomicalRegionIter(RIGHTMEDIALPECTORAL_REGIONS.iter()),
-            HumanNerve::RightMedialCutaneous => AnatomicalRegionIter(RIGHTMEDIALCUTANEOUS_REGIONS.iter()),
-            HumanNerve::RightIliohypogastric => AnatomicalRegionIter(RIGHTILIOHYPOGASTRIC_REGIONS.iter()),
-            HumanNerve::RightIlioInguinal => AnatomicalRegionIter(RIGHTILIOINGUINAL_REGIONS.iter()),
-            HumanNerve::RightObturator => AnatomicalRegionIter(RIGHTOBTURATOR_REGIONS.iter()),
-            HumanNerve::RightLumbarPlexus => AnatomicalRegionIter(RIGHTLUMBARPLEXUS_REGIONS.iter()),
-            HumanNerve::RightSacralPlexus => AnatomicalRegionIter(RIGHTSACRALPLEXUS_REGIONS.iter()),
-            HumanNerve::RightLateralFemoralCutaneous => AnatomicalRegionIter(RIGHTLATERALFEMORALCUTANEOUS_REGIONS.iter()),
-            HumanNerve::RightPosteriorFemoralCutaneous => AnatomicalRegionIter(RIGHTPOSTERIORFEMORALCUTANEOUS_REGIONS.iter()),
-            HumanNerve::RightFemoral => AnatomicalRegionIter(RIGHTFEMORAL_REGIONS.iter()),
-            HumanNerve::RightSciatic => AnatomicalRegionIter(RIGHTSCIATIC_REGIONS.iter()),
-            HumanNerve::RightPudendal => AnatomicalRegionIter(RIGHTPUDENDAL_REGIONS.iter()),
-            HumanNerve::RightInferiorRectal => AnatomicalRegionIter(RIGHTINFERIORRECTAL_REGIONS.iter()),
-            HumanNerve::RightSaphenous => AnatomicalRegionIter(RIGHTSAPHENOUS_REGIONS.iter()),
-            HumanNerve::RightCommonFibular => AnatomicalRegionIter(RIGHTCOMMONFIBULAR_REGIONS.iter()),
-            HumanNerve::RightSuperficialFibular => AnatomicalRegionIter(RIGHTSUPERFICIALFIBULAR_REGIONS.iter()),
-            HumanNerve::RightDeepFibular => AnatomicalRegionIter(RIGHTDEEPFIBULAR_REGIONS.iter()),
-            HumanNerve::RightSural => AnatomicalRegionIter(RIGHTSURAL_REGIONS.iter()),
-            HumanNerve::RightTibial => AnatomicalRegionIter(RIGHTTIBIAL_REGIONS.iter()),
-            HumanNerve::RightPlantal => AnatomicalRegionIter(RIGHTPLANTAL_REGIONS.iter())
+            HumanNerve::Brain => AnatomicalRegionIter(BRAIN_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cranial);
+                region_list
+            }).iter()),
+            HumanNerve::RightOcculomotor => AnatomicalRegionIter(RIGHTOCCULOMOTOR_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::RightFacial);
+                region_list
+            }).iter()),
+            HumanNerve::LeftOcculomotor => AnatomicalRegionIter(LEFTOCCULOMOTOR_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::LeftFacial);
+                region_list
+            }).iter()),
+            HumanNerve::Brainstem => AnatomicalRegionIter(BRAINSTEM_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cranial);
+                region_list
+            }).iter()),
+            HumanNerve::LeftTrigeminal => AnatomicalRegionIter(LEFTTRIGEMINAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cranial);
+                region_list.insert(HumanAnatomicalRegion::LeftFacial);
+                region_list
+            }).iter()),
+            HumanNerve::RightTrigeminal => AnatomicalRegionIter(RIGHTTRIGEMINAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cranial);
+                region_list.insert(HumanAnatomicalRegion::RightFacial);
+                region_list
+            }).iter()),
+            HumanNerve::LeftFacial => AnatomicalRegionIter(LEFTFACIAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cranial);
+                region_list.insert(HumanAnatomicalRegion::LeftFacial);
+                region_list
+            }).iter()),
+            HumanNerve::RightFacial => AnatomicalRegionIter(RIGHTFACIAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cranial);
+                region_list.insert(HumanAnatomicalRegion::RightFacial);
+                region_list
+            }).iter()),
+            HumanNerve::LeftHypoglossal => AnatomicalRegionIter(LEFTHYPOGLOSSAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cranial);
+                region_list.insert(HumanAnatomicalRegion::LeftFacial);
+                region_list
+            }).iter()),
+            HumanNerve::RightHypoglossal => AnatomicalRegionIter(RIGHTHYPOGLOSSAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cranial);
+                region_list.insert(HumanAnatomicalRegion::RightFacial);
+                region_list
+            }).iter()),
+            HumanNerve::LeftVagus => AnatomicalRegionIter(LEFTVAGUS_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cranial);
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftSuperiorLaryngeal => AnatomicalRegionIter(LEFTSUPERIORLARYNGEAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list
+            }).iter()),
+            HumanNerve::LeftRecurrentLaryngeal => AnatomicalRegionIter(LEFTRECURRENTLARYNGEAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list
+            }).iter()),
+            HumanNerve::RightVagus => AnatomicalRegionIter(RIGHTVAGUS_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cranial);
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightSuperiorLaryngeal => AnatomicalRegionIter(RIGHTSUPERIORLARYNGEAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list
+            }).iter()),
+            HumanNerve::RightRecurrentLaryngeal => AnatomicalRegionIter(RIGHTRECURRENTLARYNGEAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list
+            }).iter()),
+            HumanNerve::EsophagealPlexus => AnatomicalRegionIter(ESOPHAGEALPLEXUS_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list
+            }).iter()),
+            HumanNerve::SuperficialCardiacPlexus => AnatomicalRegionIter(SUPERFICIALCARDIACPLEXUS_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::DeepCardiacPlexus => AnatomicalRegionIter(DEEPCARDIACPLEXUS_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::PulmonaryPlexus => AnatomicalRegionIter(PULMONARYPLEXUS_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::CeliacPlexus => AnatomicalRegionIter(CELIACPLEXUS_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::SuperiorMesentericPlexus => AnatomicalRegionIter(SUPERIORMESENTERICPLEXUS_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::InferiorMesentericPlexus => AnatomicalRegionIter(INFERIORMESENTERICPLEXUS_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::HypogastricPlexus => AnatomicalRegionIter(HYPOGASTRICPLEXUS_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Sacral);
+                region_list
+            }).iter()),
+            HumanNerve::SpinalCord => AnatomicalRegionIter(SPINALCORD_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftSpinalAccessory => AnatomicalRegionIter(LEFTSPINALACCESSORY_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list
+            }).iter()),
+            HumanNerve::RightSpinalAccessory => AnatomicalRegionIter(RIGHTSPINALACCESSORY_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list
+            }).iter()),
+            HumanNerve::LeftC1 => AnatomicalRegionIter(LEFTC1_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list
+            }).iter()),
+            HumanNerve::LeftC2 => AnatomicalRegionIter(LEFTC2_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list
+            }).iter()),
+            HumanNerve::LeftC3 => AnatomicalRegionIter(LEFTC3_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list
+            }).iter()),
+            HumanNerve::LeftC4 => AnatomicalRegionIter(LEFTC4_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list
+            }).iter()),
+            HumanNerve::LeftC5 => AnatomicalRegionIter(LEFTC5_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list
+            }).iter()),
+            HumanNerve::LeftC6 => AnatomicalRegionIter(LEFTC6_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list
+            }).iter()),
+            HumanNerve::LeftC7 => AnatomicalRegionIter(LEFTC7_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list
+            }).iter()),
+            HumanNerve::LeftC8 => AnatomicalRegionIter(LEFTC8_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list
+            }).iter()),
+            HumanNerve::LeftT1 => AnatomicalRegionIter(LEFTT1_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftT2 => AnatomicalRegionIter(LEFTT2_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftT3 => AnatomicalRegionIter(LEFTT3_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftT4 => AnatomicalRegionIter(LEFTT4_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftT5 => AnatomicalRegionIter(LEFTT5_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftT6 => AnatomicalRegionIter(LEFTT6_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftT7 => AnatomicalRegionIter(LEFTT7_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftT8 => AnatomicalRegionIter(LEFTT8_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftT9 => AnatomicalRegionIter(LEFTT9_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftT10 => AnatomicalRegionIter(LEFTT10_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftT11 => AnatomicalRegionIter(LEFTT11_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftT12 => AnatomicalRegionIter(LEFTT12_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftL1 => AnatomicalRegionIter(LEFTL1_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Lumbar);
+                region_list
+            }).iter()),
+            HumanNerve::CaudaEquina => AnatomicalRegionIter(CAUDAEQUINA_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Lumbar);
+                region_list
+            }).iter()),
+            HumanNerve::LeftL2 => AnatomicalRegionIter(LEFTL2_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Lumbar);
+                region_list
+            }).iter()),
+            HumanNerve::LeftL3 => AnatomicalRegionIter(LEFTL3_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Lumbar);
+                region_list
+            }).iter()),
+            HumanNerve::LeftL4 => AnatomicalRegionIter(LEFTL4_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Lumbar);
+                region_list
+            }).iter()),
+            HumanNerve::LeftL5 => AnatomicalRegionIter(LEFTL5_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Lumbar);
+                region_list
+            }).iter()),
+            HumanNerve::LeftS1 => AnatomicalRegionIter(LEFTS1_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Sacral);
+                region_list
+            }).iter()),
+            HumanNerve::LeftS2 => AnatomicalRegionIter(LEFTS2_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Sacral);
+                region_list
+            }).iter()),
+            HumanNerve::LeftS3 => AnatomicalRegionIter(LEFTS3_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Sacral);
+                region_list
+            }).iter()),
+            HumanNerve::LeftS4 => AnatomicalRegionIter(LEFTS4_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Sacral);
+                region_list
+            }).iter()),
+            HumanNerve::LeftS5 => AnatomicalRegionIter(LEFTS5_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Sacral);
+                region_list
+            }).iter()),
+            HumanNerve::LeftInternalCarotid => AnatomicalRegionIter(LEFTINTERNALCAROTID_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list.insert(HumanAnatomicalRegion::Cranial);
+                region_list
+            }).iter()),
+            HumanNerve::LeftSympatheticChain => AnatomicalRegionIter(LEFTSYMPATHETICCHAIN_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list.insert(HumanAnatomicalRegion::Cranial);
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list.insert(HumanAnatomicalRegion::Lumbar);
+                region_list.insert(HumanAnatomicalRegion::Sacral);
+                region_list
+            }).iter()),
+            HumanNerve::LeftGreaterThoracicSplanchic => AnatomicalRegionIter(LEFTGREATERTHORACICSPLANCHIC_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftLesserThoracicSplanchic => AnatomicalRegionIter(LEFTLESSERTHORACICSPLANCHIC_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftLeastThoracicSplanchic => AnatomicalRegionIter(LEFTLEASTTHORACICSPLANCHIC_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftRenalPlexus => AnatomicalRegionIter(LEFTRENALPLEXUS_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftIntermesentericPlexus => AnatomicalRegionIter(LEFTINTERMESENTERICPLEXUS_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftLumbarSplanchic => AnatomicalRegionIter(LEFTLUMBARSPLANCHIC_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Lumbar);
+                region_list
+            }).iter()),
+            HumanNerve::LeftGenitofemoral => AnatomicalRegionIter(LEFTGENITOFEMORAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Lumbar);
+                region_list.insert(HumanAnatomicalRegion::LeftFemoral);
+                region_list
+            }).iter()),
+            HumanNerve::LeftOccipital => AnatomicalRegionIter(LEFTOCCIPITAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list.insert(HumanAnatomicalRegion::Cranial);
+                region_list
+            }).iter()),
+            HumanNerve::LeftGreatAricular => AnatomicalRegionIter(LEFTGREATARICULAR_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list.insert(HumanAnatomicalRegion::Cranial);
+                region_list
+            }).iter()),
+            HumanNerve::LeftAnsaCervicalis => AnatomicalRegionIter(LEFTANSACERVICALIS_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list
+            }).iter()),
+            HumanNerve::LeftIntercostal1 => AnatomicalRegionIter(LEFTINTERCOSTAL1_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftIntercostal2 => AnatomicalRegionIter(LEFTINTERCOSTAL2_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftIntercostal3 => AnatomicalRegionIter(LEFTINTERCOSTAL3_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftIntercostal4 => AnatomicalRegionIter(LEFTINTERCOSTAL4_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftIntercostal5 => AnatomicalRegionIter(LEFTINTERCOSTAL5_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftIntercostal6 => AnatomicalRegionIter(LEFTINTERCOSTAL6_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftIntercostal7 => AnatomicalRegionIter(LEFTINTERCOSTAL7_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftIntercostal8 => AnatomicalRegionIter(LEFTINTERCOSTAL8_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftIntercostal9 => AnatomicalRegionIter(LEFTINTERCOSTAL9_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftIntercostal10 => AnatomicalRegionIter(LEFTINTERCOSTAL10_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftIntercostal11 => AnatomicalRegionIter(LEFTINTERCOSTAL11_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftSubcostal => AnatomicalRegionIter(LEFTSUBCOSTAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftSupraclavicular => AnatomicalRegionIter(LEFTSUPRACLAVICULAR_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list
+            }).iter()),
+            HumanNerve::LeftPhrenic => AnatomicalRegionIter(LEFTPHRENIC_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list
+            }).iter()),
+            HumanNerve::LeftLateralBrachialPlexus => AnatomicalRegionIter(LEFTLATERALBRACHIALPLEXUS_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::LeftScapular);
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftPosteriorBrachialPlexus => AnatomicalRegionIter(LEFTPOSTERIORBRACHIALPLEXUS_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::LeftScapular);
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftMedialBrachialPlexus => AnatomicalRegionIter(LEFTMEDIALBRACHIALPLEXUS_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::LeftScapular);
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftAxillary => AnatomicalRegionIter(LEFTAXILLARY_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::LeftAxillary);
+                region_list.insert(HumanAnatomicalRegion::LeftBrachial);
+                region_list
+            }).iter()),
+            HumanNerve::LeftMusculocutaneous => AnatomicalRegionIter(LEFTMUSCULOCUTANEOUS_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::LeftBrachial);
+                region_list.insert(HumanAnatomicalRegion::LeftAntebrachial);
+                region_list.insert(HumanAnatomicalRegion::LeftCarpal);
+                region_list
+            }).iter()),
+            HumanNerve::LeftMedian => AnatomicalRegionIter(LEFTMEDIAN_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::LeftBrachial);
+                region_list.insert(HumanAnatomicalRegion::LeftAntebrachial);
+                region_list.insert(HumanAnatomicalRegion::LeftCarpal);
+                region_list.insert(HumanAnatomicalRegion::LeftPalmar);
+                region_list.insert(HumanAnatomicalRegion::LeftManus);
+                region_list.insert(HumanAnatomicalRegion::LeftUpperPhalangeal);
+                region_list
+            }).iter()),
+            HumanNerve::LeftRadial => AnatomicalRegionIter(LEFTRADIAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::LeftBrachial);
+                region_list.insert(HumanAnatomicalRegion::LeftAntebrachial);
+                region_list.insert(HumanAnatomicalRegion::LeftCarpal);
+                region_list.insert(HumanAnatomicalRegion::LeftPalmar);
+                region_list.insert(HumanAnatomicalRegion::LeftManus);
+                region_list.insert(HumanAnatomicalRegion::LeftUpperPhalangeal);
+                region_list
+            }).iter()),
+            HumanNerve::LeftUlnar => AnatomicalRegionIter(LEFTULNAR_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::LeftBrachial);
+                region_list.insert(HumanAnatomicalRegion::LeftAntebrachial);
+                region_list.insert(HumanAnatomicalRegion::LeftCarpal);
+                region_list.insert(HumanAnatomicalRegion::LeftPalmar);
+                region_list.insert(HumanAnatomicalRegion::LeftManus);
+                region_list.insert(HumanAnatomicalRegion::LeftUpperPhalangeal);
+                region_list
+            }).iter()),
+            HumanNerve::LeftUpperSubscapular => AnatomicalRegionIter(LEFTUPPERSUBSCAPULAR_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list.insert(HumanAnatomicalRegion::LeftScapular);
+                region_list
+            }).iter()),
+            HumanNerve::LeftLowerSubscapular => AnatomicalRegionIter(LEFTLOWERSUBSCAPULAR_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list.insert(HumanAnatomicalRegion::LeftScapular);
+                region_list
+            }).iter()),
+            HumanNerve::LeftThoracodorsal => AnatomicalRegionIter(LEFTTHORACODORSAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftDorsalScapular => AnatomicalRegionIter(LEFTDORSALSCAPULAR_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list.insert(HumanAnatomicalRegion::LeftScapular);
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftLongThoracic => AnatomicalRegionIter(LEFTLONGTHORACIC_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftSuprascapular => AnatomicalRegionIter(LEFTSUPRASCAPULAR_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::LeftScapular);
+                region_list
+            }).iter()),
+            HumanNerve::LeftLateralPectoral => AnatomicalRegionIter(LEFTLATERALPECTORAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftMedialPectoral => AnatomicalRegionIter(LEFTMEDIALPECTORAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::LeftMedialCutaneous => AnatomicalRegionIter(LEFTMEDIALCUTANEOUS_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::LeftAxillary);
+                region_list.insert(HumanAnatomicalRegion::LeftBrachial);
+                region_list
+            }).iter()),
+            HumanNerve::LeftIliohypogastric => AnatomicalRegionIter(LEFTILIOHYPOGASTRIC_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Lumbar);
+                region_list.insert(HumanAnatomicalRegion::LeftLowerAbdominal);
+                region_list
+            }).iter()),
+            HumanNerve::LeftIlioInguinal => AnatomicalRegionIter(LEFTILIOINGUINAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Lumbar);
+                region_list.insert(HumanAnatomicalRegion::LeftInguinal);
+                region_list
+            }).iter()),
+            HumanNerve::LeftObturator => AnatomicalRegionIter(LEFTOBTURATOR_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Lumbar);
+                region_list
+            }).iter()),
+            HumanNerve::LeftLumbarPlexus => AnatomicalRegionIter(LEFTLUMBARPLEXUS_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Lumbar);
+                region_list
+            }).iter()),
+            HumanNerve::LeftSacralPlexus => AnatomicalRegionIter(LEFTSACRALPLEXUS_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Sacral);
+                region_list
+            }).iter()),
+            HumanNerve::LeftLateralFemoralCutaneous => AnatomicalRegionIter(LEFTLATERALFEMORALCUTANEOUS_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Lumbar);
+                region_list.insert(HumanAnatomicalRegion::LeftFemoral);
+                region_list
+            }).iter()),
+            HumanNerve::LeftPosteriorFemoralCutaneous => AnatomicalRegionIter(LEFTPOSTERIORFEMORALCUTANEOUS_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Sacral);
+                region_list.insert(HumanAnatomicalRegion::LeftGluteal);
+                region_list.insert(HumanAnatomicalRegion::LeftFemoral);
+                region_list
+            }).iter()),
+            HumanNerve::LeftFemoral => AnatomicalRegionIter(LEFTFEMORAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Lumbar);
+                region_list.insert(HumanAnatomicalRegion::LeftFemoral);
+                region_list
+            }).iter()),
+            HumanNerve::LeftSciatic => AnatomicalRegionIter(LEFTSCIATIC_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Sacral);
+                region_list.insert(HumanAnatomicalRegion::LeftGluteal);
+                region_list.insert(HumanAnatomicalRegion::LeftFemoral);
+                region_list.insert(HumanAnatomicalRegion::LeftPopliteal);
+                region_list
+            }).iter()),
+            HumanNerve::LeftPudendal => AnatomicalRegionIter(LEFTPUDENDAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Sacral);
+                region_list.insert(HumanAnatomicalRegion::LeftGluteal);
+                region_list
+            }).iter()),
+            HumanNerve::LeftInferiorRectal => AnatomicalRegionIter(LEFTINFERIORRECTAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Sacral);
+                region_list.insert(HumanAnatomicalRegion::LeftGluteal);
+                region_list
+            }).iter()),
+            HumanNerve::LeftSaphenous => AnatomicalRegionIter(LEFTSAPHENOUS_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::LeftFemoral);
+                region_list.insert(HumanAnatomicalRegion::LeftPopliteal);
+                region_list.insert(HumanAnatomicalRegion::LeftCrural);
+                region_list.insert(HumanAnatomicalRegion::LeftTarsal);
+                region_list
+            }).iter()),
+            HumanNerve::LeftCommonFibular => AnatomicalRegionIter(LEFTCOMMONFIBULAR_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::LeftPopliteal);
+                region_list
+            }).iter()),
+            HumanNerve::LeftSuperficialFibular => AnatomicalRegionIter(LEFTSUPERFICIALFIBULAR_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::LeftPopliteal);
+                region_list.insert(HumanAnatomicalRegion::LeftFibular);
+                region_list.insert(HumanAnatomicalRegion::LeftCrural);
+                region_list.insert(HumanAnatomicalRegion::LeftTarsal);
+                region_list.insert(HumanAnatomicalRegion::LeftPedal);
+                region_list.insert(HumanAnatomicalRegion::LeftLowerPhalangeal);
+                region_list
+            }).iter()),
+            HumanNerve::LeftDeepFibular => AnatomicalRegionIter(LEFTDEEPFIBULAR_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::LeftPopliteal);
+                region_list.insert(HumanAnatomicalRegion::LeftFibular);
+                region_list.insert(HumanAnatomicalRegion::LeftCrural);
+                region_list.insert(HumanAnatomicalRegion::LeftTarsal);
+                region_list.insert(HumanAnatomicalRegion::LeftPedal);
+                region_list.insert(HumanAnatomicalRegion::LeftLowerPhalangeal);
+                region_list
+            }).iter()),
+            HumanNerve::LeftSural => AnatomicalRegionIter(LEFTSURAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::LeftPopliteal);
+                region_list.insert(HumanAnatomicalRegion::LeftSural);
+                region_list.insert(HumanAnatomicalRegion::LeftTarsal);
+                region_list.insert(HumanAnatomicalRegion::LeftPedal);
+                region_list
+            }).iter()),
+            HumanNerve::LeftTibial => AnatomicalRegionIter(LEFTTIBIAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::LeftPopliteal);
+                region_list.insert(HumanAnatomicalRegion::LeftSural);
+                region_list.insert(HumanAnatomicalRegion::LeftTarsal);
+                region_list.insert(HumanAnatomicalRegion::LeftCalcaneal);
+                region_list
+            }).iter()),
+            HumanNerve::LeftPlantal => AnatomicalRegionIter(LEFTPLANTAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::LeftPlantar);
+                region_list
+            }).iter()),
+            HumanNerve::RightC1 => AnatomicalRegionIter(RIGHTC1_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list
+            }).iter()),
+            HumanNerve::RightC2 => AnatomicalRegionIter(RIGHTC2_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list
+            }).iter()),
+            HumanNerve::RightC3 => AnatomicalRegionIter(RIGHTC3_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list
+            }).iter()),
+            HumanNerve::RightC4 => AnatomicalRegionIter(RIGHTC4_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list
+            }).iter()),
+            HumanNerve::RightC5 => AnatomicalRegionIter(RIGHTC5_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list
+            }).iter()),
+            HumanNerve::RightC6 => AnatomicalRegionIter(RIGHTC6_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list
+            }).iter()),
+            HumanNerve::RightC7 => AnatomicalRegionIter(RIGHTC7_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list
+            }).iter()),
+            HumanNerve::RightC8 => AnatomicalRegionIter(RIGHTC8_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list
+            }).iter()),
+            HumanNerve::RightT1 => AnatomicalRegionIter(RIGHTT1_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightT2 => AnatomicalRegionIter(RIGHTT2_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightT3 => AnatomicalRegionIter(RIGHTT3_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightT4 => AnatomicalRegionIter(RIGHTT4_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightT5 => AnatomicalRegionIter(RIGHTT5_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightT6 => AnatomicalRegionIter(RIGHTT6_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightT7 => AnatomicalRegionIter(RIGHTT7_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightT8 => AnatomicalRegionIter(RIGHTT8_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightT9 => AnatomicalRegionIter(RIGHTT9_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightT10 => AnatomicalRegionIter(RIGHTT10_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightT11 => AnatomicalRegionIter(RIGHTT11_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightT12 => AnatomicalRegionIter(RIGHTT12_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightL1 => AnatomicalRegionIter(RIGHTL1_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Lumbar);
+                region_list
+            }).iter()),
+            HumanNerve::RightL2 => AnatomicalRegionIter(RIGHTL2_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Lumbar);
+                region_list
+            }).iter()),
+            HumanNerve::RightL3 => AnatomicalRegionIter(RIGHTL3_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Lumbar);
+                region_list
+            }).iter()),
+            HumanNerve::RightL4 => AnatomicalRegionIter(RIGHTL4_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Lumbar);
+                region_list
+            }).iter()),
+            HumanNerve::RightL5 => AnatomicalRegionIter(RIGHTL5_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Lumbar);
+                region_list
+            }).iter()),
+            HumanNerve::RightS1 => AnatomicalRegionIter(RIGHTS1_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Sacral);
+                region_list
+            }).iter()),
+            HumanNerve::RightS2 => AnatomicalRegionIter(RIGHTS2_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Sacral);
+                region_list
+            }).iter()),
+            HumanNerve::RightS3 => AnatomicalRegionIter(RIGHTS3_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Sacral);
+                region_list
+            }).iter()),
+            HumanNerve::RightS4 => AnatomicalRegionIter(RIGHTS4_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Sacral);
+                region_list
+            }).iter()),
+            HumanNerve::RightS5 => AnatomicalRegionIter(RIGHTS5_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Sacral);
+                region_list
+            }).iter()),
+            HumanNerve::RightInternalCarotid => AnatomicalRegionIter(RIGHTINTERNALCAROTID_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list.insert(HumanAnatomicalRegion::Cranial);
+                region_list
+            }).iter()),
+            HumanNerve::RightSympatheticChain => AnatomicalRegionIter(RIGHTSYMPATHETICCHAIN_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list.insert(HumanAnatomicalRegion::Cranial);
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list.insert(HumanAnatomicalRegion::Lumbar);
+                region_list.insert(HumanAnatomicalRegion::Sacral);
+                region_list
+            }).iter()),
+            HumanNerve::RightGreaterThoracicSplanchic => AnatomicalRegionIter(RIGHTGREATERTHORACICSPLANCHIC_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightLesserThoracicSplanchic => AnatomicalRegionIter(RIGHTLESSERTHORACICSPLANCHIC_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightLeastThoracicSplanchic => AnatomicalRegionIter(RIGHTLEASTTHORACICSPLANCHIC_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightRenalPlexus => AnatomicalRegionIter(RIGHTRENALPLEXUS_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightIntermesentericPlexus => AnatomicalRegionIter(RIGHTINTERMESENTERICPLEXUS_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightLumbarSplanchic => AnatomicalRegionIter(RIGHTLUMBARSPLANCHIC_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Lumbar);
+                region_list
+            }).iter()),
+            HumanNerve::RightGenitofemoral => AnatomicalRegionIter(RIGHTGENITOFEMORAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Lumbar);
+                region_list.insert(HumanAnatomicalRegion::RightFemoral);
+                region_list
+            }).iter()),
+            HumanNerve::RightOccipital => AnatomicalRegionIter(RIGHTOCCIPITAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list.insert(HumanAnatomicalRegion::Cranial);
+                region_list
+            }).iter()),
+            HumanNerve::RightGreatAricular => AnatomicalRegionIter(RIGHTGREATARICULAR_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list.insert(HumanAnatomicalRegion::Cranial);
+                region_list
+            }).iter()),
+            HumanNerve::RightAnsaCervicalis => AnatomicalRegionIter(RIGHTANSACERVICALIS_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list
+            }).iter()),
+            HumanNerve::RightIntercostal1 => AnatomicalRegionIter(RIGHTINTERCOSTAL1_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightIntercostal2 => AnatomicalRegionIter(RIGHTINTERCOSTAL2_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightIntercostal3 => AnatomicalRegionIter(RIGHTINTERCOSTAL3_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightIntercostal4 => AnatomicalRegionIter(RIGHTINTERCOSTAL4_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightIntercostal5 => AnatomicalRegionIter(RIGHTINTERCOSTAL5_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightIntercostal6 => AnatomicalRegionIter(RIGHTINTERCOSTAL6_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightIntercostal7 => AnatomicalRegionIter(RIGHTINTERCOSTAL7_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightIntercostal8 => AnatomicalRegionIter(RIGHTINTERCOSTAL8_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightIntercostal9 => AnatomicalRegionIter(RIGHTINTERCOSTAL9_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightIntercostal10 => AnatomicalRegionIter(RIGHTINTERCOSTAL10_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightIntercostal11 => AnatomicalRegionIter(RIGHTINTERCOSTAL11_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightSubcostal => AnatomicalRegionIter(RIGHTSUBCOSTAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightSupraclavicular => AnatomicalRegionIter(RIGHTSUPRACLAVICULAR_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list
+            }).iter()),
+            HumanNerve::RightPhrenic => AnatomicalRegionIter(RIGHTPHRENIC_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list
+            }).iter()),
+            HumanNerve::RightLateralBrachialPlexus => AnatomicalRegionIter(RIGHTLATERALBRACHIALPLEXUS_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::RightScapular);
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightPosteriorBrachialPlexus => AnatomicalRegionIter(RIGHTPOSTERIORBRACHIALPLEXUS_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::RightScapular);
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightMedialBrachialPlexus => AnatomicalRegionIter(RIGHTMEDIALBRACHIALPLEXUS_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::RightScapular);
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightAxillary => AnatomicalRegionIter(RIGHTAXILLARY_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::RightAxillary);
+                region_list.insert(HumanAnatomicalRegion::RightBrachial);
+                region_list
+            }).iter()),
+            HumanNerve::RightMusculocutaneous => AnatomicalRegionIter(RIGHTMUSCULOCUTANEOUS_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::RightBrachial);
+                region_list.insert(HumanAnatomicalRegion::RightAntebrachial);
+                region_list.insert(HumanAnatomicalRegion::RightCarpal);
+                region_list
+            }).iter()),
+            HumanNerve::RightMedian => AnatomicalRegionIter(RIGHTMEDIAN_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::RightBrachial);
+                region_list.insert(HumanAnatomicalRegion::RightAntebrachial);
+                region_list.insert(HumanAnatomicalRegion::RightCarpal);
+                region_list.insert(HumanAnatomicalRegion::RightPalmar);
+                region_list.insert(HumanAnatomicalRegion::RightManus);
+                region_list.insert(HumanAnatomicalRegion::RightUpperPhalangeal);
+                region_list
+            }).iter()),
+            HumanNerve::RightRadial => AnatomicalRegionIter(RIGHTRADIAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::RightBrachial);
+                region_list.insert(HumanAnatomicalRegion::RightAntebrachial);
+                region_list.insert(HumanAnatomicalRegion::RightCarpal);
+                region_list.insert(HumanAnatomicalRegion::RightPalmar);
+                region_list.insert(HumanAnatomicalRegion::RightManus);
+                region_list.insert(HumanAnatomicalRegion::RightUpperPhalangeal);
+                region_list
+            }).iter()),
+            HumanNerve::RightUlnar => AnatomicalRegionIter(RIGHTULNAR_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::RightBrachial);
+                region_list.insert(HumanAnatomicalRegion::RightAntebrachial);
+                region_list.insert(HumanAnatomicalRegion::RightCarpal);
+                region_list.insert(HumanAnatomicalRegion::RightPalmar);
+                region_list.insert(HumanAnatomicalRegion::RightManus);
+                region_list.insert(HumanAnatomicalRegion::RightUpperPhalangeal);
+                region_list
+            }).iter()),
+            HumanNerve::RightUpperSubscapular => AnatomicalRegionIter(RIGHTUPPERSUBSCAPULAR_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list.insert(HumanAnatomicalRegion::RightScapular);
+                region_list
+            }).iter()),
+            HumanNerve::RightLowerSubscapular => AnatomicalRegionIter(RIGHTLOWERSUBSCAPULAR_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list.insert(HumanAnatomicalRegion::RightScapular);
+                region_list
+            }).iter()),
+            HumanNerve::RightThoracodorsal => AnatomicalRegionIter(RIGHTTHORACODORSAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightDorsalScapular => AnatomicalRegionIter(RIGHTDORSALSCAPULAR_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list.insert(HumanAnatomicalRegion::RightScapular);
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightLongThoracic => AnatomicalRegionIter(RIGHTLONGTHORACIC_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Cervical);
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightSuprascapular => AnatomicalRegionIter(RIGHTSUPRASCAPULAR_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::RightScapular);
+                region_list
+            }).iter()),
+            HumanNerve::RightLateralPectoral => AnatomicalRegionIter(RIGHTLATERALPECTORAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightMedialPectoral => AnatomicalRegionIter(RIGHTMEDIALPECTORAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Thoracic);
+                region_list
+            }).iter()),
+            HumanNerve::RightMedialCutaneous => AnatomicalRegionIter(RIGHTMEDIALCUTANEOUS_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::RightAxillary);
+                region_list.insert(HumanAnatomicalRegion::RightBrachial);
+                region_list
+            }).iter()),
+            HumanNerve::RightIliohypogastric => AnatomicalRegionIter(RIGHTILIOHYPOGASTRIC_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Lumbar);
+                region_list.insert(HumanAnatomicalRegion::RightLowerAbdominal);
+                region_list
+            }).iter()),
+            HumanNerve::RightIlioInguinal => AnatomicalRegionIter(RIGHTILIOINGUINAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Lumbar);
+                region_list.insert(HumanAnatomicalRegion::RightInguinal);
+                region_list
+            }).iter()),
+            HumanNerve::RightObturator => AnatomicalRegionIter(RIGHTOBTURATOR_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Lumbar);
+                region_list
+            }).iter()),
+            HumanNerve::RightLumbarPlexus => AnatomicalRegionIter(RIGHTLUMBARPLEXUS_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Lumbar);
+                region_list
+            }).iter()),
+            HumanNerve::RightSacralPlexus => AnatomicalRegionIter(RIGHTSACRALPLEXUS_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Sacral);
+                region_list
+            }).iter()),
+            HumanNerve::RightLateralFemoralCutaneous => AnatomicalRegionIter(RIGHTLATERALFEMORALCUTANEOUS_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Lumbar);
+                region_list.insert(HumanAnatomicalRegion::RightFemoral);
+                region_list
+            }).iter()),
+            HumanNerve::RightPosteriorFemoralCutaneous => AnatomicalRegionIter(RIGHTPOSTERIORFEMORALCUTANEOUS_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Sacral);
+                region_list.insert(HumanAnatomicalRegion::RightGluteal);
+                region_list.insert(HumanAnatomicalRegion::RightFemoral);
+                region_list
+            }).iter()),
+            HumanNerve::RightFemoral => AnatomicalRegionIter(RIGHTFEMORAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Lumbar);
+                region_list.insert(HumanAnatomicalRegion::RightFemoral);
+                region_list
+            }).iter()),
+            HumanNerve::RightSciatic => AnatomicalRegionIter(RIGHTSCIATIC_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Sacral);
+                region_list.insert(HumanAnatomicalRegion::RightGluteal);
+                region_list.insert(HumanAnatomicalRegion::RightFemoral);
+                region_list.insert(HumanAnatomicalRegion::RightPopliteal);
+                region_list
+            }).iter()),
+            HumanNerve::RightPudendal => AnatomicalRegionIter(RIGHTPUDENDAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Sacral);
+                region_list.insert(HumanAnatomicalRegion::RightGluteal);
+                region_list
+            }).iter()),
+            HumanNerve::RightInferiorRectal => AnatomicalRegionIter(RIGHTINFERIORRECTAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::Sacral);
+                region_list.insert(HumanAnatomicalRegion::RightGluteal);
+                region_list
+            }).iter()),
+            HumanNerve::RightSaphenous => AnatomicalRegionIter(RIGHTSAPHENOUS_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::RightFemoral);
+                region_list.insert(HumanAnatomicalRegion::RightPopliteal);
+                region_list.insert(HumanAnatomicalRegion::RightCrural);
+                region_list.insert(HumanAnatomicalRegion::RightTarsal);
+                region_list
+            }).iter()),
+            HumanNerve::RightCommonFibular => AnatomicalRegionIter(RIGHTCOMMONFIBULAR_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::RightPopliteal);
+                region_list
+            }).iter()),
+            HumanNerve::RightSuperficialFibular => AnatomicalRegionIter(RIGHTSUPERFICIALFIBULAR_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::RightPopliteal);
+                region_list.insert(HumanAnatomicalRegion::RightFibular);
+                region_list.insert(HumanAnatomicalRegion::RightCrural);
+                region_list.insert(HumanAnatomicalRegion::RightTarsal);
+                region_list.insert(HumanAnatomicalRegion::RightPedal);
+                region_list.insert(HumanAnatomicalRegion::RightLowerPhalangeal);
+                region_list
+            }).iter()),
+            HumanNerve::RightDeepFibular => AnatomicalRegionIter(RIGHTDEEPFIBULAR_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::RightPopliteal);
+                region_list.insert(HumanAnatomicalRegion::RightFibular);
+                region_list.insert(HumanAnatomicalRegion::RightCrural);
+                region_list.insert(HumanAnatomicalRegion::RightTarsal);
+                region_list.insert(HumanAnatomicalRegion::RightPedal);
+                region_list.insert(HumanAnatomicalRegion::RightLowerPhalangeal);
+                region_list
+            }).iter()),
+            HumanNerve::RightSural => AnatomicalRegionIter(RIGHTSURAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::RightPopliteal);
+                region_list.insert(HumanAnatomicalRegion::RightSural);
+                region_list.insert(HumanAnatomicalRegion::RightTarsal);
+                region_list.insert(HumanAnatomicalRegion::RightPedal);
+                region_list
+            }).iter()),
+            HumanNerve::RightTibial => AnatomicalRegionIter(RIGHTTIBIAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::RightPopliteal);
+                region_list.insert(HumanAnatomicalRegion::RightSural);
+                region_list.insert(HumanAnatomicalRegion::RightTarsal);
+                region_list.insert(HumanAnatomicalRegion::RightCalcaneal);
+                region_list
+            }).iter()),
+            HumanNerve::RightPlantal => AnatomicalRegionIter(RIGHTPLANTAL_REGIONS.get_or_init(|| {
+                let mut region_list = HashSet::new();
+                region_list.insert(HumanAnatomicalRegion::RightPlantar);
+                region_list
+            }).iter())
         }
     }
 }
