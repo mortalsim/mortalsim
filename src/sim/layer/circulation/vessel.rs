@@ -67,93 +67,16 @@ impl BloodVessel for DummyVessel {
 #[cfg(test)]
 pub mod test {
     use std::collections::HashSet;
+    use std::sync::OnceLock;
 
     use super::{BloodVessel, VesselIter, BloodVesselType, AnatomicalRegionIter};
 
+    static AORTA_SET: OnceLock<HashSet<TestBloodVessel>> = OnceLock::new();
+    static VENACAVA_SET: OnceLock<HashSet<TestBloodVessel>> = OnceLock::new();
+    static EMPTY_SET: OnceLock<HashSet<TestBloodVessel>> = OnceLock::new();
 
-    lazy_static! {
-        static ref START_VESSELS: HashSet<TestBloodVessel> = {
-            let mut vessel_list = HashSet::new();
-            vessel_list.insert(TestBloodVessel::Aorta);
-            vessel_list
-        };
-    }
-
-    lazy_static! {
-        static ref ARTERIES: HashSet<TestBloodVessel> = {
-            let mut vessel_list = HashSet::new();
-            vessel_list.insert(TestBloodVessel::Aorta);
-            vessel_list
-        };
-    }
-
-    lazy_static! {
-        static ref VEINS: HashSet<TestBloodVessel> = {
-            let mut vessel_list = HashSet::new();
-            vessel_list.insert(TestBloodVessel::VenaCava);
-            vessel_list
-        };
-    }
-
-    lazy_static! {
-        static ref PRE_CAPILLARIES: HashSet<TestBloodVessel> = {
-            let mut vessel_list = HashSet::new();
-            vessel_list.insert(TestBloodVessel::Aorta);
-            vessel_list
-        };
-    }
-    
-    lazy_static! {
-        static ref POST_CAPILLARIES: HashSet<TestBloodVessel> = {
-            let mut vessel_list = HashSet::new();
-            vessel_list.insert(TestBloodVessel::VenaCava);
-            vessel_list
-        };
-    }
-
-    lazy_static! {
-        static ref AORTA_UPSTREAM: HashSet<TestBloodVessel> = {
-            HashSet::new()
-        };
-    }
-
-    lazy_static! {
-        static ref VENACAVA_UPSTREAM: HashSet<TestBloodVessel> = {
-            let mut vessel_list = HashSet::new();
-            vessel_list.insert(TestBloodVessel::Aorta);
-            vessel_list
-        };
-    }
-    
-    lazy_static! {
-        static ref AORTA_DOWNSTREAM: HashSet<TestBloodVessel> = {
-            let mut vessel_list = HashSet::new();
-            vessel_list.insert(TestBloodVessel::VenaCava);
-            vessel_list
-        };
-    }
-
-    lazy_static! {
-        static ref VENACAVA_DOWNSTREAM: HashSet<TestBloodVessel> = {
-            HashSet::new()
-        };
-    }
-
-    lazy_static! {
-        static ref AORTA_REGIONS: HashSet<TestAnatomicalRegion> = {
-            let mut vessel_list = HashSet::new();
-            vessel_list.insert(TestAnatomicalRegion::Torso);
-            vessel_list
-        };
-    }
-
-    lazy_static! {
-        static ref VENACAVA_REGIONS: HashSet<TestAnatomicalRegion> = {
-            let mut vessel_list = HashSet::new();
-            vessel_list.insert(TestAnatomicalRegion::Torso);
-            vessel_list
-        };
-    }
+    static AORTA_REGIONS: OnceLock<HashSet<TestAnatomicalRegion>> = OnceLock::new();
+    static VENACAVA_REGIONS: OnceLock<HashSet<TestAnatomicalRegion>> = OnceLock::new();
     
     #[derive(Debug, Display, Hash, Clone, Copy, PartialEq, Eq, EnumString, IntoStaticStr)]
     pub enum TestAnatomicalRegion {
@@ -171,6 +94,28 @@ pub mod test {
         VenaCava,
     }
 
+    impl TestBloodVessel {
+        fn empty() -> &'static HashSet<TestBloodVessel> {
+            EMPTY_SET.get_or_init(|| {
+                HashSet::new()
+            })
+        }
+        fn aorta_set() -> &'static HashSet<TestBloodVessel> {
+            AORTA_SET.get_or_init(|| {
+                let mut vessel_list = HashSet::new();
+                vessel_list.insert(TestBloodVessel::Aorta);
+                vessel_list
+            })
+        }
+        fn venacava_set() -> &'static HashSet<TestBloodVessel> {
+            VENACAVA_SET.get_or_init(|| {
+                let mut vessel_list = HashSet::new();
+                vessel_list.insert(TestBloodVessel::VenaCava);
+                vessel_list
+            })
+        }
+    }
+
     impl BloodVessel for TestBloodVessel {
         type AnatomyType = TestAnatomicalRegion;
 
@@ -178,19 +123,19 @@ pub mod test {
         fn max_venous_depth() -> u32 { 1 }
         fn max_cycle() -> u32 { 2 }
         fn start_vessels<'a>() -> VesselIter<'a, Self> {
-            VesselIter(START_VESSELS.iter())
+            VesselIter(Self::aorta_set().iter())
         }
         fn arteries<'a>() -> VesselIter<'a, Self> {
-            VesselIter(ARTERIES.iter())
+            VesselIter(Self::aorta_set().iter())
         }
         fn veins<'a>() -> VesselIter<'a, Self> {
-            VesselIter(VEINS.iter())
+            VesselIter(Self::venacava_set().iter())
         }
         fn pre_capillaries<'a>() -> VesselIter<'a, Self> {
-            VesselIter(PRE_CAPILLARIES.iter())
+            VesselIter(Self::aorta_set().iter())
         }
         fn post_capillaries<'a>() -> VesselIter<'a, Self> {
-            VesselIter(POST_CAPILLARIES.iter())
+            VesselIter(Self::venacava_set().iter())
         }
         fn vessel_type(&self) -> BloodVesselType {
             match self {
@@ -200,20 +145,28 @@ pub mod test {
         }
         fn upstream<'a>(&self) -> VesselIter<'a, Self> {
             match self {
-                TestBloodVessel::Aorta => VesselIter(AORTA_UPSTREAM.iter()),
-                TestBloodVessel::VenaCava => VesselIter(VENACAVA_UPSTREAM.iter()),
+                TestBloodVessel::Aorta => VesselIter(Self::empty().iter()),
+                TestBloodVessel::VenaCava => VesselIter(Self::aorta_set().iter()),
             }
         }
         fn downstream<'a>(&self) -> VesselIter<'a, Self> {
             match self {
-                TestBloodVessel::Aorta => VesselIter(AORTA_DOWNSTREAM.iter()),
-                TestBloodVessel::VenaCava => VesselIter(VENACAVA_DOWNSTREAM.iter()),
+                TestBloodVessel::Aorta => VesselIter(Self::venacava_set().iter()),
+                TestBloodVessel::VenaCava => VesselIter(Self::empty().iter()),
             }
         }
         fn regions<'a>(&self) -> AnatomicalRegionIter<Self::AnatomyType> {
             match self {
-                TestBloodVessel::Aorta => AnatomicalRegionIter(AORTA_REGIONS.iter()),
-                TestBloodVessel::VenaCava => AnatomicalRegionIter(VENACAVA_REGIONS.iter()),
+                TestBloodVessel::Aorta => AnatomicalRegionIter(AORTA_REGIONS.get_or_init(|| {
+                    let mut region_list = HashSet::new();
+                    region_list.insert(TestAnatomicalRegion::Torso);
+                    region_list
+                }).iter()),
+                TestBloodVessel::VenaCava => AnatomicalRegionIter(VENACAVA_REGIONS.get_or_init(|| {
+                    let mut region_list = HashSet::new();
+                    region_list.insert(TestAnatomicalRegion::Torso);
+                    region_list
+                }).iter()),
             }
         }
     }

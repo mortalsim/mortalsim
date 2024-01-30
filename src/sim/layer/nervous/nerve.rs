@@ -112,7 +112,7 @@ impl<O: Organism> NerveSignal<O> {
 
 #[cfg(test)]
 pub mod test {
-    use std::collections::HashSet;
+    use std::{collections::HashSet, sync::OnceLock};
     use crate::sim::{organism::test::TestAnatomicalRegion, layer::AnatomicalRegionIter};
 
     use super::{Nerve, NerveIter};
@@ -123,72 +123,69 @@ pub mod test {
         Brain,
         SpinalCord,
     }
+    
+    static BRAIN_LIST: OnceLock<Vec<TestNerve>> = OnceLock::new();
+    static SPINALCORD_LIST: OnceLock<Vec<TestNerve>> = OnceLock::new();
+    static EMPTY_LIST: OnceLock<Vec<TestNerve>> = OnceLock::new();
 
-    lazy_static! {
-        static ref TERMINAL_NERVES: Vec<TestNerve> = {
-            let mut nerve_list = Vec::new();
-            nerve_list.push(TestNerve::SpinalCord);
-            nerve_list
-        };
+    static BRAIN_REGIONS: OnceLock<HashSet<TestAnatomicalRegion>> = OnceLock::new();
+    static SPINALCORD_REGIONS: OnceLock<HashSet<TestAnatomicalRegion>> = OnceLock::new();
 
-        static ref BRAIN_UPLINK: Vec<TestNerve> = {
-            Vec::new()
-        };
-
-        static ref SPINALCORD_UPLINK: Vec<TestNerve> = {
-            let mut nerve_list = Vec::new();
-            nerve_list.push(TestNerve::Brain);
-            nerve_list
-        };
-
-        static ref BRAIN_DOWNLINK: Vec<TestNerve> = {
-            let mut nerve_list = Vec::new();
-            nerve_list.push(TestNerve::SpinalCord);
-            nerve_list
-        };
-
-        static ref SPINALCORD_DOWNLINK: Vec<TestNerve> = {
-            Vec::new()
-        };
-
-        static ref BRAIN_REGIONS: HashSet<TestAnatomicalRegion> = {
-            let mut region_list = HashSet::new();
-            region_list.insert(TestAnatomicalRegion::Head);
-            region_list
-        };
-
-        static ref SPINALCORD_REGIONS: HashSet<TestAnatomicalRegion> = {
-            let mut region_list = HashSet::new();
-            region_list.insert(TestAnatomicalRegion::Torso);
-            region_list
-        };
+    impl TestNerve {
+        fn empty() -> &'static Vec<TestNerve> {
+            EMPTY_LIST.get_or_init(|| {
+                Vec::new()
+            })
+        }
+        fn brain_list() -> &'static Vec<TestNerve> {
+            BRAIN_LIST.get_or_init(|| {
+                let mut nerve_list = Vec::new();
+                nerve_list.push(TestNerve::Brain);
+                nerve_list
+            })
+        }
+        fn spinalcord_list() -> &'static Vec<TestNerve> {
+            SPINALCORD_LIST.get_or_init(|| {
+                let mut nerve_list = Vec::new();
+                nerve_list.push(TestNerve::SpinalCord);
+                nerve_list
+            })
+        }
     }
 
     impl Nerve for TestNerve {
         type AnatomyType = TestAnatomicalRegion;
 
         fn terminal_nerves<'a>() -> NerveIter<'a, Self> {
-            NerveIter(TERMINAL_NERVES.iter())
+            NerveIter(Self::spinalcord_list().iter())
         }
 
         fn uplink<'a>(&self) -> NerveIter<'a, Self> {
             match self {
-                TestNerve::Brain => NerveIter(BRAIN_UPLINK.iter()),
-                TestNerve::SpinalCord => NerveIter(SPINALCORD_UPLINK.iter()),
+                TestNerve::Brain => NerveIter(Self::empty().iter()),
+                TestNerve::SpinalCord => NerveIter(Self::brain_list().iter()),
             }
         }
 
         fn downlink<'a>(&self) -> NerveIter<'a, Self> {
             match self {
-                TestNerve::Brain => NerveIter(BRAIN_DOWNLINK.iter()),
-                TestNerve::SpinalCord => NerveIter(SPINALCORD_DOWNLINK.iter()),
+                TestNerve::Brain => NerveIter(Self::spinalcord_list().iter()),
+                TestNerve::SpinalCord => NerveIter(Self::empty().iter()),
             }
         }
 
         fn regions<'a>(&self) -> AnatomicalRegionIter<Self::AnatomyType> {
             match self {
-                TestNerve::Brain => AnatomicalRegionIter(BRAIN_REGIONS.iter()),
-                TestNerve::SpinalCord => AnatomicalRegionIter(SPINALCORD_REGIONS.iter()),
+                TestNerve::Brain => AnatomicalRegionIter(BRAIN_REGIONS.get_or_init(|| {
+                    let mut region_list = HashSet::new();
+                    region_list.insert(TestAnatomicalRegion::Head);
+                    region_list
+                }).iter()),
+                TestNerve::SpinalCord => AnatomicalRegionIter(SPINALCORD_REGIONS.get_or_init(|| {
+                    let mut region_list = HashSet::new();
+                    region_list.insert(TestAnatomicalRegion::Torso);
+                    region_list
+                }).iter()),
             }
         }
 

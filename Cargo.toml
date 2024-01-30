@@ -9,7 +9,6 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0"
 downcast-rs = "1.2.0"
-lazy_static = "1.4.0"
 log = "0.4"
 ordered-float = "3.7"
 rand = "0.8"

@@ -3,11 +3,9 @@ use crate::util::id_gen::{IdGenerator, IdType};
 use std::any::TypeId;
 use std::cmp;
 use std::fmt;
-use std::sync::Mutex;
+use std::sync::{Mutex, MutexGuard, OnceLock};
 
-lazy_static! {
-    static ref ID_GEN: Mutex<IdGenerator> = Mutex::new(IdGenerator::new());
-}
+static ID_GEN: OnceLock<Mutex<IdGenerator>> = OnceLock::new();
 
 pub trait EventTransformer {
     /// Calls this transformer's handler function with the given Event
@@ -84,6 +82,12 @@ pub struct TransformerItem<'a, T: Event> {
 }
 
 impl<'a, T: Event> TransformerItem<'a, T> {
+    fn id_gen() -> MutexGuard<'static, IdGenerator> {
+        ID_GEN.get_or_init(|| {
+            Mutex::new(IdGenerator::new())
+        }).lock().unwrap()
+    }
+
     /// Creates a new TransformerItem for the given handler with
     /// the default priority of 0
     ///
@@ -91,7 +95,7 @@ impl<'a, T: Event> TransformerItem<'a, T> {
     /// * `handler` - Event transforming function
     pub fn new(handler: impl FnMut(&mut T) + 'a) -> TransformerItem<'a, T> {
         TransformerItem {
-            transformer_id: ID_GEN.lock().unwrap().get_id(),
+            transformer_id: Self::id_gen().get_id(),
             handler: Box::new(handler),
             priority: 0,
         }
@@ -110,7 +114,7 @@ impl<'a, T: Event> TransformerItem<'a, T> {
         priority: i32,
     ) -> TransformerItem<'a, T> {
         TransformerItem {
-            transformer_id: ID_GEN.lock().unwrap().get_id(),
+            transformer_id: Self::id_gen().get_id(),
             handler: Box::new(handler),
             priority: priority,
         }
@@ -120,9 +124,7 @@ impl<'a, T: Event> TransformerItem<'a, T> {
 impl<'a, T: Event> Drop for TransformerItem<'a, T> {
     fn drop(&mut self) {
         // Return ids back to the pool when listeners are dropped
-        ID_GEN
-            .lock()
-            .unwrap()
+        Self::id_gen()
             .return_id(self.transformer_id)
             .unwrap();
     }

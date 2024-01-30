@@ -6,12 +6,10 @@ use crate::event::Event;
 use crate::util::id_gen::{IdGenerator, IdType};
 use std::cmp;
 use std::fmt;
-use std::sync::Arc;
+use std::sync::{Arc, MutexGuard, OnceLock};
 use std::sync::Mutex;
 
-lazy_static! {
-    static ref ID_GEN: Mutex<IdGenerator> = Mutex::new(IdGenerator::new());
-}
+static ID_GEN: OnceLock<Mutex<IdGenerator>> = OnceLock::new();
 
 pub trait EventListener {
     /// Calls this listener's handler function with the given Event
@@ -85,6 +83,12 @@ pub struct GenericListener<'a> {
 }
 
 impl<'a> GenericListener<'a> {
+    fn id_gen() -> MutexGuard<'static, IdGenerator> {
+        ID_GEN.get_or_init(|| {
+            Mutex::new(IdGenerator::new())
+        }).lock().unwrap()
+    }
+
     /// Creates a new GenericListener for the given handler function with
     /// the default priority of 0
     ///
@@ -92,7 +96,7 @@ impl<'a> GenericListener<'a> {
     /// * `id` - Identifier for this listener
     pub fn new(handler: impl FnMut(Arc<dyn Event>) + 'a) -> GenericListener<'a> {
         GenericListener {
-            listener_id: ID_GEN.lock().unwrap().get_id(),
+            listener_id: Self::id_gen().get_id(),
             priority: 0,
             handler: Box::new(handler),
         }
@@ -110,7 +114,7 @@ impl<'a> GenericListener<'a> {
         priority: i32,
     ) -> GenericListener<'a> {
         GenericListener {
-            listener_id: ID_GEN.lock().unwrap().get_id(),
+            listener_id: Self::id_gen().get_id(),
             handler: Box::new(handler),
             priority: priority,
         }
@@ -120,7 +124,7 @@ impl<'a> GenericListener<'a> {
 impl<'a> Drop for GenericListener<'a> {
     fn drop(&mut self) {
         // Return ids back to the pool when listeners are dropped
-        ID_GEN.lock().unwrap().return_id(self.listener_id).unwrap();
+        Self::id_gen().return_id(self.listener_id).unwrap();
     }
 }
 
@@ -153,6 +157,12 @@ pub struct ListenerItem<'a, T: Event> {
 }
 
 impl<'a, T: Event> ListenerItem<'a, T> {
+    fn id_gen() -> MutexGuard<'static, IdGenerator> {
+        ID_GEN.get_or_init(|| {
+            Mutex::new(IdGenerator::new())
+        }).lock().unwrap()
+    }
+
     /// Creates a new ListenerItem for the given handler function with
     /// the default priority of 0
     ///
@@ -160,7 +170,7 @@ impl<'a, T: Event> ListenerItem<'a, T> {
     /// * `id` - Identifier for this listener
     pub fn new(handler: impl FnMut(Arc<T>) + 'a) -> ListenerItem<'a, T> {
         ListenerItem {
-            listener_id: ID_GEN.lock().unwrap().get_id(),
+            listener_id: Self::id_gen().get_id(),
             priority: 0,
             handler: Box::new(handler),
         }
@@ -175,7 +185,7 @@ impl<'a, T: Event> ListenerItem<'a, T> {
     /// * `handler`  - Event handling function
     pub fn new_prioritized(priority: i32, handler: impl FnMut(Arc<T>) + 'a) -> ListenerItem<'a, T> {
         ListenerItem {
-            listener_id: ID_GEN.lock().unwrap().get_id(),
+            listener_id: Self::id_gen().get_id(),
             handler: Box::new(handler),
             priority: priority,
         }
@@ -185,7 +195,7 @@ impl<'a, T: Event> ListenerItem<'a, T> {
 impl<'a, T: Event> Drop for ListenerItem<'a, T> {
     fn drop(&mut self) {
         // Return ids back to the pool when listeners are dropped
-        ID_GEN.lock().unwrap().return_id(self.listener_id).unwrap();
+        Self::id_gen().return_id(self.listener_id).unwrap();
     }
 }
 

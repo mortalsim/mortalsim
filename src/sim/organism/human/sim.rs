@@ -14,11 +14,6 @@ use std::any::{Any, TypeId};
 use std::collections::{HashMap, HashSet};
 use std::sync::Mutex;
 
-lazy_static! {
-    static ref COMPONENT_REGISTRY: Mutex<HashMap<&'static str, Box<dyn FnMut() -> Box<dyn HumanSimModule> + Send>>> =
-        Mutex::new(HashMap::new());
-}
-
 /// Registers a Sim module which interacts with a Human simulation. By default, the module will be
 /// added to all newly created Human objects
 ///

@@ -1,4 +1,4 @@
-use super::{SubstanceConcentration, SubstanceChange, ZERO_CONCENTRATION};
+use super::{SubstanceConcentration, SubstanceChange};
 use crate::sim::SimTime;
 use crate::substance::Substance;
 use crate::util::id_gen::{IdGenerator, IdType};
@@ -6,6 +6,9 @@ use crate::util::{secs, BoundFn};
 use core::panic;
 use std::collections::HashMap;
 use std::fmt;
+use std::sync::OnceLock;
+
+static ZERO_CONCENTRATION: OnceLock<SubstanceConcentration> = OnceLock::new();
 
 #[derive(Clone)]
 /// A storage construct for Substance concentrations in a volume
@@ -37,17 +40,23 @@ impl Default for SubstanceStore {
     }
 }
 
-lazy_static! {
-    static ref DEFAULT_STORE: SubstanceStore = SubstanceStore::new();
-}
+static DEFAULT_STORE: OnceLock<SubstanceStore> = OnceLock::new();
 
 impl<'a> Default for &'a SubstanceStore {
     fn default() -> Self {
-        &DEFAULT_STORE
+        DEFAULT_STORE.get_or_init(|| {
+            SubstanceStore::new()
+        })
     }
 }
 
 impl SubstanceStore {
+    fn zero_concentration() -> &'static SubstanceConcentration {
+        ZERO_CONCENTRATION.get_or_init(|| {
+            SubstanceConcentration::from_M(0.0)
+        })
+    }
+
     /// Constructs a new Substance store with the given identifier and initial volume
     ///
     /// ### Arguments
@@ -74,7 +83,7 @@ impl SubstanceStore {
     /// Returns the current concentration of the substance
     pub fn concentration_of(&self, substance: &Substance) -> SubstanceConcentration {
         match self.composition.get(substance) {
-            None => *ZERO_CONCENTRATION,
+            None => *Self::zero_concentration(),
             Some(amt) => *amt,
         }
     }
@@ -216,7 +225,7 @@ impl SubstanceStore {
                     let prev_conc = self
                         .composition
                         .get(substance)
-                        .unwrap_or(&ZERO_CONCENTRATION);
+                        .unwrap_or(Self::zero_concentration());
                     let new_conc = *prev_conc + change_amt;
                     self.composition.insert(*substance, new_conc);
                 }
@@ -241,13 +250,15 @@ mod tests {
         BoundFn, Substance, SubstanceStore,
         ZERO_CONCENTRATION,
     };
-    use crate::util::{mmol_per_L, secs};
+    use crate::{substance::SubstanceConcentration, util::{mmol_per_L, secs}};
     use std::collections::HashMap;
 
     #[test]
     fn has_empty() {
         let store = SubstanceStore::new();
-        assert_eq!(store.concentration_of(&Substance::ADP), *ZERO_CONCENTRATION);
+        assert_eq!(store.concentration_of(&Substance::ADP), *ZERO_CONCENTRATION.get_or_init(||{
+            SubstanceConcentration::from_M(0.0)
+        }));
     }
 
     #[test]
@@ -312,7 +323,9 @@ mod tests {
             adp_conc,
             expected_adp
         );
-        assert_eq!(store.concentration_of(&Substance::ATP), *ZERO_CONCENTRATION);
+        assert_eq!(store.concentration_of(&Substance::ATP), *ZERO_CONCENTRATION.get_or_init(||{
+            SubstanceConcentration::from_M(0.0)
+        }));
 
         // Unschedule changes to ADP, so that should now not change anymore
         store.unschedule_change(&Substance::ADP, &change_id);
