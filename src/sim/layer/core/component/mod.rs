@@ -38,7 +38,7 @@ pub mod test {
         connector: CoreConnector<O>,
     }
     impl<O: Organism> TestComponentA<O> {
-        fn new() -> Self {
+        pub fn new() -> Self {
             Self {
                 connector: CoreConnector::new(),
             }
