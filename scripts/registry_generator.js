@@ -209,13 +209,19 @@ impl<O: Organism + 'static> ComponentRegistry<O> {
         Ok(self.components.last().unwrap().as_ref())
     }
 
-    pub(crate) fn remove_component(&mut self, component_id: &'static str) -> anyhow::Result<Box<dyn ComponentWrapper<O>>> {
+    pub(crate) fn remove_component(&mut self, component_id: &str) -> anyhow::Result<Box<dyn ComponentWrapper<O>>> {
         if let Some(index) = self.components.iter().position(|x| x.id() == component_id) {
             return Ok(self.components.remove(index))
         }
         Err(anyhow!("component not found"))
     }
 
+    pub(crate) fn has_component(&self, component_id: &str) -> bool {
+        self.id_set.contains(component_id)
+    }
+    pub(crate) fn all_components(&self) -> impl Iterator<Item = &Box<dyn ComponentWrapper<O>>> {
+        self.components.iter()
+    }
     pub(crate) fn all_components_mut(&mut self) -> impl Iterator<Item = &mut Box<dyn ComponentWrapper<O>>> {
         self.components.iter_mut()
     }

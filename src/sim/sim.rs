@@ -1,3 +1,9 @@
+use std::collections::HashSet;
+
+use crate::{event::Event, util::IdType};
+
+use super::SimTime;
+
 
 pub trait Sim {
     /// Returns the current simulation time
@@ -5,17 +11,17 @@ pub trait Sim {
 
     /// Determines if the given component name corresponds to an active component
     /// on this Sim
-    fn has_component(&self, component_id: &'static str) -> bool;
+    fn has_component(&self, component_id: &str) -> bool;
 
     /// Retrieves a list of components which are active on this Sim
-    fn active_components(&self) -> Vec<&'static str>;
+    fn active_components(&self) -> Vec<&str>;
 
     /// Removes a component from this Sim. Panics if any of the component names
     /// are invalid.
     ///
     /// ### Arguments
     /// * `component_names` - Set of components to remove
-    fn remove_components(&mut self, component_names: HashSet<&'static str>);
+    fn remove_components(&mut self, component_ids: Vec<&str>) -> Vec<anyhow::Result<&str>>;
 
     /// Advances simulation time to the next `Event` or listener in the queue, if any.
     ///
@@ -29,7 +35,7 @@ pub trait Sim {
     ///
     /// ### Arguments
     /// * `time_step` - Amount of time to advance by
-    fn advance_by(&mut self, time_step: Time);
+    fn advance_by(&mut self, time_step: SimTime);
 
     /// Schedules an `Event` for future emission on this simulation
     ///
@@ -38,7 +44,7 @@ pub trait Sim {
     /// * `event` - Event instance to emit
     ///
     /// Returns the schedule ID
-    fn schedule_event(&mut self, wait_time: Time, event: impl Event) -> IdType;
+    fn schedule_event(&mut self, wait_time: SimTime, event: Box<dyn Event>) -> IdType;
 
     /// Unschedules a previously scheduled `Event`
     ///
@@ -46,5 +52,5 @@ pub trait Sim {
     /// * `schedule_id` - Schedule ID returned by `schedule_event`
     ///
     /// Returns an Err Result if the provided ID is invalid
-    fn unschedule_event(&mut self, schedule_id: &IdType) -> Result<()>;
+    fn unschedule_event(&mut self, schedule_id: &IdType) -> anyhow::Result<()>;
 }

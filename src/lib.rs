@@ -15,6 +15,7 @@ pub mod substance;
 pub mod event;
 pub mod hub;
 pub mod units;
+pub use util::IdType;
 
 #[cfg(test)]
 mod test {

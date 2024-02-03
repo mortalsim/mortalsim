@@ -61,11 +61,19 @@ impl<O: Organism + 'static> LayerManager<O> {
         Ok(())
     }
     
-    pub fn remove_component(&mut self, component_id: &'static str) -> anyhow::Result<()> {
+    pub fn remove_component(&mut self, component_id: &str) -> anyhow::Result<&'static str> {
         match self.registry.remove_component(component_id) {
-            Ok(_) => Ok(()),
+            Ok(c) => Ok(c.id()),
             Err(msg) => Err(msg),
         }
+    }
+
+    pub fn components(&self) -> impl Iterator<Item=&'static str> + '_ {
+        self.registry.all_components().map(|c| c.id())
+    }
+
+    pub fn has_component(&self, component_id: &str) -> bool {
+        self.registry.has_component(component_id)
     }
 
     pub fn update(&mut self, connector: &mut SimConnector) {

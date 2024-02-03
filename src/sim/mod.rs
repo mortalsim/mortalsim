@@ -3,9 +3,11 @@ pub mod layer;
 pub mod sim_state;
 pub mod time_manager;
 pub mod organism;
+pub mod sim;
 use std::sync::Arc;
 
 pub use sim_state::SimState;
+pub use sim::Sim;
 pub use time_manager::{SimTime, TimeManager};
 
 pub use organism::*;

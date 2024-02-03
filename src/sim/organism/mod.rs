@@ -1,6 +1,9 @@
 use super::layer::circulation::BloodVessel;
 use super::layer::nervous::Nerve;
 
+mod macros;
+pub use macros::*;
+
 #[cfg(test)]
 pub mod test;
 

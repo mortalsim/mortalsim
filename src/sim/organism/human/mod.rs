@@ -9,11 +9,9 @@ pub use human_nervous::HumanNerve;
 
 use crate::sim::layer::LayerManager;
 
-use super::Organism;
+use super::{impl_sim, Organism};
 
-pub struct HumanSim {
-    layer_manager: LayerManager<Self>,
-}
+impl_sim!(HumanSim);
 
 impl Organism for HumanSim {
     type VesselType = HumanBloodVessel;
