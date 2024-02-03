@@ -8,7 +8,7 @@ pub use connector::NervousConnector;
 pub use initializer::NervousInitializer;
 
 
-pub trait NervousComponent<O: Organism>: SimComponent<O> {
+pub trait NervousComponent<O: Organism + ?Sized>: SimComponent<O> {
 
     /// Initializes the module. Should register any `Event` objects to listen for
     /// and set initial state.

@@ -12,13 +12,13 @@ use super::layer_processor::LayerProcessor;
 use super::LayerType;
 use super::LayerType::*;
 
-pub struct LayerManager<O: Organism> {
+pub struct LayerManager<O: Organism + ?Sized> {
     registry: ComponentRegistry<O>,
     layers: Vec<LayerProcessor<O>>,
     missing_layers: Vec<&'static LayerType>,
 }
 
-impl<O: Organism + 'static> LayerManager<O> {
+impl<O: Organism + ?Sized + 'static> LayerManager<O> {
     pub fn new() -> Self {
         Self {
             registry: ComponentRegistry::new(),
@@ -59,6 +59,10 @@ impl<O: Organism + 'static> LayerManager<O> {
             }
         }
         Ok(())
+    }
+
+    pub fn attach_component(&mut self, attach_fn: impl FnOnce(&mut ComponentRegistry<O>)) {
+        attach_fn(&mut self.registry)
     }
     
     pub fn remove_component(&mut self, component_id: &str) -> anyhow::Result<&'static str> {

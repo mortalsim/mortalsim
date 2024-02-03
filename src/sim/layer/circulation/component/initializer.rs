@@ -2,7 +2,7 @@ use crate::sim::organism::Organism;
 use crate::substance::{SubstanceConcentration, Substance, ConcentrationTracker};
 use std::collections::{HashMap, HashSet};
 
-pub struct CirculationInitializer<O: Organism> {
+pub struct CirculationInitializer<O: Organism + ?Sized> {
     /// BloodVessel connections for the associated component
     pub(crate) vessel_connections: HashSet<O::VesselType>,
     /// Notifications requested for the associated component
@@ -11,7 +11,7 @@ pub struct CirculationInitializer<O: Organism> {
     pub(crate) attach_all: bool,
 }
 
-impl<O: Organism> CirculationInitializer<O> {
+impl<O: Organism + ?Sized> CirculationInitializer<O> {
     pub fn new() -> CirculationInitializer<O> {
         CirculationInitializer {
             vessel_connections: HashSet::new(),

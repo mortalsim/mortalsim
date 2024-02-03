@@ -36,7 +36,7 @@ impl BloodStore {
     substance_store_wrapper!(store, change_map);
 }
 
-pub struct CirculationConnector<O: Organism> {
+pub struct CirculationConnector<O: Organism + ?Sized> {
     /// Mapping of `BloodVessel`s to their corresponding `SubstanceStore`
     pub(crate) vessel_map: HashMap<O::VesselType, BloodStore>,
     /// Copy of the current simulation time
@@ -47,7 +47,7 @@ pub struct CirculationConnector<O: Organism> {
     pub(crate) unschedule_all: bool,
 }
 
-impl<O: Organism> CirculationConnector<O> {
+impl<O: Organism + ?Sized> CirculationConnector<O> {
     pub fn new() -> CirculationConnector<O> {
         CirculationConnector {
             vessel_map: HashMap::new(),

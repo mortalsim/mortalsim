@@ -7,7 +7,7 @@ pub use initializer::CirculationInitializer;
 use crate::sim::component::SimComponent;
 use crate::sim::organism::Organism;
 
-pub trait CirculationComponent<O: Organism>: SimComponent<O> {
+pub trait CirculationComponent<O: Organism + ?Sized>: SimComponent<O> {
 
     /// Initializes the module. Should register any `Event` objects to listen for
     /// and set initial state.

@@ -2,7 +2,8 @@ use std::collections::HashSet;
 
 use crate::{event::Event, util::IdType};
 
-use super::SimTime;
+use super::component::registry::ComponentRegistry;
+use super::{Organism, SimTime};
 
 
 pub trait Sim {
@@ -20,8 +21,8 @@ pub trait Sim {
     /// are invalid.
     ///
     /// ### Arguments
-    /// * `component_names` - Set of components to remove
-    fn remove_components(&mut self, component_ids: Vec<&str>) -> Vec<anyhow::Result<&str>>;
+    /// * `component_ids` - List of components to remove
+    fn remove_component(&mut self, component_ids: &str) -> anyhow::Result<&str>;
 
     /// Advances simulation time to the next `Event` or listener in the queue, if any.
     ///

@@ -3,13 +3,13 @@ use std::any::TypeId;
 use crate::sim::organism::Organism;
 
 
-pub struct NervousInitializer<O: Organism> {
+pub struct NervousInitializer<O: Organism + ?Sized> {
     /// What type of signals this component should be notified of
     /// and on which nerve sections
     pub(crate) signal_notifies: HashMap<O::NerveType, HashSet<TypeId>>,
 }
 
-impl<O: Organism> NervousInitializer<O> {
+impl<O: Organism + ?Sized> NervousInitializer<O> {
     pub fn new() -> NervousInitializer<O> {
         NervousInitializer {
             signal_notifies: HashMap::new(),

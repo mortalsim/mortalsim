@@ -17,7 +17,7 @@ impl<'a, T> TransformFn<'a, T> {
     }
 }
 
-pub struct NervousConnector<O: Organism> {
+pub struct NervousConnector<O: Organism + ?Sized> {
     /// Copy of the current simulation time
     pub(crate) sim_time: SimTime,
     /// Map of pending notifications. Note this is included here because
@@ -40,7 +40,7 @@ pub struct NervousConnector<O: Organism> {
     empty: Vec<NerveSignal<O>>
 }
 
-impl<O: Organism + 'static> NervousConnector<O> {
+impl<O: Organism + ?Sized + 'static> NervousConnector<O> {
     pub fn new() -> Self {
         Self {
             sim_time: SimTime::from_s(0.0),

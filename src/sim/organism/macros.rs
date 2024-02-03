@@ -8,10 +8,10 @@ macro_rules! impl_sim {
             layer_manager: crate::sim::layer::LayerManager<Self>,
             id_gen: crate::util::IdGenerator,
         }
-        
+
         static DEFAULT_ID_GEN: std::sync::OnceLock<std::sync::Mutex<crate::util::IdGenerator>> = std::sync::OnceLock::new();
         static DEFAULT_FACTORIES: std::sync::OnceLock<std::sync::Mutex<Vec<(crate::util::IdType, crate::sim::component::ComponentFactory<'_, $name>)>>> = std::sync::OnceLock::new();
-        
+
         impl $name {
         
             fn default_id_gen() -> std::sync::MutexGuard<'static, crate::util::IdGenerator> {
@@ -19,7 +19,7 @@ macro_rules! impl_sim {
                     std::sync::Mutex::new(crate::util::IdGenerator::new())
                 }).lock().unwrap()
             }
-            
+
             fn default_factories() -> std::sync::MutexGuard<'static, Vec<(u32, crate::sim::component::ComponentFactory<'static, $name>)>> {
                 DEFAULT_FACTORIES.get_or_init(|| {
                     std::sync::Mutex::new(Vec::new())
@@ -49,8 +49,28 @@ macro_rules! impl_sim {
                 };
                 Err(anyhow!("Invalid factory_id provided"))
             }
+
+            pub fn add_component(&mut self, component: impl crate::sim::component::SimComponent<Self>) -> anyhow::Result<()> {
+                self.layer_manager.add_component(component)
+            }
+
+            pub fn new() -> Self {
+                let mut layer_manager = crate::sim::layer::LayerManager::new();
+
+                for (_, factory) in Self::default_factories().iter_mut() {
+                    layer_manager.attach_component(|reg| {
+                        factory.attach(reg)
+                    })
+                }
+
+                Self {
+                    id_gen: crate::util::IdGenerator::new(),
+                    connector: crate::sim::SimConnector::new(),
+                    layer_manager,
+                }
+            }
         }
-        
+
         impl crate::sim::Sim for $name {
             fn time(&self) -> crate::sim::SimTime {
                 self.connector.sim_time()
@@ -65,7 +85,7 @@ macro_rules! impl_sim {
                 self.connector.time_manager.advance_by(time_step);
                 self.layer_manager.update(&mut self.connector);
             }
-            
+
             fn active_components(&self) -> Vec<&'static str> {
                 self.layer_manager.components().collect()
             }
@@ -73,11 +93,9 @@ macro_rules! impl_sim {
             fn has_component(&self, component_id: &str) -> bool {
                 self.layer_manager.has_component(component_id)
             }
-        
-            fn remove_components(&mut self, component_ids: Vec<&str>) -> Vec<anyhow::Result<&str>> {
-                component_ids.iter().map(|component_id| {
-                    self.layer_manager.remove_component(component_id)
-                }).collect()
+
+            fn remove_component(&mut self, component_id: &str) -> anyhow::Result<&str> {
+                self.layer_manager.remove_component(component_id)
             }
         
             fn schedule_event(&mut self, wait_time: crate::sim::SimTime, event: Box<dyn crate::event::Event>) -> crate::util::IdType {

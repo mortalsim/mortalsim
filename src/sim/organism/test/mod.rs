@@ -7,6 +7,7 @@ use std::sync::{Mutex, MutexGuard, OnceLock};
 use crate::sim::layer::circulation::vessel::test::TestBloodVessel;
 use crate::sim::layer::core::test::TestComponentA;
 use crate::sim::layer::nervous::nerve::test::TestNerve;
+use crate::sim::Sim;
 
 use super::{impl_sim, Organism};
 
@@ -33,4 +34,8 @@ fn test_default() {
     TestSim::set_default(|| {
         TestComponentA::new()
     });
+
+    let mut sim: Box<dyn Sim> = Box::new(TestSim::new());
+
+    sim.advance();
 }

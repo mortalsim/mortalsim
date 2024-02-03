@@ -35,7 +35,7 @@ impl<'a, N: Nerve> ExactSizeIterator for NerveIter<'a, N> {
     }
 }
 
-pub struct NerveSignal<O: Organism>  {
+pub struct NerveSignal<O: Organism + ?Sized>  {
     id: Uuid,
     path: Vec<O::NerveType>,
     message: Box<dyn Event>,
@@ -43,7 +43,7 @@ pub struct NerveSignal<O: Organism>  {
     blocked: bool,
 }
 
-impl<O: Organism> NerveSignal<O> {
+impl<O: Organism + ?Sized> NerveSignal<O> {
     pub fn new<T: Event>(message: T, neural_path: Vec<O::NerveType>, send_time: SimTime) -> anyhow::Result<Self> {
         if neural_path.is_empty() {
             return Err(anyhow!("Neural path cannot be empty!"));

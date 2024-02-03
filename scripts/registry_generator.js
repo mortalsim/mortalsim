@@ -73,7 +73,7 @@ function layersToBounds(list) {
 function layerImpl(wrapperName, impls, noimpls) {
     return `
 ${impls.map(impl => `
-impl<O: Organism + 'static, T: ${layersToBounds(impls)}> ${impl.cap()}Component<O> for ${wrapperName}<O, T> {
+impl<O: Organism + ?Sized + 'static, T: ${layersToBounds(impls)}> ${impl.cap()}Component<O> for ${wrapperName}<O, T> {
     fn ${impl}_init(&mut self, initializer: &mut ${impl.cap()}Initializer<O>) {
         self.0.${impl}_init(initializer)
     }
@@ -84,7 +84,7 @@ impl<O: Organism + 'static, T: ${layersToBounds(impls)}> ${impl.cap()}Component<
 `).join('')}
 
 ${noimpls.map(impl => `
-impl<O: Organism + 'static, T: ${layersToBounds(impls)}> ${impl.cap()}Component<O> for ${wrapperName}<O, T> {
+impl<O: Organism + ?Sized + 'static, T: ${layersToBounds(impls)}> ${impl.cap()}Component<O> for ${wrapperName}<O, T> {
     fn ${impl}_init(&mut self, _initializer: &mut ${impl.cap()}Initializer<O>) {
         panic!("Improper wrapper method called!")
     }
@@ -114,14 +114,14 @@ ${layerList.map(l =>
 };
 use super::SimComponent;
 
-pub trait ComponentWrapper<O: Organism>: SimComponent<O> + ${layerList.map(l => `${l.cap()}Component<O>`).join(' + ')} {
+pub trait ComponentWrapper<O: Organism + ?Sized>: SimComponent<O> + ${layerList.map(l => `${l.cap()}Component<O>`).join(' + ')} {
 ${layerList.map(layer => `
     fn is_${layer}_component(&self) -> bool;
 `).join('')}
     fn has_layer(&self, layer_type: &LayerType) -> bool;
 }
 
-impl<O: Organism> ComponentWrapper<O> for Box<dyn ComponentWrapper<O>> {
+impl<O: Organism + ?Sized> ComponentWrapper<O> for Box<dyn ComponentWrapper<O>> {
 ${layerList.map(layer => `
     fn is_${layer}_component(&self) -> bool {
         self.as_ref().is_${layer}_component()
@@ -132,7 +132,7 @@ ${layerList.map(layer => `
     }
 }
 
-impl<O: Organism> SimComponent<O> for Box<dyn ComponentWrapper<O>> {
+impl<O: Organism + ?Sized> SimComponent<O> for Box<dyn ComponentWrapper<O>> {
     fn id(&self) -> &'static str {
         self.as_ref().id()
     }
@@ -144,7 +144,7 @@ impl<O: Organism> SimComponent<O> for Box<dyn ComponentWrapper<O>> {
     }
 }
 ${layerList.map(layer => `
-impl<O: Organism> ${layer.cap()}Component<O> for Box<dyn ComponentWrapper<O>> {
+impl<O: Organism + ?Sized> ${layer.cap()}Component<O> for Box<dyn ComponentWrapper<O>> {
     fn ${layer}_init(&mut self, initializer: &mut ${layer.cap()}Initializer<O>) {
         self.as_mut().${layer}_init(initializer) 
     }
@@ -156,9 +156,9 @@ impl<O: Organism> ${layer.cap()}Component<O> for Box<dyn ComponentWrapper<O>> {
 ${layerCombos.map(items => {
     let wrapperName = getWrapperName(items);
     return `
-pub struct ${wrapperName}<O: Organism, T: ${layersToBounds(items)} + 'static>(pub T, pub PhantomData<O>);
+pub struct ${wrapperName}<O: Organism + ?Sized, T: ${layersToBounds(items)} + 'static>(pub T, pub PhantomData<O>);
 
-impl<O: Organism + 'static, T: ${layersToBounds(items)}> SimComponent<O> for ${wrapperName}<O, T> {
+impl<O: Organism + ?Sized + 'static, T: ${layersToBounds(items)}> SimComponent<O> for ${wrapperName}<O, T> {
     fn id(&self) -> &'static str {
         self.0.id()
     }
@@ -170,7 +170,7 @@ impl<O: Organism + 'static, T: ${layersToBounds(items)}> SimComponent<O> for ${w
     }
 }
 ${layerImpl(wrapperName, items, layerList.filter(l => !items.includes(l)))}
-impl<O: Organism + 'static, T: ${layersToBounds(items)}> ComponentWrapper<O> for ${wrapperName}<O,T> {
+impl<O: Organism + ?Sized + 'static, T: ${layersToBounds(items)}> ComponentWrapper<O> for ${wrapperName}<O,T> {
 ${layerList.map(layer => `
     fn is_${layer}_component(&self) -> bool {
         ${items.includes(layer)}
@@ -187,12 +187,12 @@ ${layerList.map(layer => `
 `
 }).join('')}
 
-pub struct ComponentRegistry<O: Organism> {
+pub struct ComponentRegistry<O: Organism + ?Sized> {
     id_set: HashSet<&'static str>,
     components: Vec<Box<dyn ComponentWrapper<O>>>,
 }
 
-impl<O: Organism + 'static> ComponentRegistry<O> {
+impl<O: Organism + ?Sized + 'static> ComponentRegistry<O> {
     pub fn new() -> Self {
         Self {
             id_set: HashSet::new(),
@@ -246,14 +246,14 @@ ${layerCombos.map(items => `
 //     const managerName = items.length == layerList.length ? '' : items.map(l => l.cap()).join('');
 //     const notSupported = layerList.filter(x => !items.includes(x));
 //     return `
-// pub struct ${managerName}LayerManager<O: Organism> {
+// pub struct ${managerName}LayerManager<O: Organism + ?Sized> {
 //     registry: ComponentRegistry<O>,
 // ${items.map(layer => 
 // `    ${layer}_layer: ${layer.cap()}Layer<O>,
 // `).join('')}
 // }
 
-// impl<O: Organism + 'static> ${managerName}LayerManager<O> {
+// impl<O: Organism + ?Sized + 'static> ${managerName}LayerManager<O> {
 //     pub fn new() -> Self {
 //         Self {
 //             registry: ComponentRegistry::new(),

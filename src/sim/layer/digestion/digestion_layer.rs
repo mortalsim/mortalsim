@@ -14,7 +14,7 @@ use super::consumable::Consumable;
 
 type ConsumableId = IdType;
 
-pub struct DigestionLayer<O: Organism> {
+pub struct DigestionLayer<O: Organism + ?Sized> {
     pd: PhantomData<O>,
     /// Default duration each component receives a consumable for
     default_digestion_duration: SimTime,
@@ -44,7 +44,7 @@ pub struct DigestionLayer<O: Organism> {
 //     }
 // }
 
-impl<O: Organism> DigestionLayer<O> {
+impl<O: Organism + ?Sized> DigestionLayer<O> {
     /// Creates a Sim with the default set of modules which is equal to all registered
     /// modules at the time of execution.
     pub fn new() -> Self {
@@ -71,7 +71,7 @@ impl<O: Organism> DigestionLayer<O> {
 
 }
 
-impl<O: Organism> SimLayer for DigestionLayer<O> {
+impl<O: Organism + ?Sized> SimLayer for DigestionLayer<O> {
 
     fn pre_exec(&mut self, connector: &mut SimConnector) {
         if let Some(id) = self.internal_trigger_id.take() {
@@ -154,7 +154,7 @@ impl<O: Organism> SimLayer for DigestionLayer<O> {
     }
 }
 
-impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessor<O, T> for DigestionLayer<O> {
+impl<O: Organism + ?Sized, T: DigestionComponent<O>> SimComponentProcessor<O, T> for DigestionLayer<O> {
     fn setup_component(&mut self, _connector: &mut SimConnector, component: &mut T) {
         let mut initializer = DigestionInitializer::new();
         component.digestion_init(&mut initializer);

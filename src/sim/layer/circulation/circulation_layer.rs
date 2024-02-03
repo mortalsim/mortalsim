@@ -11,14 +11,14 @@ use super::{
     CirculationInitializer, CirculationComponent, BloodStore
 };
 
-pub struct CirculationLayer<O: Organism> {
+pub struct CirculationLayer<O: Organism + ?Sized> {
     blood_notify_map: HashMap<O::VesselType, HashMap<Substance, Vec<(SubstanceConcentration, &'static str)>>>,
     composition_map: HashMap<O::VesselType, SubstanceStore>,
     component_settings: HashMap<&'static str, CirculationInitializer<O>>,
     component_change_maps: HashMap<&'static str, HashMap<O::VesselType, HashMap<Substance, Vec<IdType>>>>,
 }
 
-impl<O: Organism + 'static> CirculationLayer<O> {
+impl<O: Organism + ?Sized + 'static> CirculationLayer<O> {
     /// Creates a CirculationLayer from a Graph representing the circulatory structure
     pub fn new() -> CirculationLayer<O> {
         CirculationLayer {
@@ -35,7 +35,7 @@ impl<O: Organism + 'static> CirculationLayer<O> {
 
 }
 
-impl<O: Organism> SimLayer for CirculationLayer<O> {
+impl<O: Organism + ?Sized> SimLayer for CirculationLayer<O> {
     
     fn pre_exec(&mut self, connector: &mut SimConnector) {
         for (_, store) in self.composition_map.iter_mut() {
@@ -48,7 +48,7 @@ impl<O: Organism> SimLayer for CirculationLayer<O> {
     }
 }
 
-impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessor<O, T> for CirculationLayer<O> {
+impl<O: Organism + ?Sized, T: CirculationComponent<O>> SimComponentProcessor<O, T> for CirculationLayer<O> {
     fn setup_component(&mut self, _connector: &mut SimConnector, component: &mut T) {
         let mut initializer = CirculationInitializer::new();
         component.circulation_init(&mut initializer);
