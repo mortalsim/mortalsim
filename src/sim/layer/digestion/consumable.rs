@@ -58,7 +58,7 @@ pub mod test {
     #[test]
     fn test_advance() {
         let mut consumable = Consumable::new(String::new(), SubstanceStore::new(), Volume::from_L(0.5));
-        consumable.schedule_change(Substance::O2, mmol_per_L!(1.0), secs!(0.0));
+        consumable.schedule_change(Substance::O2, mmol_per_L!(1.0), secs!(1.0));
 
     }
 

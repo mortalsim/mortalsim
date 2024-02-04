@@ -158,12 +158,23 @@ impl TimeManager {
     }
 
     pub fn next_events(&mut self) -> impl Iterator<Item = (OrderedTime, Vec<Box<dyn Event>>)> {
-        let mut evt_times = self.event_queue.keys().cloned();
-        let next_evt_time = evt_times.next();
+        let mut evt_times = self.event_queue.keys();
+        let mut next_evt_time = evt_times.next();
+        let mut times_to_remove = Vec::new();
+
+        while let Some(evt_time) = next_evt_time {
+            // stop when we reach the first event time greater
+            // than our current sim time
+            if *evt_time > OrderedTime(self.sim_time) {
+                break;
+            }
+            times_to_remove.push(*evt_time);
+            next_evt_time = evt_times.next();
+        }
+
         let mut results = Vec::new();
 
-        while next_evt_time.is_some() && next_evt_time.unwrap() <= OrderedTime(self.sim_time) {
-            let evt_time = next_evt_time.unwrap();
+        for evt_time in times_to_remove {
             let evt_list = self.event_queue.remove(&evt_time).unwrap();
 
             // Drop the registration token when returning the result vector
@@ -179,7 +190,7 @@ impl TimeManager {
                 }
             }
 
-            results.push((evt_time, result))
+            results.push((evt_time, result));
         }
         results.into_iter()
     }
@@ -281,6 +292,7 @@ mod tests {
     use crate::hub::event_transformer::{EventTransformer, TransformerItem};
     use crate::units::base::Amount;
     use crate::units::base::Distance;
+    use crate::util::secs;
     use crate::util::OrderedTime;
     use std::any::TypeId;
 
@@ -331,11 +343,14 @@ mod tests {
         time_manager.advance_by(one_sec);
         assert_eq!(time_manager.get_time(), Time::from_s(1.0));
 
-        let next_events: Vec<(OrderedTime, Vec<Box<dyn Event>>)> = time_manager.next_events().collect();
+        let mut next_events: Vec<(OrderedTime, Vec<Box<dyn Event>>)> = time_manager.next_events().collect();
         assert!(next_events.is_empty());
 
         // Advance again. First event should fire.
-        time_manager.advance_by(one_sec);
+        time_manager.advance_by(secs!(1.1));
+        
+        next_events = time_manager.next_events().collect();
+        assert!(!next_events.is_empty());
         
         for evt in time_manager.next_events().map(|x| x.1).flatten() {
             assert_eq!(evt.type_id(), TypeId::of::<TestEventA>());
@@ -344,10 +359,14 @@ mod tests {
                 Distance::from_m(3.5)
             );
         }
-        assert_eq!(time_manager.get_time(), Time::from_s(2.0));
+        assert_eq!(time_manager.get_time(), Time::from_s(2.1));
 
         // Advance again automatically. Should fire the second event.
         time_manager.advance();
+
+        next_events = time_manager.next_events().collect();
+        assert!(!next_events.is_empty());
+
         for evt in time_manager.next_events().map(|x| x.1).flatten() {
             assert_eq!(evt.type_id(), TypeId::of::<TestEventB>());
             assert_eq!(

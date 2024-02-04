@@ -22,7 +22,7 @@ pub trait Sim {
     ///
     /// ### Arguments
     /// * `component_ids` - List of components to remove
-    fn remove_component(&mut self, component_ids: &str) -> anyhow::Result<&str>;
+    fn remove_component(&mut self, component_id: &str) -> anyhow::Result<&str>;
 
     /// Advances simulation time to the next `Event` or listener in the queue, if any.
     ///

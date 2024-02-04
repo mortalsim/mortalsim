@@ -98,7 +98,13 @@ impl<O: Organism + ?Sized> SimLayer for DigestionLayer<O> {
             }
         }
         // position of the last digestion component
-        let last = self.consumed_map.len() - 1;
+        let last = {
+            if self.consumed_map.len() > 0 {
+                self.consumed_map.len() - 1
+            }
+            else { 0 }
+        };
+
         for (pos, indices) in moving_indices.into_iter().enumerate() {
             for idx in indices {
                 let mut removed = self.consumed_map.get_mut(&pos)

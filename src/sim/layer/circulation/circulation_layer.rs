@@ -102,7 +102,7 @@ impl<O: Organism + ?Sized, T: CirculationComponent<O>> SimComponentProcessor<O, 
         }
         else {
             for vessel in comp_settings.vessel_connections.iter() {
-                let store = self.composition_map.remove(&vessel).unwrap();
+                let store = self.composition_map.remove(vessel).unwrap_or_default();
                 let changes = self.component_change_maps.entry(comp_id).or_default().remove(&vessel).unwrap_or_default();
                 circulation_connector.vessel_map.insert(*vessel, BloodStore::build(store, changes));
             }

@@ -18,14 +18,3 @@ impl Organism for HumanSim {
     type NerveType = HumanNerve;
     type AnatomyType = HumanAnatomicalRegion;
 }
-
-// #[cfg(test)]
-// mod tests {
-//     use super::circulation::{HumanCirculatorySystem, HUMAN_CIRCULATION_FILEPATH};
-//     use super::HumanCirculationSim;
-
-//     #[test]
-//     fn test_human_manager() {
-//         let _bm = HumanCirculationSim::new(HumanCirculatorySystem::new());
-//     }
-// }
