@@ -69,9 +69,6 @@ impl<O: Organism + 'static> NervousConnector<O> {
                 either::Right(self.empty.iter().map(|s| s.message::<T>()))
             }
         }
-        //             .downcast_arc()
-        //             .expect("Invalid message type retrieval");
-        // Some(evt)
     }
 
     pub fn send_message<T: Event>(

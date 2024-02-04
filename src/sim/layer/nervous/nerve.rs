@@ -104,22 +104,15 @@ impl<O: Organism> NerveSignal<O> {
     pub fn message_mut<T: Event>(&mut self) -> &'_ mut T {
         self.message.downcast_mut::<T>().expect("Invalid message type")
     }
+}
 
-    pub fn into_message<T: Event>(self) -> anyhow::Result<T> {
-        match self.message.downcast::<T>() {
-            Ok(msg) => Ok(*msg),
-            Err(_) => Err(anyhow!("Invalid message type attempted"))
+impl<O: Organism> Drop for NerveSignal<O> {
+    fn drop(&mut self) {
+        if let Some(gen) = ID_GEN.get() {
+            gen.lock().unwrap().return_id(self.id()).unwrap();
         }
     }
 }
-
-// impl<O: Organism> Drop for NerveSignal<O> {
-//     fn drop(&mut self) {
-//         if let Some(gen) = ID_GEN.get() {
-//             gen.lock().unwrap().return_id(self.id());
-//         }
-//     }
-// }
 
 #[cfg(test)]
 pub mod test {
