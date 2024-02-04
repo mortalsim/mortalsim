@@ -8,7 +8,7 @@ use std::marker::PhantomData;
 use std::sync::Arc;
 
 /// Provides methods for `Sim` modules to interact with the simulation
-pub struct CoreConnector<O: Organism + ?Sized> {
+pub struct CoreConnector<O: Organism> {
     pd: PhantomData<O>,
     /// State specific to the connected module
     pub(crate) sim_state: SimState,
@@ -28,7 +28,7 @@ pub struct CoreConnector<O: Organism + ?Sized> {
     pub(crate) unschedule_all: bool,
 }
 
-impl<O: Organism + ?Sized> CoreConnector<O> {
+impl<O: Organism> CoreConnector<O> {
     /// Creates a new CoreConnector
     pub fn new() -> Self {
         Self {

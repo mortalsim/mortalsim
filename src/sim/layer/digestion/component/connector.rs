@@ -79,7 +79,7 @@ impl Consumed {
 }
 
 /// Provides methods for Digestion modules to interact with the simulation
-pub struct DigestionConnector<O: Organism + ?Sized> {
+pub struct DigestionConnector<O: Organism> {
     pd: PhantomData<O>,
     /// Copy of the current simulation time
     pub(crate) sim_time: SimTime,
@@ -87,7 +87,7 @@ pub struct DigestionConnector<O: Organism + ?Sized> {
     pub(crate) consumed_list: Vec<Consumed>,
 }
 
-impl<O: Organism + ?Sized> DigestionConnector<O> {
+impl<O: Organism> DigestionConnector<O> {
     /// Creates a new CoreConnector
     pub fn new() -> Self {
         Self {

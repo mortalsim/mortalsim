@@ -7,7 +7,7 @@ pub mod initializer;
 pub use self::connector::DigestionConnector;
 pub use self::initializer::DigestionInitializer;
 
-pub trait DigestionComponent<O: Organism + ?Sized>: SimComponent<O> {
+pub trait DigestionComponent<O: Organism>: SimComponent<O> {
     /// Initializes the module. Currently not used.
     ///
     /// ### Arguments

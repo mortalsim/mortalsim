@@ -5,7 +5,7 @@ use super::SimConnector;
 use super::organism::Organism;
 
 /// Common trait for all simulation components
-pub trait SimComponent<O: Organism + ?Sized> {
+pub trait SimComponent<O: Organism> {
     /// The unique id of the component
     fn id(&self) -> &'static str;
     /// Attaches the module to the ComponentRegistry
@@ -16,7 +16,7 @@ pub trait SimComponent<O: Organism + ?Sized> {
 
 /// Trait to outline common methods for all layers that
 /// process `SimComponent`s
-pub trait SimComponentProcessor<O: Organism + ?Sized, T: SimComponent<O>> {
+pub trait SimComponentProcessor<O: Organism, T: SimComponent<O>> {
     /// Execute initial setup for a component
     fn setup_component(&mut self, connector: &mut SimConnector, component: &mut T);
     /// Indicate if the given component should trigger a run
@@ -27,16 +27,16 @@ pub trait SimComponentProcessor<O: Organism + ?Sized, T: SimComponent<O>> {
     fn process_component(&mut self, connector: &mut SimConnector, component: &mut T);
 }
 
-// pub trait SimComponentFactory<O: Organism + ?Sized> {
+// pub trait SimComponentFactory<O: Organism> {
 //     fn attach_new(&mut self, registry: &mut ComponentRegistry<O>);
 // }
 
-pub struct ComponentFactory<'a, O: Organism + ?Sized> {
+pub struct ComponentFactory<'a, O: Organism> {
     /// Container for the factory function
     attach_fn: Box<dyn FnMut(&mut ComponentRegistry<O>) + 'a + Send + Sync>,
 }
 
-impl<'a, O: Organism + ?Sized + 'static> ComponentFactory<'a, O> {
+impl<'a, O: Organism + 'static> ComponentFactory<'a, O> {
     pub fn new<T: SimComponent<O>>(mut factory: impl FnMut() -> T + 'a + Send + Sync) -> Self {
         Self {
             // Magic happens here. We get compile-time assurance and usage

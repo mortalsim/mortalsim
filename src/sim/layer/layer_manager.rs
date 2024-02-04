@@ -12,13 +12,13 @@ use super::layer_processor::LayerProcessor;
 use super::LayerType;
 use super::LayerType::*;
 
-pub struct LayerManager<O: Organism + ?Sized> {
+pub struct LayerManager<O: Organism> {
     registry: ComponentRegistry<O>,
     layers: Vec<LayerProcessor<O>>,
     missing_layers: Vec<&'static LayerType>,
 }
 
-impl<O: Organism + ?Sized + 'static> LayerManager<O> {
+impl<O: Organism + 'static> LayerManager<O> {
     pub fn new() -> Self {
         Self {
             registry: ComponentRegistry::new(),

@@ -11,7 +11,7 @@ use std::mem::swap;
 
 use super::component::{CoreComponent, CoreInitializer};
 
-pub struct CoreLayer<O: Organism + ?Sized> {
+pub struct CoreLayer<O: Organism> {
     pd: PhantomData<O>,
     module_notifications: HashMap<TypeId, Vec<(i32, &'static str)>>,
     transformer_id_map: HashMap<&'static str, Vec<IdType>>,
@@ -19,7 +19,7 @@ pub struct CoreLayer<O: Organism + ?Sized> {
     notify_map: HashMap<&'static str, HashSet<TypeId>>,
 }
 
-impl<O: Organism + ?Sized> fmt::Debug for CoreLayer<O> {
+impl<O: Organism> fmt::Debug for CoreLayer<O> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
@@ -29,7 +29,7 @@ impl<O: Organism + ?Sized> fmt::Debug for CoreLayer<O> {
     }
 }
 
-impl<O: Organism + ?Sized> CoreLayer<O> {
+impl<O: Organism> CoreLayer<O> {
     /// Creates a Sim with the default set of modules which is equal to all registered
     /// modules at the time of execution.
     pub fn new() -> Self {
@@ -42,7 +42,7 @@ impl<O: Organism + ?Sized> CoreLayer<O> {
     }
 }
 
-impl<O: Organism + ?Sized> SimLayer for CoreLayer<O> {
+impl<O: Organism> SimLayer for CoreLayer<O> {
 
     fn pre_exec(&mut self, connector: &mut SimConnector) {
         connector.time_manager.next_events()
@@ -70,7 +70,7 @@ impl<O: Organism + ?Sized> SimLayer for CoreLayer<O> {
     }
 }
 
-impl<O: Organism + ?Sized, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer<O> {
+impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer<O> {
 
     fn setup_component(&mut self, connector: &mut SimConnector, component: &mut T) {
         let mut initializer = CoreInitializer::new();

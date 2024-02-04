@@ -11,7 +11,7 @@ use crate::util::{secs, IdGenerator, IdType, OrderedTime};
 use super::component::{NervousComponent, NervousInitializer};
 use super::nerve::NerveSignal;
 
-pub struct NervousLayer<O: Organism + ?Sized> {
+pub struct NervousLayer<O: Organism> {
     /// ID generator for transform registration
     id_gen: IdGenerator,
     /// Map to keep track of which modules to notify for certain signals
@@ -28,7 +28,7 @@ pub struct NervousLayer<O: Organism + ?Sized> {
     internal_trigger_id: Option<IdType>,
 }
 
-impl<O: Organism + ?Sized + 'static> NervousLayer<O> {
+impl<O: Organism + 'static> NervousLayer<O> {
     pub fn new() -> Self {
         Self {
             id_gen: IdGenerator::new(),
@@ -42,7 +42,7 @@ impl<O: Organism + ?Sized + 'static> NervousLayer<O> {
     }
 }
 
-impl<O: Organism + ?Sized> SimLayer for NervousLayer<O> {
+impl<O: Organism> SimLayer for NervousLayer<O> {
 
     fn pre_exec(&mut self, connector: &mut SimConnector) {
         let otime = OrderedTime(connector.sim_time());
@@ -92,7 +92,7 @@ impl<O: Organism + ?Sized> SimLayer for NervousLayer<O> {
     }
 }
 
-impl<O: Organism + ?Sized, T: NervousComponent<O>> SimComponentProcessor<O, T> for NervousLayer<O> {
+impl<O: Organism, T: NervousComponent<O>> SimComponentProcessor<O, T> for NervousLayer<O> {
     fn setup_component(&mut self, _connector: &mut SimConnector, component: &mut T) {
         let mut initializer = NervousInitializer::new();
         component.nervous_init(&mut initializer);

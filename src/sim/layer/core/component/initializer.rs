@@ -5,7 +5,7 @@ use std::any::TypeId;
 use std::collections::HashSet;
 use std::marker::PhantomData;
 
-pub struct CoreInitializer<O: Organism + ?Sized> {
+pub struct CoreInitializer<O: Organism> {
     pd: PhantomData<O>,
     /// Input events for the associated component
     input_events: HashSet<TypeId>,
@@ -19,7 +19,7 @@ pub struct CoreInitializer<O: Organism + ?Sized> {
     pub(crate) initial_outputs: Vec<Box<dyn Event>>,
 }
 
-impl<O: Organism + ?Sized> CoreInitializer<O> {
+impl<O: Organism> CoreInitializer<O> {
     pub fn new() -> Self {
         Self {
             pd: PhantomData,

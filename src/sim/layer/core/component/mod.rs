@@ -5,7 +5,7 @@ use crate::sim::organism::Organism;
 pub use connector::CoreConnector;
 pub use initializer::CoreInitializer;
 
-pub trait CoreComponent<O: Organism + ?Sized>: SimComponent<O> {
+pub trait CoreComponent<O: Organism>: SimComponent<O> {
     /// Initializes the module. Should register any `Event` objects to listen for
     /// and set initial state.
     ///
@@ -34,17 +34,17 @@ pub mod test {
     use crate::units::base::Distance;
     use std::any::TypeId;
 
-    pub struct TestComponentA<O: Organism + ?Sized> {
+    pub struct TestComponentA<O: Organism> {
         connector: CoreConnector<O>,
     }
-    impl<O: Organism + ?Sized> TestComponentA<O> {
+    impl<O: Organism> TestComponentA<O> {
         pub fn new() -> Self {
             Self {
                 connector: CoreConnector::new(),
             }
         }
     }
-    impl<O: Organism + ?Sized + 'static> CoreComponent<O> for TestComponentA<O> {
+    impl<O: Organism + 'static> CoreComponent<O> for TestComponentA<O> {
         fn core_connector(&mut self) -> &mut CoreConnector<O> {
             &mut self.connector
         }
@@ -57,7 +57,7 @@ pub mod test {
         }
     }
 
-    impl<O: Organism + ?Sized + 'static> SimComponent<O> for TestComponentA<O> {
+    impl<O: Organism + 'static> SimComponent<O> for TestComponentA<O> {
         fn id(&self) -> &'static str {
             "TestComponentA"
         }
@@ -77,10 +77,10 @@ pub mod test {
         }
     }
 
-    pub struct TestComponentB<O: Organism + ?Sized> {
+    pub struct TestComponentB<O: Organism> {
         connector: CoreConnector<O>,
     }
-    impl<O: Organism + ?Sized> TestComponentB<O> {
+    impl<O: Organism> TestComponentB<O> {
         pub fn new() -> Self {
             Self {
                 connector: CoreConnector::new(),
@@ -91,7 +91,7 @@ pub mod test {
             evt.amt = evt.amt + Amount::from_mol(0.0);
         }
     }
-    impl<O: Organism + ?Sized + 'static> CoreComponent<O> for TestComponentB<O> {
+    impl<O: Organism + 'static> CoreComponent<O> for TestComponentB<O> {
         fn core_init(&mut self, initializer: &mut CoreInitializer<O>) {
             initializer.notify(TestEventA::new(Distance::from_m(2.0)));
             initializer.notify(TestEventB::new(Amount::from_mol(2.0)));
@@ -102,7 +102,7 @@ pub mod test {
         }
     }
 
-    impl<O: Organism + ?Sized + 'static> SimComponent<O> for TestComponentB<O> {
+    impl<O: Organism + 'static> SimComponent<O> for TestComponentB<O> {
         fn id(&self) -> &'static str {
             "TestComponentB"
         }

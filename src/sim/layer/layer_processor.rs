@@ -11,14 +11,14 @@ use super::{
     NervousLayer,
 };
 
-pub enum LayerProcessor<O: Organism + ?Sized> {
+pub enum LayerProcessor<O: Organism> {
     Core(CoreLayer<O>),
     Circulation(CirculationLayer<O>),
     Digestion(DigestionLayer<O>),
     Nervous(NervousLayer<O>),
 }
 
-impl<O: Organism + ?Sized + 'static> LayerProcessor<O> {
+impl<O: Organism + 'static> LayerProcessor<O> {
     pub fn new(layer_type: LayerType) -> Self {
         match layer_type {
             LayerType::Core => Self::Core(CoreLayer::new()),
@@ -37,7 +37,7 @@ impl<O: Organism + ?Sized + 'static> LayerProcessor<O> {
     }
 }
 
-impl<O: Organism + ?Sized> SimLayer for LayerProcessor<O> {
+impl<O: Organism> SimLayer for LayerProcessor<O> {
     fn pre_exec(&mut self, connector: &mut crate::sim::SimConnector) {
         match self {
             Self::Core(layer) => layer.pre_exec(connector),
@@ -56,7 +56,7 @@ impl<O: Organism + ?Sized> SimLayer for LayerProcessor<O> {
     }
 }
 
-impl<O: Organism + ?Sized, T: ComponentWrapper<O>> SimComponentProcessor<O, T> for LayerProcessor<O> {
+impl<O: Organism, T: ComponentWrapper<O>> SimComponentProcessor<O, T> for LayerProcessor<O> {
     fn setup_component(&mut self, connector: &mut crate::sim::SimConnector, component: &mut T) {
         match self {
             Self::Core(layer) => layer.setup_component(connector, component),
