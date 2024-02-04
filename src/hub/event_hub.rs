@@ -12,12 +12,9 @@ use core::any::TypeId;
 use std::collections::HashMap;
 use std::fmt;
 use std::sync::Arc;
-use uuid::Uuid;
 
 /// Pub/Sub router for Event objects. Handles Event dispatch and transformation.
 pub struct EventHub<'a> {
-    /// Id for this EventHub
-    hub_id: Uuid,
     /// Map of listeners for particular Events
     event_listeners: HashMap<TypeId, Vec<Box<dyn EventListener + 'a>>>,
     /// Map of transformers for particular Events
@@ -36,8 +33,7 @@ impl<'a> fmt::Debug for EventHub<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "EventHub<{:?}> {{ listeners: {:?}, generic_listeners: {:?}, transformers: {:?} }}",
-            self.hub_id,
+            "EventHub {{ listeners: {:?}, generic_listeners: {:?}, transformers: {:?} }}",
             self.event_listeners,
             self.generic_event_listeners,
             self.event_transformers
@@ -49,7 +45,6 @@ impl<'a> EventHub<'a> {
     /// Creates a new EventHub
     pub fn new() -> EventHub<'a> {
         EventHub {
-            hub_id: Uuid::new_v4(),
             event_listeners: HashMap::new(),
             event_transformers: HashMap::new(),
             generic_event_listeners: Vec::new(),
@@ -80,9 +75,8 @@ impl<'a> EventHub<'a> {
             None => {} // No transformers = nothing to do
             Some(transformers) => {
                 log::debug!(
-                    "Triggering {} transformers for EventHub {}",
+                    "Triggering {} transformers",
                     transformers.len(),
-                    self.hub_id
                 );
                 for transformer in transformers {
                     transformer.transform(&mut *evt);
@@ -95,9 +89,8 @@ impl<'a> EventHub<'a> {
 
         // Call each generic listener with the event
         log::debug!(
-            "Triggering {} generic listeners for EventHub {}",
+            "Triggering {} generic listeners",
             self.generic_event_listeners.len(),
-            self.hub_id
         );
         for listener in &mut self.generic_event_listeners {
             listener.handle(final_evt.clone());
@@ -108,9 +101,8 @@ impl<'a> EventHub<'a> {
             None => {} // No listeners = nothing to do
             Some(listeners) => {
                 log::debug!(
-                    "Triggering {} transformers for EventHub {}",
+                    "Triggering {} transformers",
                     listeners.len(),
-                    self.hub_id
                 );
                 for listener in listeners {
                     listener.handle(final_evt.clone());

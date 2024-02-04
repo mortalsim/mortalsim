@@ -2,8 +2,6 @@ use std::collections::{HashMap, HashSet, BTreeMap};
 use std::any::{TypeId, Any};
 use std::mem::swap;
 
-use uuid::Uuid;
-
 use crate::sim::layer::{InternalLayerTrigger, SimLayer};
 use crate::sim::SimConnector;
 use crate::sim::organism::Organism;
@@ -19,7 +17,7 @@ pub struct NervousLayer<O: Organism + ?Sized> {
     /// Map to keep track of which modules to notify for certain signals
     signal_notifies: HashMap<O::NerveType, HashMap<TypeId, HashSet<&'static str>>>,
     /// Map to keep track of which modules to notify
-    notify_map: HashMap<&'static str, HashSet<Uuid>>,
+    notify_map: HashMap<&'static str, HashSet<IdType>>,
     /// List of signals staged for delivery to components
     delivery_signals: Vec<NerveSignal<O>>,
     /// Signal transformers on given nerve segments
@@ -67,7 +65,7 @@ impl<O: Organism + ?Sized> SimLayer for NervousLayer<O> {
                         if let Some(id_map) = self.signal_notifies.get(&nerve) {
                             if let Some(comp_ids) = id_map.get(&type_id) {
                                 for cid in comp_ids {
-                                    self.notify_map.entry(cid).or_default().insert(*signal.id());
+                                    self.notify_map.entry(cid).or_default().insert(signal.id());
                                 }
                             }
                         }
@@ -125,7 +123,7 @@ impl<O: Organism + ?Sized, T: NervousComponent<O>> SimComponentProcessor<O, T> f
         // apply to this component only
         let (incoming_signals, others) = self.delivery_signals
             .drain(..)
-            .partition(|s| incoming.contains(s.id()));
+            .partition(|s| incoming.contains(&s.id()));
 
         // Make sure to keep the rest around so they're not lost
         self.delivery_signals = others;

@@ -2,13 +2,16 @@ use std::any::{Any, TypeId};
 use std::fmt;
 use std::hash::Hash;
 use std::str::FromStr;
-
-use uuid::Uuid;
+use std::sync::{Mutex, OnceLock};
 
 use crate::event::Event;
 use crate::sim::SimTime;
 use crate::sim::layer::AnatomicalRegionIter;
 use crate::sim::organism::Organism;
+use crate::util::IdGenerator;
+use crate::IdType;
+
+static ID_GEN: OnceLock<Mutex<IdGenerator>> = OnceLock::new();
 
 pub trait Nerve:
     FromStr + Hash + Clone + Copy + Eq + fmt::Debug + fmt::Display + Send + Sync + Into<&'static str>
@@ -36,7 +39,7 @@ impl<'a, N: Nerve> ExactSizeIterator for NerveIter<'a, N> {
 }
 
 pub struct NerveSignal<O: Organism + ?Sized>  {
-    id: Uuid,
+    id: IdType,
     path: Vec<O::NerveType>,
     message: Box<dyn Event>,
     send_time: SimTime,
@@ -58,7 +61,7 @@ impl<O: Organism + ?Sized> NerveSignal<O> {
         }
 
         Ok(Self {
-            id: Uuid::new_v4(),
+            id: ID_GEN.get_or_init(|| Mutex::new(IdGenerator::new())).lock().unwrap().get_id(),
             path: neural_path,
             message: Box::new(message),
             send_time,
@@ -66,8 +69,8 @@ impl<O: Organism + ?Sized> NerveSignal<O> {
         })
     }
 
-    pub fn id(&self) -> &Uuid {
-        &self.id
+    pub fn id(&self) -> IdType {
+        self.id
     }
 
     pub fn is_blocked(&self) -> bool {
@@ -109,6 +112,14 @@ impl<O: Organism + ?Sized> NerveSignal<O> {
         }
     }
 }
+
+// impl<O: Organism> Drop for NerveSignal<O> {
+//     fn drop(&mut self) {
+//         if let Some(gen) = ID_GEN.get() {
+//             gen.lock().unwrap().return_id(self.id());
+//         }
+//     }
+// }
 
 #[cfg(test)]
 pub mod test {

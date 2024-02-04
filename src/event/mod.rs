@@ -20,19 +20,16 @@ pub mod test {
     use super::Event;
     use crate::units::base::Amount;
     use crate::units::base::Distance;
-    use uuid::Uuid;
 
     #[derive(Debug, Clone, Copy)]
     pub struct TestEventA {
         pub len: Distance<f64>,
-        event_id: Uuid,
     }
 
     impl TestEventA {
         pub fn new(len: Distance<f64>) -> TestEventA {
             TestEventA {
                 len: len,
-                event_id: Uuid::new_v4(),
             }
         }
     }
@@ -46,14 +43,12 @@ pub mod test {
     #[derive(Debug, Clone, Copy)]
     pub struct TestEventB {
         pub amt: Amount<f64>,
-        event_id: Uuid,
     }
 
     impl TestEventB {
         pub fn new(amt: Amount<f64>) -> TestEventB {
             TestEventB {
                 amt: amt,
-                event_id: Uuid::new_v4(),
             }
         }
     }

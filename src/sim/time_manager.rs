@@ -14,13 +14,10 @@ use std::any::TypeId;
 use std::collections::hash_map::HashMap;
 use std::collections::BTreeMap;
 use std::fmt;
-use uuid::Uuid;
 
 pub type SimTime = Time<f64>;
 
 pub struct TimeManager {
-    /// Identifier for this TimeManager object
-    manager_id: Uuid,
     /// Current simulation time
     sim_time: SimTime,
     /// Sorted map of events to be executed
@@ -39,8 +36,8 @@ impl<'b> fmt::Debug for TimeManager {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "TimeManager({:?}) {{ sim_time: {:?}, event_queue: {:?} }}",
-            self.manager_id, self.sim_time, self.event_queue
+            "TimeManager {{ sim_time: {:?}, event_queue: {:?} }}",
+            self.sim_time, self.event_queue
         )
     }
 }
@@ -49,7 +46,6 @@ impl TimeManager {
     /// Creates a new TimeManager object starting at t = 0
     pub fn new() -> TimeManager {
         TimeManager {
-            manager_id: Uuid::new_v4(),
             sim_time: Time::from_s(0.0),
             event_queue: BTreeMap::new(),
             event_transformers: HashMap::new(),
@@ -68,8 +64,6 @@ impl TimeManager {
     ///
     /// If there are no Events or listeners in the queue, time will remain unchanged
     pub fn advance(&mut self) {
-        log::debug!("Advancing time for TimeManager {}", self.manager_id);
-
         // Get the first values for the event queue and scheduled listener queue
         let evt_queue_next = self.event_queue.iter().next();
 
@@ -144,15 +138,14 @@ impl TimeManager {
                 }
                 None => {
                     panic!(
-                        "Scheduled ID {} refers to an invalid time on TimeManager {}!",
-                        schedule_id, self.manager_id
+                        "Scheduled ID {} refers to an invalid time!",
+                        schedule_id,
                     );
                 }
             },
             None => Err(anyhow!(
-                "Invalid schedule_id {} passed to `unschedule_event` for TimeManager {}",
+                "Invalid schedule_id {} passed to `unschedule_event`!",
                 schedule_id,
-                self.manager_id
             )),
         }
     }
@@ -163,8 +156,8 @@ impl TimeManager {
         let mut times_to_remove = Vec::new();
 
         while let Some(evt_time) = next_evt_time {
-            // stop when we reach the first event time greater
-            // than our current sim time
+            // stop when we reach the first event time that
+            // hasn't occurred yet
             if *evt_time > OrderedTime(self.sim_time) {
                 break;
             }

@@ -16,9 +16,5 @@ strum_macros = "0.26.1"
 either = "1.8"
 simple-si-units = "1.1"
 
-[dependencies.uuid]
-version = "0.8"
-features = ["serde", "v4"]
-
 [dev-dependencies]
 simple_logger = "1.11.0"
