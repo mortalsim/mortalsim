@@ -22,7 +22,7 @@ pub struct EventHub<'a> {
     /// Listeners for any Event, regardless of Event type
     generic_event_listeners: Vec<Box<dyn EventListener + 'a>>,
     /// Listener to take ownership of emitted Events
-    on_emitted_fn: Option<Box<dyn FnMut(TypeId, Arc<dyn Event>) + 'a>>,
+    on_emitted_fn: Option<Box<dyn FnMut(TypeId, Arc<dyn Event>) + Send + Sync + 'a>>,
     /// Keeps track of which listener ids are associated with each TypeId
     listener_id_type_map: HashMap<IdType, TypeId>,
     /// Keeps track of which transformer ids are associated with each TypeId
@@ -122,7 +122,7 @@ impl<'a> EventHub<'a> {
     /// * `handler` - Event handling function
     ///
     /// Returns the registration ID for the listener
-    pub fn on_any(&mut self, handler: impl FnMut(Arc<dyn Event>) + 'a) -> IdType {
+    pub fn on_any(&mut self, handler: impl FnMut(Arc<dyn Event>) + Send + Sync + 'a) -> IdType {
         self.on_any_impl(Box::new(GenericListener::new(handler)))
     }
 
@@ -137,7 +137,7 @@ impl<'a> EventHub<'a> {
     pub fn on_any_prioritized(
         &mut self,
         priority: i32,
-        handler: impl FnMut(Arc<dyn Event>) + 'a,
+        handler: impl FnMut(Arc<dyn Event>) + Send + Sync + 'a,
     ) -> IdType {
         self.on_any_impl(Box::new(GenericListener::new_prioritized(
             handler, priority,
@@ -193,7 +193,7 @@ impl<'a> EventHub<'a> {
     /// * `handler` - Event handling function
     ///
     /// Returns the registration ID for the listener
-    pub fn on<T: Event>(&mut self, handler: impl FnMut(Arc<T>) + 'a) -> IdType {
+    pub fn on<T: Event>(&mut self, handler: impl FnMut(Arc<T>) + Send + Sync + 'a) -> IdType {
         self.on_impl(TypeId::of::<T>(), Box::new(ListenerItem::new(handler)))
     }
 
@@ -208,7 +208,7 @@ impl<'a> EventHub<'a> {
     pub fn on_prioritized<T: Event>(
         &mut self,
         priority: i32,
-        handler: impl FnMut(Arc<T>) + 'a,
+        handler: impl FnMut(Arc<T>) + Send + Sync + 'a,
     ) -> IdType {
         self.on_impl(
             TypeId::of::<T>(),
@@ -382,7 +382,7 @@ impl<'a> EventHub<'a> {
     /// * `handler` - Function to own the emitted Event
     pub(in super::super) fn on_emitted(
         &mut self,
-        handler: impl FnMut(TypeId, Arc<dyn Event>) + 'a,
+        handler: impl FnMut(TypeId, Arc<dyn Event>) + Send + Sync + 'a,
     ) {
         self.on_emitted_fn = Some(Box::new(handler));
     }
@@ -405,48 +405,48 @@ mod tests {
     fn test_hub() {
         crate::test::init_test();
 
-        let any_count = Cell::new(0);
-        let a_count = Cell::new(0);
-        let on_val_a = Cell::new(Distance::from_m(0.0));
-        let b_count = Cell::new(0);
-        let on_val_b = Cell::new(Amount::from_mol(0.0));
+        let any_count = RwLock::new(0);
+        let a_count = RwLock::new(0);
+        let on_val_a = RwLock::new(Distance::from_m(0.0));
+        let b_count = RwLock::new(0);
+        let on_val_b = RwLock::new(Amount::from_mol(0.0));
 
         let mut hub = EventHub::new();
 
         // Attach a handler for A Events
         hub.on(|evt: Arc<TestEventA>| {
-            on_val_a.set(evt.len);
-            a_count.set(a_count.get() + 1);
+            *on_val_a.write().unwrap() = evt.len;
+            *a_count.write().unwrap() += 1;
         });
 
         // Emit an event and it should get passed to the appropriate handler
         hub.emit(TestEventA::new(Distance::from_m(1.0)));
-        assert_eq!(on_val_a.get(), Distance::from_m(1.0));
-        assert_eq!(a_count.get(), 1);
+        assert_eq!(*on_val_a.read().unwrap(), Distance::from_m(1.0));
+        assert_eq!(*a_count.read().unwrap(), 1);
 
         // Attach a handler for any Event
         hub.on_any(|_evt: Arc<dyn Event>| {
-            any_count.set(any_count.get() + 1);
+            *any_count.write().unwrap() += 1;
         });
 
         // Emitting an A event should now cause both to be called
         hub.emit(TestEventA::new(Distance::from_m(2.0)));
-        assert_eq!(on_val_a.get(), Distance::from_m(2.0));
-        assert_eq!(a_count.get(), 2);
-        assert_eq!(any_count.get(), 1);
+        assert_eq!(*on_val_a.read().unwrap(), Distance::from_m(2.0));
+        assert_eq!(*a_count.read().unwrap(), 2);
+        assert_eq!(*any_count.read().unwrap(), 1);
 
         // Attach a handler for B Events
         hub.on(|evt: Arc<TestEventB>| {
-            on_val_b.set(evt.amt);
-            b_count.set(b_count.get() + 1);
+            *on_val_b.write().unwrap() = evt.amt;
+            *b_count.write().unwrap() += 1;
         });
 
         // Emitting a B event should call the B and any handlers only
         hub.emit(TestEventB::new(Amount::from_mol(1.0)));
-        assert_eq!(on_val_b.get(), Amount::from_mol(1.0));
-        assert_eq!(a_count.get(), 2);
-        assert_eq!(b_count.get(), 1);
-        assert_eq!(any_count.get(), 2);
+        assert_eq!(*on_val_b.read().unwrap(), Amount::from_mol(1.0));
+        assert_eq!(*a_count.read().unwrap(), 2);
+        assert_eq!(*b_count.read().unwrap(), 1);
+        assert_eq!(*any_count.read().unwrap(), 2);
 
         // Attach a transformer for A that overrides any value
         hub.transform(|evt: &mut TestEventA| {
@@ -455,37 +455,37 @@ mod tests {
 
         // It should be set to that value now whenever A Events are emitted
         hub.emit(TestEventA::new(Distance::from_m(3.0)));
-        assert_eq!(on_val_a.get(), Distance::from_m(10.0));
+        assert_eq!(*on_val_a.read().unwrap(), Distance::from_m(10.0));
         hub.emit(TestEventA::new(Distance::from_m(5.0)));
-        assert_eq!(on_val_a.get(), Distance::from_m(10.0));
+        assert_eq!(*on_val_a.read().unwrap(), Distance::from_m(10.0));
     }
 
     #[test]
     fn test_hub_priority_listeners() {
         crate::test::init_test();
 
-        let calls = RefCell::new(Vec::new());
+        let calls = Arc::new(Mutex::new(Vec::new()));
 
         let mut hub = EventHub::new();
 
         // Attach handler 1 for A Events
         hub.on_prioritized(2, |_evt: Arc<TestEventA>| {
-            calls.try_borrow_mut().unwrap().push(1);
+            calls.lock().unwrap().push(1);
         });
 
         // Attach handler 2 for A Events
         hub.on_prioritized(5, |_evt: Arc<TestEventA>| {
-            calls.try_borrow_mut().unwrap().push(2);
+            calls.lock().unwrap().push(2);
         });
 
         // Attach handler 3 for A Events
         hub.on_prioritized(3, |_evt: Arc<TestEventA>| {
-            calls.try_borrow_mut().unwrap().push(3);
+            calls.lock().unwrap().push(3);
         });
 
         hub.emit(TestEventA::new(Distance::from_m(1.0)));
 
-        assert_eq!(vec![2, 3, 1], *calls.try_borrow().unwrap());
+        assert_eq!(vec![2, 3, 1], *calls.lock().unwrap());
     }
 
     #[test]

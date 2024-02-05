@@ -7,6 +7,7 @@ macro_rules! impl_sim {
             connector: crate::sim::SimConnector,
             layer_manager: crate::sim::layer::LayerManager<Self>,
             id_gen: crate::util::IdGenerator,
+            hub: crate::hub::EventHub<'static>,
         }
 
         static DEFAULT_ID_GEN: std::sync::OnceLock<std::sync::Mutex<crate::util::IdGenerator>> = std::sync::OnceLock::new();
@@ -66,6 +67,7 @@ macro_rules! impl_sim {
                 Self {
                     id_gen: crate::util::IdGenerator::new(),
                     connector: crate::sim::SimConnector::new(),
+                    hub: crate::hub::EventHub::new(),
                     layer_manager,
                 }
             }
