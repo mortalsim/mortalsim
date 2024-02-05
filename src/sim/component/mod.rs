@@ -5,7 +5,7 @@ use super::SimConnector;
 use super::organism::Organism;
 
 /// Common trait for all simulation components
-pub trait SimComponent<O: Organism> {
+pub trait SimComponent<O: Organism>: Send + Sync {
     /// The unique id of the component
     fn id(&self) -> &'static str;
     /// Attaches the module to the ComponentRegistry

@@ -4,7 +4,7 @@ use crate::sim::component::SimComponent;
 mod connector;
 mod initializer;
 
-pub use connector::NervousConnector;
+pub use connector::{NervousConnector, NerveSignalTransformer};
 pub use initializer::NervousInitializer;
 
 

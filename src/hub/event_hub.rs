@@ -289,7 +289,7 @@ impl<'a> EventHub<'a> {
     /// * `handler` - Event transforming function
     ///
     /// Returns the registration ID for the transformer
-    pub fn transform<T: Event>(&mut self, handler: impl FnMut(&mut T) + 'a) -> IdType {
+    pub fn transform<T: Event>(&mut self, handler: impl FnMut(&mut T) + Send + Sync + 'a) -> IdType {
         self.transform_impl::<T>(Box::new(TransformerItem::new(handler)))
     }
 
@@ -304,7 +304,7 @@ impl<'a> EventHub<'a> {
     pub fn transform_prioritized<T: Event>(
         &mut self,
         priority: i32,
-        handler: impl FnMut(&mut T) + 'a,
+        handler: impl FnMut(&mut T) + Send + Sync + 'a,
     ) -> IdType {
         self.transform_impl::<T>(Box::new(TransformerItem::new_prioritized(
             handler, priority,
@@ -398,6 +398,8 @@ mod tests {
     use crate::units::base::Amount;
     use std::cell::{Cell, RefCell};
     use std::sync::Arc;
+    use std::sync::Mutex;
+    use std::sync::RwLock;
 
     #[test]
     fn test_hub() {
@@ -490,27 +492,27 @@ mod tests {
     fn test_hub_priority_transformers() {
         crate::test::init_test();
 
-        let calls = RefCell::new(Vec::new());
+        let calls = Arc::new(Mutex::new(Vec::new()));
 
         let mut hub = EventHub::new();
 
         // Attach handler 1 for A Events
         hub.transform_prioritized(2, |_evt: &mut TestEventA| {
-            calls.try_borrow_mut().unwrap().push(2);
+            calls.lock().unwrap().push(2);
         });
 
         // Attach handler 2 for A Events
         hub.transform_prioritized(5, |_evt: &mut TestEventA| {
-            calls.try_borrow_mut().unwrap().push(5);
+            calls.lock().unwrap().push(5);
         });
 
         // Attach handler 3 for A Events
         hub.transform_prioritized(3, |_evt: &mut TestEventA| {
-            calls.try_borrow_mut().unwrap().push(3);
+            calls.lock().unwrap().push(3);
         });
 
         hub.emit(TestEventA::new(Distance::from_m(1.0)));
 
-        assert_eq!(vec![5, 3, 2], *calls.try_borrow().unwrap());
+        assert_eq!(vec![5, 3, 2], *calls.lock().unwrap());
     }
 }

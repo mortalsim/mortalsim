@@ -9,11 +9,15 @@ use crate::sim::SimTime;
 use crate::sim::layer::nervous::nerve::NerveSignal;
 use crate::util::{IdType, OrderedTime};
 
-struct TransformFn<'a, T>(Box<dyn FnMut(&mut T) -> Option<()> + 'a>);
+pub trait NerveSignalTransformer: Send + Sync {
+    fn transform(&mut self, message: &mut dyn Event) -> Option<()>;
+}
 
-impl<'a, T> TransformFn<'a, T> {
-    pub fn transform(&mut self, message: &mut T) -> Option<()> {
-        self.0(message)
+struct TransformFn<'a, T>(Box<dyn FnMut(&mut T) -> Option<()> + Send + Sync + 'a>);
+
+impl<'a, T: Event> NerveSignalTransformer for TransformFn<'a, T> {
+    fn transform(&mut self, message: &mut dyn Event) -> Option<()> {
+        self.0(message.downcast_mut::<T>().unwrap())
     }
 }
 
@@ -25,13 +29,13 @@ pub struct NervousConnector<O: Organism> {
     /// on previously scheduled signals.
     pub(crate) pending_signals: BTreeMap<OrderedTime, Vec<NerveSignal<O>>>,
     /// Signal transformers on given nerve segments
-    pub(crate) transforms: HashMap<O::NerveType, HashMap<TypeId, HashMap<IdType, Box<dyn Any>>>>,
+    pub(crate) transforms: HashMap<O::NerveType, HashMap<TypeId, HashMap<IdType, Box<dyn NerveSignalTransformer>>>>,
     /// Incoming signals
     pub(crate) incoming: HashMap<TypeId, Vec<NerveSignal<O>>>,
     /// Outgoing signals
     pub(crate) outgoing: Vec<NerveSignal<O>>,
     /// Transformations to add
-    pub(crate) adding_transforms: HashMap<O::NerveType, HashMap<TypeId, Box<dyn Any>>>,
+    pub(crate) adding_transforms: HashMap<O::NerveType, HashMap<TypeId, Box<dyn NerveSignalTransformer>>>,
     /// Map of registered transformations
     pub(crate) registered_transforms: HashMap<O::NerveType, HashMap<TypeId, IdType>>,
     /// Map of removing transformations
@@ -109,7 +113,7 @@ impl<O: Organism + 'static> NervousConnector<O> {
     pub fn transform_message<T: Event>(
         &mut self,
         nerve: O::NerveType,
-        mut handler: impl (FnMut(&mut T) -> Option<()>) + 'static,
+        mut handler: impl (FnMut(&mut T) -> Option<()>) + Send + Sync + 'static,
     ) {
         let type_id = TypeId::of::<T>();
         // Execute on any pending notifications to see if they need to change

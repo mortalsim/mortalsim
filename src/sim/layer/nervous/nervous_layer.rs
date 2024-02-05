@@ -10,6 +10,7 @@ use crate::util::{secs, IdGenerator, IdType, OrderedTime};
 
 use super::component::{NervousComponent, NervousInitializer};
 use super::nerve::NerveSignal;
+use super::NerveSignalTransformer;
 
 pub struct NervousLayer<O: Organism> {
     /// ID generator for transform registration
@@ -21,7 +22,7 @@ pub struct NervousLayer<O: Organism> {
     /// List of signals staged for delivery to components
     delivery_signals: Vec<NerveSignal<O>>,
     /// Signal transformers on given nerve segments
-    transforms: HashMap<O::NerveType, HashMap<TypeId, HashMap<IdType, Box<dyn Any>>>>,
+    transforms: HashMap<O::NerveType, HashMap<TypeId, HashMap<IdType, Box<dyn NerveSignalTransformer>>>>,
     /// Pending notifies
     pending_signals: BTreeMap<OrderedTime, Vec<NerveSignal<O>>>,
     /// Internal trigger id to unschedule if needed
