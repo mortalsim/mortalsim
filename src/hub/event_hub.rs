@@ -22,7 +22,7 @@ pub struct EventHub<'a> {
     /// Listeners for any Event, regardless of Event type
     generic_event_listeners: Vec<Box<dyn EventListener + 'a>>,
     /// Listener to take ownership of emitted Events
-    on_emitted_fn: Option<Box<dyn FnMut(TypeId, Arc<dyn Event>) + Send + Sync + 'a>>,
+    on_emitted_fn: Option<Box<dyn FnMut(TypeId, Arc<dyn Event>) + Send + 'a>>,
     /// Keeps track of which listener ids are associated with each TypeId
     listener_id_type_map: HashMap<IdType, TypeId>,
     /// Keeps track of which transformer ids are associated with each TypeId
@@ -122,7 +122,7 @@ impl<'a> EventHub<'a> {
     /// * `handler` - Event handling function
     ///
     /// Returns the registration ID for the listener
-    pub fn on_any(&mut self, handler: impl FnMut(Arc<dyn Event>) + Send + Sync + 'a) -> IdType {
+    pub fn on_any(&mut self, handler: impl FnMut(Arc<dyn Event>) + Send + 'a) -> IdType {
         self.on_any_impl(Box::new(GenericListener::new(handler)))
     }
 
@@ -137,7 +137,7 @@ impl<'a> EventHub<'a> {
     pub fn on_any_prioritized(
         &mut self,
         priority: i32,
-        handler: impl FnMut(Arc<dyn Event>) + Send + Sync + 'a,
+        handler: impl FnMut(Arc<dyn Event>) + Send + 'a,
     ) -> IdType {
         self.on_any_impl(Box::new(GenericListener::new_prioritized(
             handler, priority,
@@ -193,7 +193,7 @@ impl<'a> EventHub<'a> {
     /// * `handler` - Event handling function
     ///
     /// Returns the registration ID for the listener
-    pub fn on<T: Event>(&mut self, handler: impl FnMut(Arc<T>) + Send + Sync + 'a) -> IdType {
+    pub fn on<T: Event>(&mut self, handler: impl FnMut(Arc<T>) + Send + 'a) -> IdType {
         self.on_impl(TypeId::of::<T>(), Box::new(ListenerItem::new(handler)))
     }
 
@@ -208,7 +208,7 @@ impl<'a> EventHub<'a> {
     pub fn on_prioritized<T: Event>(
         &mut self,
         priority: i32,
-        handler: impl FnMut(Arc<T>) + Send + Sync + 'a,
+        handler: impl FnMut(Arc<T>) + Send + 'a,
     ) -> IdType {
         self.on_impl(
             TypeId::of::<T>(),
@@ -289,7 +289,7 @@ impl<'a> EventHub<'a> {
     /// * `handler` - Event transforming function
     ///
     /// Returns the registration ID for the transformer
-    pub fn transform<T: Event>(&mut self, handler: impl FnMut(&mut T) + Send + Sync + 'a) -> IdType {
+    pub fn transform<T: Event>(&mut self, handler: impl FnMut(&mut T) + Send + 'a) -> IdType {
         self.transform_impl::<T>(Box::new(TransformerItem::new(handler)))
     }
 
@@ -304,7 +304,7 @@ impl<'a> EventHub<'a> {
     pub fn transform_prioritized<T: Event>(
         &mut self,
         priority: i32,
-        handler: impl FnMut(&mut T) + Send + Sync + 'a,
+        handler: impl FnMut(&mut T) + Send + 'a,
     ) -> IdType {
         self.transform_impl::<T>(Box::new(TransformerItem::new_prioritized(
             handler, priority,
@@ -382,7 +382,7 @@ impl<'a> EventHub<'a> {
     /// * `handler` - Function to own the emitted Event
     pub(in super::super) fn on_emitted(
         &mut self,
-        handler: impl FnMut(TypeId, Arc<dyn Event>) + Send + Sync + 'a,
+        handler: impl FnMut(TypeId, Arc<dyn Event>) + Send + 'a,
     ) {
         self.on_emitted_fn = Some(Box::new(handler));
     }

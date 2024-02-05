@@ -35,7 +35,7 @@ macro_rules! impl_sim {
             /// do NOT produce components with the same id() value. In such a scenario,
             /// initialization of a Sim instance will fail since component ids MUST be unique
             /// for each instance.
-            pub fn set_default<T: crate::sim::component::SimComponent<Self>>(factory: impl FnMut() -> T + 'static + Send + Sync) -> crate::util::IdType {
+            pub fn set_default<T: crate::sim::component::SimComponent<Self>>(factory: impl FnMut() -> T + 'static + Send) -> crate::util::IdType {
                 let factory_id = Self::default_id_gen().get_id();
                 Self::default_factories().push((factory_id, crate::sim::component::ComponentFactory::new(factory)));
                 factory_id

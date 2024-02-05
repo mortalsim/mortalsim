@@ -63,7 +63,7 @@ impl<O: Organism> CoreInitializer<O> {
     ///
     /// ### Arguments
     /// * `handler` - Function to modify the `Event`
-    pub fn transform<E: Event>(&mut self, handler: impl FnMut(&mut E) + Send + Sync + 'static) {
+    pub fn transform<E: Event>(&mut self, handler: impl FnMut(&mut E) + Send + 'static) {
         self.pending_transforms
             .push(Box::new(TransformerItem::new(handler)))
     }
@@ -77,7 +77,7 @@ impl<O: Organism> CoreInitializer<O> {
     pub fn transform_prioritized<E: Event>(
         &mut self,
         priority: i32,
-        handler: impl FnMut(&mut E) + Send + Sync + 'static,
+        handler: impl FnMut(&mut E) + Send + 'static,
     ) {
         self.pending_transforms
             .push(Box::new(TransformerItem::new_prioritized(

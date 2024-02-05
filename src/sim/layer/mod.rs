@@ -28,7 +28,7 @@ pub enum LayerType {
 }
 
 /// Trait to outline common methods for all sim layers
-pub trait SimLayer: Send + Sync {
+pub trait SimLayer: Send {
     /// Process layer actions prior to component processing
     fn pre_exec(&mut self, connector: &mut SimConnector);
     /// Process layer actions after component processing

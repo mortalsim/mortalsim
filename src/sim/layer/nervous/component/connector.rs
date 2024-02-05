@@ -9,11 +9,11 @@ use crate::sim::SimTime;
 use crate::sim::layer::nervous::nerve::NerveSignal;
 use crate::util::{IdType, OrderedTime};
 
-pub trait NerveSignalTransformer: Send + Sync {
+pub trait NerveSignalTransformer: Send {
     fn transform(&mut self, message: &mut dyn Event) -> Option<()>;
 }
 
-struct TransformFn<'a, T>(Box<dyn FnMut(&mut T) -> Option<()> + Send + Sync + 'a>);
+struct TransformFn<'a, T>(Box<dyn FnMut(&mut T) -> Option<()> + Send + 'a>);
 
 impl<'a, T: Event> NerveSignalTransformer for TransformFn<'a, T> {
     fn transform(&mut self, message: &mut dyn Event) -> Option<()> {
@@ -113,7 +113,7 @@ impl<O: Organism + 'static> NervousConnector<O> {
     pub fn transform_message<T: Event>(
         &mut self,
         nerve: O::NerveType,
-        mut handler: impl (FnMut(&mut T) -> Option<()>) + Send + Sync + 'static,
+        mut handler: impl (FnMut(&mut T) -> Option<()>) + Send + 'static,
     ) {
         let type_id = TypeId::of::<T>();
         // Execute on any pending notifications to see if they need to change

@@ -194,7 +194,7 @@ impl TimeManager {
     /// * `handler` - Event transforming function
     ///
     /// Returns the registration ID for the transformer
-    pub fn transform<E: Event>(&mut self, handler: impl FnMut(&mut E) + Send + Sync + 'static) -> IdType {
+    pub fn transform<E: Event>(&mut self, handler: impl FnMut(&mut E) + Send + 'static) -> IdType {
         self.insert_transformer(Box::new(TransformerItem::new(handler)))
     }
 
@@ -209,7 +209,7 @@ impl TimeManager {
     pub fn transform_prioritized<E: Event>(
         &mut self,
         priority: i32,
-        handler: impl FnMut(&mut E) + Send + Sync + 'static,
+        handler: impl FnMut(&mut E) + Send + 'static,
     ) -> IdType {
         self.insert_transformer(Box::new(TransformerItem::new_prioritized(
             handler, priority,

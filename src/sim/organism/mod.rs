@@ -9,7 +9,7 @@ pub mod test;
 
 pub mod human;
 
-pub trait Organism: Send + Sync {
+pub trait Organism: Send {
     type VesselType: BloodVessel;
     type NerveType: Nerve;
     type AnatomyType;

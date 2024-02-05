@@ -5,7 +5,7 @@ use super::SimConnector;
 use super::organism::Organism;
 
 /// Common trait for all simulation components
-pub trait SimComponent<O: Organism>: Send + Sync {
+pub trait SimComponent<O: Organism>: Send {
     /// The unique id of the component
     fn id(&self) -> &'static str;
     /// Attaches the module to the ComponentRegistry
@@ -33,11 +33,11 @@ pub trait SimComponentProcessor<O: Organism, T: SimComponent<O>> {
 
 pub struct ComponentFactory<'a, O: Organism> {
     /// Container for the factory function
-    attach_fn: Box<dyn FnMut(&mut ComponentRegistry<O>) + 'a + Send + Sync>,
+    attach_fn: Box<dyn FnMut(&mut ComponentRegistry<O>) + 'a + Send>,
 }
 
 impl<'a, O: Organism + 'static> ComponentFactory<'a, O> {
-    pub fn new<T: SimComponent<O>>(mut factory: impl FnMut() -> T + 'a + Send + Sync) -> Self {
+    pub fn new<T: SimComponent<O>>(mut factory: impl FnMut() -> T + 'a + Send) -> Self {
         Self {
             // Magic happens here. We get compile-time assurance and usage
             // of the actual ComponentFactory type while also encapsulating

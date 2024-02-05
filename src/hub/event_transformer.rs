@@ -7,7 +7,7 @@ use std::sync::{Mutex, MutexGuard, OnceLock};
 
 static ID_GEN: OnceLock<Mutex<IdGenerator>> = OnceLock::new();
 
-pub trait EventTransformer: Send + Sync {
+pub trait EventTransformer: Send {
     /// Calls this transformer's handler function with the given Event
     ///
     /// ### Arguments
@@ -76,7 +76,7 @@ pub struct TransformerItem<'a, T: Event> {
     /// Unique identifier for this listener
     transformer_id: IdType,
     /// Container for the Event transforming function
-    handler: Box<dyn FnMut(&mut T) + Send + Sync + 'a>,
+    handler: Box<dyn FnMut(&mut T) + Send + 'a>,
     /// Priority for this transformer
     priority: i32,
 }
@@ -93,7 +93,7 @@ impl<'a, T: Event> TransformerItem<'a, T> {
     ///
     /// ### Arguments
     /// * `handler` - Event transforming function
-    pub fn new(handler: impl FnMut(&mut T) + Send + Sync + 'a) -> TransformerItem<'a, T> {
+    pub fn new(handler: impl FnMut(&mut T) + Send + 'a) -> TransformerItem<'a, T> {
         TransformerItem {
             transformer_id: Self::id_gen().get_id(),
             handler: Box::new(handler),
@@ -110,7 +110,7 @@ impl<'a, T: Event> TransformerItem<'a, T> {
     ///                are dispatched. Higher priority transformers are
     ///                executed first.
     pub fn new_prioritized(
-        handler: impl FnMut(&mut T) + Send + Sync + 'a,
+        handler: impl FnMut(&mut T) + Send + 'a,
         priority: i32,
     ) -> TransformerItem<'a, T> {
         TransformerItem {

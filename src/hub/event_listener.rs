@@ -11,7 +11,7 @@ use std::sync::Mutex;
 
 static ID_GEN: OnceLock<Mutex<IdGenerator>> = OnceLock::new();
 
-pub trait EventListener: Send + Sync {
+pub trait EventListener: Send {
     /// Calls this listener's handler function with the given Event
     ///
     /// ### Arguments
@@ -77,7 +77,7 @@ pub struct GenericListener<'a> {
     /// Unique identifier for this listener
     listener_id: IdType,
     /// Container for the Event handling function
-    handler: Box<dyn FnMut(Arc<dyn Event>) + Send + Sync + 'a>,
+    handler: Box<dyn FnMut(Arc<dyn Event>) + Send + 'a>,
     /// Priority for this listener
     priority: i32,
 }
@@ -94,7 +94,7 @@ impl<'a> GenericListener<'a> {
     ///
     /// ### Arguments
     /// * `id` - Identifier for this listener
-    pub fn new(handler: impl FnMut(Arc<dyn Event>) + Send + Sync + 'a) -> GenericListener<'a> {
+    pub fn new(handler: impl FnMut(Arc<dyn Event>) + Send + 'a) -> GenericListener<'a> {
         GenericListener {
             listener_id: Self::id_gen().get_id(),
             priority: 0,
@@ -110,7 +110,7 @@ impl<'a> GenericListener<'a> {
     ///                are dispatched. Higher priority listeners are
     ///                executed first.
     pub fn new_prioritized(
-        handler: impl FnMut(Arc<dyn Event>) + Send + Sync + 'a,
+        handler: impl FnMut(Arc<dyn Event>) + Send + 'a,
         priority: i32,
     ) -> GenericListener<'a> {
         GenericListener {
@@ -151,7 +151,7 @@ pub struct ListenerItem<'a, T: Event> {
     /// Unique identifier for this listener
     listener_id: IdType,
     /// Container for the Event handling function
-    handler: Box<dyn FnMut(Arc<T>) + Send + Sync + 'a>,
+    handler: Box<dyn FnMut(Arc<T>) + Send + 'a>,
     /// Priority for this listener
     priority: i32,
 }
@@ -168,7 +168,7 @@ impl<'a, T: Event> ListenerItem<'a, T> {
     ///
     /// ### Arguments
     /// * `id` - Identifier for this listener
-    pub fn new(handler: impl FnMut(Arc<T>) + Send + Sync + 'a) -> ListenerItem<'a, T> {
+    pub fn new(handler: impl FnMut(Arc<T>) + Send + 'a) -> ListenerItem<'a, T> {
         ListenerItem {
             listener_id: Self::id_gen().get_id(),
             priority: 0,
@@ -183,7 +183,7 @@ impl<'a, T: Event> ListenerItem<'a, T> {
     ///                are dispatched. Higher priority listeners are
     ///                executed first.
     /// * `handler`  - Event handling function
-    pub fn new_prioritized(priority: i32, handler: impl FnMut(Arc<T>) + Send + Sync + 'a) -> ListenerItem<'a, T> {
+    pub fn new_prioritized(priority: i32, handler: impl FnMut(Arc<T>) + Send + 'a) -> ListenerItem<'a, T> {
         ListenerItem {
             listener_id: Self::id_gen().get_id(),
             handler: Box::new(handler),

@@ -14,7 +14,7 @@ use crate::IdType;
 static ID_GEN: OnceLock<Mutex<IdGenerator>> = OnceLock::new();
 
 pub trait Nerve:
-    FromStr + Hash + Clone + Copy + Eq + fmt::Debug + fmt::Display + Send + Sync + Into<&'static str>
+    FromStr + Hash + Clone + Copy + Eq + fmt::Debug + fmt::Display + Send + Into<&'static str>
 {
     type AnatomyType: Clone;
     fn terminal_nerves<'a>() -> NerveIter<'a, Self>;

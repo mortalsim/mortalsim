@@ -73,7 +73,7 @@ function layersToBounds(list) {
 function layerImpl(wrapperName, impls, noimpls) {
     return `
 ${impls.map(impl => `
-impl<O: Organism + 'static, T: Send + Sync + ${layersToBounds(impls)}> ${impl.cap()}Component<O> for ${wrapperName}<O, T> {
+impl<O: Organism + 'static, T: Send + ${layersToBounds(impls)}> ${impl.cap()}Component<O> for ${wrapperName}<O, T> {
     fn ${impl}_init(&mut self, initializer: &mut ${impl.cap()}Initializer<O>) {
         self.0.${impl}_init(initializer)
     }
@@ -84,7 +84,7 @@ impl<O: Organism + 'static, T: Send + Sync + ${layersToBounds(impls)}> ${impl.ca
 `).join('')}
 
 ${noimpls.map(impl => `
-impl<O: Organism + 'static, T: Send + Sync + ${layersToBounds(impls)}> ${impl.cap()}Component<O> for ${wrapperName}<O, T> {
+impl<O: Organism + 'static, T: Send + ${layersToBounds(impls)}> ${impl.cap()}Component<O> for ${wrapperName}<O, T> {
     fn ${impl}_init(&mut self, _initializer: &mut ${impl.cap()}Initializer<O>) {
         panic!("Improper wrapper method called!")
     }
@@ -156,9 +156,9 @@ impl<O: Organism> ${layer.cap()}Component<O> for Box<dyn ComponentWrapper<O>> {
 ${layerCombos.map(items => {
     let wrapperName = getWrapperName(items);
     return `
-pub struct ${wrapperName}<O: Organism, T: Send + Sync + ${layersToBounds(items)} + 'static>(pub T, pub PhantomData<O>);
+pub struct ${wrapperName}<O: Organism, T: Send + ${layersToBounds(items)} + 'static>(pub T, pub PhantomData<O>);
 
-impl<O: Organism + 'static, T: Send + Sync + ${layersToBounds(items)}> SimComponent<O> for ${wrapperName}<O, T> {
+impl<O: Organism + 'static, T: Send + ${layersToBounds(items)}> SimComponent<O> for ${wrapperName}<O, T> {
     fn id(&self) -> &'static str {
         self.0.id()
     }
@@ -170,7 +170,7 @@ impl<O: Organism + 'static, T: Send + Sync + ${layersToBounds(items)}> SimCompon
     }
 }
 ${layerImpl(wrapperName, items, layerList.filter(l => !items.includes(l)))}
-impl<O: Organism + 'static, T: Send + Sync + ${layersToBounds(items)}> ComponentWrapper<O> for ${wrapperName}<O,T> {
+impl<O: Organism + 'static, T: Send + ${layersToBounds(items)}> ComponentWrapper<O> for ${wrapperName}<O,T> {
 ${layerList.map(layer => `
     fn is_${layer}_component(&self) -> bool {
         ${items.includes(layer)}
