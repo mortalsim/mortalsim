@@ -16,7 +16,7 @@ pub enum DigestionDirection {
     EXHAUSTED,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ConsumeEvent(Consumable);
 
 impl Event for ConsumeEvent {
@@ -25,7 +25,7 @@ impl Event for ConsumeEvent {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct EliminateEvent {
     excrement: Consumable,
     direction: DigestionDirection,

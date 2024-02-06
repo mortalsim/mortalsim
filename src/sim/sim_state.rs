@@ -6,7 +6,7 @@ use std::sync::Arc;
 #[derive(Debug, Clone)]
 pub struct SimState {
     /// Internal storage mechanism for `SimState` objects
-    state: HashMap<TypeId, Arc<dyn Event>>,
+    state: HashMap<TypeId, Box<dyn Event>>,
     /// Keep track of any Events which have been tainted
     tainted_states: HashSet<TypeId>,
 }
@@ -22,14 +22,14 @@ impl SimState {
 
     /// Retrieves the current `Event` of a given type in this state
     ///
-    /// returns an `Arc<E>` or `None` if no `Event` of this type has been set
-    pub fn get_state<E: Event>(&self) -> Option<Arc<E>> {
-        let type_id = TypeId::of::<E>();
+    /// returns an `Box<E>` or `None` if no `Event` of this type has been set
+    pub fn get_state<T: Event>(&self) -> Option<Box<T>> {
+        let type_id = TypeId::of::<T>();
         match self.state.get(&type_id) {
             None => None,
-            Some(evt_rc) => match evt_rc.clone().downcast_arc::<E>() {
+            Some(evt) => match evt.clone().downcast::<T>() {
                 Err(_) => None,
-                Ok(typed_evt_rc) => Some(typed_evt_rc),
+                Ok(typed_evt) => Some(typed_evt),
             },
         }
     }
@@ -42,10 +42,10 @@ impl SimState {
         self.state.contains_key(&type_id)
     }
 
-    /// Retrieves an Rc to the current `Event` of a given type in this state
+    /// Retrieves an boxed clone of the current `Event` of a given type in this state
     ///
-    /// returns an `Arc<Event>` or `None` if no `Event` of this type has been set
-    pub(super) fn get_state_ref(&self, type_id: &TypeId) -> Option<Arc<dyn Event>> {
+    /// returns an `Box<Event>` or `None` if no `Event` of this type has been set
+    pub(super) fn get_state_ref(&self, type_id: &TypeId) -> Option<Box<dyn Event>> {
         match self.state.get(&type_id) {
             None => None,
             Some(rc_val) => Some(rc_val.clone()),
@@ -61,8 +61,8 @@ impl SimState {
     /// returns previously stored `Event` or `None`
     pub(super) fn put_state(
         &mut self,
-        event: Arc<dyn Event>,
-    ) -> Option<Arc<dyn Event>> {
+        event: Box<dyn Event>,
+    ) -> Option<Box<dyn Event>> {
         self.tainted_states.insert(event.type_id());
         self.state.insert(event.type_id(), event)
     }
@@ -74,10 +74,10 @@ impl SimState {
     /// * `event` - `Event` object to set
     ///
     /// returns previously stored `Event` or `None`
-    pub(super) fn set_state<T: Event>(&mut self, event: T) -> Option<Arc<dyn Event>> {
+    pub(super) fn set_state<T: Event>(&mut self, event: T) -> Option<Box<dyn Event>> {
         let type_id = TypeId::of::<T>();
         self.tainted_states.insert(type_id);
-        self.state.insert(type_id, Arc::new(event))
+        self.state.insert(type_id, Box::new(event))
     }
 
     /// Sets an `Event` object on the current state, without tainting.
@@ -88,9 +88,9 @@ impl SimState {
     /// * `event` - `Event` object to set
     ///
     /// returns previously stored `Event` or `None`
-    pub(super) fn set_state_quiet<T: Event>(&mut self, event: T) -> Option<Arc<dyn Event>> {
+    pub(super) fn set_state_quiet<T: Event>(&mut self, event: T) -> Option<Box<dyn Event>> {
         let type_id = TypeId::of::<T>();
-        self.state.insert(type_id, Arc::new(event))
+        self.state.insert(type_id, Box::new(event))
     }
 
     /// Retrieves the `Set` of tainted `Event` `TypeId`s on this `State`

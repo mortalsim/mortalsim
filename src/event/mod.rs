@@ -1,17 +1,20 @@
-use downcast_rs::DowncastSync;
+use downcast_rs::Downcast;
+use dyn_clone::DynClone;
 use std::fmt::Debug;
 use std::sync::Arc;
 
-pub type EventHandler<T> = dyn FnMut(Arc<T>);
+pub type EventHandler<T> = dyn FnMut(Box<T>);
 
-pub trait Event: DowncastSync + Debug {
+pub trait Event: Debug + Send + Downcast + DynClone {
     fn event_name(&self) -> &str;
 }
-impl_downcast!(sync Event);
+
+dyn_clone::clone_trait_object!(Event);
+impl_downcast!(Event);
 
 pub struct EventIterator<'a, E: Event> {
-    evt_list: Option<Vec<Arc<E>>>,
-    iter_ref: Option<&'a Vec<Arc<E>>>,
+    evt_list: Option<Vec<Box<E>>>,
+    iter_ref: Option<&'a Vec<Box<E>>>,
 }
 
 #[cfg(test)]

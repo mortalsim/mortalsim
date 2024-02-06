@@ -16,7 +16,7 @@ pub trait EventListener: Send {
     ///
     /// ### Arguments
     /// * `evt` - Event to dispatch to the handler function
-    fn handle(&mut self, evt: Arc<dyn Event>);
+    fn handle(&mut self, evt: Box<dyn Event>);
 
     /// Retrieves the priority value for this listener
     fn priority(&self) -> i32;
@@ -77,7 +77,7 @@ pub struct GenericListener<'a> {
     /// Unique identifier for this listener
     listener_id: IdType,
     /// Container for the Event handling function
-    handler: Box<dyn FnMut(Arc<dyn Event>) + Send + 'a>,
+    handler: Box<dyn FnMut(Box<dyn Event>) + Send + 'a>,
     /// Priority for this listener
     priority: i32,
 }
@@ -94,7 +94,7 @@ impl<'a> GenericListener<'a> {
     ///
     /// ### Arguments
     /// * `id` - Identifier for this listener
-    pub fn new(handler: impl FnMut(Arc<dyn Event>) + Send + 'a) -> GenericListener<'a> {
+    pub fn new(handler: impl FnMut(Box<dyn Event>) + Send + 'a) -> GenericListener<'a> {
         GenericListener {
             listener_id: Self::id_gen().get_id(),
             priority: 0,
@@ -110,7 +110,7 @@ impl<'a> GenericListener<'a> {
     ///                are dispatched. Higher priority listeners are
     ///                executed first.
     pub fn new_prioritized(
-        handler: impl FnMut(Arc<dyn Event>) + Send + 'a,
+        handler: impl FnMut(Box<dyn Event>) + Send + 'a,
         priority: i32,
     ) -> GenericListener<'a> {
         GenericListener {
@@ -129,7 +129,7 @@ impl<'a> Drop for GenericListener<'a> {
 }
 
 impl<'a> EventListener for GenericListener<'a> {
-    fn handle(&mut self, evt: Arc<dyn Event>) {
+    fn handle(&mut self, evt: Box<dyn Event>) {
         log::debug!(
             "Executing generic event listener {} with Event {}",
             self.listener_id,
@@ -151,7 +151,7 @@ pub struct ListenerItem<'a, T: Event> {
     /// Unique identifier for this listener
     listener_id: IdType,
     /// Container for the Event handling function
-    handler: Box<dyn FnMut(Arc<T>) + Send + 'a>,
+    handler: Box<dyn FnMut(Box<T>) + Send + 'a>,
     /// Priority for this listener
     priority: i32,
 }
@@ -168,7 +168,7 @@ impl<'a, T: Event> ListenerItem<'a, T> {
     ///
     /// ### Arguments
     /// * `id` - Identifier for this listener
-    pub fn new(handler: impl FnMut(Arc<T>) + Send + 'a) -> ListenerItem<'a, T> {
+    pub fn new(handler: impl FnMut(Box<T>) + Send + 'a) -> ListenerItem<'a, T> {
         ListenerItem {
             listener_id: Self::id_gen().get_id(),
             priority: 0,
@@ -183,7 +183,7 @@ impl<'a, T: Event> ListenerItem<'a, T> {
     ///                are dispatched. Higher priority listeners are
     ///                executed first.
     /// * `handler`  - Event handling function
-    pub fn new_prioritized(priority: i32, handler: impl FnMut(Arc<T>) + Send + 'a) -> ListenerItem<'a, T> {
+    pub fn new_prioritized(priority: i32, handler: impl FnMut(Box<T>) + Send + 'a) -> ListenerItem<'a, T> {
         ListenerItem {
             listener_id: Self::id_gen().get_id(),
             handler: Box::new(handler),
@@ -200,14 +200,14 @@ impl<'a, T: Event> Drop for ListenerItem<'a, T> {
 }
 
 impl<'a, T: Event> EventListener for ListenerItem<'a, T> {
-    fn handle(&mut self, evt: Arc<dyn Event>) {
+    fn handle(&mut self, evt: Box<dyn Event>) {
         log::debug!(
             "Executing event listener {} with Event {}",
             self.listener_id,
             evt.event_name()
         );
 
-        match evt.downcast_arc::<T>() {
+        match evt.downcast::<T>() {
             Ok(typed_evt) => (*self.handler)(typed_evt),
             Err(_) => panic!("Ahhh! Listener {} is melting!!!", self.listener_id),
         }
@@ -237,23 +237,23 @@ mod tests {
     #[test]
     fn test_handle() {
         let val: RwLock<Distance<f64>> = RwLock::new(Distance::from_m(0.0));
-        let mut listener = ListenerItem::new(|evt: Arc<TestEventA>| {
+        let mut listener = ListenerItem::new(|evt: Box<TestEventA>| {
             *val.write().unwrap() = evt.len;
         });
 
-        listener.handle(Arc::new(TestEventA::new(Distance::from_m(5.0))));
+        listener.handle(Box::new(TestEventA::new(Distance::from_m(5.0))));
         assert_eq!(*val.read().unwrap(), Distance::from_m(5.0));
 
-        listener.handle(Arc::new(TestEventA::new(Distance::from_m(7.0))));
+        listener.handle(Box::new(TestEventA::new(Distance::from_m(7.0))));
         assert_eq!(*val.read().unwrap(), Distance::from_m(7.0));
     }
 
     #[test]
     fn test_ord() {
-        let listener1 = ListenerItem::new_prioritized(0, |_evt: Arc<TestEventA>| {});
-        let listener2 = ListenerItem::new_prioritized(5, |_evt: Arc<TestEventA>| {});
-        let listener3 = ListenerItem::new_prioritized(-2, |_evt: Arc<TestEventA>| {});
-        let listener4 = ListenerItem::new_prioritized(3, |_evt: Arc<TestEventA>| {});
+        let listener1 = ListenerItem::new_prioritized(0, |_evt: Box<TestEventA>| {});
+        let listener2 = ListenerItem::new_prioritized(5, |_evt: Box<TestEventA>| {});
+        let listener3 = ListenerItem::new_prioritized(-2, |_evt: Box<TestEventA>| {});
+        let listener4 = ListenerItem::new_prioritized(3, |_evt: Box<TestEventA>| {});
 
         let mut v = Vec::<Box<dyn EventListener>>::new();
 

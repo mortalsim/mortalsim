@@ -35,7 +35,7 @@ pub trait SimLayer: Send {
     fn post_exec(&mut self, connector: &mut SimConnector);
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 /// Internal Event used to force layer processing
 pub(crate) struct InternalLayerTrigger;
 

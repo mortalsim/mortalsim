@@ -97,9 +97,9 @@ impl<O: Organism> CoreConnector<O> {
     }
 
     /// Retrieves the current `Event` object from state as an Arc
-    pub fn get<E: Event>(&self) -> Option<Arc<E>> {
+    pub fn get<E: Event>(&self) -> Option<Box<E>> {
         match self
-            .sim_state.get_state_ref(&TypeId::of::<E>())?.downcast_arc::<E>()
+            .sim_state.get_state_ref(&TypeId::of::<E>())?.downcast::<E>()
         {
             Err(_) => None,
             Ok(typed_evt_rc) => Some(typed_evt_rc),
@@ -146,7 +146,7 @@ pub mod test {
         connector.scheduled_events.insert(TypeId::of::<TestEventB>(), b_events);
         connector.sim_state = SimState::new();
 
-        let evt_a = Arc::new(basic_event_a());
+        let evt_a = Box::new(basic_event_a());
         connector.sim_state.put_state(evt_a.clone());
         connector.trigger_events.push(TypeId::of::<TestEventA>());
         connector.sim_time = Time::from_s(0.0);
