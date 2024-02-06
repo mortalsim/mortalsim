@@ -11,22 +11,13 @@ use std::mem::swap;
 
 use super::component::{CoreComponent, CoreInitializer};
 
+#[derive(Debug)]
 pub struct CoreLayer<O: Organism> {
     pd: PhantomData<O>,
     module_notifications: HashMap<TypeId, Vec<(i32, &'static str)>>,
     transformer_id_map: HashMap<&'static str, Vec<IdType>>,
     /// Map of pending updates for each module
     notify_map: HashMap<&'static str, HashSet<TypeId>>,
-}
-
-impl<O: Organism> fmt::Debug for CoreLayer<O> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "CoreLayer {{ notifications: {:?}, transformer_id_map: {:?}, notify_map: {:?} }}",
-            self.module_notifications, self.transformer_id_map, self.notify_map
-        )
-    }
 }
 
 impl<O: Organism> CoreLayer<O> {
