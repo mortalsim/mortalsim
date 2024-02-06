@@ -19,11 +19,7 @@ pub enum DigestionDirection {
 #[derive(Debug, Clone)]
 pub struct ConsumeEvent(Consumable);
 
-impl Event for ConsumeEvent {
-    fn event_name(&self) -> &str {
-        "ConsumeEvent"
-    }
-}
+impl Event for ConsumeEvent {}
 
 #[derive(Debug, Clone)]
 pub struct EliminateEvent {
@@ -40,8 +36,4 @@ impl EliminateEvent {
     }
 }
 
-impl Event for EliminateEvent {
-    fn event_name(&self) -> &str {
-        "EliminateEvent"
-    }
-}
+impl Event for EliminateEvent {}

@@ -5,9 +5,7 @@ use std::sync::Arc;
 
 pub type EventHandler<T> = dyn FnMut(Box<T>);
 
-pub trait Event: Debug + Send + Downcast + DynClone {
-    fn event_name(&self) -> &str;
-}
+pub trait Event: Debug + Send + Downcast + DynClone {}
 
 dyn_clone::clone_trait_object!(Event);
 impl_downcast!(Event);
@@ -37,11 +35,7 @@ pub mod test {
         }
     }
 
-    impl Event for TestEventA {
-        fn event_name(&self) -> &str {
-            "TestEventA"
-        }
-    }
+    impl Event for TestEventA {}
 
     #[derive(Debug, Clone, Copy)]
     pub struct TestEventB {
@@ -56,9 +50,5 @@ pub mod test {
         }
     }
 
-    impl Event for TestEventB {
-        fn event_name(&self) -> &str {
-            "TestEventB"
-        }
-    }
+    impl Event for TestEventB {}
 }

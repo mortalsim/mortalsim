@@ -131,9 +131,9 @@ impl<'a> Drop for GenericListener<'a> {
 impl<'a> EventListener for GenericListener<'a> {
     fn handle(&mut self, evt: Box<dyn Event>) {
         log::debug!(
-            "Executing generic event listener {} with Event {}",
+            "Executing generic event listener {:?} with Event {:?}",
             self.listener_id,
-            evt.event_name()
+            evt
         );
         (*self.handler)(evt);
     }
@@ -202,9 +202,9 @@ impl<'a, T: Event> Drop for ListenerItem<'a, T> {
 impl<'a, T: Event> EventListener for ListenerItem<'a, T> {
     fn handle(&mut self, evt: Box<dyn Event>) {
         log::debug!(
-            "Executing event listener {} with Event {}",
+            "Executing event listener {:?} with Event {:?}",
             self.listener_id,
-            evt.event_name()
+            evt
         );
 
         match evt.downcast::<T>() {

@@ -39,11 +39,7 @@ pub trait SimLayer: Send {
 /// Internal Event used to force layer processing
 pub(crate) struct InternalLayerTrigger;
 
-impl Event for InternalLayerTrigger {
-    fn event_name(&self) -> &str {
-        "InternalLayerEvent"
-    }
-}
+impl Event for InternalLayerTrigger {}
 
 pub struct AnatomicalRegionIter<'a, T: Clone>(pub hash_set::Iter<'a, T>);
 
