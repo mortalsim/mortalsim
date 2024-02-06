@@ -24,12 +24,12 @@ pub trait CoreComponent<O: Organism>: SimComponent<O> {
 #[cfg(test)]
 pub mod test {
     use super::CoreComponent;
-    use super::{CoreInitializer, CoreConnector};
+    use super::{CoreConnector, CoreInitializer};
     use crate::event::test::{TestEventA, TestEventB};
-    use crate::sim::component::SimComponent;
     use crate::sim::component::registry::ComponentRegistry;
-    use crate::sim::organism::Organism;
+    use crate::sim::component::SimComponent;
     use crate::sim::organism::test::TestSim;
+    use crate::sim::organism::Organism;
     use crate::units::base::Amount;
     use crate::units::base::Distance;
     use std::any::TypeId;
@@ -70,9 +70,7 @@ pub mod test {
 
             log::debug!(
                 "Trigger Events: {:?}",
-                self.connector
-                    .trigger_events()
-                    .collect::<Vec<&TypeId>>()
+                self.connector.trigger_events().collect::<Vec<&TypeId>>()
             );
         }
     }
@@ -115,9 +113,7 @@ pub mod test {
 
             log::debug!(
                 "Trigger Events: {:?}",
-                self.connector
-                    .trigger_events()
-                    .collect::<Vec<&TypeId>>()
+                self.connector.trigger_events().collect::<Vec<&TypeId>>()
             );
         }
     }

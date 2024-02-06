@@ -1,8 +1,8 @@
 pub mod registry;
 
 use self::registry::ComponentRegistry;
-use super::SimConnector;
 use super::organism::Organism;
+use super::SimConnector;
 
 /// Common trait for all simulation components
 pub trait SimComponent<O: Organism>: Send {
@@ -44,10 +44,10 @@ impl<'a, O: Organism + 'static> ComponentFactory<'a, O> {
             // the factory for dynamic dispatch
             attach_fn: Box::new(move |registry: &mut ComponentRegistry<O>| {
                 registry.add_component(factory()).unwrap();
-            })
+            }),
         }
     }
-    
+
     pub fn attach(&mut self, registry: &mut ComponentRegistry<O>) {
         self.attach_fn.as_mut()(registry);
     }

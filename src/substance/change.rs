@@ -59,7 +59,9 @@ impl SubstanceChange {
         let result = new_val - self.previous_val;
         log::debug!(
             "new_val: {:?}, previous_val: {:?}, result: {:?}",
-            new_val, self.previous_val, result
+            new_val,
+            self.previous_val,
+            result
         );
         self.previous_val = new_val;
         result

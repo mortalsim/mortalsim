@@ -6,8 +6,8 @@ use crate::event::Event;
 use crate::util::id_gen::{IdGenerator, IdType};
 use std::cmp;
 use std::fmt;
-use std::sync::{Arc, MutexGuard, OnceLock};
 use std::sync::Mutex;
+use std::sync::{Arc, MutexGuard, OnceLock};
 
 static ID_GEN: OnceLock<Mutex<IdGenerator>> = OnceLock::new();
 
@@ -84,9 +84,10 @@ pub struct GenericListener<'a> {
 
 impl<'a> GenericListener<'a> {
     fn id_gen() -> MutexGuard<'static, IdGenerator> {
-        ID_GEN.get_or_init(|| {
-            Mutex::new(IdGenerator::new())
-        }).lock().unwrap()
+        ID_GEN
+            .get_or_init(|| Mutex::new(IdGenerator::new()))
+            .lock()
+            .unwrap()
     }
 
     /// Creates a new GenericListener for the given handler function with
@@ -158,9 +159,10 @@ pub struct ListenerItem<'a, T: Event> {
 
 impl<'a, T: Event> ListenerItem<'a, T> {
     fn id_gen() -> MutexGuard<'static, IdGenerator> {
-        ID_GEN.get_or_init(|| {
-            Mutex::new(IdGenerator::new())
-        }).lock().unwrap()
+        ID_GEN
+            .get_or_init(|| Mutex::new(IdGenerator::new()))
+            .lock()
+            .unwrap()
     }
 
     /// Creates a new ListenerItem for the given handler function with
@@ -183,7 +185,10 @@ impl<'a, T: Event> ListenerItem<'a, T> {
     ///                are dispatched. Higher priority listeners are
     ///                executed first.
     /// * `handler`  - Event handling function
-    pub fn new_prioritized(priority: i32, handler: impl FnMut(Box<T>) + Send + 'a) -> ListenerItem<'a, T> {
+    pub fn new_prioritized(
+        priority: i32,
+        handler: impl FnMut(Box<T>) + Send + 'a,
+    ) -> ListenerItem<'a, T> {
         ListenerItem {
             listener_id: Self::id_gen().get_id(),
             handler: Box::new(handler),

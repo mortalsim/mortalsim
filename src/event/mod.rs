@@ -29,9 +29,7 @@ pub mod test {
 
     impl TestEventA {
         pub fn new(len: Distance<f64>) -> TestEventA {
-            TestEventA {
-                len: len,
-            }
+            TestEventA { len: len }
         }
     }
 
@@ -44,9 +42,7 @@ pub mod test {
 
     impl TestEventB {
         pub fn new(amt: Amount<f64>) -> TestEventB {
-            TestEventB {
-                amt: amt,
-            }
+            TestEventB { amt: amt }
         }
     }
 

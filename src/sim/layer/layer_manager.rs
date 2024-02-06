@@ -1,12 +1,11 @@
-
 use std::collections::HashSet;
 
 use strum::VariantArray;
 
-use crate::sim::{Organism, SimConnector};
-use crate::sim::layer::SimLayer;
-use crate::sim::component::registry::{ComponentWrapper, ComponentRegistry};
+use crate::sim::component::registry::{ComponentRegistry, ComponentWrapper};
 use crate::sim::component::{SimComponent, SimComponentProcessor};
+use crate::sim::layer::SimLayer;
+use crate::sim::{Organism, SimConnector};
 
 use super::layer_processor::LayerProcessor;
 use super::LayerType;
@@ -55,7 +54,10 @@ impl<O: Organism + 'static> LayerManager<O> {
         let wrapper = self.registry.add_component(component)?;
         if !self.missing_layers.is_empty() {
             if self.missing_layers.iter().any(|lt| wrapper.has_layer(lt)) {
-                return Err(anyhow!("Layer types [{:?}] are not supported for this Sim!", self.missing_layers));
+                return Err(anyhow!(
+                    "Layer types [{:?}] are not supported for this Sim!",
+                    self.missing_layers
+                ));
             }
         }
         Ok(())
@@ -64,7 +66,7 @@ impl<O: Organism + 'static> LayerManager<O> {
     pub fn attach_component(&mut self, attach_fn: impl FnOnce(&mut ComponentRegistry<O>)) {
         attach_fn(&mut self.registry)
     }
-    
+
     pub fn remove_component(&mut self, component_id: &str) -> anyhow::Result<&'static str> {
         match self.registry.remove_component(component_id) {
             Ok(c) => Ok(c.id()),
@@ -72,7 +74,7 @@ impl<O: Organism + 'static> LayerManager<O> {
         }
     }
 
-    pub fn components(&self) -> impl Iterator<Item=&'static str> + '_ {
+    pub fn components(&self) -> impl Iterator<Item = &'static str> + '_ {
         self.registry.all_components().map(|c| c.id())
     }
 
@@ -81,15 +83,17 @@ impl<O: Organism + 'static> LayerManager<O> {
     }
 
     pub fn update(&mut self, connector: &mut SimConnector) {
-
         for layer in self.layers.iter_mut() {
             layer.pre_exec(connector);
         }
-    
+
         let mut update_list = Vec::new();
 
         for component in self.registry.all_components_mut() {
-            let mut check_list = self.layers.iter_mut().filter(|l| component.has_layer(&l.layer_type()));
+            let mut check_list = self
+                .layers
+                .iter_mut()
+                .filter(|l| component.has_layer(&l.layer_type()));
 
             // If any of the supported layers indicate the component should be
             // triggered, add the component to the update list
@@ -101,22 +105,25 @@ impl<O: Organism + 'static> LayerManager<O> {
         for component in update_list {
             // Prepare the component with each of the associated layers
             // have to collect here to avoid conflicting borrows of component
-            let mut layer_list: Vec<&mut LayerProcessor<O>> = 
-                self.layers.iter_mut().filter(|l| component.has_layer(&l.layer_type())).collect();
-    
+            let mut layer_list: Vec<&mut LayerProcessor<O>> = self
+                .layers
+                .iter_mut()
+                .filter(|l| component.has_layer(&l.layer_type()))
+                .collect();
+
             for layer in layer_list.iter_mut() {
                 layer.prepare_component(connector, component);
             }
 
             // Execute component logic
             component.run();
-            
+
             // Execute post run processing
             for layer in layer_list.iter_mut() {
                 layer.process_component(connector, component);
             }
         }
-    
+
         for layer in self.layers.iter_mut() {
             layer.post_exec(connector);
         }

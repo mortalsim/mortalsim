@@ -1,21 +1,28 @@
-
 use std::collections::hash_set;
 use std::fmt::Debug;
 
-pub mod core;
 pub mod circulation;
+pub mod core;
 pub mod digestion;
-pub mod nervous;
 pub mod layer_manager;
 pub mod layer_processor;
+pub mod nervous;
 
 use crate::event::Event;
 
 pub use self::core::{CoreComponent, CoreConnector, CoreInitializer, CoreLayer};
-pub use circulation::{CirculationComponent, BloodStore, BloodVessel, CirculationConnector, CirculationInitializer, CirculationLayer};
-pub use digestion::{DigestionComponent, DigestionConnector, DigestionDirection, DigestionInitializer, DigestionLayer};
-pub use nervous::{NervousComponent, Nerve, NerveIter, NervousConnector, NervousInitializer, NervousLayer};
+pub use circulation::{
+    BloodStore, BloodVessel, CirculationComponent, CirculationConnector, CirculationInitializer,
+    CirculationLayer,
+};
+pub use digestion::{
+    DigestionComponent, DigestionConnector, DigestionDirection, DigestionInitializer,
+    DigestionLayer,
+};
 pub use layer_manager::*;
+pub use nervous::{
+    Nerve, NerveIter, NervousComponent, NervousConnector, NervousInitializer, NervousLayer,
+};
 
 use super::SimConnector;
 
@@ -49,4 +56,3 @@ impl<'a, T: Clone> Iterator for AnatomicalRegionIter<'a, T> {
         Some(self.0.next()?.clone())
     }
 }
-

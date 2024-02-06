@@ -1,15 +1,8 @@
-use crate::sim::Organism;
-use crate::sim::component::SimComponentProcessor;
 use crate::sim::component::registry::ComponentWrapper;
+use crate::sim::component::SimComponentProcessor;
+use crate::sim::Organism;
 
-use super::{
-    SimLayer,
-    LayerType,
-    CoreLayer,
-    CirculationLayer,
-    DigestionLayer,
-    NervousLayer,
-};
+use super::{CirculationLayer, CoreLayer, DigestionLayer, LayerType, NervousLayer, SimLayer};
 
 pub enum LayerProcessor<O: Organism> {
     Core(CoreLayer<O>),

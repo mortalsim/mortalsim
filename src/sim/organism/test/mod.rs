@@ -4,7 +4,6 @@ use std::collections::HashSet;
 use std::path::Component;
 use std::sync::{Mutex, MutexGuard, OnceLock};
 
-
 use crate::units::base::Distance;
 
 use crate::event::test::TestEventA;
@@ -36,9 +35,7 @@ pub enum TestAnatomicalRegion {
 
 #[test]
 fn test_default() {
-    TestSim::set_default(|| {
-        TestComponentA::new()
-    });
+    TestSim::set_default(|| TestComponentA::new());
 
     let mut tsim = TestSim::new();
     assert!(tsim.add_component(TestComponentB::new()).is_ok());

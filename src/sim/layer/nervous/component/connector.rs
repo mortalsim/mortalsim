@@ -1,12 +1,12 @@
-use std::collections::{HashMap, BTreeMap};
-use std::any::{TypeId, Any};
+use std::any::{Any, TypeId};
+use std::collections::{BTreeMap, HashMap};
 
 use downcast_rs::Downcast;
 
 use crate::event::Event;
+use crate::sim::layer::nervous::nerve::NerveSignal;
 use crate::sim::organism::Organism;
 use crate::sim::SimTime;
-use crate::sim::layer::nervous::nerve::NerveSignal;
 use crate::util::{IdType, OrderedTime};
 
 pub trait NerveSignalTransformer: Send {
@@ -29,19 +29,21 @@ pub struct NervousConnector<O: Organism> {
     /// on previously scheduled signals.
     pub(crate) pending_signals: BTreeMap<OrderedTime, Vec<NerveSignal<O>>>,
     /// Signal transformers on given nerve segments
-    pub(crate) transforms: HashMap<O::NerveType, HashMap<TypeId, HashMap<IdType, Box<dyn NerveSignalTransformer>>>>,
+    pub(crate) transforms:
+        HashMap<O::NerveType, HashMap<TypeId, HashMap<IdType, Box<dyn NerveSignalTransformer>>>>,
     /// Incoming signals
     pub(crate) incoming: HashMap<TypeId, Vec<NerveSignal<O>>>,
     /// Outgoing signals
     pub(crate) outgoing: Vec<NerveSignal<O>>,
     /// Transformations to add
-    pub(crate) adding_transforms: HashMap<O::NerveType, HashMap<TypeId, Box<dyn NerveSignalTransformer>>>,
+    pub(crate) adding_transforms:
+        HashMap<O::NerveType, HashMap<TypeId, Box<dyn NerveSignalTransformer>>>,
     /// Map of registered transformations
     pub(crate) registered_transforms: HashMap<O::NerveType, HashMap<TypeId, IdType>>,
     /// Map of removing transformations
     pub(crate) removing_transforms: HashMap<O::NerveType, HashMap<TypeId, IdType>>,
     /// Empty Event list for ergonomic message use
-    empty: Vec<NerveSignal<O>>
+    empty: Vec<NerveSignal<O>>,
 }
 
 impl<O: Organism + 'static> NervousConnector<O> {
@@ -58,20 +60,16 @@ impl<O: Organism + 'static> NervousConnector<O> {
             empty: Vec::new(),
         }
     }
-    
+
     /// Retrieves the current simulation time
     pub fn sim_time(&self) -> SimTime {
         self.sim_time
     }
 
-    pub fn get_messages<T: Event>(&self) -> impl Iterator<Item=&'_ T> {
+    pub fn get_messages<T: Event>(&self) -> impl Iterator<Item = &'_ T> {
         match self.incoming.get(&TypeId::of::<T>()) {
-            Some(signals) => {
-                either::Left(signals.iter().map(|s| s.message::<T>()))
-            }
-            None => {
-                either::Right(self.empty.iter().map(|s| s.message::<T>()))
-            }
+            Some(signals) => either::Left(signals.iter().map(|s| s.message::<T>())),
+            None => either::Right(self.empty.iter().map(|s| s.message::<T>())),
         }
     }
 
@@ -82,7 +80,9 @@ impl<O: Organism + 'static> NervousConnector<O> {
         send_time: SimTime,
     ) -> anyhow::Result<()> {
         if send_time <= self.sim_time {
-            return Err(anyhow!("Invalid send_time: time must be greater than the current time!"))
+            return Err(anyhow!(
+                "Invalid send_time: time must be greater than the current time!"
+            ));
         }
 
         let mut block = false;
@@ -92,7 +92,10 @@ impl<O: Organism + 'static> NervousConnector<O> {
             if let Some(fn_map) = self.transforms.get_mut(nerve) {
                 if let Some(transform_list) = fn_map.get_mut(&TypeId::of::<T>()) {
                     for (_, transform_box) in transform_list.iter_mut() {
-                        let t = transform_box.as_any_mut().downcast_mut::<TransformFn<T>>().unwrap();
+                        let t = transform_box
+                            .as_any_mut()
+                            .downcast_mut::<TransformFn<T>>()
+                            .unwrap();
                         if None == t.transform(&mut message) {
                             block = true;
                         }
@@ -131,10 +134,7 @@ impl<O: Organism + 'static> NervousConnector<O> {
             .insert(TypeId::of::<T>(), Box::new(TransformFn(Box::new(handler))));
     }
 
-    pub fn stop_transform<T: 'static>(
-        &mut self,
-        nerve: O::NerveType,
-    ) -> anyhow::Result<()> {
+    pub fn stop_transform<T: 'static>(&mut self, nerve: O::NerveType) -> anyhow::Result<()> {
         if let Some(type_map) = self.registered_transforms.get(&nerve) {
             if type_map.contains_key(&TypeId::of::<T>()) {
                 let type_map = self.registered_transforms.remove(&nerve).unwrap();
@@ -147,7 +147,4 @@ impl<O: Organism + 'static> NervousConnector<O> {
 }
 
 #[cfg(test)]
-pub mod test {
-
-
-}
+pub mod test {}

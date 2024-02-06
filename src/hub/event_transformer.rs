@@ -83,9 +83,10 @@ pub struct TransformerItem<'a, T: Event> {
 
 impl<'a, T: Event> TransformerItem<'a, T> {
     fn id_gen() -> MutexGuard<'static, IdGenerator> {
-        ID_GEN.get_or_init(|| {
-            Mutex::new(IdGenerator::new())
-        }).lock().unwrap()
+        ID_GEN
+            .get_or_init(|| Mutex::new(IdGenerator::new()))
+            .lock()
+            .unwrap()
     }
 
     /// Creates a new TransformerItem for the given handler with
@@ -124,9 +125,7 @@ impl<'a, T: Event> TransformerItem<'a, T> {
 impl<'a, T: Event> Drop for TransformerItem<'a, T> {
     fn drop(&mut self) {
         // Return ids back to the pool when listeners are dropped
-        Self::id_gen()
-            .return_id(self.transformer_id)
-            .unwrap();
+        Self::id_gen().return_id(self.transformer_id).unwrap();
     }
 }
 

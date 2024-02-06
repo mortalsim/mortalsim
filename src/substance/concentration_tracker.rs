@@ -1,6 +1,5 @@
 use crate::{substance::SubstanceConcentration, util::mmol_per_L};
 
-
 pub struct ConcentrationTracker {
     pub threshold: SubstanceConcentration,
     previous_val: SubstanceConcentration,
@@ -17,8 +16,8 @@ impl ConcentrationTracker {
         self.previous_val = val;
     }
     pub fn check(&self, val: SubstanceConcentration) -> bool {
-        (val >= self.previous_val && val - self.previous_val > self.threshold) ||
-        (val < self.previous_val && self.previous_val - val > self.threshold)
+        (val >= self.previous_val && val - self.previous_val > self.threshold)
+            || (val < self.previous_val && self.previous_val - val > self.threshold)
     }
 }
 

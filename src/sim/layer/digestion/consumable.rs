@@ -1,9 +1,9 @@
-use std::collections::HashMap;
 use crate::sim::SimTime;
-use crate::substance::{SubstanceStore, Substance};
 use crate::substance::substance_wrapper::substance_store_wrapper;
+use crate::substance::{Substance, SubstanceStore};
 use crate::units::geometry::Volume;
 use crate::util::IdType;
+use std::collections::HashMap;
 
 #[derive(Clone, Debug)]
 pub struct Consumable {
@@ -34,7 +34,10 @@ impl Consumable {
 
     pub fn set_volume(&mut self, volume: Volume<f64>) -> anyhow::Result<()> {
         if volume <= Volume::from_L(0.0) {
-            return Err(anyhow!("Consumable volume cannot be less than zero (set to {:?})", volume))
+            return Err(anyhow!(
+                "Consumable volume cannot be less than zero (set to {:?})",
+                volume
+            ));
         }
         self.volume = volume;
         Ok(())
@@ -43,12 +46,11 @@ impl Consumable {
 
 #[cfg(test)]
 pub mod test {
+    use crate::substance::{Substance, SubstanceStore};
     use crate::units::geometry::Volume;
-    use crate::substance::{SubstanceStore, Substance};
     use crate::util::{mmol_per_L, secs};
 
     use super::Consumable;
-
 
     #[test]
     fn test_new_consumable() {
@@ -57,9 +59,8 @@ pub mod test {
 
     #[test]
     fn test_advance() {
-        let mut consumable = Consumable::new(String::new(), SubstanceStore::new(), Volume::from_L(0.5));
+        let mut consumable =
+            Consumable::new(String::new(), SubstanceStore::new(), Volume::from_L(0.5));
         consumable.schedule_change(Substance::O2, mmol_per_L!(1.0), secs!(1.0));
-
     }
-
 }

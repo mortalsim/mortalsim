@@ -1,5 +1,5 @@
-use std::fmt;
 use crate::units::chemical::MolarMass;
+use std::fmt;
 
 /// Enumeration of chemical substances.
 /// These are typically named as their most abundant form in nature.

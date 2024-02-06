@@ -5,7 +5,6 @@ use crate::{event::Event, util::IdType};
 use super::component::registry::ComponentRegistry;
 use super::{Organism, SimTime};
 
-
 pub trait Sim {
     /// Returns the current simulation time
     fn time(&self) -> SimTime;

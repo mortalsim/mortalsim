@@ -1,16 +1,15 @@
-
-use std::collections::{HashMap, BTreeMap, HashSet};
-use std::marker::PhantomData;
-use crate::sim::layer::{InternalLayerTrigger, SimLayer};
-use crate::sim::{SimConnector, SimTime};
-use crate::sim::organism::Organism;
-use crate::util::{IdType, secs};
 use crate::sim::component::{SimComponent, SimComponentProcessor};
+use crate::sim::layer::{InternalLayerTrigger, SimLayer};
+use crate::sim::organism::Organism;
+use crate::sim::{SimConnector, SimTime};
+use crate::util::{secs, IdType};
+use std::collections::{BTreeMap, HashMap, HashSet};
+use std::marker::PhantomData;
 
-use super::{ConsumeEvent, DigestionDirection, EliminateEvent};
-use super::component::{DigestionComponent, DigestionInitializer};
 use super::component::connector::Consumed;
+use super::component::{DigestionComponent, DigestionInitializer};
 use super::consumable::Consumable;
+use super::{ConsumeEvent, DigestionDirection, EliminateEvent};
 
 type ConsumableId = IdType;
 
@@ -66,13 +65,14 @@ impl<O: Organism> DigestionLayer<O> {
     }
 
     fn component_position<T: SimComponent<O>>(&self, component: &T) -> usize {
-        *self.component_map.get(component.id()).expect("Digestion component position is missing!")
+        *self
+            .component_map
+            .get(component.id())
+            .expect("Digestion component position is missing!")
     }
-
 }
 
 impl<O: Organism> SimLayer for DigestionLayer<O> {
-
     fn pre_exec(&mut self, connector: &mut SimConnector) {
         if let Some(id) = self.internal_trigger_id.take() {
             let _ = connector.time_manager.unschedule_event(&id);
@@ -91,9 +91,10 @@ impl<O: Organism> SimLayer for DigestionLayer<O> {
                 consumed.advance(connector.sim_time());
                 // if time has exceeded the exit time, stage it for movement
                 if consumed.exit_time <= connector.sim_time() {
-                    moving_indices.get_mut(*pos)
-                                  .expect("moving_indices initialized improperly")
-                                  .push(idx);
+                    moving_indices
+                        .get_mut(*pos)
+                        .expect("moving_indices initialized improperly")
+                        .push(idx);
                 }
             }
         }
@@ -101,13 +102,16 @@ impl<O: Organism> SimLayer for DigestionLayer<O> {
         let last = {
             if self.consumed_map.len() > 0 {
                 self.consumed_map.len() - 1
+            } else {
+                0
             }
-            else { 0 }
         };
 
         for (pos, indices) in moving_indices.into_iter().enumerate() {
             for idx in indices {
-                let mut removed = self.consumed_map.get_mut(&pos)
+                let mut removed = self
+                    .consumed_map
+                    .get_mut(&pos)
                     .expect("moving_indices referenced invalid position")
                     .remove(idx);
 
@@ -119,21 +123,30 @@ impl<O: Organism> SimLayer for DigestionLayer<O> {
                 removed.exit_direction = DigestionDirection::FORWARD;
 
                 // Check cases for elimination, either forward or backward
-                if  (pos == 0 && removed.exit_direction == DigestionDirection::BACK) ||
-                    (pos == last && removed.exit_direction == DigestionDirection::FORWARD) {
-                        let evt = Box::new(EliminateEvent::new(removed.consumable, removed.exit_direction));
-                        connector.time_manager.schedule_event(secs!(0.0), evt);
-                    }
-                else {
+                if (pos == 0 && removed.exit_direction == DigestionDirection::BACK)
+                    || (pos == last && removed.exit_direction == DigestionDirection::FORWARD)
+                {
+                    let evt = Box::new(EliminateEvent::new(
+                        removed.consumable,
+                        removed.exit_direction,
+                    ));
+                    connector.time_manager.schedule_event(secs!(0.0), evt);
+                } else {
                     match removed.exit_direction {
                         DigestionDirection::FORWARD => {
                             let target_idx = pos + 1;
-                            self.consumed_map.get_mut(&target_idx).expect("invalid index").push(removed);
+                            self.consumed_map
+                                .get_mut(&target_idx)
+                                .expect("invalid index")
+                                .push(removed);
                             self.trigger_map.insert(target_idx);
                         }
                         DigestionDirection::BACK => {
                             let target_idx = pos - 1;
-                            self.consumed_map.get_mut(&target_idx).expect("invalid index").push(removed);
+                            self.consumed_map
+                                .get_mut(&target_idx)
+                                .expect("invalid index")
+                                .push(removed);
                             self.trigger_map.insert(target_idx);
                         }
                         DigestionDirection::EXHAUSTED => {
@@ -146,15 +159,19 @@ impl<O: Organism> SimLayer for DigestionLayer<O> {
     }
 
     fn post_exec(&mut self, connector: &mut SimConnector) {
-
-        if let Some(min_consumed) = self.consumed_map.values().flatten()
-            .min_by(|a, b| a.exit_time.partial_cmp(&b.exit_time).unwrap()) {
-            
+        if let Some(min_consumed) = self
+            .consumed_map
+            .values()
+            .flatten()
+            .min_by(|a, b| a.exit_time.partial_cmp(&b.exit_time).unwrap())
+        {
             let mut delay = secs!(0.0);
             if min_consumed.exit_time > connector.sim_time() {
                 delay = min_consumed.exit_time - connector.sim_time();
             }
-            let id = connector.time_manager.schedule_event(delay, Box::new(InternalLayerTrigger));
+            let id = connector
+                .time_manager
+                .schedule_event(delay, Box::new(InternalLayerTrigger));
             self.internal_trigger_id = Some(id);
         }
     }
@@ -165,9 +182,9 @@ impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessor<O, T> for Dige
         let mut initializer = DigestionInitializer::new();
         component.digestion_init(&mut initializer);
 
-        self.component_map.insert(component.id(), self.component_map.len());
+        self.component_map
+            .insert(component.id(), self.component_map.len());
     }
-
 
     fn check_component(&mut self, component: &T) -> bool {
         let component_pos = self.component_position(component);
@@ -179,7 +196,10 @@ impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessor<O, T> for Dige
 
         // move consumed items from the layer map into the component connector
         let consumed_list = self.consumed_map.entry(component_pos).or_default();
-        component.digestion_connector().consumed_list.extend(consumed_list.drain(..));
+        component
+            .digestion_connector()
+            .consumed_list
+            .extend(consumed_list.drain(..));
     }
 
     fn process_component(&mut self, _connector: &mut SimConnector, component: &mut T) {
@@ -187,10 +207,12 @@ impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessor<O, T> for Dige
 
         // move consumed items from the component connector back into the layer map
         let consumed_list = &mut component.digestion_connector().consumed_list;
-        self.consumed_map.entry(component_pos).or_default().extend(consumed_list.drain(..));
+        self.consumed_map
+            .entry(component_pos)
+            .or_default()
+            .extend(consumed_list.drain(..));
 
         // Reset the trigger
         self.trigger_map.remove(&component_pos);
     }
-
 }

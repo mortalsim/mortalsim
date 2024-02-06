@@ -10,10 +10,10 @@ extern crate strum_macros;
 mod spark;
 mod util;
 
-pub mod sim;
-pub mod substance;
 pub mod event;
 pub mod hub;
+pub mod sim;
+pub mod substance;
 pub mod units;
 pub use util::IdType;
 

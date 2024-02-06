@@ -1,7 +1,7 @@
 use crate::sim::component::SimComponentProcessor;
 use crate::sim::layer::{InternalLayerTrigger, SimLayer};
-use crate::sim::SimConnector;
 use crate::sim::organism::Organism;
+use crate::sim::SimConnector;
 use crate::util::id_gen::IdType;
 use std::any::TypeId;
 use std::collections::{HashMap, HashSet};
@@ -43,15 +43,19 @@ impl<O: Organism> CoreLayer<O> {
 }
 
 impl<O: Organism> SimLayer for CoreLayer<O> {
-
     fn pre_exec(&mut self, connector: &mut SimConnector) {
-        connector.time_manager.next_events()
+        connector
+            .time_manager
+            .next_events()
             .map(|x| x.1)
             .flatten()
             .for_each(|evt| {
                 if let Some(notify_list) = self.module_notifications.get(&evt.type_id()) {
                     for (_, comp_id) in notify_list {
-                        self.notify_map.entry(comp_id).or_default().insert(evt.type_id());
+                        self.notify_map
+                            .entry(comp_id)
+                            .or_default()
+                            .insert(evt.type_id());
                     }
                 }
                 // Internal layer trigger events don't end up on the state
@@ -59,9 +63,9 @@ impl<O: Organism> SimLayer for CoreLayer<O> {
                 if !evt.is::<InternalLayerTrigger>() {
                     connector.active_events.push(evt.into());
                 }
-        })
+            })
     }
-    
+
     fn post_exec(&mut self, connector: &mut SimConnector) {
         // update state
         for evt in connector.active_events.drain(..) {
@@ -71,7 +75,6 @@ impl<O: Organism> SimLayer for CoreLayer<O> {
 }
 
 impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer<O> {
-
     fn setup_component(&mut self, connector: &mut SimConnector, component: &mut T) {
         let mut initializer = CoreInitializer::new();
         component.core_init(&mut initializer);
@@ -96,7 +99,6 @@ impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer
             }
         }
     }
-    
 
     fn check_component(&mut self, component: &T) -> bool {
         // Trigger the module only if the notify_list is non empty
@@ -124,7 +126,7 @@ impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer
 
     fn process_component(&mut self, connector: &mut SimConnector, component: &mut T) {
         let comp_connector = component.core_connector();
-        
+
         // Swap back state with the connector
         swap(&mut connector.state, &mut comp_connector.sim_state);
 
@@ -171,5 +173,4 @@ impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer
             }
         }
     }
-
 }

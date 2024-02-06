@@ -1,5 +1,5 @@
-use crate::sim::SimTime;
 use crate::sim::organism::Organism;
+use crate::sim::SimTime;
 use crate::substance::substance_wrapper::substance_store_wrapper;
 use crate::substance::{Substance, SubstanceStore};
 use crate::util::IdType;
@@ -19,10 +19,7 @@ impl BloodStore {
     }
 
     pub fn build(store: SubstanceStore, change_map: HashMap<Substance, Vec<IdType>>) -> BloodStore {
-        BloodStore {
-            store,
-            change_map,
-        }
+        BloodStore { store, change_map }
     }
 
     pub(crate) fn extract(self) -> (SubstanceStore, HashMap<Substance, Vec<IdType>>) {
@@ -65,7 +62,7 @@ impl<O: Organism> CirculationConnector<O> {
     pub fn sim_time(&self) -> SimTime {
         self.sim_time
     }
-    
+
     /// Retrieves the current simulation time
     pub fn unschedule_all(&mut self, value: bool) {
         self.unschedule_all = value
@@ -77,11 +74,11 @@ pub mod test {
 
     use std::collections::HashMap;
 
-    use simple_si_units::chemical::Concentration;
     use crate::sim::layer::circulation::component::connector::BloodStore;
     use crate::sim::SimTime;
-    use crate::substance::{SubstanceStore, Substance};
+    use crate::substance::{Substance, SubstanceStore};
     use crate::util::mmol_per_L;
+    use simple_si_units::chemical::Concentration;
 
     #[test]
     fn test_get_concentration() {
@@ -89,7 +86,10 @@ pub mod test {
             store: SubstanceStore::new(),
             change_map: HashMap::new(),
         };
-        assert_eq!(store.concentration_of(&Substance::GLC), Concentration::from_M(0.0));
+        assert_eq!(
+            store.concentration_of(&Substance::GLC),
+            Concentration::from_M(0.0)
+        );
     }
 
     #[test]
@@ -107,7 +107,13 @@ pub mod test {
             store: SubstanceStore::new(),
             change_map: HashMap::new(),
         };
-        store.schedule_custom_change(Substance::GLC, mmol_per_L!(1.0), SimTime::from_s(1.0), SimTime::from_s(1.0), crate::util::BoundFn::Linear);
+        store.schedule_custom_change(
+            Substance::GLC,
+            mmol_per_L!(1.0),
+            SimTime::from_s(1.0),
+            SimTime::from_s(1.0),
+            crate::util::BoundFn::Linear,
+        );
     }
 
     #[test]
@@ -128,5 +134,4 @@ pub mod test {
         };
         assert!(store.unschedule_change(&Substance::GLC, &1).is_none());
     }
-
 }

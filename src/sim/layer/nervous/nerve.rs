@@ -5,9 +5,9 @@ use std::str::FromStr;
 use std::sync::{Mutex, OnceLock};
 
 use crate::event::Event;
-use crate::sim::SimTime;
 use crate::sim::layer::AnatomicalRegionIter;
 use crate::sim::organism::Organism;
+use crate::sim::SimTime;
 use crate::util::IdGenerator;
 use crate::IdType;
 
@@ -38,7 +38,7 @@ impl<'a, N: Nerve> ExactSizeIterator for NerveIter<'a, N> {
     }
 }
 
-pub struct NerveSignal<O: Organism>  {
+pub struct NerveSignal<O: Organism> {
     id: IdType,
     path: Vec<O::NerveType>,
     message: Box<dyn Event>,
@@ -47,13 +47,17 @@ pub struct NerveSignal<O: Organism>  {
 }
 
 impl<O: Organism> NerveSignal<O> {
-    pub fn new<T: Event>(message: T, neural_path: Vec<O::NerveType>, send_time: SimTime) -> anyhow::Result<Self> {
+    pub fn new<T: Event>(
+        message: T,
+        neural_path: Vec<O::NerveType>,
+        send_time: SimTime,
+    ) -> anyhow::Result<Self> {
         if neural_path.is_empty() {
             return Err(anyhow!("Neural path cannot be empty!"));
         }
-        for idx in 0..(neural_path.len()-1) {
+        for idx in 0..(neural_path.len() - 1) {
             let cur_nerve = neural_path.get(idx).unwrap();
-            let next_nerve = neural_path.get(idx+1).unwrap();
+            let next_nerve = neural_path.get(idx + 1).unwrap();
             // Ensure each section of the path is valid
             if !cur_nerve.downlink().any(|d| d == *next_nerve) {
                 return Err(anyhow!("Invalid link from {} to {}", cur_nerve, next_nerve));
@@ -61,7 +65,11 @@ impl<O: Organism> NerveSignal<O> {
         }
 
         Ok(Self {
-            id: ID_GEN.get_or_init(|| Mutex::new(IdGenerator::new())).lock().unwrap().get_id(),
+            id: ID_GEN
+                .get_or_init(|| Mutex::new(IdGenerator::new()))
+                .lock()
+                .unwrap()
+                .get_id(),
             path: neural_path,
             message: Box::new(message),
             send_time,
@@ -76,11 +84,11 @@ impl<O: Organism> NerveSignal<O> {
     pub fn is_blocked(&self) -> bool {
         self.blocked
     }
-    
+
     pub fn block(&mut self) {
         self.blocked = true;
     }
-    
+
     pub fn unblock(&mut self) {
         self.blocked = false;
     }
@@ -88,7 +96,7 @@ impl<O: Organism> NerveSignal<O> {
     pub fn neural_path(&self) -> NerveIter<O::NerveType> {
         NerveIter(self.path.iter())
     }
-    
+
     pub fn send_time(&self) -> SimTime {
         self.send_time
     }
@@ -98,11 +106,15 @@ impl<O: Organism> NerveSignal<O> {
     }
 
     pub fn message<T: Event>(&self) -> &'_ T {
-        self.message.downcast_ref::<T>().expect("Invalid message type")
+        self.message
+            .downcast_ref::<T>()
+            .expect("Invalid message type")
     }
 
     pub fn message_mut<T: Event>(&mut self) -> &'_ mut T {
-        self.message.downcast_mut::<T>().expect("Invalid message type")
+        self.message
+            .downcast_mut::<T>()
+            .expect("Invalid message type")
     }
 }
 
@@ -116,18 +128,17 @@ impl<O: Organism> Drop for NerveSignal<O> {
 
 #[cfg(test)]
 pub mod test {
+    use crate::sim::{layer::AnatomicalRegionIter, organism::test::TestAnatomicalRegion};
     use std::{collections::HashSet, sync::OnceLock};
-    use crate::sim::{organism::test::TestAnatomicalRegion, layer::AnatomicalRegionIter};
 
     use super::{Nerve, NerveIter};
-
 
     #[derive(Debug, Display, Hash, Clone, Copy, PartialEq, Eq, EnumString, IntoStaticStr)]
     pub enum TestNerve {
         Brain,
         SpinalCord,
     }
-    
+
     static BRAIN_LIST: OnceLock<Vec<TestNerve>> = OnceLock::new();
     static SPINALCORD_LIST: OnceLock<Vec<TestNerve>> = OnceLock::new();
     static EMPTY_LIST: OnceLock<Vec<TestNerve>> = OnceLock::new();
@@ -137,9 +148,7 @@ pub mod test {
 
     impl TestNerve {
         fn empty() -> &'static Vec<TestNerve> {
-            EMPTY_LIST.get_or_init(|| {
-                Vec::new()
-            })
+            EMPTY_LIST.get_or_init(|| Vec::new())
         }
         fn brain_list() -> &'static Vec<TestNerve> {
             BRAIN_LIST.get_or_init(|| {
@@ -180,18 +189,25 @@ pub mod test {
 
         fn regions<'a>(&self) -> AnatomicalRegionIter<Self::AnatomyType> {
             match self {
-                TestNerve::Brain => AnatomicalRegionIter(BRAIN_REGIONS.get_or_init(|| {
-                    let mut region_list = HashSet::new();
-                    region_list.insert(TestAnatomicalRegion::Head);
-                    region_list
-                }).iter()),
-                TestNerve::SpinalCord => AnatomicalRegionIter(SPINALCORD_REGIONS.get_or_init(|| {
-                    let mut region_list = HashSet::new();
-                    region_list.insert(TestAnatomicalRegion::Torso);
-                    region_list
-                }).iter()),
+                TestNerve::Brain => AnatomicalRegionIter(
+                    BRAIN_REGIONS
+                        .get_or_init(|| {
+                            let mut region_list = HashSet::new();
+                            region_list.insert(TestAnatomicalRegion::Head);
+                            region_list
+                        })
+                        .iter(),
+                ),
+                TestNerve::SpinalCord => AnatomicalRegionIter(
+                    SPINALCORD_REGIONS
+                        .get_or_init(|| {
+                            let mut region_list = HashSet::new();
+                            region_list.insert(TestAnatomicalRegion::Torso);
+                            region_list
+                        })
+                        .iter(),
+                ),
             }
         }
-
     }
 }

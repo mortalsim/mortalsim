@@ -1,5 +1,5 @@
-mod anatomy;
-pub use anatomy::HumanAnatomicalRegion;
+mod human_anatomy;
+pub use human_anatomy::HumanAnatomicalRegion;
 
 mod human_circulation;
 pub use human_circulation::HumanBloodVessel;

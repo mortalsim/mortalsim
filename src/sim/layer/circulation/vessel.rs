@@ -50,18 +50,42 @@ pub enum DummyVessel {}
 
 impl BloodVessel for DummyVessel {
     type AnatomyType = i8;
-    fn start_vessels<'a>() -> VesselIter<'a, Self> { panic!() }
-    fn arteries<'a>() -> VesselIter<'a, Self> { panic!() }
-    fn veins<'a>() -> VesselIter<'a, Self> { panic!() }
-    fn pre_capillaries<'a>() -> VesselIter<'a, Self> { panic!() }
-    fn post_capillaries<'a>() -> VesselIter<'a, Self> { panic!() }
-    fn max_arterial_depth() -> u32 { panic!() }
-    fn max_venous_depth() -> u32 { panic!() }
-    fn max_cycle() -> u32 { panic!() }
-    fn vessel_type(&self) -> BloodVesselType { panic!() }
-    fn upstream<'a>(&self) -> VesselIter<'a, Self> { panic!() }
-    fn downstream<'a>(&self) -> VesselIter<'a, Self> { panic!() }
-    fn regions<'a>(&self) -> AnatomicalRegionIter<Self::AnatomyType> { panic!() }
+    fn start_vessels<'a>() -> VesselIter<'a, Self> {
+        panic!()
+    }
+    fn arteries<'a>() -> VesselIter<'a, Self> {
+        panic!()
+    }
+    fn veins<'a>() -> VesselIter<'a, Self> {
+        panic!()
+    }
+    fn pre_capillaries<'a>() -> VesselIter<'a, Self> {
+        panic!()
+    }
+    fn post_capillaries<'a>() -> VesselIter<'a, Self> {
+        panic!()
+    }
+    fn max_arterial_depth() -> u32 {
+        panic!()
+    }
+    fn max_venous_depth() -> u32 {
+        panic!()
+    }
+    fn max_cycle() -> u32 {
+        panic!()
+    }
+    fn vessel_type(&self) -> BloodVesselType {
+        panic!()
+    }
+    fn upstream<'a>(&self) -> VesselIter<'a, Self> {
+        panic!()
+    }
+    fn downstream<'a>(&self) -> VesselIter<'a, Self> {
+        panic!()
+    }
+    fn regions<'a>(&self) -> AnatomicalRegionIter<Self::AnatomyType> {
+        panic!()
+    }
 }
 
 #[cfg(test)]
@@ -69,7 +93,7 @@ pub mod test {
     use std::collections::HashSet;
     use std::sync::OnceLock;
 
-    use super::{BloodVessel, VesselIter, BloodVesselType, AnatomicalRegionIter};
+    use super::{AnatomicalRegionIter, BloodVessel, BloodVesselType, VesselIter};
 
     static AORTA_SET: OnceLock<HashSet<TestBloodVessel>> = OnceLock::new();
     static VENACAVA_SET: OnceLock<HashSet<TestBloodVessel>> = OnceLock::new();
@@ -77,7 +101,7 @@ pub mod test {
 
     static AORTA_REGIONS: OnceLock<HashSet<TestAnatomicalRegion>> = OnceLock::new();
     static VENACAVA_REGIONS: OnceLock<HashSet<TestAnatomicalRegion>> = OnceLock::new();
-    
+
     #[derive(Debug, Display, Hash, Clone, Copy, PartialEq, Eq, EnumString, IntoStaticStr)]
     pub enum TestAnatomicalRegion {
         Head,
@@ -96,9 +120,7 @@ pub mod test {
 
     impl TestBloodVessel {
         fn empty() -> &'static HashSet<TestBloodVessel> {
-            EMPTY_SET.get_or_init(|| {
-                HashSet::new()
-            })
+            EMPTY_SET.get_or_init(|| HashSet::new())
         }
         fn aorta_set() -> &'static HashSet<TestBloodVessel> {
             AORTA_SET.get_or_init(|| {
@@ -119,9 +141,15 @@ pub mod test {
     impl BloodVessel for TestBloodVessel {
         type AnatomyType = TestAnatomicalRegion;
 
-        fn max_arterial_depth() -> u32 { 1 }
-        fn max_venous_depth() -> u32 { 1 }
-        fn max_cycle() -> u32 { 2 }
+        fn max_arterial_depth() -> u32 {
+            1
+        }
+        fn max_venous_depth() -> u32 {
+            1
+        }
+        fn max_cycle() -> u32 {
+            2
+        }
         fn start_vessels<'a>() -> VesselIter<'a, Self> {
             VesselIter(Self::aorta_set().iter())
         }
@@ -157,75 +185,94 @@ pub mod test {
         }
         fn regions<'a>(&self) -> AnatomicalRegionIter<Self::AnatomyType> {
             match self {
-                TestBloodVessel::Aorta => AnatomicalRegionIter(AORTA_REGIONS.get_or_init(|| {
-                    let mut region_list = HashSet::new();
-                    region_list.insert(TestAnatomicalRegion::Torso);
-                    region_list
-                }).iter()),
-                TestBloodVessel::VenaCava => AnatomicalRegionIter(VENACAVA_REGIONS.get_or_init(|| {
-                    let mut region_list = HashSet::new();
-                    region_list.insert(TestAnatomicalRegion::Torso);
-                    region_list
-                }).iter()),
+                TestBloodVessel::Aorta => AnatomicalRegionIter(
+                    AORTA_REGIONS
+                        .get_or_init(|| {
+                            let mut region_list = HashSet::new();
+                            region_list.insert(TestAnatomicalRegion::Torso);
+                            region_list
+                        })
+                        .iter(),
+                ),
+                TestBloodVessel::VenaCava => AnatomicalRegionIter(
+                    VENACAVA_REGIONS
+                        .get_or_init(|| {
+                            let mut region_list = HashSet::new();
+                            region_list.insert(TestAnatomicalRegion::Torso);
+                            region_list
+                        })
+                        .iter(),
+                ),
             }
         }
     }
 
-     fn test_depths() {
+    fn test_depths() {
         assert_eq!(TestBloodVessel::max_arterial_depth(), 1);
         assert_eq!(TestBloodVessel::max_venous_depth(), 1);
         assert_eq!(TestBloodVessel::max_cycle(), 2);
-     }
+    }
 
-     #[test]
-     fn test_start_vessels() {
+    #[test]
+    fn test_start_vessels() {
         assert_eq!(TestBloodVessel::start_vessels().len(), 1);
-     }
+    }
 
-     #[test]
-     fn test_arteries() {
+    #[test]
+    fn test_arteries() {
         assert_eq!(TestBloodVessel::arteries().len(), 1);
-     }
+    }
 
-     #[test]
-     fn test_veins() {
+    #[test]
+    fn test_veins() {
         assert_eq!(TestBloodVessel::veins().len(), 1);
-     }
+    }
 
-     #[test]
-     fn test_pre_capillaries() {
+    #[test]
+    fn test_pre_capillaries() {
         assert_eq!(TestBloodVessel::pre_capillaries().len(), 1);
-     }
+    }
 
-     #[test]
-     fn test_post_capillaries() {
+    #[test]
+    fn test_post_capillaries() {
         assert_eq!(TestBloodVessel::post_capillaries().len(), 1);
-     }
+    }
 
-     #[test]
-     fn test_vessel_type() {
-        assert_eq!(TestBloodVessel::Aorta.vessel_type(), BloodVesselType::Artery);
-        assert_eq!(TestBloodVessel::VenaCava.vessel_type(), BloodVesselType::Vein);
-     }
+    #[test]
+    fn test_vessel_type() {
+        assert_eq!(
+            TestBloodVessel::Aorta.vessel_type(),
+            BloodVesselType::Artery
+        );
+        assert_eq!(
+            TestBloodVessel::VenaCava.vessel_type(),
+            BloodVesselType::Vein
+        );
+    }
 
-     #[test]
-     fn test_upstream() {
+    #[test]
+    fn test_upstream() {
         assert_eq!(TestBloodVessel::Aorta.upstream().len(), 0);
         assert_eq!(TestBloodVessel::VenaCava.upstream().len(), 1);
-     }
+    }
 
-     #[test]
-     fn test_downstream() {
+    #[test]
+    fn test_downstream() {
         assert_eq!(TestBloodVessel::Aorta.downstream().len(), 1);
         assert_eq!(TestBloodVessel::VenaCava.downstream().len(), 0);
-     }
+    }
 
-     #[test]
-     fn test_regions() {
+    #[test]
+    fn test_regions() {
         let mut expected_regions = HashSet::new();
         expected_regions.insert(TestAnatomicalRegion::Torso);
-        assert_eq!(HashSet::from_iter(TestBloodVessel::Aorta.regions()), expected_regions);
-        assert_eq!(HashSet::from_iter(TestBloodVessel::VenaCava.regions()), expected_regions);
-     }
-
+        assert_eq!(
+            HashSet::from_iter(TestBloodVessel::Aorta.regions()),
+            expected_regions
+        );
+        assert_eq!(
+            HashSet::from_iter(TestBloodVessel::VenaCava.regions()),
+            expected_regions
+        );
+    }
 }

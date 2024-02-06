@@ -34,9 +34,7 @@ impl<'a> fmt::Debug for EventHub<'a> {
         write!(
             f,
             "EventHub {{ listeners: {:?}, generic_listeners: {:?}, transformers: {:?} }}",
-            self.event_listeners,
-            self.generic_event_listeners,
-            self.event_transformers
+            self.event_listeners, self.generic_event_listeners, self.event_transformers
         )
     }
 }
@@ -74,10 +72,7 @@ impl<'a> EventHub<'a> {
         match self.event_transformers.get_mut(&type_key) {
             None => {} // No transformers = nothing to do
             Some(transformers) => {
-                log::debug!(
-                    "Triggering {} transformers",
-                    transformers.len(),
-                );
+                log::debug!("Triggering {} transformers", transformers.len(),);
                 for transformer in transformers {
                     transformer.transform(&mut *evt);
                 }
@@ -100,10 +95,7 @@ impl<'a> EventHub<'a> {
         match self.event_listeners.get_mut(&type_key) {
             None => {} // No listeners = nothing to do
             Some(listeners) => {
-                log::debug!(
-                    "Triggering {} transformers",
-                    listeners.len(),
-                );
+                log::debug!("Triggering {} transformers", listeners.len(),);
                 for listener in listeners {
                     listener.handle(final_evt.clone());
                 }
@@ -394,8 +386,8 @@ mod tests {
     use crate::event::test::TestEventA;
     use crate::event::test::TestEventB;
     use crate::event::Event;
-    use crate::units::base::Distance;
     use crate::units::base::Amount;
+    use crate::units::base::Distance;
     use std::cell::{Cell, RefCell};
     use std::sync::Arc;
     use std::sync::Mutex;

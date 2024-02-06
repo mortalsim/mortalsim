@@ -1,15 +1,13 @@
-use crate::sim::organism::Organism;
 use crate::sim::component::SimComponent;
+use crate::sim::organism::Organism;
 
 mod connector;
 mod initializer;
 
-pub use connector::{NervousConnector, NerveSignalTransformer};
+pub use connector::{NerveSignalTransformer, NervousConnector};
 pub use initializer::NervousInitializer;
 
-
 pub trait NervousComponent<O: Organism>: SimComponent<O> {
-
     /// Initializes the module. Should register any `Event` objects to listen for
     /// and set initial state.
     ///
@@ -26,6 +24,4 @@ pub trait NervousComponent<O: Organism>: SimComponent<O> {
 }
 
 #[cfg(test)]
-pub mod test {
-
-}
+pub mod test {}

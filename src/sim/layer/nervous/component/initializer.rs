@@ -1,7 +1,6 @@
-use std::collections::{HashMap, HashSet};
-use std::any::TypeId;
 use crate::sim::organism::Organism;
-
+use std::any::TypeId;
+use std::collections::{HashMap, HashSet};
 
 pub struct NervousInitializer<O: Organism> {
     /// What type of signals this component should be notified of
@@ -16,16 +15,13 @@ impl<O: Organism> NervousInitializer<O> {
         }
     }
 
-    pub fn notify_of<T: 'static> (&mut self, nerve: O::NerveType) {
+    pub fn notify_of<T: 'static>(&mut self, nerve: O::NerveType) {
         self.signal_notifies
             .entry(nerve)
             .or_default()
             .insert(TypeId::of::<T>());
     }
-
 }
 
 #[cfg(test)]
-pub mod test {
-    
-}
+pub mod test {}

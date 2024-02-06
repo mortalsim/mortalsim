@@ -1,5 +1,5 @@
 use crate::sim::organism::Organism;
-use crate::substance::{SubstanceConcentration, Substance, ConcentrationTracker};
+use crate::substance::{ConcentrationTracker, Substance, SubstanceConcentration};
 use std::collections::{HashMap, HashSet};
 
 pub struct CirculationInitializer<O: Organism> {
@@ -34,8 +34,7 @@ impl<O: Organism> CirculationInitializer<O> {
         substance: Substance,
         threshold: SubstanceConcentration,
     ) {
-        self.vessel_connections
-            .insert(vessel);
+        self.vessel_connections.insert(vessel);
         let substance_map = self
             .substance_notifies
             .entry(vessel)
@@ -48,8 +47,7 @@ impl<O: Organism> CirculationInitializer<O> {
     /// ### Arguments
     /// * `vessel` - `BloodVessel` this change should take place on
     pub fn attach_vessel(&mut self, vessel: O::VesselType) {
-        self.vessel_connections
-            .insert(vessel);
+        self.vessel_connections.insert(vessel);
     }
 
     /// When called, ALL vessels will be attached to the associated
@@ -68,12 +66,14 @@ pub mod test {
     use crate::util::mmol_per_L;
 
     use super::CirculationInitializer;
-    
+
     #[test]
     fn test_attach_vessel() {
         let mut circulation_init = CirculationInitializer::<TestSim>::new();
         circulation_init.attach_vessel(TestBloodVessel::Aorta);
-        assert!(circulation_init.vessel_connections.contains(&TestBloodVessel::Aorta));
+        assert!(circulation_init
+            .vessel_connections
+            .contains(&TestBloodVessel::Aorta));
     }
 
     #[test]
@@ -86,8 +86,16 @@ pub mod test {
     #[test]
     fn test_notify() {
         let mut circulation_init = CirculationInitializer::<TestSim>::new();
-        circulation_init.notify_composition_change(TestBloodVessel::Aorta, Substance::CO2, mmol_per_L!(1.0));
-        assert!(circulation_init.substance_notifies.contains_key(&TestBloodVessel::Aorta));
-        assert!(!circulation_init.substance_notifies.contains_key(&TestBloodVessel::VenaCava));
+        circulation_init.notify_composition_change(
+            TestBloodVessel::Aorta,
+            Substance::CO2,
+            mmol_per_L!(1.0),
+        );
+        assert!(circulation_init
+            .substance_notifies
+            .contains_key(&TestBloodVessel::Aorta));
+        assert!(!circulation_init
+            .substance_notifies
+            .contains_key(&TestBloodVessel::VenaCava));
     }
 }

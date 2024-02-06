@@ -27,11 +27,7 @@ impl Error for DuplicateIdReturnError {}
 
 impl fmt::Display for DuplicateIdReturnError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "Id {} has already been returned",
-            self.dup_id
-        )?;
+        write!(f, "Id {} has already been returned", self.dup_id)?;
         Ok(())
     }
 }
@@ -128,9 +124,7 @@ impl IdGenerator {
     pub fn return_id(&mut self, id: IdType) -> Result<()> {
         if self.available_ids.iter().any(|&i| i == id) {
             // return an error when an id which was already returned is returned again
-            return Err(anyhow::Error::new(DuplicateIdReturnError {
-                dup_id: id,
-            }));
+            return Err(anyhow::Error::new(DuplicateIdReturnError { dup_id: id }));
         }
         if id >= self.cur_id {
             return Err(anyhow!(

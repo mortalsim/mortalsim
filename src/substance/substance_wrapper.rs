@@ -1,4 +1,3 @@
-
 macro_rules! substance_store_wrapper {
     ( $($field_path:ident).+, $($id_map_path:ident).+ ) => {
         /// Retrieves the current simulation time for the store.
@@ -71,7 +70,7 @@ macro_rules! substance_store_wrapper {
         /// Schedule a substance change on a given Vessel
         /// with a sigmoid shape over the given duration,
         /// startinig immediately.
-        /// 
+        ///
         /// Panics if `duration <= 0`
         ///
         /// ### Arguments

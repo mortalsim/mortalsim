@@ -122,47 +122,44 @@ pub mod test {
     fn test_init() {
         CoreInitializer::<TestSim>::new();
     }
-    
+
     #[test]
     fn test_notify() {
         let mut initializer = CoreInitializer::<TestSim>::new();
         initializer.notify(basic_event());
     }
-    
+
     #[test]
     fn test_notify_with_priority() {
         let mut initializer = CoreInitializer::<TestSim>::new();
         initializer.notify(basic_event());
         initializer.notify_prioritized(1, basic_event());
     }
-    
+
     #[test]
     fn test_transform() {
         let mut initializer = CoreInitializer::<TestSim>::new();
 
         // Should accept both static functions and closures
         initializer.transform(test_transformer);
-        initializer.transform(|evt: &mut TestEventA| {
-            evt.len += Distance::from_m(2.0)
-        });
+        initializer.transform(|evt: &mut TestEventA| evt.len += Distance::from_m(2.0));
     }
-    
+
     #[test]
     fn test_transform_with_priority() {
         let mut initializer = CoreInitializer::<TestSim>::new();
 
         // Should accept both static functions and closures
-        initializer.transform_prioritized(1, |evt: &mut TestEventA| {
-            evt.len += Distance::from_m(2.0)
-        });
+        initializer
+            .transform_prioritized(1, |evt: &mut TestEventA| evt.len += Distance::from_m(2.0));
     }
-    
+
     #[test]
     fn test_output() {
         let mut initializer = CoreInitializer::<TestSim>::new();
         initializer.set_output(basic_event())
     }
-    
+
     #[test]
     #[should_panic]
     fn test_notify_err() {
@@ -170,7 +167,7 @@ pub mod test {
         initializer.notify(basic_event());
         initializer.set_output(basic_event())
     }
-    
+
     #[test]
     #[should_panic]
     fn test_output_err() {

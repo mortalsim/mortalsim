@@ -1,11 +1,10 @@
-
-pub mod digestion_layer;
-pub mod consumable;
 pub mod component;
+pub mod consumable;
+pub mod digestion_layer;
 
-pub use digestion_layer::*;
-pub use consumable::*;
 pub use component::*;
+pub use consumable::*;
+pub use digestion_layer::*;
 
 use crate::event::Event;
 

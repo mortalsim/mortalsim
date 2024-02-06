@@ -87,8 +87,13 @@ impl<O: Organism> CoreConnector<O> {
     ///
     /// Returns a HashMap if any events are scheduled for the given type, and
     /// None otherwise
-    pub fn get_scheduled_events<'a, E: Event>(&'a mut self) -> impl Iterator<Item = (&'a IdType, &'a SimTime)> {
-        self.scheduled_events.entry(TypeId::of::<E>()).or_default().iter()
+    pub fn get_scheduled_events<'a, E: Event>(
+        &'a mut self,
+    ) -> impl Iterator<Item = (&'a IdType, &'a SimTime)> {
+        self.scheduled_events
+            .entry(TypeId::of::<E>())
+            .or_default()
+            .iter()
     }
 
     /// Retrieves the current simulation time
@@ -99,13 +104,15 @@ impl<O: Organism> CoreConnector<O> {
     /// Retrieves the current `Event` object from state as an Arc
     pub fn get<E: Event>(&self) -> Option<Box<E>> {
         match self
-            .sim_state.get_state_ref(&TypeId::of::<E>())?.downcast::<E>()
+            .sim_state
+            .get_state_ref(&TypeId::of::<E>())?
+            .downcast::<E>()
         {
             Err(_) => None,
             Ok(typed_evt_rc) => Some(typed_evt_rc),
         }
     }
-    
+
     /// Retrieves the `Event` object(s) which triggered the current `run` (if any)
     pub fn trigger_events<'a>(&'a self) -> impl Iterator<Item = &TypeId> + 'a {
         self.trigger_events.iter()
@@ -118,10 +125,10 @@ pub mod test {
     use std::collections::HashMap;
     use std::sync::Arc;
 
+    use crate::event::test::TestEventA;
     use crate::event::test::TestEventB;
     use crate::sim::test::TestSim;
     use crate::sim::SimState;
-    use crate::event::test::TestEventA;
     use crate::units::base::Amount;
     use crate::units::base::Distance;
     use crate::units::base::Time;
@@ -142,8 +149,12 @@ pub mod test {
         a_events.insert(1, Time::from_s(1.0));
         let mut b_events = HashMap::new();
         b_events.insert(2, Time::from_s(2.0));
-        connector.scheduled_events.insert(TypeId::of::<TestEventA>(), a_events);
-        connector.scheduled_events.insert(TypeId::of::<TestEventB>(), b_events);
+        connector
+            .scheduled_events
+            .insert(TypeId::of::<TestEventA>(), a_events);
+        connector
+            .scheduled_events
+            .insert(TypeId::of::<TestEventB>(), b_events);
         connector.sim_state = SimState::new();
 
         let evt_a = Box::new(basic_event_a());
@@ -152,48 +163,49 @@ pub mod test {
         connector.sim_time = Time::from_s(0.0);
         connector
     }
-    
+
     fn connector_with_a_only() -> CoreConnector<TestSim> {
         let mut connector = CoreConnector::new();
         let mut a_events = HashMap::new();
         a_events.insert(1, Time::from_s(1.0));
-        connector.scheduled_events.insert(TypeId::of::<TestEventA>(), a_events);
+        connector
+            .scheduled_events
+            .insert(TypeId::of::<TestEventA>(), a_events);
         connector
     }
-
 
     #[test]
     pub fn test_emit() {
         let mut connector = CoreConnector::<TestSim>::new();
         connector.schedule_event(Time::from_s(1.0), basic_event_a())
     }
-    
+
     #[test]
     pub fn test_unschedule() {
         let mut connector = connector();
         assert!(connector.unschedule_event::<TestEventA>(1).is_ok());
         assert!(connector.unschedule_event::<TestEventB>(2).is_ok());
     }
-    
+
     #[test]
     pub fn test_unschedule_invalid_event() {
         let mut connector = connector_with_a_only();
         assert!(connector.unschedule_event::<TestEventB>(2).is_err());
     }
-    
+
     #[test]
     pub fn test_unschedule_invalid_id() {
         let mut connector = connector_with_a_only();
         assert!(connector.unschedule_event::<TestEventA>(2).is_err());
     }
-    
+
     #[test]
     pub fn test_unschedule_all() {
         let mut connector = CoreConnector::<TestSim>::new();
         connector.unschedule_all(true);
         assert!(connector.unschedule_all == true);
     }
-    
+
     #[test]
     pub fn test_get_scheduled() {
         let mut connector = connector();
@@ -207,25 +219,25 @@ pub mod test {
             assert!(time == &Time::from_s(2.0))
         }
     }
-    
+
     #[test]
     pub fn test_get_time() {
         let connector = connector();
         assert!(connector.sim_time() == Time::from_s(0.0));
     }
-    
+
     #[test]
     pub fn test_get() {
         let connector = connector();
         assert!(connector.get::<TestEventA>().unwrap().as_ref().len == basic_event_a().len);
         assert!(connector.get::<TestEventB>().is_none());
     }
-    
+
     #[test]
     pub fn test_trigger() {
         let connector = connector();
         let mut count = 0;
-        let v: Vec<&TypeId> = connector.trigger_events().inspect(|_| {count += 1}).collect();
+        let v: Vec<&TypeId> = connector.trigger_events().inspect(|_| count += 1).collect();
         assert!(count == 1);
         assert!(v.get(0).unwrap() == &&TypeId::of::<TestEventA>())
     }

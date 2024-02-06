@@ -1,12 +1,12 @@
 use std::collections::HashMap;
 use std::marker::PhantomData;
 
-use crate::sim::layer::digestion::DigestionDirection;
-use crate::units::geometry::Volume;
-use crate::sim::{SimTime, Organism};
 use crate::sim::layer::digestion::consumable::Consumable;
+use crate::sim::layer::digestion::DigestionDirection;
+use crate::sim::{Organism, SimTime};
 use crate::substance::substance_wrapper::substance_store_wrapper;
 use crate::substance::Substance;
+use crate::units::geometry::Volume;
 use crate::util::IdType;
 
 pub struct Consumed {
@@ -53,11 +53,16 @@ impl Consumed {
         self.entry_time
     }
 
-    pub fn set_exit(&mut self, exit_time: SimTime, exit_direction: DigestionDirection) -> anyhow::Result<()> {
+    pub fn set_exit(
+        &mut self,
+        exit_time: SimTime,
+        exit_direction: DigestionDirection,
+    ) -> anyhow::Result<()> {
         if exit_time < self.entry_time {
-            Err(anyhow!("Digestion component exit_time cannot be less than entry time!"))
-        }
-        else {
+            Err(anyhow!(
+                "Digestion component exit_time cannot be less than entry time!"
+            ))
+        } else {
             self.exit_time = exit_time;
             self.exit_direction = exit_direction;
             Ok(())
@@ -67,12 +72,14 @@ impl Consumed {
     pub(crate) fn exit(mut self) -> (Consumable, DigestionDirection) {
         for (substance, change_ids) in self.change_map.drain() {
             for change_id in change_ids {
-                self.consumable.store.unschedule_change(&substance, &change_id);
+                self.consumable
+                    .store
+                    .unschedule_change(&substance, &change_id);
             }
         }
         (self.consumable, self.exit_direction)
     }
-    
+
     pub(crate) fn advance(&mut self, sim_time: SimTime) {
         self.consumable.advance(sim_time)
     }
@@ -109,6 +116,4 @@ impl<O: Organism> DigestionConnector<O> {
 }
 
 #[cfg(test)]
-pub mod test {
-    
-}
+pub mod test {}

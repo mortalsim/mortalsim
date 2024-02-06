@@ -6,9 +6,9 @@
 
 use crate::event::Event;
 use crate::hub::event_transformer::{EventTransformer, TransformerItem};
+use crate::units::base::Time;
 use crate::util::id_gen::{IdGenerator, IdType, InvalidIdError};
 use crate::util::quantity_wrapper::OrderedTime;
-use crate::units::base::Time;
 use anyhow::{Error, Result};
 use std::any::TypeId;
 use std::collections::hash_map::HashMap;
@@ -137,10 +137,7 @@ impl TimeManager {
                     Ok(())
                 }
                 None => {
-                    panic!(
-                        "Scheduled ID {} refers to an invalid time!",
-                        schedule_id,
-                    );
+                    panic!("Scheduled ID {} refers to an invalid time!", schedule_id,);
                 }
             },
             None => Err(anyhow!(
@@ -336,15 +333,16 @@ mod tests {
         time_manager.advance_by(one_sec);
         assert_eq!(time_manager.get_time(), Time::from_s(1.0));
 
-        let mut next_events: Vec<(OrderedTime, Vec<Box<dyn Event>>)> = time_manager.next_events().collect();
+        let mut next_events: Vec<(OrderedTime, Vec<Box<dyn Event>>)> =
+            time_manager.next_events().collect();
         assert!(next_events.is_empty());
 
         // Advance again. First event should fire.
         time_manager.advance_by(secs!(1.1));
-        
+
         next_events = time_manager.next_events().collect();
         assert!(!next_events.is_empty());
-        
+
         for evt in time_manager.next_events().map(|x| x.1).flatten() {
             assert_eq!(evt.type_id(), TypeId::of::<TestEventA>());
             assert_eq!(

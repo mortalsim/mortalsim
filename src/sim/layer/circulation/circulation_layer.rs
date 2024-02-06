@@ -1,21 +1,21 @@
 use std::collections::HashMap;
 
+use crate::sim::component::SimComponentProcessor;
 use crate::sim::layer::SimLayer;
 use crate::sim::organism::Organism;
 use crate::sim::SimConnector;
-use crate::sim::component::SimComponentProcessor;
 use crate::substance::{Substance, SubstanceConcentration, SubstanceStore};
 use crate::util::IdType;
 
-use super::{
-    CirculationInitializer, CirculationComponent, BloodStore
-};
+use super::{BloodStore, CirculationComponent, CirculationInitializer};
 
 pub struct CirculationLayer<O: Organism> {
-    blood_notify_map: HashMap<O::VesselType, HashMap<Substance, Vec<(SubstanceConcentration, &'static str)>>>,
+    blood_notify_map:
+        HashMap<O::VesselType, HashMap<Substance, Vec<(SubstanceConcentration, &'static str)>>>,
     composition_map: HashMap<O::VesselType, SubstanceStore>,
     component_settings: HashMap<&'static str, CirculationInitializer<O>>,
-    component_change_maps: HashMap<&'static str, HashMap<O::VesselType, HashMap<Substance, Vec<IdType>>>>,
+    component_change_maps:
+        HashMap<&'static str, HashMap<O::VesselType, HashMap<Substance, Vec<IdType>>>>,
 }
 
 impl<O: Organism + 'static> CirculationLayer<O> {
@@ -29,14 +29,14 @@ impl<O: Organism + 'static> CirculationLayer<O> {
         }
     }
 
-    pub fn as_processor<T: CirculationComponent<O>>(&mut self) -> &mut dyn SimComponentProcessor<O, T> {
+    pub fn as_processor<T: CirculationComponent<O>>(
+        &mut self,
+    ) -> &mut dyn SimComponentProcessor<O, T> {
         self
     }
-
 }
 
 impl<O: Organism> SimLayer for CirculationLayer<O> {
-    
     fn pre_exec(&mut self, connector: &mut SimConnector) {
         for (_, store) in self.composition_map.iter_mut() {
             store.advance(connector.sim_time());
@@ -77,14 +77,18 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessor<O, T> for Ci
         // Determine if any substances have changed beyond the threshold
         for (vessel, track_map) in comp_settings.substance_notifies.iter_mut() {
             for (substance, tracker) in track_map.iter_mut() {
-                let val = self.composition_map.get(vessel).unwrap().concentration_of(substance);
+                let val = self
+                    .composition_map
+                    .get(vessel)
+                    .unwrap()
+                    .concentration_of(substance);
                 if tracker.check(val) {
                     trigger = true;
                     tracker.update(val)
                 }
             }
         }
-        
+
         trigger
     }
 
@@ -96,15 +100,28 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessor<O, T> for Ci
 
         if comp_settings.attach_all {
             for (vessel, store) in self.composition_map.drain() {
-                let changes = self.component_change_maps.entry(comp_id).or_default().remove(&vessel).unwrap_or_default();
-                circulation_connector.vessel_map.insert(vessel, BloodStore::build(store, changes));
+                let changes = self
+                    .component_change_maps
+                    .entry(comp_id)
+                    .or_default()
+                    .remove(&vessel)
+                    .unwrap_or_default();
+                circulation_connector
+                    .vessel_map
+                    .insert(vessel, BloodStore::build(store, changes));
             }
-        }
-        else {
+        } else {
             for vessel in comp_settings.vessel_connections.iter() {
                 let store = self.composition_map.remove(vessel).unwrap_or_default();
-                let changes = self.component_change_maps.entry(comp_id).or_default().remove(&vessel).unwrap_or_default();
-                circulation_connector.vessel_map.insert(*vessel, BloodStore::build(store, changes));
+                let changes = self
+                    .component_change_maps
+                    .entry(comp_id)
+                    .or_default()
+                    .remove(&vessel)
+                    .unwrap_or_default();
+                circulation_connector
+                    .vessel_map
+                    .insert(*vessel, BloodStore::build(store, changes));
             }
         }
     }
@@ -115,24 +132,26 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessor<O, T> for Ci
         for (vessel, blood_store) in circulation_connector.vessel_map.drain() {
             let (store, change_map) = blood_store.extract();
             self.composition_map.insert(vessel, store);
-            self.component_change_maps.entry(comp_id).or_default().insert(vessel, change_map);
+            self.component_change_maps
+                .entry(comp_id)
+                .or_default()
+                .insert(vessel, change_map);
         }
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use crate::sim::{SimConnector, SimTime};
-    use crate::sim::layer::SimLayer;
-    use crate::sim::layer::circulation::{BloodStore, CirculationComponent};
-    use crate::sim::layer::circulation::vessel::test::TestBloodVessel;
-    use crate::sim::organism::test::TestSim;
+    use super::CirculationLayer;
+    use crate::sim::component::{SimComponent, SimComponentProcessor};
     use crate::sim::layer::circulation::component::test::TestCircComponentA;
-    use crate::sim::component::{SimComponentProcessor, SimComponent};
+    use crate::sim::layer::circulation::vessel::test::TestBloodVessel;
+    use crate::sim::layer::circulation::{BloodStore, CirculationComponent};
+    use crate::sim::layer::SimLayer;
+    use crate::sim::organism::test::TestSim;
+    use crate::sim::{SimConnector, SimTime};
     use crate::substance::Substance;
     use crate::util::mmol_per_L;
-    use super::CirculationLayer;
 
     #[test]
     fn test_layer() {
@@ -146,7 +165,10 @@ mod tests {
         let mut connector = SimConnector::new();
         layer.setup_component(&mut connector, &mut component);
 
-        component.circulation_connector().vessel_map.insert(TestBloodVessel::VenaCava, BloodStore::new());
+        component
+            .circulation_connector()
+            .vessel_map
+            .insert(TestBloodVessel::VenaCava, BloodStore::new());
 
         layer.prepare_component(&mut connector, &mut component);
         component.run();
@@ -155,17 +177,35 @@ mod tests {
         connector.time_manager.advance_by(SimTime::from_s(2.0));
         layer.pre_exec(&mut connector);
 
-        let glc = layer.composition_map.get(&TestBloodVessel::VenaCava).unwrap().concentration_of(&Substance::GLC);
+        let glc = layer
+            .composition_map
+            .get(&TestBloodVessel::VenaCava)
+            .unwrap()
+            .concentration_of(&Substance::GLC);
         let expected = mmol_per_L!(1.0);
         let threshold = mmol_per_L!(0.0001);
-        assert!(glc > expected - threshold && glc < expected + threshold, "GLC not within {} of {}", threshold, expected);
-        
+        assert!(
+            glc > expected - threshold && glc < expected + threshold,
+            "GLC not within {} of {}",
+            threshold,
+            expected
+        );
+
         connector.time_manager.advance_by(SimTime::from_s(2.0));
         layer.pre_exec(&mut connector);
 
-        let glc = layer.composition_map.get(&TestBloodVessel::VenaCava).unwrap().concentration_of(&Substance::GLC);
+        let glc = layer
+            .composition_map
+            .get(&TestBloodVessel::VenaCava)
+            .unwrap()
+            .concentration_of(&Substance::GLC);
         let expected = mmol_per_L!(1.0);
         let threshold = mmol_per_L!(0.0001);
-        assert!(glc > expected - threshold && glc < expected + threshold, "GLC not within {} of {}", threshold, expected);
+        assert!(
+            glc > expected - threshold && glc < expected + threshold,
+            "GLC not within {} of {}",
+            threshold,
+            expected
+        );
     }
 }

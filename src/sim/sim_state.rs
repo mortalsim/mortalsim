@@ -59,10 +59,7 @@ impl SimState {
     /// * `event`    - owned `Event` object to set
     ///
     /// returns previously stored `Event` or `None`
-    pub(super) fn put_state(
-        &mut self,
-        event: Box<dyn Event>,
-    ) -> Option<Box<dyn Event>> {
+    pub(super) fn put_state(&mut self, event: Box<dyn Event>) -> Option<Box<dyn Event>> {
         self.tainted_states.insert(event.type_id());
         self.state.insert(event.type_id(), event)
     }
