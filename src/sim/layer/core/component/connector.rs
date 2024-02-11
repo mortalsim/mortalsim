@@ -127,6 +127,7 @@ pub mod test {
 
     use crate::event::test::TestEventA;
     use crate::event::test::TestEventB;
+    use crate::sim::test::TestOrganism;
     use crate::sim::test::TestSim;
     use crate::sim::SimState;
     use crate::units::base::Amount;
@@ -143,7 +144,7 @@ pub mod test {
         TestEventB::new(Amount::from_mol(1.0))
     }
 
-    fn connector() -> CoreConnector<TestSim> {
+    fn connector() -> CoreConnector<TestOrganism> {
         let mut connector = CoreConnector::new();
         let mut a_events = HashMap::new();
         a_events.insert(1, Time::from_s(1.0));
@@ -164,7 +165,7 @@ pub mod test {
         connector
     }
 
-    fn connector_with_a_only() -> CoreConnector<TestSim> {
+    fn connector_with_a_only() -> CoreConnector<TestOrganism> {
         let mut connector = CoreConnector::new();
         let mut a_events = HashMap::new();
         a_events.insert(1, Time::from_s(1.0));
@@ -176,7 +177,7 @@ pub mod test {
 
     #[test]
     pub fn test_emit() {
-        let mut connector = CoreConnector::<TestSim>::new();
+        let mut connector = CoreConnector::<TestOrganism>::new();
         connector.schedule_event(Time::from_s(1.0), basic_event_a())
     }
 
@@ -201,7 +202,7 @@ pub mod test {
 
     #[test]
     pub fn test_unschedule_all() {
-        let mut connector = CoreConnector::<TestSim>::new();
+        let mut connector = CoreConnector::<TestOrganism>::new();
         connector.unschedule_all(true);
         assert!(connector.unschedule_all == true);
     }

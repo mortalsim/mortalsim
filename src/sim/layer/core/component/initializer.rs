@@ -105,7 +105,7 @@ impl<O: Organism> CoreInitializer<O> {
 #[cfg(test)]
 pub mod test {
     use crate::event::test::TestEventA;
-    use crate::sim::test::TestSim;
+    use crate::sim::test::{TestOrganism, TestSim};
     use crate::units::base::Distance;
 
     use super::CoreInitializer;
@@ -120,25 +120,25 @@ pub mod test {
 
     #[test]
     fn test_init() {
-        CoreInitializer::<TestSim>::new();
+        CoreInitializer::<TestOrganism>::new();
     }
 
     #[test]
     fn test_notify() {
-        let mut initializer = CoreInitializer::<TestSim>::new();
+        let mut initializer = CoreInitializer::<TestOrganism>::new();
         initializer.notify(basic_event());
     }
 
     #[test]
     fn test_notify_with_priority() {
-        let mut initializer = CoreInitializer::<TestSim>::new();
+        let mut initializer = CoreInitializer::<TestOrganism>::new();
         initializer.notify(basic_event());
         initializer.notify_prioritized(1, basic_event());
     }
 
     #[test]
     fn test_transform() {
-        let mut initializer = CoreInitializer::<TestSim>::new();
+        let mut initializer = CoreInitializer::<TestOrganism>::new();
 
         // Should accept both static functions and closures
         initializer.transform(test_transformer);
@@ -147,7 +147,7 @@ pub mod test {
 
     #[test]
     fn test_transform_with_priority() {
-        let mut initializer = CoreInitializer::<TestSim>::new();
+        let mut initializer = CoreInitializer::<TestOrganism>::new();
 
         // Should accept both static functions and closures
         initializer
@@ -156,14 +156,14 @@ pub mod test {
 
     #[test]
     fn test_output() {
-        let mut initializer = CoreInitializer::<TestSim>::new();
+        let mut initializer = CoreInitializer::<TestOrganism>::new();
         initializer.set_output(basic_event())
     }
 
     #[test]
     #[should_panic]
     fn test_notify_err() {
-        let mut initializer = CoreInitializer::<TestSim>::new();
+        let mut initializer = CoreInitializer::<TestOrganism>::new();
         initializer.notify(basic_event());
         initializer.set_output(basic_event())
     }
@@ -171,7 +171,7 @@ pub mod test {
     #[test]
     #[should_panic]
     fn test_output_err() {
-        let mut initializer = CoreInitializer::<TestSim>::new();
+        let mut initializer = CoreInitializer::<TestOrganism>::new();
         initializer.set_output(basic_event());
         initializer.notify(basic_event())
     }

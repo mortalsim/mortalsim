@@ -15,13 +15,15 @@ use crate::util::secs;
 
 use super::{impl_sim, Organism};
 
-impl_sim!(TestSim);
+pub struct TestOrganism;
 
-impl Organism for TestSim {
+impl Organism for TestOrganism {
     type VesselType = TestBloodVessel;
     type NerveType = TestNerve;
     type AnatomyType = TestAnatomicalRegion;
 }
+
+impl_sim!(TestSim, TestOrganism);
 
 #[derive(Debug, Display, Hash, Clone, Copy, PartialEq, Eq, EnumString, IntoStaticStr)]
 pub enum TestAnatomicalRegion {

@@ -30,6 +30,7 @@ pub mod test {
     use crate::sim::component::SimComponent;
     use crate::sim::organism::test::TestSim;
     use crate::sim::organism::Organism;
+    use crate::sim::test::TestOrganism;
     use crate::units::base::Amount;
     use crate::units::base::Distance;
     use std::any::TypeId;
@@ -122,7 +123,7 @@ pub mod test {
     fn test_component() {
         let mut component = TestComponentA::new();
         let mut initializer = CoreInitializer::new();
-        CoreComponent::<TestSim>::core_init(&mut component, &mut initializer);
+        CoreComponent::<TestOrganism>::core_init(&mut component, &mut initializer);
 
         assert!(initializer.pending_notifies.len() == 2);
         assert!(initializer.pending_transforms.len() == 1);

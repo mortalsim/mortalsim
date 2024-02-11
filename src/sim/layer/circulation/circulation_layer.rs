@@ -149,18 +149,19 @@ mod tests {
     use crate::sim::layer::circulation::{BloodStore, CirculationComponent};
     use crate::sim::layer::SimLayer;
     use crate::sim::organism::test::TestSim;
+    use crate::sim::test::TestOrganism;
     use crate::sim::{SimConnector, SimTime};
     use crate::substance::Substance;
     use crate::util::mmol_per_L;
 
     #[test]
     fn test_layer() {
-        CirculationLayer::<TestSim>::new();
+        CirculationLayer::<TestOrganism>::new();
     }
 
     #[test]
     fn test_layer_process() {
-        let mut layer = CirculationLayer::<TestSim>::new();
+        let mut layer = CirculationLayer::<TestOrganism>::new();
         let mut component = TestCircComponentA::new();
         let mut connector = SimConnector::new();
         layer.setup_component(&mut connector, &mut component);

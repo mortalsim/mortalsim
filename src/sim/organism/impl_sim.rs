@@ -1,8 +1,8 @@
 macro_rules! impl_sim {
-    ( $name:ident ) => {
+    ( $name:ident, $organism:ident ) => {
         pub struct $name {
             connector: crate::sim::SimConnector,
-            layer_manager: crate::sim::layer::LayerManager<Self>,
+            layer_manager: crate::sim::layer::LayerManager<$organism>,
             id_gen: crate::util::IdGenerator,
             hub: crate::hub::EventHub<'static>,
         }
@@ -13,7 +13,7 @@ macro_rules! impl_sim {
             std::sync::Mutex<
                 Vec<(
                     crate::util::IdType,
-                    crate::sim::component::ComponentFactory<'_, $name>,
+                    crate::sim::component::ComponentFactory<'_, $organism>,
                 )>,
             >,
         > = std::sync::OnceLock::new();
@@ -28,7 +28,7 @@ macro_rules! impl_sim {
 
             fn default_factories() -> std::sync::MutexGuard<
                 'static,
-                Vec<(u32, crate::sim::component::ComponentFactory<'static, $name>)>,
+                Vec<(u32, crate::sim::component::ComponentFactory<'static, $organism>)>,
             > {
                 DEFAULT_FACTORIES
                     .get_or_init(|| std::sync::Mutex::new(Vec::new()))
@@ -44,7 +44,7 @@ macro_rules! impl_sim {
             /// do NOT produce components with the same id() value. In such a scenario,
             /// initialization of a Sim instance will fail since component ids MUST be unique
             /// for each instance.
-            pub fn set_default<T: crate::sim::component::SimComponent<Self>>(
+            pub fn set_default<T: crate::sim::component::SimComponent<$organism>>(
                 factory: impl FnMut() -> T + 'static + Send,
             ) -> crate::util::IdType {
                 let factory_id = Self::default_id_gen().get_id();
@@ -55,7 +55,7 @@ macro_rules! impl_sim {
                 factory_id
             }
 
-            pub fn remove_default<T: crate::sim::component::SimComponent<Self>>(
+            pub fn remove_default<T: crate::sim::component::SimComponent<$organism>>(
                 factory_id: &crate::util::IdType,
             ) -> anyhow::Result<()> {
                 if let Some((idx, _)) = Self::default_factories()
@@ -72,7 +72,7 @@ macro_rules! impl_sim {
 
             pub fn add_component(
                 &mut self,
-                component: impl crate::sim::component::SimComponent<Self>,
+                component: impl crate::sim::component::SimComponent<$organism>,
             ) -> anyhow::Result<()> {
                 self.layer_manager.add_component(component)
             }

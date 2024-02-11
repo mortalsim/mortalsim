@@ -62,6 +62,7 @@ impl<O: Organism> CirculationInitializer<O> {
 pub mod test {
     use crate::sim::layer::circulation::vessel::test::TestBloodVessel;
     use crate::sim::organism::test::TestSim;
+    use crate::sim::test::TestOrganism;
     use crate::substance::Substance;
     use crate::util::mmol_per_L;
 
@@ -69,7 +70,7 @@ pub mod test {
 
     #[test]
     fn test_attach_vessel() {
-        let mut circulation_init = CirculationInitializer::<TestSim>::new();
+        let mut circulation_init = CirculationInitializer::<TestOrganism>::new();
         circulation_init.attach_vessel(TestBloodVessel::Aorta);
         assert!(circulation_init
             .vessel_connections
@@ -78,14 +79,14 @@ pub mod test {
 
     #[test]
     fn test_attach_all() {
-        let mut circulation_init = CirculationInitializer::<TestSim>::new();
+        let mut circulation_init = CirculationInitializer::<TestOrganism>::new();
         circulation_init.attach_all_vessels();
         assert!(circulation_init.attach_all == true);
     }
 
     #[test]
     fn test_notify() {
-        let mut circulation_init = CirculationInitializer::<TestSim>::new();
+        let mut circulation_init = CirculationInitializer::<TestOrganism>::new();
         circulation_init.notify_composition_change(
             TestBloodVessel::Aorta,
             Substance::CO2,

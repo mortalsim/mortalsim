@@ -11,10 +11,12 @@ use crate::sim::layer::LayerManager;
 
 use super::{impl_sim, Organism};
 
-impl_sim!(HumanSim);
+struct HumanOrganism;
 
-impl Organism for HumanSim {
+impl Organism for HumanOrganism {
     type VesselType = HumanBloodVessel;
     type NerveType = HumanNerve;
     type AnatomyType = HumanAnatomicalRegion;
 }
+
+impl_sim!(HumanSim, HumanOrganism);

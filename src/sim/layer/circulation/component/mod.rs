@@ -32,13 +32,14 @@ pub mod test {
     use crate::sim::layer::circulation::component::connector::BloodStore;
     use crate::sim::layer::circulation::vessel::test::TestBloodVessel;
     use crate::sim::organism::test::TestSim;
+    use crate::sim::test::TestOrganism;
     use crate::sim::SimTime;
     use crate::substance::Substance;
     use crate::util::mmol_per_L;
     use simple_si_units::chemical::Concentration;
 
     pub struct TestCircComponentA {
-        cc_sim_connector: CirculationConnector<TestSim>,
+        cc_sim_connector: CirculationConnector<TestOrganism>,
     }
 
     impl TestCircComponentA {
@@ -49,10 +50,10 @@ pub mod test {
         }
     }
 
-    impl CirculationComponent<TestSim> for TestCircComponentA {
+    impl CirculationComponent<TestOrganism> for TestCircComponentA {
         fn circulation_init(
             &mut self,
-            circulation_initializer: &mut CirculationInitializer<TestSim>,
+            circulation_initializer: &mut CirculationInitializer<TestOrganism>,
         ) {
             circulation_initializer.notify_composition_change(
                 TestBloodVessel::Aorta,
@@ -62,19 +63,19 @@ pub mod test {
             circulation_initializer.attach_vessel(TestBloodVessel::VenaCava);
         }
 
-        fn circulation_connector(&mut self) -> &mut CirculationConnector<TestSim> {
+        fn circulation_connector(&mut self) -> &mut CirculationConnector<TestOrganism> {
             &mut self.cc_sim_connector
         }
     }
 
-    impl SimComponent<TestSim> for TestCircComponentA {
+    impl SimComponent<TestOrganism> for TestCircComponentA {
         /// The unique id of the component
         fn id(&self) -> &'static str {
             "TestCircComponentA"
         }
 
         /// Attaches the module to the ComponentKeeper
-        fn attach(self, registry: &mut ComponentRegistry<TestSim>) {
+        fn attach(self, registry: &mut ComponentRegistry<TestOrganism>) {
             registry.add_circulation_component(self)
         }
 
