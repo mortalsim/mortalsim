@@ -1,4 +1,7 @@
+use std::borrow::BorrowMut;
 use std::collections::HashSet;
+use std::sync::Mutex;
+use std::thread::{scope, Scope};
 
 use strum::VariantArray;
 
@@ -14,6 +17,7 @@ use super::LayerType::*;
 pub struct LayerManager<O: Organism> {
     registry: ComponentRegistry<O>,
     layers: Vec<LayerProcessor<O>>,
+    layers_sync: Vec<Mutex<LayerProcessor<O>>>,
     missing_layers: Vec<&'static LayerType>,
 }
 
@@ -26,6 +30,21 @@ impl<O: Organism + 'static> LayerManager<O> {
                 LayerProcessor::new(Circulation),
                 LayerProcessor::new(Digestion),
                 LayerProcessor::new(Nervous),
+            ],
+            layers_sync: Vec::new(),
+            missing_layers: Vec::new(),
+        }
+    }
+    
+    pub fn new_sync() -> Self {
+        Self {
+            registry: ComponentRegistry::new(),
+            layers: Vec::new(),
+            layers_sync: vec![
+                Mutex::new(LayerProcessor::new(Core)),
+                Mutex::new(LayerProcessor::new(Circulation)),
+                Mutex::new(LayerProcessor::new(Digestion)),
+                Mutex::new(LayerProcessor::new(Nervous)),
             ],
             missing_layers: Vec::new(),
         }
@@ -43,6 +62,27 @@ impl<O: Organism + 'static> LayerManager<O> {
         Self {
             registry: ComponentRegistry::new(),
             layers,
+            layers_sync: Vec::new(),
+            missing_layers: LayerType::VARIANTS
+                .into_iter()
+                .filter(|lt| !(matches!(lt, Core) || layer_types.contains(lt)))
+                .collect(),
+        }
+    }
+
+    pub fn new_custom_sync(mut layer_types: HashSet<LayerType>) -> Self {
+        // always include Core
+        let mut layers = vec![Mutex::new(LayerProcessor::new(Core))];
+
+        // Make sure we don't add Core twice
+        layer_types.remove(&Core);
+
+        layers.extend(layer_types.iter().map(|lt| Mutex::new(LayerProcessor::new(*lt))));
+
+        Self {
+            registry: ComponentRegistry::new(),
+            layers: Vec::new(),
+            layers_sync: layers,
             missing_layers: LayerType::VARIANTS
                 .into_iter()
                 .filter(|lt| !(matches!(lt, Core) || layer_types.contains(lt)))
@@ -82,7 +122,7 @@ impl<O: Organism + 'static> LayerManager<O> {
         self.registry.has_component(component_id)
     }
 
-    pub fn update(&mut self, connector: &mut SimConnector) {
+    fn update_sequential(&mut self, connector: &mut SimConnector) {
         for layer in self.layers.iter_mut() {
             layer.pre_exec(connector);
         }
@@ -126,6 +166,69 @@ impl<O: Organism + 'static> LayerManager<O> {
 
         for layer in self.layers.iter_mut() {
             layer.post_exec(connector);
+        }
+    }
+
+    fn update_threaded(&mut self, connector: &mut SimConnector) {
+        for layer in self.layers_sync.iter_mut() {
+            layer.lock().unwrap().pre_exec(connector);
+        }
+
+        let mut update_list = Vec::new();
+
+        for component in self.registry.all_components_mut() {
+            let mut check_list = self
+                .layers_sync
+                .iter_mut()
+                .filter(|l| component.has_layer(&l.lock().unwrap().layer_type()));
+
+            // If any of the supported layers indicate the component should be
+            // triggered, add the component to the update list
+            if check_list.any(|l| l.lock().unwrap().check_component(component)) {
+                update_list.push(component);
+            }
+        }
+
+        let layers = &self.layers_sync;
+        let mconnector = Mutex::new(connector);
+
+        scope(|s| {
+            for component in update_list {
+                s.spawn(|| {
+                    // Prepare the component with each of the associated layers
+                    // have to collect here to avoid conflicting borrows of component
+                    let mut layer_list: Vec<&Mutex<LayerProcessor<O>>> = layers
+                        .iter()
+                        .filter(|l| component.has_layer(&l.lock().unwrap().layer_type()))
+                        .collect();
+
+                    for layer in layer_list.iter_mut() {
+                        layer.lock().unwrap().prepare_component(mconnector.lock().unwrap().borrow_mut(), component);
+                    }
+
+                    // Execute component logic
+                    component.run();
+
+                    // Execute post run processing
+                    for layer in layer_list.iter_mut() {
+                        layer.lock().unwrap().process_component(mconnector.lock().unwrap().borrow_mut(), component);
+                    }
+                });
+            }
+        });
+
+        let reclaimed_connector = mconnector.into_inner().unwrap();
+        for layer in self.layers_sync.iter_mut() {
+            layer.lock().unwrap().post_exec(reclaimed_connector);
+        }
+    }
+
+    pub fn update(&mut self, connector: &mut SimConnector) {
+        if self.layers.is_empty() {
+            self.update_threaded(connector)
+        }
+        else {
+            self.update_sequential(connector)
         }
     }
 }
