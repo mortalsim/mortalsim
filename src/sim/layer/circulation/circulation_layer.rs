@@ -18,7 +18,7 @@ pub struct CirculationLayer<O: Organism> {
         HashMap<&'static str, HashMap<O::VesselType, HashMap<Substance, Vec<IdType>>>>,
 }
 
-impl<O: Organism + 'static> CirculationLayer<O> {
+impl<O: Organism> CirculationLayer<O> {
     /// Creates a CirculationLayer from a Graph representing the circulatory structure
     pub fn new() -> CirculationLayer<O> {
         CirculationLayer {

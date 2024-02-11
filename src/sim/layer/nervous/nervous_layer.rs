@@ -30,7 +30,7 @@ pub struct NervousLayer<O: Organism> {
     internal_trigger_id: Option<IdType>,
 }
 
-impl<O: Organism + 'static> NervousLayer<O> {
+impl<O: Organism> NervousLayer<O> {
     pub fn new() -> Self {
         Self {
             id_gen: IdGenerator::new(),
