@@ -77,19 +77,25 @@ macro_rules! impl_sim {
                 self.layer_manager.add_component(component)
             }
 
-            pub fn new() -> Self {
-                let mut layer_manager = crate::sim::layer::LayerManager::new();
-
+            fn init(mut layer_manager: crate::sim::layer::LayerManager<$organism>) -> Self {
                 for (_, factory) in Self::default_factories().iter_mut() {
                     layer_manager.attach_component(|reg| factory.attach(reg))
                 }
-
+                
                 Self {
                     id_gen: crate::util::IdGenerator::new(),
                     connector: crate::sim::SimConnector::new(),
                     hub: crate::hub::EventHub::new(),
                     layer_manager,
                 }
+            }
+
+            pub fn new() -> Self {
+                Self::init(crate::sim::layer::LayerManager::new())
+            }
+            
+            pub fn new_threaded() -> Self {
+                Self::init(crate::sim::layer::LayerManager::new_threaded())
             }
         }
 

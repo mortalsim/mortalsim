@@ -11,7 +11,7 @@ use crate::sim::layer::LayerManager;
 
 use super::{impl_sim, Organism};
 
-struct HumanOrganism;
+pub struct HumanOrganism;
 
 impl Organism for HumanOrganism {
     type VesselType = HumanBloodVessel;

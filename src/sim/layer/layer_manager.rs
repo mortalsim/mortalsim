@@ -36,7 +36,7 @@ impl<O: Organism + 'static> LayerManager<O> {
         }
     }
     
-    pub fn new_sync() -> Self {
+    pub fn new_threaded() -> Self {
         Self {
             registry: ComponentRegistry::new(),
             layers: Vec::new(),
@@ -48,6 +48,10 @@ impl<O: Organism + 'static> LayerManager<O> {
             ],
             missing_layers: Vec::new(),
         }
+    }
+
+    pub fn is_threaded(&self) -> bool {
+        self.layers.is_empty()
     }
 
     pub fn new_custom(mut layer_types: HashSet<LayerType>) -> Self {
@@ -70,7 +74,7 @@ impl<O: Organism + 'static> LayerManager<O> {
         }
     }
 
-    pub fn new_custom_sync(mut layer_types: HashSet<LayerType>) -> Self {
+    pub fn new_custom_threaded(mut layer_types: HashSet<LayerType>) -> Self {
         // always include Core
         let mut layers = vec![Mutex::new(LayerProcessor::new(Core))];
 
@@ -224,7 +228,7 @@ impl<O: Organism + 'static> LayerManager<O> {
     }
 
     pub fn update(&mut self, connector: &mut SimConnector) {
-        if self.layers.is_empty() {
+        if self.is_threaded() {
             self.update_threaded(connector)
         }
         else {
