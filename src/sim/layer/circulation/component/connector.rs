@@ -3,8 +3,11 @@ use crate::sim::SimTime;
 use crate::substance::substance_wrapper::substance_store_wrapper;
 use crate::substance::{Substance, SubstanceStore};
 use crate::util::IdType;
+use std::borrow::BorrowMut;
 use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
 
+#[derive(Default)]
 pub struct BloodStore {
     store: SubstanceStore,
     change_map: HashMap<Substance, Vec<IdType>>,
@@ -36,6 +39,10 @@ impl BloodStore {
 pub struct CirculationConnector<O: Organism> {
     /// Mapping of `BloodVessel`s to their corresponding `SubstanceStore`
     pub(crate) vessel_map: HashMap<O::VesselType, BloodStore>,
+    /// Mapping of `BloodVessel`s to their corresponding `SubstanceStore`
+    pub(crate) vessels_sync: Arc<Mutex<HashMap<O::VesselType, Arc<Mutex<BloodStore>>>>>,
+    /// indicate whether the Arcs for sync have already been cloned
+    pub(crate) synced: bool,
     /// Copy of the current simulation time
     pub(crate) sim_time: SimTime,
     /// Whether all changes should be unscheduled before each run
@@ -48,6 +55,8 @@ impl<O: Organism> CirculationConnector<O> {
     pub fn new() -> CirculationConnector<O> {
         CirculationConnector {
             vessel_map: HashMap::new(),
+            vessels_sync: Arc::new(Mutex::new(HashMap::new())),
+            synced: false,
             sim_time: SimTime::from_s(0.0),
             unschedule_all: true,
         }
@@ -55,7 +64,10 @@ impl<O: Organism> CirculationConnector<O> {
 
     /// Retrieves the blood store for the associated vessel
     pub fn blood_store(&mut self, vessel: &O::VesselType) -> Option<&mut BloodStore> {
-        self.vessel_map.get_mut(vessel)
+        if let Some(store) = self.vessel_map.get_mut(vessel) {
+            return Some(store)
+        }
+        Some(self.vessels_sync.lock().unwrap().get_mut(vessel)?.lock().unwrap().borrow_mut())
     }
 
     /// Retrieves the current simulation time

@@ -1,4 +1,6 @@
 use std::collections::HashMap;
+use std::mem::swap;
+use std::sync::{Arc, Mutex};
 
 use crate::sim::component::SimComponentProcessor;
 use crate::sim::layer::SimLayer;
@@ -7,15 +9,14 @@ use crate::sim::SimConnector;
 use crate::substance::{Substance, SubstanceConcentration, SubstanceStore};
 use crate::util::IdType;
 
-use super::{BloodStore, CirculationComponent, CirculationInitializer};
+use super::{vessel, BloodStore, CirculationComponent, CirculationInitializer};
 
 pub struct CirculationLayer<O: Organism> {
     blood_notify_map:
         HashMap<O::VesselType, HashMap<Substance, Vec<(SubstanceConcentration, &'static str)>>>,
-    composition_map: HashMap<O::VesselType, SubstanceStore>,
+    composition_map: HashMap<O::VesselType, BloodStore>,
+    composition_map_sync: Arc<Mutex<HashMap<O::VesselType, Arc<Mutex<BloodStore>>>>>,
     component_settings: HashMap<&'static str, CirculationInitializer<O>>,
-    component_change_maps:
-        HashMap<&'static str, HashMap<O::VesselType, HashMap<Substance, Vec<IdType>>>>,
 }
 
 impl<O: Organism> CirculationLayer<O> {
@@ -24,8 +25,8 @@ impl<O: Organism> CirculationLayer<O> {
         CirculationLayer {
             blood_notify_map: HashMap::new(),
             composition_map: HashMap::new(),
+            composition_map_sync: Arc::new(Mutex::new(HashMap::new())),
             component_settings: HashMap::new(),
-            component_change_maps: HashMap::new(),
         }
     }
 
@@ -40,6 +41,9 @@ impl<O: Organism> SimLayer for CirculationLayer<O> {
     fn pre_exec(&mut self, connector: &mut SimConnector) {
         for (_, store) in self.composition_map.iter_mut() {
             store.advance(connector.sim_time());
+        }
+        for (_, store) in self.composition_map_sync.lock().unwrap().iter_mut() {
+            store.lock().unwrap().advance(connector.sim_time());
         }
     }
 
@@ -92,6 +96,33 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessor<O, T> for Ci
         trigger
     }
 
+    fn check_component_sync(&mut self, component: &T) -> bool {
+        let comp_settings = self.component_settings.get_mut(component.id()).unwrap();
+
+        let mut trigger = false;
+
+        // Determine if any substances have changed beyond the threshold
+        for (vessel, track_map) in comp_settings.substance_notifies.iter_mut() {
+            for (substance, tracker) in track_map.iter_mut() {
+                let val = self
+                    .composition_map_sync
+                    .lock()
+                    .unwrap()
+                    .entry(*vessel)
+                    .or_default()
+                    .lock()
+                    .unwrap()
+                    .concentration_of(substance);
+                if tracker.check(val) {
+                    trigger = true;
+                    tracker.update(val)
+                }
+            }
+        }
+
+        trigger
+    }
+
     fn prepare_component(&mut self, connector: &mut SimConnector, component: &mut T) {
         let comp_id = component.id();
         let comp_settings = self.component_settings.get_mut(component.id()).unwrap();
@@ -99,44 +130,62 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessor<O, T> for Ci
         circulation_connector.sim_time = connector.sim_time();
 
         if comp_settings.attach_all {
-            for (vessel, store) in self.composition_map.drain() {
-                let changes = self
-                    .component_change_maps
-                    .entry(comp_id)
-                    .or_default()
-                    .remove(&vessel)
-                    .unwrap_or_default();
-                circulation_connector
-                    .vessel_map
-                    .insert(vessel, BloodStore::build(store, changes));
-            }
+            swap(&mut self.composition_map, &mut circulation_connector.vessel_map);
         } else {
             for vessel in comp_settings.vessel_connections.iter() {
                 let store = self.composition_map.remove(vessel).unwrap_or_default();
-                let changes = self
-                    .component_change_maps
-                    .entry(comp_id)
-                    .or_default()
-                    .remove(&vessel)
-                    .unwrap_or_default();
                 circulation_connector
                     .vessel_map
-                    .insert(*vessel, BloodStore::build(store, changes));
+                    .insert(*vessel, store);
             }
+        }
+    }
+
+    fn prepare_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {
+        let comp_id = component.id();
+        let comp_settings = self.component_settings.get(component.id()).unwrap();
+        let circulation_connector = component.circulation_connector();
+        circulation_connector.sim_time = connector.sim_time();
+
+        if comp_settings.attach_all {
+            if !Arc::ptr_eq(&self.composition_map_sync, &circulation_connector.vessels_sync) {
+                circulation_connector.vessels_sync = self.composition_map_sync.clone();
+            }
+        } else if !circulation_connector.synced {
+            for vessel in self.component_settings.get(component.id()).unwrap().vessel_connections.iter() {
+
+                let store = self.composition_map_sync.lock().unwrap().entry(*vessel).or_default();
+                circulation_connector
+                    .vessels_sync
+                    .lock()
+                    .unwrap()
+                    .entry(*vessel)
+                    .or_insert(store.clone());
+
+            }
+
+            circulation_connector.synced = true;
         }
     }
 
     fn process_component(&mut self, _: &mut SimConnector, component: &mut T) {
         let comp_id = component.id();
+        let comp_settings = self.component_settings.get(component.id()).unwrap();
         let circulation_connector = component.circulation_connector();
-        for (vessel, blood_store) in circulation_connector.vessel_map.drain() {
-            let (store, change_map) = blood_store.extract();
-            self.composition_map.insert(vessel, store);
-            self.component_change_maps
-                .entry(comp_id)
-                .or_default()
-                .insert(vessel, change_map);
+
+        if comp_settings.attach_all {
+            swap(&mut self.composition_map, &mut circulation_connector.vessel_map);
+        } else {
+            // move stores back from the component
+            for vessel in comp_settings.vessel_connections.iter() {
+                let store = circulation_connector.vessel_map.remove(vessel).unwrap_or_default();
+                self.composition_map.insert(*vessel, store);
+            }
         }
+    }
+
+    fn process_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {
+        // nothing to do here
     }
 }
 
