@@ -25,6 +25,8 @@ pub trait CirculationComponent<O: Organism>: SimComponent<O> {
 
 #[cfg(test)]
 pub mod test {
+    use std::cell::RefCell;
+
     use super::CirculationComponent;
     use super::{CirculationConnector, CirculationInitializer};
     use crate::sim::component::registry::ComponentRegistry;
@@ -110,7 +112,7 @@ pub mod test {
         component
             .circulation_connector()
             .vessel_map
-            .insert(TestBloodVessel::VenaCava, BloodStore::new());
+            .insert(TestBloodVessel::VenaCava, RefCell::new(BloodStore::new()));
 
         component.run();
 
@@ -119,6 +121,7 @@ pub mod test {
             .vessel_map
             .get_mut(&TestBloodVessel::VenaCava)
             .unwrap()
+            .borrow_mut()
             .advance(SimTime::from_s(2.0));
 
         let glc = component
@@ -140,6 +143,7 @@ pub mod test {
             .vessel_map
             .get_mut(&TestBloodVessel::VenaCava)
             .unwrap()
+            .borrow_mut()
             .advance(SimTime::from_s(2.0));
 
         let glc = component

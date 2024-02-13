@@ -58,6 +58,15 @@ impl<O: Organism, T: ComponentWrapper<O>> SimComponentProcessor<O, T> for LayerP
             Self::Nervous(layer) => layer.setup_component(connector, component),
         }
     }
+    
+    fn setup_component_sync(&mut self, connector: &mut crate::sim::SimConnector, component: &mut T) {
+        match self {
+            Self::Core(layer) => layer.setup_component_sync(connector, component),
+            Self::Circulation(layer) => layer.setup_component_sync(connector, component),
+            Self::Digestion(layer) => layer.setup_component_sync(connector, component),
+            Self::Nervous(layer) => layer.setup_component_sync(connector, component),
+        }
+    }
 
     fn check_component(&mut self, component: &T) -> bool {
         match self {
@@ -65,6 +74,15 @@ impl<O: Organism, T: ComponentWrapper<O>> SimComponentProcessor<O, T> for LayerP
             Self::Circulation(layer) => layer.check_component(component),
             Self::Digestion(layer) => layer.check_component(component),
             Self::Nervous(layer) => layer.check_component(component),
+        }
+    }
+
+    fn check_component_sync(&mut self, component: &T) -> bool {
+        match self {
+            Self::Core(layer) => layer.check_component_sync(component),
+            Self::Circulation(layer) => layer.check_component_sync(component),
+            Self::Digestion(layer) => layer.check_component_sync(component),
+            Self::Nervous(layer) => layer.check_component_sync(component),
         }
     }
 
@@ -77,12 +95,30 @@ impl<O: Organism, T: ComponentWrapper<O>> SimComponentProcessor<O, T> for LayerP
         }
     }
 
+    fn prepare_component_sync(&mut self, connector: &mut crate::sim::SimConnector, component: &mut T) {
+        match self {
+            Self::Core(layer) => layer.prepare_component_sync(connector, component),
+            Self::Circulation(layer) => layer.prepare_component_sync(connector, component),
+            Self::Digestion(layer) => layer.prepare_component_sync(connector, component),
+            Self::Nervous(layer) => layer.prepare_component_sync(connector, component),
+        }
+    }
+
     fn process_component(&mut self, connector: &mut crate::sim::SimConnector, component: &mut T) {
         match self {
             Self::Core(layer) => layer.process_component(connector, component),
             Self::Circulation(layer) => layer.process_component(connector, component),
             Self::Digestion(layer) => layer.process_component(connector, component),
             Self::Nervous(layer) => layer.process_component(connector, component),
+        }
+    }
+
+    fn process_component_sync(&mut self, connector: &mut crate::sim::SimConnector, component: &mut T) {
+        match self {
+            Self::Core(layer) => layer.process_component_sync(connector, component),
+            Self::Circulation(layer) => layer.process_component_sync(connector, component),
+            Self::Digestion(layer) => layer.process_component_sync(connector, component),
+            Self::Nervous(layer) => layer.process_component_sync(connector, component),
         }
     }
 }

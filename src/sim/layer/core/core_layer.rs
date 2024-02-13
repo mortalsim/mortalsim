@@ -10,6 +10,7 @@ use std::marker::PhantomData;
 use std::mem::swap;
 
 use super::component::{CoreComponent, CoreInitializer};
+use super::CoreConnector;
 
 #[derive(Debug)]
 pub struct CoreLayer<O: Organism> {
@@ -31,72 +32,8 @@ impl<O: Organism> CoreLayer<O> {
             notify_map: HashMap::new(),
         }
     }
-}
 
-impl<O: Organism> SimLayer for CoreLayer<O> {
-    fn pre_exec(&mut self, connector: &mut SimConnector) {
-        connector
-            .time_manager
-            .next_events()
-            .map(|x| x.1)
-            .flatten()
-            .for_each(|evt| {
-                if let Some(notify_list) = self.module_notifications.get(&evt.type_id()) {
-                    for (_, comp_id) in notify_list {
-                        self.notify_map
-                            .entry(comp_id)
-                            .or_default()
-                            .insert(evt.type_id());
-                    }
-                }
-                // Internal layer trigger events don't end up on the state
-                // or in the active_events list
-                if !evt.is::<InternalLayerTrigger>() {
-                    connector.active_events.push(evt.into());
-                }
-            })
-    }
-
-    fn post_exec(&mut self, connector: &mut SimConnector) {
-        // update state
-        for evt in connector.active_events.drain(..) {
-            connector.state.put_state(evt);
-        }
-    }
-}
-
-impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer<O> {
-    fn setup_component(&mut self, connector: &mut SimConnector, component: &mut T) {
-        let mut initializer = CoreInitializer::new();
-        component.core_init(&mut initializer);
-
-        let mut transformer_ids = Vec::new();
-        for transformer in initializer.pending_transforms {
-            transformer_ids.push(connector.time_manager.insert_transformer(transformer));
-        }
-        self.transformer_id_map
-            .insert(component.id(), transformer_ids);
-
-        for (priority, evt) in initializer.pending_notifies {
-            let type_id = evt.type_id();
-            match self.module_notifications.get_mut(&type_id) {
-                None => {
-                    self.module_notifications
-                        .insert(type_id, vec![(priority, component.id())]);
-                }
-                Some(list) => {
-                    list.push((priority, component.id()));
-                }
-            }
-        }
-    }
-
-    fn check_component(&mut self, component: &T) -> bool {
-        // Trigger the module only if the notify_list is non empty
-        self.notify_map.contains_key(component.id())
-    }
-
-    fn prepare_component(&mut self, connector: &mut SimConnector, component: &mut T) {
+    fn prep_connector(&mut self, connector: &mut SimConnector, component: &mut impl CoreComponent<O>) {
         component.core_connector().trigger_events = {
             let notify_ids = self
                 .notify_map
@@ -110,16 +47,10 @@ impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer
 
         let comp_connector = component.core_connector();
         comp_connector.sim_time = connector.sim_time();
-
-        // Swap out state with the connector
-        swap(&mut connector.state, &mut comp_connector.sim_state);
     }
 
-    fn process_component(&mut self, connector: &mut SimConnector, component: &mut T) {
+    fn process_connector(&mut self, connector: &mut SimConnector, component: &mut impl CoreComponent<O>) {
         let comp_connector = component.core_connector();
-
-        // Swap back state with the connector
-        swap(&mut connector.state, &mut comp_connector.sim_state);
 
         // Unschedule any requested events
         if comp_connector.unschedule_all {
@@ -163,5 +94,104 @@ impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer
                 }
             }
         }
+    }
+}
+
+impl<O: Organism> SimLayer for CoreLayer<O> {
+    fn pre_exec(&mut self, connector: &mut SimConnector) {
+        connector
+            .time_manager
+            .next_events()
+            .map(|x| x.1)
+            .flatten()
+            .for_each(|evt| {
+                if let Some(notify_list) = self.module_notifications.get(&evt.type_id()) {
+                    for (_, comp_id) in notify_list {
+                        self.notify_map
+                            .entry(comp_id)
+                            .or_default()
+                            .insert(evt.type_id());
+                    }
+                }
+                // Internal layer trigger events don't end up on the state
+                // or in the active_events list
+                if !evt.is::<InternalLayerTrigger>() {
+                    connector.active_events.push(evt.into());
+                }
+            })
+    }
+
+    fn post_exec(&mut self, connector: &mut SimConnector) {
+        // update state
+        for evt in connector.active_events.drain(..) {
+            connector.state.put_state(evt);
+        }
+    }
+
+}
+
+impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer<O> {
+    fn setup_component(&mut self, connector: &mut SimConnector, component: &mut T) {
+        let mut initializer = CoreInitializer::new();
+        component.core_init(&mut initializer);
+
+        let mut transformer_ids = Vec::new();
+        for transformer in initializer.pending_transforms {
+            transformer_ids.push(connector.time_manager.insert_transformer(transformer));
+        }
+        self.transformer_id_map
+            .insert(component.id(), transformer_ids);
+
+        for (priority, evt) in initializer.pending_notifies {
+            let type_id = evt.type_id();
+            match self.module_notifications.get_mut(&type_id) {
+                None => {
+                    self.module_notifications
+                        .insert(type_id, vec![(priority, component.id())]);
+                }
+                Some(list) => {
+                    list.push((priority, component.id()));
+                }
+            }
+        }
+    }
+
+    fn setup_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {
+        self.setup_component(connector, component)
+    }
+
+    fn check_component(&mut self, component: &T) -> bool {
+        // Trigger the module only if the notify_list is non empty
+        self.notify_map.contains_key(component.id())
+    }
+
+    fn check_component_sync(&mut self, component: &T) -> bool {
+        self.check_component(component)
+    }
+
+    fn prepare_component(&mut self, connector: &mut SimConnector, component: &mut T) {
+        self.prep_connector(connector, component);
+
+        // Swap out state with the connector
+        swap(&mut connector.state, &mut component.core_connector().sim_state);
+    }
+
+    fn prepare_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {
+        self.prep_connector(connector, component);
+        
+        // Merge the events which were modified since the last update into the
+        // component's copy of state
+        component.core_connector().sim_state.merge_tainted(&mut connector.state);
+    }
+
+    fn process_component(&mut self, connector: &mut SimConnector, component: &mut T) {
+        // Swap back state with the connector
+        swap(&mut connector.state, &mut component.core_connector().sim_state);
+
+        self.process_connector(connector, component)
+    }
+
+    fn process_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {
+        self.process_connector(connector, component)
     }
 }

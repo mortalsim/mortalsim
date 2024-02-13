@@ -21,14 +21,16 @@ pub trait SimComponentProcessor<O: Organism, T: SimComponent<O>> {
     fn setup_component(&mut self, connector: &mut SimConnector, component: &mut T);
     /// Indicate if the given component should trigger a run
     fn check_component(&mut self, component: &T) -> bool;
-    /// Indicate if the given component should trigger a run (thread safe)
-    fn check_component_sync(&mut self, component: &T) -> bool;
     /// Prepare a component for their run
     fn prepare_component(&mut self, connector: &mut SimConnector, component: &mut T);
-    /// Prepare a component for their run (thread safe)
-    fn prepare_component_sync(&mut self, connector: &mut SimConnector, component: &mut T);
     /// Process a component after their run.
     fn process_component(&mut self, connector: &mut SimConnector, component: &mut T);
+    /// Execute initial setup for a component (thread safe)
+    fn setup_component_sync(&mut self, connector: &mut SimConnector, component: &mut T);
+    /// Indicate if the given component should trigger a run (thread safe)
+    fn check_component_sync(&mut self, component: &T) -> bool;
+    /// Prepare a component for their run (thread safe)
+    fn prepare_component_sync(&mut self, connector: &mut SimConnector, component: &mut T);
     /// Process a component after their run. (thread safe)
     fn process_component_sync(&mut self, connector: &mut SimConnector, component: &mut T);
 }

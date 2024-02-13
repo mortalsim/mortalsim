@@ -43,7 +43,7 @@ pub struct NerveSignal<O: Organism> {
     path: Vec<O::NerveType>,
     message: Box<dyn Event>,
     send_time: SimTime,
-    blocked: bool,
+    message_type_id: TypeId,
 }
 
 impl<O: Organism> NerveSignal<O> {
@@ -73,24 +73,12 @@ impl<O: Organism> NerveSignal<O> {
             path: neural_path,
             message: Box::new(message),
             send_time,
-            blocked: false,
+            message_type_id: TypeId::of::<T>()
         })
     }
 
     pub fn id(&self) -> IdType {
         self.id
-    }
-
-    pub fn is_blocked(&self) -> bool {
-        self.blocked
-    }
-
-    pub fn block(&mut self) {
-        self.blocked = true;
-    }
-
-    pub fn unblock(&mut self) {
-        self.blocked = false;
     }
 
     pub fn neural_path(&self) -> NerveIter<O::NerveType> {
@@ -101,8 +89,8 @@ impl<O: Organism> NerveSignal<O> {
         self.send_time
     }
 
-    pub fn type_id(&self) -> TypeId {
-        self.message.type_id()
+    pub fn message_type_id(&self) -> TypeId {
+        self.message_type_id
     }
 
     pub fn message<T: Event>(&self) -> &'_ T {
@@ -115,6 +103,14 @@ impl<O: Organism> NerveSignal<O> {
         self.message
             .downcast_mut::<T>()
             .expect("Invalid message type")
+    }
+    
+    pub fn dyn_message(&self) -> &dyn Event {
+        self.message.as_ref()
+    }
+
+    pub fn dyn_message_mut(&mut self) -> &mut dyn Event {
+        self.message.as_mut()
     }
 }
 

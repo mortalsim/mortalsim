@@ -1,6 +1,9 @@
 use std::any::{Any, TypeId};
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::mem::swap;
+use std::sync::{Arc, Mutex};
+
+use downcast_rs::Downcast;
 
 use crate::sim::component::SimComponentProcessor;
 use crate::sim::layer::{InternalLayerTrigger, SimLayer};
@@ -21,6 +24,8 @@ pub struct NervousLayer<O: Organism> {
     notify_map: HashMap<&'static str, HashSet<IdType>>,
     /// List of signals staged for delivery to components
     delivery_signals: Vec<NerveSignal<O>>,
+    /// List of signals staged for delivery to components (thread safe)
+    delivery_signals_sync: Vec<Arc<Mutex<NerveSignal<O>>>>,
     /// Signal transformers on given nerve segments
     transforms:
         HashMap<O::NerveType, HashMap<TypeId, HashMap<IdType, Box<dyn NerveSignalTransformer>>>>,
@@ -37,6 +42,7 @@ impl<O: Organism> NervousLayer<O> {
             signal_notifies: HashMap::new(),
             notify_map: HashMap::new(),
             delivery_signals: Vec::new(),
+            delivery_signals_sync: Vec::new(),
             transforms: HashMap::new(),
             pending_signals: BTreeMap::new(),
             internal_trigger_id: None,
@@ -60,14 +66,23 @@ impl<O: Organism> SimLayer for NervousLayer<O> {
         {
             let (_, mut signals) = self.pending_signals.pop_first().unwrap();
             if !signals.is_empty() {
-                // Get the TypeId for these signals
-                let type_id = signals.get(0).unwrap().type_id();
+                'sigloop: for signal in signals.iter_mut() {
+                    for nerve in signal.neural_path().collect::<Vec<_>>().iter() {
 
-                // Determine which components need to be triggered
-                for signal in signals.iter().filter(|s| !s.is_blocked()) {
-                    for nerve in signal.neural_path() {
+                        // Apply any transformations
+                        if let Some(fn_map) = self.transforms.get_mut(&nerve) {
+                            if let Some(transform_list) = fn_map.get_mut(&signal.message_type_id()) {
+                                for (_, transform_box) in transform_list.iter_mut() {
+                                    if None == transform_box.transform(signal.dyn_message_mut()) {
+                                        continue 'sigloop;
+                                    }
+                                }
+                            }
+                        }
+
+                        // Determine which components need to be triggered
                         if let Some(id_map) = self.signal_notifies.get(&nerve) {
-                            if let Some(comp_ids) = id_map.get(&type_id) {
+                            if let Some(comp_ids) = id_map.get(&signal.message_type_id()) {
                                 for cid in comp_ids {
                                     self.notify_map.entry(cid).or_default().insert(signal.id());
                                 }
@@ -113,8 +128,16 @@ impl<O: Organism, T: NervousComponent<O>> SimComponentProcessor<O, T> for Nervou
         }
     }
 
+    fn setup_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {
+        self.setup_component(connector, component)
+    }
+
     fn check_component(&mut self, component: &T) -> bool {
         self.notify_map.contains_key(component.id())
+    }
+
+    fn check_component_sync(&mut self, component: &T) -> bool {
+        self.check_component(component)
     }
 
     fn prepare_component(&mut self, connector: &mut SimConnector, component: &mut T) {
@@ -138,7 +161,7 @@ impl<O: Organism, T: NervousComponent<O>> SimComponentProcessor<O, T> for Nervou
         for signal in incoming_signals {
             n_connector
                 .incoming
-                .entry(signal.type_id())
+                .entry(signal.message_type_id())
                 .or_default()
                 .push(signal);
         }
@@ -147,6 +170,10 @@ impl<O: Organism, T: NervousComponent<O>> SimComponentProcessor<O, T> for Nervou
         n_connector.sim_time = connector.sim_time();
         swap(&mut n_connector.pending_signals, &mut self.pending_signals);
         swap(&mut n_connector.transforms, &mut self.transforms);
+    }
+
+    fn prepare_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {
+        
     }
 
     fn process_component(&mut self, _connector: &mut SimConnector, component: &mut T) {
@@ -200,5 +227,9 @@ impl<O: Organism, T: NervousComponent<O>> SimComponentProcessor<O, T> for Nervou
                 .or_default()
                 .push(signal);
         }
+    }
+
+    fn process_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {
+        
     }
 }

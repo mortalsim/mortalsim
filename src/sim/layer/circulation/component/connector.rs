@@ -1,11 +1,14 @@
+use either::Either;
+
 use crate::sim::organism::Organism;
 use crate::sim::SimTime;
 use crate::substance::substance_wrapper::substance_store_wrapper;
 use crate::substance::{Substance, SubstanceStore};
 use crate::util::IdType;
-use std::borrow::BorrowMut;
+use std::borrow::{Borrow, BorrowMut};
+use std::cell::{RefCell, RefMut};
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, MutexGuard};
 
 #[derive(Default)]
 pub struct BloodStore {
@@ -38,9 +41,9 @@ impl BloodStore {
 
 pub struct CirculationConnector<O: Organism> {
     /// Mapping of `BloodVessel`s to their corresponding `SubstanceStore`
-    pub(crate) vessel_map: HashMap<O::VesselType, BloodStore>,
+    pub(crate) vessel_map: HashMap<O::VesselType, RefCell<BloodStore>>,
     /// Mapping of `BloodVessel`s to their corresponding `SubstanceStore`
-    pub(crate) vessels_sync: Arc<Mutex<HashMap<O::VesselType, Arc<Mutex<BloodStore>>>>>,
+    pub(crate) vessel_map_sync: HashMap<O::VesselType, Arc<Mutex<BloodStore>>>,
     /// indicate whether the Arcs for sync have already been cloned
     pub(crate) synced: bool,
     /// Copy of the current simulation time
@@ -55,7 +58,7 @@ impl<O: Organism> CirculationConnector<O> {
     pub fn new() -> CirculationConnector<O> {
         CirculationConnector {
             vessel_map: HashMap::new(),
-            vessels_sync: Arc::new(Mutex::new(HashMap::new())),
+            vessel_map_sync: HashMap::new(),
             synced: false,
             sim_time: SimTime::from_s(0.0),
             unschedule_all: true,
@@ -63,11 +66,14 @@ impl<O: Organism> CirculationConnector<O> {
     }
 
     /// Retrieves the blood store for the associated vessel
-    pub fn blood_store(&mut self, vessel: &O::VesselType) -> Option<&mut BloodStore> {
-        if let Some(store) = self.vessel_map.get_mut(vessel) {
-            return Some(store)
+    pub fn blood_store(&self, vessel: &O::VesselType) -> Option<Either<RefMut<'_, BloodStore>, MutexGuard<'_, BloodStore>>> {
+
+        if let Some(store) = self.vessel_map.get(vessel) {
+            return Some(Either::Left(store.borrow_mut()));
+        } else if let Some(store) = self.vessel_map_sync.get(vessel) {
+            return Some(Either::Right(store.lock().unwrap()));
         }
-        Some(self.vessels_sync.lock().unwrap().get_mut(vessel)?.lock().unwrap().borrow_mut())
+        None
     }
 
     /// Retrieves the current simulation time

@@ -1,3 +1,4 @@
+use std::cell::RefCell;
 use std::collections::HashMap;
 use std::mem::swap;
 use std::sync::{Arc, Mutex};
@@ -14,8 +15,8 @@ use super::{vessel, BloodStore, CirculationComponent, CirculationInitializer};
 pub struct CirculationLayer<O: Organism> {
     blood_notify_map:
         HashMap<O::VesselType, HashMap<Substance, Vec<(SubstanceConcentration, &'static str)>>>,
-    composition_map: HashMap<O::VesselType, BloodStore>,
-    composition_map_sync: Arc<Mutex<HashMap<O::VesselType, Arc<Mutex<BloodStore>>>>>,
+    composition_map: HashMap<O::VesselType, RefCell<BloodStore>>,
+    composition_map_sync: HashMap<O::VesselType, Arc<Mutex<BloodStore>>>,
     component_settings: HashMap<&'static str, CirculationInitializer<O>>,
 }
 
@@ -25,7 +26,7 @@ impl<O: Organism> CirculationLayer<O> {
         CirculationLayer {
             blood_notify_map: HashMap::new(),
             composition_map: HashMap::new(),
-            composition_map_sync: Arc::new(Mutex::new(HashMap::new())),
+            composition_map_sync: HashMap::new(),
             component_settings: HashMap::new(),
         }
     }
@@ -39,10 +40,10 @@ impl<O: Organism> CirculationLayer<O> {
 
 impl<O: Organism> SimLayer for CirculationLayer<O> {
     fn pre_exec(&mut self, connector: &mut SimConnector) {
-        for (_, store) in self.composition_map.iter_mut() {
-            store.advance(connector.sim_time());
+        for (_, store) in self.composition_map.iter() {
+            store.borrow_mut().advance(connector.sim_time());
         }
-        for (_, store) in self.composition_map_sync.lock().unwrap().iter_mut() {
+        for (_, store) in self.composition_map_sync.iter() {
             store.lock().unwrap().advance(connector.sim_time());
         }
     }
@@ -73,6 +74,31 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessor<O, T> for Ci
         self.component_settings.insert(component.id(), initializer);
     }
 
+    fn setup_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {
+        self.setup_component(connector, component);
+
+        // Copy all relevant Arcs to the component's connector
+        let comp_id = component.id();
+        let comp_settings = self.component_settings.get(component.id()).unwrap();
+        let circulation_connector = component.circulation_connector();
+        circulation_connector.sim_time = connector.sim_time();
+
+        if comp_settings.attach_all {
+            // Clone all of the Arcs into the component's map
+            circulation_connector.vessel_map_sync = self.composition_map_sync.clone();
+        } else {
+            for vessel in self.component_settings.get(comp_id).unwrap().vessel_connections.iter() {
+
+                let store = self.composition_map_sync.entry(*vessel).or_default();
+                circulation_connector
+                    .vessel_map_sync
+                    .entry(*vessel)
+                    .or_insert(store.clone());
+
+            }
+        }
+    }
+
     fn check_component(&mut self, component: &T) -> bool {
         let comp_settings = self.component_settings.get_mut(component.id()).unwrap();
 
@@ -85,6 +111,7 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessor<O, T> for Ci
                     .composition_map
                     .get(vessel)
                     .unwrap()
+                    .borrow()
                     .concentration_of(substance);
                 if tracker.check(val) {
                     trigger = true;
@@ -106,8 +133,6 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessor<O, T> for Ci
             for (substance, tracker) in track_map.iter_mut() {
                 let val = self
                     .composition_map_sync
-                    .lock()
-                    .unwrap()
                     .entry(*vessel)
                     .or_default()
                     .lock()
@@ -124,7 +149,6 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessor<O, T> for Ci
     }
 
     fn prepare_component(&mut self, connector: &mut SimConnector, component: &mut T) {
-        let comp_id = component.id();
         let comp_settings = self.component_settings.get_mut(component.id()).unwrap();
         let circulation_connector = component.circulation_connector();
         circulation_connector.sim_time = connector.sim_time();
@@ -141,35 +165,12 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessor<O, T> for Ci
         }
     }
 
-    fn prepare_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {
-        let comp_id = component.id();
-        let comp_settings = self.component_settings.get(component.id()).unwrap();
-        let circulation_connector = component.circulation_connector();
-        circulation_connector.sim_time = connector.sim_time();
-
-        if comp_settings.attach_all {
-            if !Arc::ptr_eq(&self.composition_map_sync, &circulation_connector.vessels_sync) {
-                circulation_connector.vessels_sync = self.composition_map_sync.clone();
-            }
-        } else if !circulation_connector.synced {
-            for vessel in self.component_settings.get(component.id()).unwrap().vessel_connections.iter() {
-
-                let store = self.composition_map_sync.lock().unwrap().entry(*vessel).or_default();
-                circulation_connector
-                    .vessels_sync
-                    .lock()
-                    .unwrap()
-                    .entry(*vessel)
-                    .or_insert(store.clone());
-
-            }
-
-            circulation_connector.synced = true;
-        }
+    fn prepare_component_sync(&mut self, _connector: &mut SimConnector, _component: &mut T) {
+        // Nothing to do here. Everything is done directly on blood store objects
+        // which are already shared via Arc & Mutex.
     }
 
     fn process_component(&mut self, _: &mut SimConnector, component: &mut T) {
-        let comp_id = component.id();
         let comp_settings = self.component_settings.get(component.id()).unwrap();
         let circulation_connector = component.circulation_connector();
 
@@ -184,13 +185,16 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessor<O, T> for Ci
         }
     }
 
-    fn process_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {
-        // nothing to do here
+    fn process_component_sync(&mut self, _connector: &mut SimConnector, _component: &mut T) {
+        // Nothing to do here. Everything is done directly on blood store objects
+        // which are already shared via Arc & Mutex.
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use std::cell::RefCell;
+
     use super::CirculationLayer;
     use crate::sim::component::{SimComponent, SimComponentProcessor};
     use crate::sim::layer::circulation::component::test::TestCircComponentA;
@@ -218,7 +222,7 @@ mod tests {
         component
             .circulation_connector()
             .vessel_map
-            .insert(TestBloodVessel::VenaCava, BloodStore::new());
+            .insert(TestBloodVessel::VenaCava, RefCell::new(BloodStore::new()));
 
         layer.prepare_component(&mut connector, &mut component);
         component.run();
@@ -231,6 +235,7 @@ mod tests {
             .composition_map
             .get(&TestBloodVessel::VenaCava)
             .unwrap()
+            .borrow()
             .concentration_of(&Substance::GLC);
         let expected = mmol_per_L!(1.0);
         let threshold = mmol_per_L!(0.0001);
@@ -248,6 +253,7 @@ mod tests {
             .composition_map
             .get(&TestBloodVessel::VenaCava)
             .unwrap()
+            .borrow()
             .concentration_of(&Substance::GLC);
         let expected = mmol_per_L!(1.0);
         let threshold = mmol_per_L!(0.0001);

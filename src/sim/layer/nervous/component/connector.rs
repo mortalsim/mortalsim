@@ -10,10 +10,10 @@ use crate::sim::SimTime;
 use crate::util::{IdType, OrderedTime};
 
 pub trait NerveSignalTransformer: Send {
-    fn transform(&mut self, message: &mut dyn Event) -> Option<()>;
+    fn transform(&mut self, message: &'_ mut dyn Event) -> Option<()>;
 }
 
-struct TransformFn<'a, T>(Box<dyn FnMut(&mut T) -> Option<()> + Send + 'a>);
+struct TransformFn<'a, T>(Box<dyn FnMut(&'_ mut T) -> Option<()> + Send + 'a>);
 
 impl<'a, T: Event> NerveSignalTransformer for TransformFn<'a, T> {
     fn transform(&mut self, message: &mut dyn Event) -> Option<()> {
@@ -75,7 +75,7 @@ impl<O: Organism + 'static> NervousConnector<O> {
 
     pub fn send_message<T: Event>(
         &mut self,
-        mut message: T,
+        message: T,
         neural_path: Vec<O::NerveType>,
         send_time: SimTime,
     ) -> anyhow::Result<()> {
@@ -85,29 +85,7 @@ impl<O: Organism + 'static> NervousConnector<O> {
             ));
         }
 
-        let mut block = false;
-
-        // See if we need to transform the outgoing signal
-        for nerve in neural_path.iter() {
-            if let Some(fn_map) = self.transforms.get_mut(nerve) {
-                if let Some(transform_list) = fn_map.get_mut(&TypeId::of::<T>()) {
-                    for (_, transform_box) in transform_list.iter_mut() {
-                        let t = transform_box
-                            .as_any_mut()
-                            .downcast_mut::<TransformFn<T>>()
-                            .unwrap();
-                        if None == t.transform(&mut message) {
-                            block = true;
-                        }
-                    }
-                }
-            }
-        }
-
-        let mut signal = NerveSignal::new(message, neural_path, send_time)?;
-        if block {
-            signal.block();
-        }
+        let signal = NerveSignal::new(message, neural_path, send_time)?;
 
         self.outgoing.push(signal);
         Ok(())
@@ -116,17 +94,8 @@ impl<O: Organism + 'static> NervousConnector<O> {
     pub fn transform_message<T: Event>(
         &mut self,
         nerve: O::NerveType,
-        mut handler: impl (FnMut(&mut T) -> Option<()>) + Send + 'static,
+        handler: impl (FnMut(&mut T) -> Option<()>) + Send + 'static,
     ) {
-        let type_id = TypeId::of::<T>();
-        // Execute on any pending notifications to see if they need to change
-        for (_, signals) in self.pending_signals.iter_mut() {
-            for mut signal in signals.drain(..).filter(|s| s.type_id() == type_id) {
-                if None == handler(signal.message_mut::<T>()) {
-                    signal.block();
-                }
-            }
-        }
 
         self.adding_transforms
             .entry(nerve)

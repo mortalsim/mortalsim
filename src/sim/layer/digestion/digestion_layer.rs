@@ -26,7 +26,7 @@ pub struct DigestionLayer<O: Organism> {
     /// trigger due to a new consumable coming in.
     trigger_map: HashSet<usize>,
     /// Map to track stores in between components
-    consumed_map: BTreeMap<usize, Vec<Consumed>>,
+    consumed_map: HashMap<usize, Vec<Consumed>>,
     /// Consumables staged for elimination
     elimination_list: Vec<(Consumable, DigestionDirection)>,
     /// Internal trigger id to unschedule if needed
@@ -52,7 +52,7 @@ impl<O: Organism> DigestionLayer<O> {
             default_digestion_duration: secs!(60.0),
             component_map: HashMap::new(),
             trigger_map: HashSet::new(),
-            consumed_map: BTreeMap::new(),
+            consumed_map: HashMap::new(),
             elimination_list: Vec::new(),
             internal_trigger_id: None,
         }
@@ -75,7 +75,9 @@ impl<O: Organism> DigestionLayer<O> {
 impl<O: Organism> SimLayer for DigestionLayer<O> {
     fn pre_exec(&mut self, connector: &mut SimConnector) {
         if let Some(id) = self.internal_trigger_id.take() {
-            let _ = connector.time_manager.unschedule_event(&id);
+            // Ignore if it's an Err. This just tries to unschedule
+            // if the scheduled event hasn't already passed.
+            connector.time_manager.unschedule_event(&id).ok();
         }
 
         for evt in connector.active_events.iter() {
@@ -186,9 +188,17 @@ impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessor<O, T> for Dige
             .insert(component.id(), self.component_map.len());
     }
 
+    fn setup_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {
+        self.setup_component(connector, component)
+    }
+
     fn check_component(&mut self, component: &T) -> bool {
         let component_pos = self.component_position(component);
         self.trigger_map.contains(&component_pos)
+    }
+
+    fn check_component_sync(&mut self, component: &T) -> bool {
+        self.check_component(component)
     }
 
     fn prepare_component(&mut self, _connector: &mut SimConnector, component: &mut T) {
@@ -200,6 +210,13 @@ impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessor<O, T> for Dige
             .digestion_connector()
             .consumed_list
             .extend(consumed_list.drain(..));
+    }
+
+    fn prepare_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {
+        // We can do the same thing here as the non-threaded version, since all
+        // consumed items are effectively owned by only one component at a time.
+        // no sharing needed.
+        self.prepare_component(connector, component)
     }
 
     fn process_component(&mut self, _connector: &mut SimConnector, component: &mut T) {
@@ -214,5 +231,12 @@ impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessor<O, T> for Dige
 
         // Reset the trigger
         self.trigger_map.remove(&component_pos);
+    }
+
+    fn process_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {
+        // We can do the same thing here as the non-threaded version, since all
+        // consumed items are effectively owned by only one component at a time.
+        // no sharing needed.
+        self.process_component(connector, component)
     }
 }
