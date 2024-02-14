@@ -1,5 +1,6 @@
 use std::any::{Any, TypeId};
 use std::collections::{BTreeMap, HashMap};
+use std::sync::{Arc, Mutex};
 
 use downcast_rs::Downcast;
 
@@ -24,15 +25,10 @@ impl<'a, T: Event> NerveSignalTransformer for TransformFn<'a, T> {
 pub struct NervousConnector<O: Organism> {
     /// Copy of the current simulation time
     pub(crate) sim_time: SimTime,
-    /// Map of pending notifications. Note this is included here because
-    /// only the component has type context to accurately execute transformations
-    /// on previously scheduled signals.
-    pub(crate) pending_signals: BTreeMap<OrderedTime, Vec<NerveSignal<O>>>,
-    /// Signal transformers on given nerve segments
-    pub(crate) transforms:
-        HashMap<O::NerveType, HashMap<TypeId, HashMap<IdType, Box<dyn NerveSignalTransformer>>>>,
     /// Incoming signals
     pub(crate) incoming: HashMap<TypeId, Vec<NerveSignal<O>>>,
+    /// Incoming signals (thread safe)
+    pub(crate) incoming_sync: HashMap<TypeId, Vec<Arc<Mutex<NerveSignal<O>>>>>,
     /// Outgoing signals
     pub(crate) outgoing: Vec<NerveSignal<O>>,
     /// Transformations to add
@@ -51,12 +47,11 @@ impl<O: Organism + 'static> NervousConnector<O> {
         Self {
             sim_time: SimTime::from_s(0.0),
             incoming: HashMap::new(),
+            incoming_sync: HashMap::new(),
             outgoing: Vec::new(),
-            transforms: HashMap::new(),
             adding_transforms: HashMap::new(),
             registered_transforms: HashMap::new(),
             removing_transforms: HashMap::new(),
-            pending_signals: BTreeMap::new(),
             empty: Vec::new(),
         }
     }

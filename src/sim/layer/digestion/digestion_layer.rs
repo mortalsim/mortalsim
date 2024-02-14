@@ -160,6 +160,10 @@ impl<O: Organism> SimLayer for DigestionLayer<O> {
         }
     }
 
+    fn pre_exec_sync(&mut self, connector: &mut SimConnector) {
+        self.pre_exec(connector)
+    }
+
     fn post_exec(&mut self, connector: &mut SimConnector) {
         if let Some(min_consumed) = self
             .consumed_map
@@ -176,6 +180,10 @@ impl<O: Organism> SimLayer for DigestionLayer<O> {
                 .schedule_event(delay, Box::new(InternalLayerTrigger));
             self.internal_trigger_id = Some(id);
         }
+    }
+
+    fn post_exec_sync(&mut self, connector: &mut SimConnector) {
+        self.post_exec(connector)
     }
 }
 

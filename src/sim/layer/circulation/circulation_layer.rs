@@ -48,8 +48,16 @@ impl<O: Organism> SimLayer for CirculationLayer<O> {
         }
     }
 
+    fn pre_exec_sync(&mut self, connector: &mut SimConnector) {
+        self.pre_exec(connector)
+    }
+
     fn post_exec(&mut self, _connector: &mut SimConnector) {
-        // Nohing to do here
+        // Nothing to do here
+    }
+
+    fn post_exec_sync(&mut self, _connector: &mut SimConnector) {
+        // Nothing to do here
     }
 }
 

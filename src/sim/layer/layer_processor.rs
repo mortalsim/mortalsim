@@ -39,12 +39,28 @@ impl<O: Organism> SimLayer for LayerProcessor<O> {
             Self::Nervous(layer) => layer.pre_exec(connector),
         }
     }
+    fn pre_exec_sync(&mut self, connector: &mut crate::sim::SimConnector) {
+        match self {
+            Self::Core(layer) => layer.pre_exec_sync(connector),
+            Self::Circulation(layer) => layer.pre_exec_sync(connector),
+            Self::Digestion(layer) => layer.pre_exec_sync(connector),
+            Self::Nervous(layer) => layer.pre_exec_sync(connector),
+        }
+    }
     fn post_exec(&mut self, connector: &mut crate::sim::SimConnector) {
         match self {
             Self::Core(layer) => layer.post_exec(connector),
             Self::Circulation(layer) => layer.post_exec(connector),
             Self::Digestion(layer) => layer.post_exec(connector),
             Self::Nervous(layer) => layer.post_exec(connector),
+        }
+    }
+    fn post_exec_sync(&mut self, connector: &mut crate::sim::SimConnector) {
+        match self {
+            Self::Core(layer) => layer.post_exec_sync(connector),
+            Self::Circulation(layer) => layer.post_exec_sync(connector),
+            Self::Digestion(layer) => layer.post_exec_sync(connector),
+            Self::Nervous(layer) => layer.post_exec_sync(connector),
         }
     }
 }

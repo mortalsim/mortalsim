@@ -175,7 +175,7 @@ impl<O: Organism + 'static> LayerManager<O> {
 
     fn update_threaded(&mut self, connector: &mut SimConnector) {
         for layer in self.layers_sync.iter_mut() {
-            layer.lock().unwrap().pre_exec(connector);
+            layer.lock().unwrap().pre_exec_sync(connector);
         }
 
         let mut update_list = Vec::new();
@@ -188,7 +188,7 @@ impl<O: Organism + 'static> LayerManager<O> {
 
             // If any of the supported layers indicate the component should be
             // triggered, add the component to the update list
-            if check_list.any(|l| l.lock().unwrap().check_component(component)) {
+            if check_list.any(|l| l.lock().unwrap().check_component_sync(component)) {
                 update_list.push(component);
             }
         }
@@ -207,7 +207,7 @@ impl<O: Organism + 'static> LayerManager<O> {
                         .collect();
 
                     for layer in layer_list.iter_mut() {
-                        layer.lock().unwrap().prepare_component(mconnector.lock().unwrap().borrow_mut(), component);
+                        layer.lock().unwrap().prepare_component_sync(mconnector.lock().unwrap().borrow_mut(), component);
                     }
 
                     // Execute component logic
@@ -215,7 +215,7 @@ impl<O: Organism + 'static> LayerManager<O> {
 
                     // Execute post run processing
                     for layer in layer_list.iter_mut() {
-                        layer.lock().unwrap().process_component(mconnector.lock().unwrap().borrow_mut(), component);
+                        layer.lock().unwrap().process_component_sync(mconnector.lock().unwrap().borrow_mut(), component);
                     }
                 });
             }
@@ -223,7 +223,7 @@ impl<O: Organism + 'static> LayerManager<O> {
 
         let reclaimed_connector = mconnector.into_inner().unwrap();
         for layer in self.layers_sync.iter_mut() {
-            layer.lock().unwrap().post_exec(reclaimed_connector);
+            layer.lock().unwrap().post_exec_sync(reclaimed_connector);
         }
     }
 

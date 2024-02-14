@@ -121,11 +121,19 @@ impl<O: Organism> SimLayer for CoreLayer<O> {
             })
     }
 
+    fn pre_exec_sync(&mut self, connector: &mut SimConnector) {
+        self.pre_exec(connector)
+    }
+
     fn post_exec(&mut self, connector: &mut SimConnector) {
         // update state
         for evt in connector.active_events.drain(..) {
             connector.state.put_state(evt);
         }
+    }
+
+    fn post_exec_sync(&mut self, connector: &mut SimConnector) {
+        self.post_exec(connector)
     }
 
 }
