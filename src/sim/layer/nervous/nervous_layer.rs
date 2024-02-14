@@ -5,8 +5,8 @@ use std::sync::{Arc, Mutex};
 
 use downcast_rs::Downcast;
 
-use crate::sim::component::SimComponentProcessor;
-use crate::sim::layer::{InternalLayerTrigger, SimLayer};
+use crate::sim::component::{SimComponentProcessor, SimComponentProcessorSync};
+use crate::sim::layer::{InternalLayerTrigger, SimLayer, SimLayerSync};
 use crate::sim::organism::Organism;
 use crate::sim::SimConnector;
 use crate::util::{secs, IdGenerator, IdType, OrderedTime};
@@ -150,18 +150,6 @@ impl<O: Organism> SimLayer for NervousLayer<O> {
         }
     }
 
-    fn pre_exec_sync(&mut self, connector: &mut SimConnector) {
-        self.pre_exec(connector);
-
-        self.delivery_signals_sync.extend(
-            self.delivery_signals
-            .drain(..)
-            .map(|s| {
-                Arc::new(Mutex::new(s))
-            })
-        );
-    }
-
     fn post_exec(&mut self, connector: &mut SimConnector) {
         if let Some(min_time) = self.pending_signals.keys().min() {
             let mut delay = secs!(0.0);
@@ -173,6 +161,21 @@ impl<O: Organism> SimLayer for NervousLayer<O> {
                 .schedule_event(delay, Box::new(InternalLayerTrigger));
             self.internal_trigger_id = Some(id);
         }
+    }
+
+}
+
+impl<O: Organism> SimLayerSync for NervousLayer<O> {
+    fn pre_exec_sync(&mut self, connector: &mut SimConnector) {
+        self.pre_exec(connector);
+
+        self.delivery_signals_sync.extend(
+            self.delivery_signals
+            .drain(..)
+            .map(|s| {
+                Arc::new(Mutex::new(s))
+            })
+        );
     }
 
     fn post_exec_sync(&mut self, connector: &mut SimConnector) {
@@ -197,16 +200,8 @@ impl<O: Organism, T: NervousComponent<O>> SimComponentProcessor<O, T> for Nervou
         }
     }
 
-    fn setup_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {
-        self.setup_component(connector, component)
-    }
-
     fn check_component(&mut self, component: &T) -> bool {
         self.notify_map.contains_key(component.id())
-    }
-
-    fn check_component_sync(&mut self, component: &T) -> bool {
-        self.check_component(component)
     }
 
     fn prepare_component(&mut self, connector: &mut SimConnector, component: &mut T) {
@@ -232,6 +227,26 @@ impl<O: Organism, T: NervousComponent<O>> SimComponentProcessor<O, T> for Nervou
         }
     }
 
+    fn process_component(&mut self, connector: &mut SimConnector, component: &mut T) {
+        self.process_connector(connector, component);
+
+        // Move the signals back into our signal list in case other components need them
+        for (_, mut signals) in component.nervous_connector().incoming.drain() {
+            self.delivery_signals.append(&mut signals);
+        }
+    }
+
+}
+
+impl<O: Organism, T: NervousComponent<O>> SimComponentProcessorSync<O, T> for NervousLayer<O> {
+    fn setup_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {
+        self.setup_component(connector, component)
+    }
+
+    fn check_component_sync(&mut self, component: &T) -> bool {
+        self.check_component(component)
+    }
+
     fn prepare_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {
         let incoming = self.prepare_connector(connector, component);
 
@@ -249,15 +264,6 @@ impl<O: Organism, T: NervousComponent<O>> SimComponentProcessor<O, T> for Nervou
                 .entry(signal.lock().unwrap().message_type_id())
                 .or_default()
                 .push(signal.clone());
-        }
-    }
-
-    fn process_component(&mut self, connector: &mut SimConnector, component: &mut T) {
-        self.process_connector(connector, component);
-
-        // Move the signals back into our signal list in case other components need them
-        for (_, mut signals) in component.nervous_connector().incoming.drain() {
-            self.delivery_signals.append(&mut signals);
         }
     }
 

@@ -40,6 +40,10 @@ pub trait SimLayer: Send {
     fn pre_exec(&mut self, connector: &mut SimConnector);
     /// Process layer actions after component processing
     fn post_exec(&mut self, connector: &mut SimConnector);
+}
+
+/// Trait to outline common methods for all sim layers (thread safe)
+pub trait SimLayerSync: Send {
     /// Process layer actions prior to component processing (thread safe)
     fn pre_exec_sync(&mut self, connector: &mut SimConnector);
     /// Process layer actions after component processing (thread safe)

@@ -6,18 +6,18 @@ use std::thread::{scope, Scope};
 use strum::VariantArray;
 
 use crate::sim::component::registry::{ComponentRegistry, ComponentWrapper};
-use crate::sim::component::{SimComponent, SimComponentProcessor};
+use crate::sim::component::{SimComponent, SimComponentProcessor, SimComponentProcessorSync};
 use crate::sim::layer::SimLayer;
 use crate::sim::{Organism, SimConnector};
 
-use super::layer_processor::LayerProcessor;
-use super::LayerType;
+use super::layer_processor::{LayerProcessor, LayerProcessorSync};
+use super::{LayerType, SimLayerSync};
 use super::LayerType::*;
 
 pub struct LayerManager<O: Organism> {
     registry: ComponentRegistry<O>,
     layers: Vec<LayerProcessor<O>>,
-    layers_sync: Vec<Mutex<LayerProcessor<O>>>,
+    layers_sync: Vec<Mutex<LayerProcessorSync<O>>>,
     missing_layers: Vec<&'static LayerType>,
 }
 
@@ -41,10 +41,10 @@ impl<O: Organism + 'static> LayerManager<O> {
             registry: ComponentRegistry::new(),
             layers: Vec::new(),
             layers_sync: vec![
-                Mutex::new(LayerProcessor::new(Core)),
-                Mutex::new(LayerProcessor::new(Circulation)),
-                Mutex::new(LayerProcessor::new(Digestion)),
-                Mutex::new(LayerProcessor::new(Nervous)),
+                Mutex::new(LayerProcessorSync::new(Core)),
+                Mutex::new(LayerProcessorSync::new(Circulation)),
+                Mutex::new(LayerProcessorSync::new(Digestion)),
+                Mutex::new(LayerProcessorSync::new(Nervous)),
             ],
             missing_layers: Vec::new(),
         }
@@ -76,12 +76,12 @@ impl<O: Organism + 'static> LayerManager<O> {
 
     pub fn new_custom_threaded(mut layer_types: HashSet<LayerType>) -> Self {
         // always include Core
-        let mut layers = vec![Mutex::new(LayerProcessor::new(Core))];
+        let mut layers = vec![Mutex::new(LayerProcessorSync::new(Core))];
 
         // Make sure we don't add Core twice
         layer_types.remove(&Core);
 
-        layers.extend(layer_types.iter().map(|lt| Mutex::new(LayerProcessor::new(*lt))));
+        layers.extend(layer_types.iter().map(|lt| Mutex::new(LayerProcessorSync::new(*lt))));
 
         Self {
             registry: ComponentRegistry::new(),
@@ -201,7 +201,7 @@ impl<O: Organism + 'static> LayerManager<O> {
                 s.spawn(|| {
                     // Prepare the component with each of the associated layers
                     // have to collect here to avoid conflicting borrows of component
-                    let mut layer_list: Vec<&Mutex<LayerProcessor<O>>> = layers
+                    let mut layer_list: Vec<&Mutex<LayerProcessorSync<O>>> = layers
                         .iter()
                         .filter(|l| component.has_layer(&l.lock().unwrap().layer_type()))
                         .collect();

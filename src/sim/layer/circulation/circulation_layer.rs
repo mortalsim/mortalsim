@@ -3,8 +3,8 @@ use std::collections::HashMap;
 use std::mem::swap;
 use std::sync::{Arc, Mutex};
 
-use crate::sim::component::SimComponentProcessor;
-use crate::sim::layer::SimLayer;
+use crate::sim::component::{SimComponentProcessor, SimComponentProcessorSync};
+use crate::sim::layer::{SimLayer, SimLayerSync};
 use crate::sim::organism::Organism;
 use crate::sim::SimConnector;
 use crate::substance::{Substance, SubstanceConcentration, SubstanceStore};
@@ -48,12 +48,14 @@ impl<O: Organism> SimLayer for CirculationLayer<O> {
         }
     }
 
-    fn pre_exec_sync(&mut self, connector: &mut SimConnector) {
-        self.pre_exec(connector)
-    }
-
     fn post_exec(&mut self, _connector: &mut SimConnector) {
         // Nothing to do here
+    }
+}
+
+impl<O:Organism> SimLayerSync for CirculationLayer<O> {
+    fn pre_exec_sync(&mut self, connector: &mut SimConnector) {
+        self.pre_exec(connector)
     }
 
     fn post_exec_sync(&mut self, _connector: &mut SimConnector) {
@@ -82,31 +84,6 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessor<O, T> for Ci
         self.component_settings.insert(component.id(), initializer);
     }
 
-    fn setup_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {
-        self.setup_component(connector, component);
-
-        // Copy all relevant Arcs to the component's connector
-        let comp_id = component.id();
-        let comp_settings = self.component_settings.get(component.id()).unwrap();
-        let circulation_connector = component.circulation_connector();
-        circulation_connector.sim_time = connector.sim_time();
-
-        if comp_settings.attach_all {
-            // Clone all of the Arcs into the component's map
-            circulation_connector.vessel_map_sync = self.composition_map_sync.clone();
-        } else {
-            for vessel in self.component_settings.get(comp_id).unwrap().vessel_connections.iter() {
-
-                let store = self.composition_map_sync.entry(*vessel).or_default();
-                circulation_connector
-                    .vessel_map_sync
-                    .entry(*vessel)
-                    .or_insert(store.clone());
-
-            }
-        }
-    }
-
     fn check_component(&mut self, component: &T) -> bool {
         let comp_settings = self.component_settings.get_mut(component.id()).unwrap();
 
@@ -120,31 +97,6 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessor<O, T> for Ci
                     .get(vessel)
                     .unwrap()
                     .borrow()
-                    .concentration_of(substance);
-                if tracker.check(val) {
-                    trigger = true;
-                    tracker.update(val)
-                }
-            }
-        }
-
-        trigger
-    }
-
-    fn check_component_sync(&mut self, component: &T) -> bool {
-        let comp_settings = self.component_settings.get_mut(component.id()).unwrap();
-
-        let mut trigger = false;
-
-        // Determine if any substances have changed beyond the threshold
-        for (vessel, track_map) in comp_settings.substance_notifies.iter_mut() {
-            for (substance, tracker) in track_map.iter_mut() {
-                let val = self
-                    .composition_map_sync
-                    .entry(*vessel)
-                    .or_default()
-                    .lock()
-                    .unwrap()
                     .concentration_of(substance);
                 if tracker.check(val) {
                     trigger = true;
@@ -173,11 +125,6 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessor<O, T> for Ci
         }
     }
 
-    fn prepare_component_sync(&mut self, _connector: &mut SimConnector, _component: &mut T) {
-        // Nothing to do here. Everything is done directly on blood store objects
-        // which are already shared via Arc & Mutex.
-    }
-
     fn process_component(&mut self, _: &mut SimConnector, component: &mut T) {
         let comp_settings = self.component_settings.get(component.id()).unwrap();
         let circulation_connector = component.circulation_connector();
@@ -191,6 +138,63 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessor<O, T> for Ci
                 self.composition_map.insert(*vessel, store);
             }
         }
+    }
+}
+
+impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessorSync<O, T> for CirculationLayer<O> {
+    fn setup_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {
+        self.setup_component(connector, component);
+
+        // Copy all relevant Arcs to the component's connector
+        let comp_id = component.id();
+        let comp_settings = self.component_settings.get(component.id()).unwrap();
+        let circulation_connector = component.circulation_connector();
+        circulation_connector.sim_time = connector.sim_time();
+
+        if comp_settings.attach_all {
+            // Clone all of the Arcs into the component's map
+            circulation_connector.vessel_map_sync = self.composition_map_sync.clone();
+        } else {
+            for vessel in self.component_settings.get(comp_id).unwrap().vessel_connections.iter() {
+
+                let store = self.composition_map_sync.entry(*vessel).or_default();
+                circulation_connector
+                    .vessel_map_sync
+                    .entry(*vessel)
+                    .or_insert(store.clone());
+
+            }
+        }
+    }
+
+    fn check_component_sync(&mut self, component: &T) -> bool {
+        let comp_settings = self.component_settings.get_mut(component.id()).unwrap();
+
+        let mut trigger = false;
+
+        // Determine if any substances have changed beyond the threshold
+        for (vessel, track_map) in comp_settings.substance_notifies.iter_mut() {
+            for (substance, tracker) in track_map.iter_mut() {
+                let val = self
+                    .composition_map_sync
+                    .entry(*vessel)
+                    .or_default()
+                    .lock()
+                    .unwrap()
+                    .concentration_of(substance);
+                if tracker.check(val) {
+                    trigger = true;
+                    tracker.update(val)
+                }
+            }
+        }
+
+        trigger
+    }
+
+    fn prepare_component_sync(&mut self, _connector: &mut SimConnector, _component: &mut T) {
+        // Nothing to do here. Everything is done directly on blood store objects
+        // which are already shared via Arc & Mutex.
     }
 
     fn process_component_sync(&mut self, _connector: &mut SimConnector, _component: &mut T) {

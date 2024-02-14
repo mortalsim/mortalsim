@@ -1,5 +1,5 @@
-use crate::sim::component::{SimComponent, SimComponentProcessor};
-use crate::sim::layer::{InternalLayerTrigger, SimLayer};
+use crate::sim::component::{SimComponent, SimComponentProcessor, SimComponentProcessorSync};
+use crate::sim::layer::{InternalLayerTrigger, SimLayer, SimLayerSync};
 use crate::sim::organism::Organism;
 use crate::sim::{SimConnector, SimTime};
 use crate::util::{secs, IdType};
@@ -160,10 +160,6 @@ impl<O: Organism> SimLayer for DigestionLayer<O> {
         }
     }
 
-    fn pre_exec_sync(&mut self, connector: &mut SimConnector) {
-        self.pre_exec(connector)
-    }
-
     fn post_exec(&mut self, connector: &mut SimConnector) {
         if let Some(min_consumed) = self
             .consumed_map
@@ -182,6 +178,13 @@ impl<O: Organism> SimLayer for DigestionLayer<O> {
         }
     }
 
+}
+
+impl<O: Organism> SimLayerSync for DigestionLayer<O> {
+    fn pre_exec_sync(&mut self, connector: &mut SimConnector) {
+        self.pre_exec(connector)
+    }
+
     fn post_exec_sync(&mut self, connector: &mut SimConnector) {
         self.post_exec(connector)
     }
@@ -196,17 +199,9 @@ impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessor<O, T> for Dige
             .insert(component.id(), self.component_map.len());
     }
 
-    fn setup_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {
-        self.setup_component(connector, component)
-    }
-
     fn check_component(&mut self, component: &T) -> bool {
         let component_pos = self.component_position(component);
         self.trigger_map.contains(&component_pos)
-    }
-
-    fn check_component_sync(&mut self, component: &T) -> bool {
-        self.check_component(component)
     }
 
     fn prepare_component(&mut self, _connector: &mut SimConnector, component: &mut T) {
@@ -218,13 +213,6 @@ impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessor<O, T> for Dige
             .digestion_connector()
             .consumed_list
             .extend(consumed_list.drain(..));
-    }
-
-    fn prepare_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {
-        // We can do the same thing here as the non-threaded version, since all
-        // consumed items are effectively owned by only one component at a time.
-        // no sharing needed.
-        self.prepare_component(connector, component)
     }
 
     fn process_component(&mut self, _connector: &mut SimConnector, component: &mut T) {
@@ -241,10 +229,25 @@ impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessor<O, T> for Dige
         self.trigger_map.remove(&component_pos);
     }
 
+}
+
+// We can do the same thing here as the non-threaded version, since all
+// consumed items are effectively owned by only one component at a time.
+// no sharing needed.
+impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessorSync<O, T> for DigestionLayer<O> {
+    fn setup_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {
+        self.setup_component(connector, component)
+    }
+
+    fn check_component_sync(&mut self, component: &T) -> bool {
+        self.check_component(component)
+    }
+
+    fn prepare_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {
+        self.prepare_component(connector, component)
+    }
+
     fn process_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {
-        // We can do the same thing here as the non-threaded version, since all
-        // consumed items are effectively owned by only one component at a time.
-        // no sharing needed.
         self.process_component(connector, component)
     }
 }

@@ -1,5 +1,5 @@
-use crate::sim::component::SimComponentProcessor;
-use crate::sim::layer::{InternalLayerTrigger, SimLayer};
+use crate::sim::component::{SimComponentProcessor, SimComponentProcessorSync};
+use crate::sim::layer::{InternalLayerTrigger, SimLayer, SimLayerSync};
 use crate::sim::organism::Organism;
 use crate::sim::SimConnector;
 use crate::util::id_gen::IdType;
@@ -121,15 +121,18 @@ impl<O: Organism> SimLayer for CoreLayer<O> {
             })
     }
 
-    fn pre_exec_sync(&mut self, connector: &mut SimConnector) {
-        self.pre_exec(connector)
-    }
-
     fn post_exec(&mut self, connector: &mut SimConnector) {
         // update state
         for evt in connector.active_events.drain(..) {
             connector.state.put_state(evt);
         }
+    }
+}
+
+
+impl<O: Organism> SimLayerSync for CoreLayer<O> {
+    fn pre_exec_sync(&mut self, connector: &mut SimConnector) {
+        self.pre_exec(connector)
     }
 
     fn post_exec_sync(&mut self, connector: &mut SimConnector) {
@@ -164,17 +167,9 @@ impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer
         }
     }
 
-    fn setup_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {
-        self.setup_component(connector, component)
-    }
-
     fn check_component(&mut self, component: &T) -> bool {
         // Trigger the module only if the notify_list is non empty
         self.notify_map.contains_key(component.id())
-    }
-
-    fn check_component_sync(&mut self, component: &T) -> bool {
-        self.check_component(component)
     }
 
     fn prepare_component(&mut self, connector: &mut SimConnector, component: &mut T) {
@@ -184,19 +179,30 @@ impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer
         swap(&mut connector.state, &mut component.core_connector().sim_state);
     }
 
+    fn process_component(&mut self, connector: &mut SimConnector, component: &mut T) {
+        // Swap back state with the connector
+        swap(&mut connector.state, &mut component.core_connector().sim_state);
+
+        self.process_connector(connector, component)
+    }
+
+}
+
+impl<O: Organism, T: CoreComponent<O>> SimComponentProcessorSync<O, T> for CoreLayer<O> {
+    fn setup_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {
+        self.setup_component(connector, component)
+    }
+
+    fn check_component_sync(&mut self, component: &T) -> bool {
+        self.check_component(component)
+    }
+
     fn prepare_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {
         self.prep_connector(connector, component);
         
         // Merge the events which were modified since the last update into the
         // component's copy of state
         component.core_connector().sim_state.merge_tainted(&mut connector.state);
-    }
-
-    fn process_component(&mut self, connector: &mut SimConnector, component: &mut T) {
-        // Swap back state with the connector
-        swap(&mut connector.state, &mut component.core_connector().sim_state);
-
-        self.process_connector(connector, component)
     }
 
     fn process_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {

@@ -25,6 +25,11 @@ pub trait SimComponentProcessor<O: Organism, T: SimComponent<O>> {
     fn prepare_component(&mut self, connector: &mut SimConnector, component: &mut T);
     /// Process a component after their run.
     fn process_component(&mut self, connector: &mut SimConnector, component: &mut T);
+}
+
+/// Trait to outline common methods for all layers that
+/// process `SimComponent`s (thread safe)
+pub trait SimComponentProcessorSync<O: Organism, T: SimComponent<O>> {
     /// Execute initial setup for a component (thread safe)
     fn setup_component_sync(&mut self, connector: &mut SimConnector, component: &mut T);
     /// Indicate if the given component should trigger a run (thread safe)
@@ -34,10 +39,6 @@ pub trait SimComponentProcessor<O: Organism, T: SimComponent<O>> {
     /// Process a component after their run. (thread safe)
     fn process_component_sync(&mut self, connector: &mut SimConnector, component: &mut T);
 }
-
-// pub trait SimComponentFactory<O: Organism> {
-//     fn attach_new(&mut self, registry: &mut ComponentRegistry<O>);
-// }
 
 pub struct ComponentFactory<'a, O: Organism> {
     /// Container for the factory function
