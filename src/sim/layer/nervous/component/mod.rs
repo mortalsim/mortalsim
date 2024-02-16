@@ -4,7 +4,7 @@ use crate::sim::organism::Organism;
 mod connector;
 mod initializer;
 
-pub use connector::{NerveSignalTransformer, NervousConnector};
+pub use connector::NervousConnector;
 pub use initializer::NervousInitializer;
 
 pub trait NervousComponent<O: Organism>: SimComponent<O> {

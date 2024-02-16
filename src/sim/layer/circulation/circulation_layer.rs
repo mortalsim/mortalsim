@@ -206,13 +206,14 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessorSync<O, T> fo
 #[cfg(test)]
 mod tests {
     use std::cell::RefCell;
+    use std::sync::{Arc, Mutex};
 
     use super::CirculationLayer;
-    use crate::sim::component::{SimComponent, SimComponentProcessor};
+    use crate::sim::component::{SimComponent, SimComponentProcessor, SimComponentProcessorSync};
     use crate::sim::layer::circulation::component::test::TestCircComponentA;
     use crate::sim::layer::circulation::vessel::test::TestBloodVessel;
     use crate::sim::layer::circulation::{BloodStore, CirculationComponent};
-    use crate::sim::layer::SimLayer;
+    use crate::sim::layer::{SimLayer, SimLayerSync};
     use crate::sim::organism::test::TestSim;
     use crate::sim::test::TestOrganism;
     use crate::sim::{SimConnector, SimTime};
@@ -275,5 +276,26 @@ mod tests {
             threshold,
             expected
         );
+    }
+
+    #[test]
+    fn test_layer_process_sync() {
+        let mut layer = CirculationLayer::<TestOrganism>::new();
+        let mut component = TestCircComponentA::new();
+        let mut connector = SimConnector::new();
+        layer.setup_component_sync(&mut connector, &mut component);
+
+        component
+            .circulation_connector()
+            .vessel_map_sync
+            .insert(TestBloodVessel::VenaCava, Arc::new(Mutex::new(BloodStore::new())));
+
+        layer.pre_exec_sync(&mut connector);
+
+        layer.prepare_component_sync(&mut connector, &mut component);
+        component.run();
+        layer.process_component_sync(&mut connector, &mut component);
+
+        layer.post_exec_sync(&mut connector);
     }
 }

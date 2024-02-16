@@ -6,21 +6,11 @@ use downcast_rs::Downcast;
 
 use crate::event::Event;
 use crate::sim::layer::nervous::nerve::NerveSignal;
+use crate::sim::layer::nervous::transform::TransformFn;
+use crate::sim::layer::nervous::NerveSignalTransformer;
 use crate::sim::organism::Organism;
 use crate::sim::SimTime;
 use crate::util::{IdType, OrderedTime};
-
-pub trait NerveSignalTransformer: Send {
-    fn transform(&mut self, message: &'_ mut dyn Event) -> Option<()>;
-}
-
-struct TransformFn<'a, T>(Box<dyn FnMut(&'_ mut T) -> Option<()> + Send + 'a>);
-
-impl<'a, T: Event> NerveSignalTransformer for TransformFn<'a, T> {
-    fn transform(&mut self, message: &mut dyn Event) -> Option<()> {
-        self.0(message.downcast_mut::<T>().unwrap())
-    }
-}
 
 pub struct NervousConnector<O: Organism> {
     /// Copy of the current simulation time

@@ -1,8 +1,11 @@
-pub mod registry;
+pub(crate) mod registry;
+pub(crate) mod factory;
 
-use self::registry::ComponentRegistry;
 use super::organism::Organism;
 use super::SimConnector;
+
+pub use registry::ComponentRegistry;
+pub use factory::ComponentFactory;
 
 /// Common trait for all simulation components
 pub trait SimComponent<O: Organism>: Send {
@@ -38,26 +41,4 @@ pub trait SimComponentProcessorSync<O: Organism, T: SimComponent<O>> {
     fn prepare_component_sync(&mut self, connector: &mut SimConnector, component: &mut T);
     /// Process a component after their run. (thread safe)
     fn process_component_sync(&mut self, connector: &mut SimConnector, component: &mut T);
-}
-
-pub struct ComponentFactory<'a, O: Organism> {
-    /// Container for the factory function
-    attach_fn: Box<dyn FnMut(&mut ComponentRegistry<O>) + 'a + Send>,
-}
-
-impl<'a, O: Organism + 'static> ComponentFactory<'a, O> {
-    pub fn new<T: SimComponent<O>>(mut factory: impl FnMut() -> T + 'a + Send) -> Self {
-        Self {
-            // Magic happens here. We get compile-time assurance and usage
-            // of the actual ComponentFactory type while also encapsulating
-            // the factory for dynamic dispatch
-            attach_fn: Box::new(move |registry: &mut ComponentRegistry<O>| {
-                registry.add_component(factory()).unwrap();
-            }),
-        }
-    }
-
-    pub fn attach(&mut self, registry: &mut ComponentRegistry<O>) {
-        self.attach_fn.as_mut()(registry);
-    }
 }

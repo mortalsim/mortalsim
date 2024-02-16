@@ -1,11 +1,11 @@
 use crate::sim::component::SimComponent;
 use crate::sim::organism::Organism;
 
-pub mod connector;
-pub mod initializer;
+mod connector;
+mod initializer;
 
-pub use self::connector::DigestionConnector;
-pub use self::initializer::DigestionInitializer;
+pub use connector::DigestionConnector;
+pub use initializer::DigestionInitializer;
 
 pub trait DigestionComponent<O: Organism>: SimComponent<O> {
     /// Initializes the module. Currently not used.

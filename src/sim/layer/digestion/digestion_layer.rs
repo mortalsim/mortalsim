@@ -6,9 +6,9 @@ use crate::util::{secs, IdType};
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::marker::PhantomData;
 
-use super::component::connector::Consumed;
 use super::component::{DigestionComponent, DigestionInitializer};
 use super::consumable::Consumable;
+use super::consumed::Consumed;
 use super::{ConsumeEvent, DigestionDirection, EliminateEvent};
 
 type ConsumableId = IdType;

@@ -6,7 +6,6 @@ pub use impl_sim::*;
 
 #[cfg(test)]
 pub mod test;
-
 pub mod human;
 
 pub trait Organism: Send {

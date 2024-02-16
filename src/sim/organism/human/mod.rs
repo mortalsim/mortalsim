@@ -1,13 +1,10 @@
 mod human_anatomy;
-pub use human_anatomy::HumanAnatomicalRegion;
-
 mod human_circulation;
-pub use human_circulation::HumanBloodVessel;
-
 mod human_nervous;
-pub use human_nervous::HumanNerve;
 
-use crate::sim::layer::LayerManager;
+pub use human_circulation::HumanBloodVessel;
+pub use human_anatomy::HumanAnatomicalRegion;
+pub use human_nervous::HumanNerve;
 
 use super::{impl_sim, Organism};
 
