@@ -1,14 +1,21 @@
 {
-  "name": "desbios_circulation_processor",
+  "name": "mortalsim_scripts",
   "version": "1.0.0",
   "description": "",
-  "main": "circulation_processor.js",
+  "main": "registry_generator.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "all": "concurrently \"npm run registry\" \"npm run anatomy\" \"npm run circulation\" \"npm run nervous\"",
+    "registry": "node registry_generator.js",
+    "anatomy": "node anatomy_writer.js",
+    "circulation": "node circulation_writer.js",
+    "nervous": "node nervous_writer.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "yaml": "^2.3.1"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
   }
 }
