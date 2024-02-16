@@ -12,7 +12,7 @@ pub struct CoreConnector<O: Organism> {
     pd: PhantomData<O>,
     /// State specific to the connected module
     pub(crate) sim_state: SimState,
-    /// Holds a shared reference to the Event which triggered module execution
+    /// Holds a list of Event types which triggered module execution, if applicable
     pub(crate) trigger_events: Vec<TypeId>,
     /// Map of scheduled event identifiers
     pub(crate) scheduled_events: HashMap<TypeId, HashMap<IdType, SimTime>>,
@@ -101,16 +101,9 @@ impl<O: Organism> CoreConnector<O> {
         self.sim_time
     }
 
-    /// Retrieves the current `Event` object from state as an Arc
-    pub fn get<E: Event>(&self) -> Option<Box<E>> {
-        match self
-            .sim_state
-            .get_state_ref(&TypeId::of::<E>())?
-            .downcast::<E>()
-        {
-            Err(_) => None,
-            Ok(typed_evt_rc) => Some(typed_evt_rc),
-        }
+    /// Retrieves a clone of the current `Event` object from state
+    pub fn get<E: Event>(&self) -> Option<&E> {
+        self.sim_state.get_state::<E>()
     }
 
     /// Retrieves the `Event` object(s) which triggered the current `run` (if any)
@@ -136,11 +129,11 @@ pub mod test {
 
     use super::CoreConnector;
 
-    fn basic_event_a() -> TestEventA {
+    pub fn basic_event_a() -> TestEventA {
         TestEventA::new(Distance::from_m(1.0))
     }
 
-    fn basic_event_b() -> TestEventB {
+    pub fn basic_event_b() -> TestEventB {
         TestEventB::new(Amount::from_mol(1.0))
     }
 
@@ -230,7 +223,7 @@ pub mod test {
     #[test]
     pub fn test_get() {
         let connector = connector();
-        assert!(connector.get::<TestEventA>().unwrap().as_ref().len == basic_event_a().len);
+        assert!(connector.get::<TestEventA>().unwrap().len == basic_event_a().len);
         assert!(connector.get::<TestEventB>().is_none());
     }
 

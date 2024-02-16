@@ -1,5 +1,5 @@
-mod connector;
-mod initializer;
+pub(crate) mod connector;
+pub(crate) mod initializer;
 use crate::sim::component::SimComponent;
 use crate::sim::organism::Organism;
 pub use connector::CoreConnector;
@@ -50,8 +50,8 @@ pub mod test {
             &mut self.connector
         }
         fn core_init(&mut self, initializer: &mut CoreInitializer<O>) {
-            initializer.notify(TestEventA::new(Distance::from_m(1.0)));
-            initializer.notify(TestEventB::new(Amount::from_mol(1.0)));
+            initializer.notify::<TestEventA>();
+            initializer.notify::<TestEventB>();
             initializer.transform(|evt: &mut TestEventA| {
                 evt.len = Distance::from_m(3.0);
             });
@@ -92,8 +92,8 @@ pub mod test {
     }
     impl<O: Organism + 'static> CoreComponent<O> for TestComponentB<O> {
         fn core_init(&mut self, initializer: &mut CoreInitializer<O>) {
-            initializer.notify(TestEventA::new(Distance::from_m(2.0)));
-            initializer.notify(TestEventB::new(Amount::from_mol(2.0)));
+            initializer.notify::<TestEventA>();
+            initializer.notify::<TestEventB>();
             initializer.transform(Self::transform_b);
         }
         fn core_connector(&mut self) -> &mut CoreConnector<O> {

@@ -34,16 +34,13 @@ impl<O: Organism> CoreLayer<O> {
     }
 
     fn prep_connector(&mut self, connector: &mut SimConnector, component: &mut impl CoreComponent<O>) {
-        component.core_connector().trigger_events = {
-            let notify_ids = self
-                .notify_map
-                .remove(component.id())
-                .unwrap_or(HashSet::new());
-            notify_ids
-                .iter()
-                .map(|id| connector.state.get_state_ref(id).unwrap().type_id())
-                .collect()
-        };
+        component.core_connector().trigger_events = self
+            .notify_map
+            .remove(component.id())
+            .unwrap_or(HashSet::new())
+            .iter()
+            .map(|id| *id)
+            .collect();
 
         let comp_connector = component.core_connector();
         comp_connector.sim_time = connector.sim_time();
@@ -153,8 +150,7 @@ impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer
         self.transformer_id_map
             .insert(component.id(), transformer_ids);
 
-        for (priority, evt) in initializer.pending_notifies {
-            let type_id = evt.type_id();
+        for (priority, type_id) in initializer.pending_notifies {
             match self.module_notifications.get_mut(&type_id) {
                 None => {
                     self.module_notifications
@@ -209,3 +205,57 @@ impl<O: Organism, T: CoreComponent<O>> SimComponentProcessorSync<O, T> for CoreL
         self.process_connector(connector, component)
     }
 }
+
+// #[cfg(test)]
+// pub mod test {
+//     use crate::sim::component::{SimComponent, SimComponentProcessor};
+//     use crate::sim::layer::{CoreLayer, SimLayer};
+//     use crate::sim::layer::core::component::test::TestComponentA;
+//     use crate::sim::layer::core::component::connector::test::basic_event_a;
+//     use crate::sim::test::TestOrganism;
+//     use crate::sim::{SimConnector, SimTime};
+//     use crate::util::secs;
+
+//     #[test]
+//     fn test_layer_process() {
+//         let mut layer = CoreLayer::<TestOrganism>::new();
+//         let mut component = TestComponentA::new();
+//         let mut connector = SimConnector::new();
+//         layer.setup_component(&mut connector, &mut component);
+
+//         connector.time_manager.schedule_event(secs!(1.0), Box::new(basic_event_a()));
+
+//         layer.prepare_component(&mut connector, &mut component);
+//         component.run();
+//         layer.process_component(&mut connector, &mut component);
+
+//         connector.time_manager.advance_by(secs!(2.0));
+//         layer.pre_exec(&mut connector);
+
+
+//         connector.time_manager.advance_by(SimTime::from_s(2.0));
+//         layer.pre_exec(&mut connector);
+
+//     }
+
+//     #[test]
+//     fn test_layer_process_sync() {
+//         let mut layer = CirculationLayer::<TestOrganism>::new();
+//         let mut component = TestCircComponentA::new();
+//         let mut connector = SimConnector::new();
+//         layer.setup_component_sync(&mut connector, &mut component);
+
+//         component
+//             .circulation_connector()
+//             .vessel_map_sync
+//             .insert(TestBloodVessel::VenaCava, Arc::new(Mutex::new(BloodStore::new())));
+
+//         layer.pre_exec_sync(&mut connector);
+
+//         layer.prepare_component_sync(&mut connector, &mut component);
+//         component.run();
+//         layer.process_component_sync(&mut connector, &mut component);
+
+//         layer.post_exec_sync(&mut connector);
+//     }
+// }

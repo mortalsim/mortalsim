@@ -1,5 +1,5 @@
-mod connector;
-mod initializer;
+pub(crate) mod connector;
+pub(crate) mod initializer;
 pub use connector::BloodStore;
 pub use connector::CirculationConnector;
 pub use initializer::CirculationInitializer;

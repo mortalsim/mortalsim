@@ -1,8 +1,8 @@
 use crate::sim::component::SimComponent;
 use crate::sim::organism::Organism;
 
-mod connector;
-mod initializer;
+pub(crate) mod connector;
+pub(crate) mod initializer;
 
 pub use connector::NervousConnector;
 pub use initializer::NervousInitializer;

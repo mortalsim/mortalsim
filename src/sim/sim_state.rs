@@ -20,36 +20,43 @@ impl SimState {
         }
     }
 
-    /// Retrieves the current `Event` of a given type in this state
+    /// Retrieves a typed reference to an `Event` in this state
     ///
-    /// returns an `Box<E>` or `None` if no `Event` of this type has been set
-    pub fn get_state<T: Event>(&self) -> Option<Box<T>> {
-        let type_id = TypeId::of::<T>();
-        match self.state.get(&type_id) {
-            None => None,
-            Some(evt) => match evt.clone().downcast::<T>() {
-                Err(_) => None,
-                Ok(typed_evt) => Some(typed_evt),
-            },
-        }
+    /// returns a `&E` or `None` if no `Event` of this type has been set
+    pub fn get_state<T: Event>(&self) -> Option<&T> {
+        self.state
+            .get(&TypeId::of::<T>())?
+            .downcast_ref::<T>()
+    }
+
+    /// Retrieves a typed reference to an `Event` in this state
+    ///
+    /// returns a `&E` or `None` if no `Event` of this type has been set
+    pub fn get_state_mut<T: Event>(&mut self) -> Option<&mut T> {
+        self.state
+            .get_mut(&TypeId::of::<T>())?
+            .downcast_mut::<T>()
+    }
+
+    /// Retrieves a dyn `Event` in this state
+    ///
+    /// returns a cloned `Box<E>` or `None` if no `Event` of this type has been set
+    pub fn get_dyn_state(&self, type_id: &TypeId) -> Option<&Box<dyn Event>> {
+        Some(self.state.get(&type_id)?)
+    }
+
+    /// Retrieves an boxed clone of the current `Event` of a given type in this state
+    ///
+    /// returns an `Box<Event>` or `None` if no `Event` of this type has been set
+    pub(super) fn get_dyn_state_mut(&mut self, type_id: &TypeId) -> Option<&mut Box<dyn Event>> {
+        Some(self.state.get_mut(&type_id)?)
     }
 
     /// Checks whether an `Event` exists in this state for a given `Event` type
     ///
     /// returns `true` if it exists or `false` otherwise
     pub fn has_state<T: Event>(&self) -> bool {
-        let type_id = TypeId::of::<T>();
-        self.state.contains_key(&type_id)
-    }
-
-    /// Retrieves an boxed clone of the current `Event` of a given type in this state
-    ///
-    /// returns an `Box<Event>` or `None` if no `Event` of this type has been set
-    pub(super) fn get_state_ref(&self, type_id: &TypeId) -> Option<Box<dyn Event>> {
-        match self.state.get(&type_id) {
-            None => None,
-            Some(rc_val) => Some(rc_val.clone()),
-        }
+        self.state.contains_key(&TypeId::of::<T>())
     }
 
     /// Adds an Event to the state given it's TypeId
@@ -107,7 +114,7 @@ impl SimState {
     /// * `other` - Other `SimState` to merge into this one
     pub fn merge_tainted(&mut self, other: &Self) {
         for type_key in other.tainted_states.iter() {
-            self.put_state(other.get_state_ref(type_key).unwrap());
+            self.put_state(other.get_dyn_state(type_key).unwrap().clone());
         }
     }
 

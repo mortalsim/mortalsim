@@ -8,7 +8,7 @@ use crate::units::base::Distance;
 
 use crate::event::test::TestEventA;
 use crate::sim::layer::circulation::vessel::test::TestBloodVessel;
-use crate::sim::layer::core::test::{TestComponentA, TestComponentB};
+use crate::sim::layer::core::component::test::{TestComponentA, TestComponentB};
 use crate::sim::layer::nervous::nerve::test::TestNerve;
 use crate::sim::Sim;
 use crate::util::secs;

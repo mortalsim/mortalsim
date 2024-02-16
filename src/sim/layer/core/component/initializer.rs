@@ -12,7 +12,7 @@ pub struct CoreInitializer<O: Organism> {
     /// Output events for the associated component
     output_events: HashSet<TypeId>,
     /// Notifications pending from the last run of the component
-    pub(crate) pending_notifies: Vec<(i32, Box<dyn Event>)>,
+    pub(crate) pending_notifies: Vec<(i32, TypeId)>,
     /// Transforms pending from the last run of the component
     pub(crate) pending_transforms: Vec<Box<dyn EventTransformer>>,
     /// Default event state from the component
@@ -36,8 +36,8 @@ impl<O: Organism> CoreInitializer<O> {
     ///
     /// ### Arguments
     /// * `default` - Default `Event` value when one isn't provided by another module
-    pub fn notify<E: Event>(&mut self, default: E) {
-        self.notify_prioritized::<E>(0, default);
+    pub fn notify<E: Event>(&mut self) {
+        self.notify_prioritized::<E>(0);
     }
 
     /// Registers the associated `CoreComponent` to `run` whenever the
@@ -46,7 +46,7 @@ impl<O: Organism> CoreInitializer<O> {
     /// ### Arguments
     /// * `priority` - Notify order priority for this registration
     /// * `default` - Default `Event` value when one isn't provided by another module
-    pub fn notify_prioritized<E: Event>(&mut self, priority: i32, default: E) {
+    pub fn notify_prioritized<E: Event>(&mut self, priority: i32) {
         let type_key = TypeId::of::<E>();
 
         // If this event type has already been registered as an output, panic
@@ -55,7 +55,7 @@ impl<O: Organism> CoreInitializer<O> {
         }
 
         self.input_events.insert(type_key);
-        self.pending_notifies.push((priority, Box::new(default)))
+        self.pending_notifies.push((priority, type_key))
     }
 
     /// Registers a transformation function whenever the indicated `Event` is
@@ -104,7 +104,7 @@ impl<O: Organism> CoreInitializer<O> {
 
 #[cfg(test)]
 pub mod test {
-    use crate::event::test::TestEventA;
+    use crate::event::test::{TestEventA, TestEventB};
     use crate::sim::test::{TestOrganism, TestSim};
     use crate::units::base::Distance;
 
@@ -126,14 +126,14 @@ pub mod test {
     #[test]
     fn test_notify() {
         let mut initializer = CoreInitializer::<TestOrganism>::new();
-        initializer.notify(basic_event());
+        initializer.notify::<TestEventA>();
     }
 
     #[test]
     fn test_notify_with_priority() {
         let mut initializer = CoreInitializer::<TestOrganism>::new();
-        initializer.notify(basic_event());
-        initializer.notify_prioritized(1, basic_event());
+        initializer.notify::<TestEventA>();
+        initializer.notify_prioritized::<TestEventA>(1);
     }
 
     #[test]
@@ -164,7 +164,7 @@ pub mod test {
     #[should_panic]
     fn test_notify_err() {
         let mut initializer = CoreInitializer::<TestOrganism>::new();
-        initializer.notify(basic_event());
+        initializer.notify::<TestEventA>();
         initializer.set_output(basic_event())
     }
 
@@ -173,6 +173,6 @@ pub mod test {
     fn test_output_err() {
         let mut initializer = CoreInitializer::<TestOrganism>::new();
         initializer.set_output(basic_event());
-        initializer.notify(basic_event())
+        initializer.notify::<TestEventA>()
     }
 }
