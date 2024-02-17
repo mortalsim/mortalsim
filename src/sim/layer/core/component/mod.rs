@@ -93,7 +93,6 @@ pub mod test {
     impl<O: Organism + 'static> CoreComponent<O> for TestComponentB<O> {
         fn core_init(&mut self, initializer: &mut CoreInitializer<O>) {
             initializer.notify::<TestEventA>();
-            initializer.notify::<TestEventB>();
             initializer.transform(Self::transform_b);
         }
         fn core_connector(&mut self) -> &mut CoreConnector<O> {

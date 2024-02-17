@@ -1,6 +1,8 @@
 use crate::event::Event;
 use crate::hub::event_transformer::{EventTransformer, TransformerItem};
 use crate::sim::Organism;
+use crate::util::IdGenerator;
+use crate::IdType;
 use std::any::TypeId;
 use std::collections::HashSet;
 use std::marker::PhantomData;
@@ -11,10 +13,12 @@ pub struct CoreInitializer<O: Organism> {
     input_events: HashSet<TypeId>,
     /// Output events for the associated component
     output_events: HashSet<TypeId>,
+    /// Local id generator for transformation registration
+    pub(crate) id_gen: IdGenerator,
     /// Notifications pending from the last run of the component
     pub(crate) pending_notifies: Vec<(i32, TypeId)>,
-    /// Transforms pending from the last run of the component
-    pub(crate) pending_transforms: Vec<Box<dyn EventTransformer>>,
+    /// Transforms pending initial addition
+    pub(crate) pending_transforms: Vec<(IdType, Box<dyn EventTransformer>)>,
     /// Default event state from the component
     pub(crate) initial_outputs: Vec<Box<dyn Event>>,
 }
@@ -25,6 +29,7 @@ impl<O: Organism> CoreInitializer<O> {
             pd: PhantomData,
             input_events: HashSet::new(),
             output_events: HashSet::new(),
+            id_gen: IdGenerator::new(),
             pending_notifies: Vec::new(),
             pending_transforms: Vec::new(),
             initial_outputs: Vec::new(),
@@ -58,14 +63,22 @@ impl<O: Organism> CoreInitializer<O> {
         self.pending_notifies.push((priority, type_key))
     }
 
+    fn register_transform<E: Event>(&mut self, transformer: TransformerItem<'static, E>) -> IdType {
+        let local_id = self.id_gen.get_id();
+
+        self.pending_transforms
+            .push((local_id, Box::new(transformer)));
+
+        local_id
+    }
+
     /// Registers a transformation function whenever the indicated `Event` is
     /// emitted for the correspoinding `Sim`.
     ///
     /// ### Arguments
     /// * `handler` - Function to modify the `Event`
-    pub fn transform<E: Event>(&mut self, handler: impl FnMut(&mut E) + Send + 'static) {
-        self.pending_transforms
-            .push(Box::new(TransformerItem::new(handler)))
+    pub fn transform<E: Event>(&mut self, handler: impl FnMut(&mut E) + Send + 'static) -> IdType {
+        self.register_transform(TransformerItem::new(handler))
     }
 
     /// Registers a transformation function whenever the indicated `Event` is
@@ -78,11 +91,10 @@ impl<O: Organism> CoreInitializer<O> {
         &mut self,
         priority: i32,
         handler: impl FnMut(&mut E) + Send + 'static,
-    ) {
-        self.pending_transforms
-            .push(Box::new(TransformerItem::new_prioritized(
-                handler, priority,
-            )))
+    ) -> IdType {
+        self.register_transform(TransformerItem::new_prioritized(
+            handler, priority,
+        ))
     }
 
     /// Sets an `Event` as the initial state on the `Sim`

@@ -16,7 +16,6 @@ use super::CoreConnector;
 pub struct CoreLayer<O: Organism> {
     pd: PhantomData<O>,
     module_notifications: HashMap<TypeId, Vec<(i32, &'static str)>>,
-    transformer_id_map: HashMap<&'static str, Vec<IdType>>,
     /// Map of pending updates for each module
     notify_map: HashMap<&'static str, HashSet<TypeId>>,
 }
@@ -28,7 +27,6 @@ impl<O: Organism> CoreLayer<O> {
         Self {
             pd: PhantomData,
             module_notifications: HashMap::new(),
-            transformer_id_map: HashMap::new(),
             notify_map: HashMap::new(),
         }
     }
@@ -51,13 +49,11 @@ impl<O: Organism> CoreLayer<O> {
 
         // Unschedule any requested events
         if comp_connector.unschedule_all {
-            for (_, id_map) in comp_connector.scheduled_events.drain() {
-                for (schedule_id, _) in id_map {
-                    connector
-                        .time_manager
-                        .unschedule_event(&schedule_id)
-                        .unwrap();
-                }
+            for (_, schedule_id) in comp_connector.scheduled_id_map.drain() {
+                connector
+                    .time_manager
+                    .unschedule_event(&schedule_id)
+                    .unwrap();
             }
         } else {
             for schedule_id in comp_connector.pending_unschedules.drain(..) {
@@ -65,32 +61,29 @@ impl<O: Organism> CoreLayer<O> {
                     .time_manager
                     .unschedule_event(&schedule_id)
                     .unwrap();
-                let type_id = comp_connector
-                    .schedule_id_type_map
-                    .remove(&schedule_id)
-                    .unwrap();
-                comp_connector.scheduled_events.remove(&type_id).unwrap();
             }
         }
 
+        // Unschedule any requested transforms
+        for transformer_id in comp_connector.pending_untransforms.drain(..) {
+            connector.time_manager.unset_transform(transformer_id)
+                .expect("tried to unset an invalid transformer_id!");
+        }
+
         // Schedule any new events
-        for (wait_time, evt) in comp_connector.pending_schedules.drain(..) {
-            let type_id = evt.type_id();
+        for (wait_time, (local_id, evt)) in comp_connector.pending_schedules.drain(..) {
             let schedule_id = connector.time_manager.schedule_event(wait_time, evt);
             comp_connector
-                .schedule_id_type_map
-                .insert(schedule_id, type_id);
-            match comp_connector.scheduled_events.get_mut(&type_id) {
-                None => {
-                    let mut map = HashMap::new();
-                    map.insert(schedule_id, wait_time);
-                    comp_connector.scheduled_events.insert(type_id, map);
-                }
-                Some(map) => {
-                    map.insert(schedule_id, wait_time);
-                }
-            }
+                .scheduled_id_map
+                .insert(local_id, schedule_id);
         }
+
+        // Add any pending transformations from the component
+        for (local_id, transformer) in comp_connector.pending_transforms.drain(..) {
+            let transform_id = connector.time_manager.insert_transformer(transformer);
+            comp_connector.transform_id_map.insert(local_id, transform_id);
+        }
+
     }
 }
 
@@ -143,12 +136,15 @@ impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer
         let mut initializer = CoreInitializer::new();
         component.core_init(&mut initializer);
 
-        let mut transformer_ids = Vec::new();
-        for transformer in initializer.pending_transforms {
-            transformer_ids.push(connector.time_manager.insert_transformer(transformer));
+        let comp_connector = component.core_connector();
+
+        comp_connector.id_gen = initializer.id_gen;
+
+        // Add any pending transformations from the component
+        for (local_id, transformer) in initializer.pending_transforms {
+            let transform_id = connector.time_manager.insert_transformer(transformer);
+            comp_connector.transform_id_map.insert(local_id, transform_id);
         }
-        self.transformer_id_map
-            .insert(component.id(), transformer_ids);
 
         for (priority, type_id) in initializer.pending_notifies {
             match self.module_notifications.get_mut(&type_id) {
@@ -160,6 +156,10 @@ impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer
                     list.push((priority, component.id()));
                 }
             }
+        }
+
+        for event in initializer.initial_outputs {
+            connector.state.put_state(event);
         }
     }
 
@@ -186,7 +186,7 @@ impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer
 
 impl<O: Organism, T: CoreComponent<O>> SimComponentProcessorSync<O, T> for CoreLayer<O> {
     fn setup_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {
-        self.setup_component(connector, component)
+        self.setup_component(connector, component);
     }
 
     fn check_component_sync(&mut self, component: &T) -> bool {
@@ -206,56 +206,57 @@ impl<O: Organism, T: CoreComponent<O>> SimComponentProcessorSync<O, T> for CoreL
     }
 }
 
-// #[cfg(test)]
-// pub mod test {
-//     use crate::sim::component::{SimComponent, SimComponentProcessor};
-//     use crate::sim::layer::{CoreLayer, SimLayer};
-//     use crate::sim::layer::core::component::test::TestComponentA;
-//     use crate::sim::layer::core::component::connector::test::basic_event_a;
-//     use crate::sim::test::TestOrganism;
-//     use crate::sim::{SimConnector, SimTime};
-//     use crate::util::secs;
+#[cfg(test)]
+pub mod test {
+    use crate::sim::component::{SimComponent, SimComponentProcessor};
+    use crate::sim::layer::{CoreLayer, SimLayer};
+    use crate::sim::layer::core::component::test::{TestComponentA, TestComponentB};
+    use crate::sim::layer::core::component::connector::test::basic_event_a;
+    use crate::sim::test::TestOrganism;
+    use crate::sim::{SimConnector, SimTime};
+    use crate::util::secs;
 
-//     #[test]
-//     fn test_layer_process() {
-//         let mut layer = CoreLayer::<TestOrganism>::new();
-//         let mut component = TestComponentA::new();
-//         let mut connector = SimConnector::new();
-//         layer.setup_component(&mut connector, &mut component);
+    #[test]
+    fn test_layer_process() {
+        let mut layer = CoreLayer::<TestOrganism>::new();
+        let mut component_a = TestComponentA::new();
+        let mut component_b = TestComponentB::new();
+        let mut connector = SimConnector::new();
 
-//         connector.time_manager.schedule_event(secs!(1.0), Box::new(basic_event_a()));
+        layer.setup_component(&mut connector, &mut component_a);
+        layer.setup_component(&mut connector, &mut component_b);
 
-//         layer.prepare_component(&mut connector, &mut component);
-//         component.run();
-//         layer.process_component(&mut connector, &mut component);
+        layer.prepare_component(&mut connector, &mut component_a);
+        component_a.run();
+        layer.process_component(&mut connector, &mut component_a);
 
-//         connector.time_manager.advance_by(secs!(2.0));
-//         layer.pre_exec(&mut connector);
+        connector.time_manager.advance_by(secs!(2.0));
+        layer.pre_exec(&mut connector);
 
 
-//         connector.time_manager.advance_by(SimTime::from_s(2.0));
-//         layer.pre_exec(&mut connector);
+        connector.time_manager.advance_by(SimTime::from_s(2.0));
+        layer.pre_exec(&mut connector);
 
-//     }
+    }
 
-//     #[test]
-//     fn test_layer_process_sync() {
-//         let mut layer = CirculationLayer::<TestOrganism>::new();
-//         let mut component = TestCircComponentA::new();
-//         let mut connector = SimConnector::new();
-//         layer.setup_component_sync(&mut connector, &mut component);
+    // #[test]
+    // fn test_layer_process_sync() {
+    //     let mut layer = CirculationLayer::<TestOrganism>::new();
+    //     let mut component = TestCircComponentA::new();
+    //     let mut connector = SimConnector::new();
+    //     layer.setup_component_sync(&mut connector, &mut component);
 
-//         component
-//             .circulation_connector()
-//             .vessel_map_sync
-//             .insert(TestBloodVessel::VenaCava, Arc::new(Mutex::new(BloodStore::new())));
+    //     component
+    //         .circulation_connector()
+    //         .vessel_map_sync
+    //         .insert(TestBloodVessel::VenaCava, Arc::new(Mutex::new(BloodStore::new())));
 
-//         layer.pre_exec_sync(&mut connector);
+    //     layer.pre_exec_sync(&mut connector);
 
-//         layer.prepare_component_sync(&mut connector, &mut component);
-//         component.run();
-//         layer.process_component_sync(&mut connector, &mut component);
+    //     layer.prepare_component_sync(&mut connector, &mut component);
+    //     component.run();
+    //     layer.process_component_sync(&mut connector, &mut component);
 
-//         layer.post_exec_sync(&mut connector);
-//     }
-// }
+    //     layer.post_exec_sync(&mut connector);
+    // }
+}

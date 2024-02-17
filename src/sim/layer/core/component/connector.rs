@@ -1,6 +1,9 @@
 use crate::event::Event;
+use crate::hub::event_transformer::TransformerItem;
+use crate::hub::EventTransformer;
 use crate::sim::{Organism, SimState, SimTime};
 use crate::util::id_gen::IdType;
+use crate::util::IdGenerator;
 use anyhow::Result;
 use std::any::TypeId;
 use std::collections::HashMap;
@@ -10,18 +13,24 @@ use std::sync::Arc;
 /// Provides methods for `Sim` modules to interact with the simulation
 pub struct CoreConnector<O: Organism> {
     pd: PhantomData<O>,
+    /// Local id generator for transformation registration
+    pub(crate) id_gen: IdGenerator,
     /// State specific to the connected module
     pub(crate) sim_state: SimState,
     /// Holds a list of Event types which triggered module execution, if applicable
     pub(crate) trigger_events: Vec<TypeId>,
-    /// Map of scheduled event identifiers
-    pub(crate) scheduled_events: HashMap<TypeId, HashMap<IdType, SimTime>>,
-    /// Map of scheduled ids to event types
-    pub(crate) schedule_id_type_map: HashMap<IdType, TypeId>,
+    /// Map of local ids to layer schedule ids
+    pub(crate) scheduled_id_map: HashMap<IdType, IdType>,
+    /// Map of local ids to layer transform ids
+    pub(crate) transform_id_map: HashMap<IdType, IdType>,
     /// List of events to schedule
-    pub(crate) pending_schedules: Vec<(SimTime, Box<dyn Event>)>,
+    pub(crate) pending_schedules: Vec<(SimTime, (IdType, Box<dyn Event>))>,
     /// List of events to unschedule
     pub(crate) pending_unschedules: Vec<IdType>,
+    /// Transforms pending from the last run of the component
+    pub(crate) pending_transforms: Vec<(IdType, Box<dyn EventTransformer>)>,
+    /// List of events to unschedule
+    pub(crate) pending_untransforms: Vec<IdType>,
     /// Copy of the current simulation time
     pub(crate) sim_time: SimTime,
     /// Whether to indicate to the parent Sim that all previously scheduled events should be unscheduled
@@ -33,13 +42,16 @@ impl<O: Organism> CoreConnector<O> {
     pub fn new() -> Self {
         Self {
             pd: PhantomData,
+            id_gen: IdGenerator::new(),
             // Temporary empty state which will be replaced by the canonical state
             sim_state: SimState::new(),
             trigger_events: Vec::new(),
-            scheduled_events: HashMap::new(),
-            schedule_id_type_map: HashMap::new(),
+            scheduled_id_map: HashMap::new(),
+            transform_id_map: HashMap::new(),
             pending_schedules: Vec::new(),
             pending_unschedules: Vec::new(),
+            pending_transforms: Vec::new(),
+            pending_untransforms: Vec::new(),
             sim_time: SimTime::from_s(0.0),
             unschedule_all: true,
         }
@@ -50,8 +62,10 @@ impl<O: Organism> CoreConnector<O> {
     /// ### Arguments
     /// * `wait_time` - Amount of time to wait before execution
     /// * `evt` - `Event` to emit after `wait_time` has elapsed
-    pub fn schedule_event(&mut self, wait_time: SimTime, evt: impl Event) {
-        self.pending_schedules.push((wait_time, Box::new(evt)))
+    pub fn schedule_event(&mut self, wait_time: SimTime, evt: impl Event) -> IdType {
+        let schedule_id = self.id_gen.get_id();
+        self.pending_schedules.push((wait_time, (schedule_id, Box::new(evt))));
+        schedule_id
     }
 
     /// Whether to unschedule all previously scheduled `Event` objects (default is true)
@@ -67,33 +81,12 @@ impl<O: Organism> CoreConnector<O> {
     /// * `schedule_id` - schedule id of the Event to unschedule
     ///
     /// Returns Ok if the id is valid, and Err otherwise
-    pub fn unschedule_event<E: Event>(&mut self, schedule_id: IdType) -> Result<()> {
-        let type_id = TypeId::of::<E>();
-        match self.scheduled_events.get(&type_id) {
-            Some(smap) => {
-                if smap.contains_key(&schedule_id) {
-                    Ok(())
-                } else {
-                    Err(anyhow!("Invalid id provided for unscheduling"))
-                }
-            }
-            None => Err(anyhow!("Invalid type provided for unscheduling")),
+    pub fn unschedule_event(&mut self, schedule_id: IdType) -> Result<()> {
+        if let Some(layer_schedule_id) = self.scheduled_id_map.remove(&schedule_id) {
+            self.pending_unschedules.push(layer_schedule_id);
+            return Ok(())
         }
-    }
-
-    /// Retrieves a mapping of schedule ids -> execution time for each
-    /// instance of the given Event type which has been scheduled previously,
-    /// and which has not yet been emitted.
-    ///
-    /// Returns a HashMap if any events are scheduled for the given type, and
-    /// None otherwise
-    pub fn get_scheduled_events<'a, E: Event>(
-        &'a mut self,
-    ) -> impl Iterator<Item = (&'a IdType, &'a SimTime)> {
-        self.scheduled_events
-            .entry(TypeId::of::<E>())
-            .or_default()
-            .iter()
+        Err(anyhow!("Invalid schedule_id provided"))
     }
 
     /// Retrieves the current simulation time
@@ -109,6 +102,47 @@ impl<O: Organism> CoreConnector<O> {
     /// Retrieves the `Event` object(s) which triggered the current `run` (if any)
     pub fn trigger_events<'a>(&'a self) -> impl Iterator<Item = &TypeId> + 'a {
         self.trigger_events.iter()
+    }
+
+    fn register_transform<E: Event>(&mut self, transformer: TransformerItem<'static, E>) -> IdType {
+        let local_id = self.id_gen.get_id();
+
+        self.pending_transforms
+            .push((local_id, Box::new(transformer)));
+
+        local_id
+    }
+
+    /// Registers a transformation function whenever the indicated `Event` is
+    /// emitted for the correspoinding `Sim`.
+    ///
+    /// ### Arguments
+    /// * `handler` - Function to modify the `Event`
+    pub fn transform<E: Event>(&mut self, handler: impl FnMut(&mut E) + Send + 'static) -> IdType {
+        self.register_transform(TransformerItem::new(handler))
+    }
+
+    /// Registers a transformation function whenever the indicated `Event` is
+    /// emitted for the correspoinding `Sim` with a given priority value.
+    ///
+    /// ### Arguments
+    /// * `priority` - Transformation order priority for this registration
+    /// * `handler` - Function to modify the `Event`
+    pub fn transform_prioritized<E: Event>(
+        &mut self,
+        priority: i32,
+        handler: impl FnMut(&mut E) + Send + 'static,
+    ) -> IdType {
+        self.register_transform(TransformerItem::new_prioritized(
+            handler, priority,
+        ))
+    }
+
+    pub fn unset_transform(&mut self, transform_id: &IdType) -> anyhow::Result<()> {
+        if let Some(layer_transform_id) = self.transform_id_map.remove(transform_id) {
+            return Ok(self.pending_untransforms.push(layer_transform_id));
+        }
+        Err(anyhow!("Invalid transform_id provided"))
     }
 }
 
@@ -139,16 +173,8 @@ pub mod test {
 
     fn connector() -> CoreConnector<TestOrganism> {
         let mut connector = CoreConnector::new();
-        let mut a_events = HashMap::new();
-        a_events.insert(1, Time::from_s(1.0));
-        let mut b_events = HashMap::new();
-        b_events.insert(2, Time::from_s(2.0));
-        connector
-            .scheduled_events
-            .insert(TypeId::of::<TestEventA>(), a_events);
-        connector
-            .scheduled_events
-            .insert(TypeId::of::<TestEventB>(), b_events);
+        connector.scheduled_id_map.insert(1, 1);
+        connector.scheduled_id_map.insert(2, 2);
         connector.sim_state = SimState::new();
 
         let evt_a = Box::new(basic_event_a());
@@ -160,37 +186,33 @@ pub mod test {
 
     fn connector_with_a_only() -> CoreConnector<TestOrganism> {
         let mut connector = CoreConnector::new();
-        let mut a_events = HashMap::new();
-        a_events.insert(1, Time::from_s(1.0));
-        connector
-            .scheduled_events
-            .insert(TypeId::of::<TestEventA>(), a_events);
+        connector.scheduled_id_map.insert(1,1);
         connector
     }
 
     #[test]
     pub fn test_emit() {
         let mut connector = CoreConnector::<TestOrganism>::new();
-        connector.schedule_event(Time::from_s(1.0), basic_event_a())
+        connector.schedule_event(Time::from_s(1.0), basic_event_a());
     }
 
     #[test]
     pub fn test_unschedule() {
         let mut connector = connector();
-        assert!(connector.unschedule_event::<TestEventA>(1).is_ok());
-        assert!(connector.unschedule_event::<TestEventB>(2).is_ok());
+        assert!(connector.unschedule_event(1).is_ok());
+        assert!(connector.unschedule_event(2).is_ok());
     }
 
     #[test]
     pub fn test_unschedule_invalid_event() {
         let mut connector = connector_with_a_only();
-        assert!(connector.unschedule_event::<TestEventB>(2).is_err());
+        assert!(connector.unschedule_event(2).is_err());
     }
 
     #[test]
     pub fn test_unschedule_invalid_id() {
         let mut connector = connector_with_a_only();
-        assert!(connector.unschedule_event::<TestEventA>(2).is_err());
+        assert!(connector.unschedule_event(2).is_err());
     }
 
     #[test]
@@ -198,20 +220,6 @@ pub mod test {
         let mut connector = CoreConnector::<TestOrganism>::new();
         connector.unschedule_all(true);
         assert!(connector.unschedule_all == true);
-    }
-
-    #[test]
-    pub fn test_get_scheduled() {
-        let mut connector = connector();
-
-        for (schedule_id, time) in connector.get_scheduled_events::<TestEventA>() {
-            assert!(schedule_id == &1);
-            assert!(time == &Time::from_s(1.0))
-        }
-        for (schedule_id, time) in connector.get_scheduled_events::<TestEventB>() {
-            assert!(schedule_id == &2);
-            assert!(time == &Time::from_s(2.0))
-        }
     }
 
     #[test]
