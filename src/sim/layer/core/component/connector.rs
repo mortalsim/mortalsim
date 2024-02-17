@@ -15,8 +15,10 @@ pub struct CoreConnector<O: Organism> {
     pd: PhantomData<O>,
     /// Local id generator for transformation registration
     pub(crate) id_gen: IdGenerator,
-    /// State specific to the connected module
+    /// Historical State specific to the connected module
     pub(crate) sim_state: SimState,
+    /// events that are actively being emitted this cycle
+    pub(crate) active_events: Vec<Arc<dyn Event>>,
     /// Holds a list of Event types which triggered module execution, if applicable
     pub(crate) trigger_events: Vec<TypeId>,
     /// Map of local ids to layer schedule ids
@@ -45,6 +47,7 @@ impl<O: Organism> CoreConnector<O> {
             id_gen: IdGenerator::new(),
             // Temporary empty state which will be replaced by the canonical state
             sim_state: SimState::new(),
+            active_events: Vec::new(),
             trigger_events: Vec::new(),
             scheduled_id_map: HashMap::new(),
             transform_id_map: HashMap::new(),
@@ -94,9 +97,28 @@ impl<O: Organism> CoreConnector<O> {
         self.sim_time
     }
 
-    /// Retrieves a clone of the current `Event` object from state
+    /// Retrieves a reference to the current `Event` object from state
+    /// or from active events
     pub fn get<E: Event>(&self) -> Option<&E> {
-        self.sim_state.get_state::<E>()
+        if let Some(evt) = self.sim_state.get_state::<E>() {
+            return Some(evt);
+        }
+        // Search in reverse order so the most recent event
+        // takes precedence
+        for evt in self.active_events.iter().rev() {
+            if evt.is::<E>() {
+                return Some(evt.downcast_ref::<E>().unwrap());
+            }
+        }
+        
+        None
+    }
+
+    /// Retrieves any active events of the given type
+    pub fn get_active<E: Event>(&self) -> impl Iterator<Item = &E> {
+        self.active_events.iter()
+            .filter(|evt| evt.is::<E>())
+            .map(|evt| evt.downcast_ref::<E>().unwrap())
     }
 
     /// Retrieves the `Event` object(s) which triggered the current `run` (if any)
@@ -177,7 +199,7 @@ pub mod test {
         connector.scheduled_id_map.insert(2, 2);
         connector.sim_state = SimState::new();
 
-        let evt_a = Box::new(basic_event_a());
+        let evt_a = Arc::new(basic_event_a());
         connector.sim_state.put_state(evt_a.clone());
         connector.trigger_events.push(TypeId::of::<TestEventA>());
         connector.sim_time = Time::from_s(0.0);

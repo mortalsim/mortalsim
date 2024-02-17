@@ -17,7 +17,7 @@ use crate::event::Event;
 pub struct SimConnector {
     state: SimState,
     time_manager: TimeManager,
-    active_events: Vec<Box<dyn Event>>,
+    active_events: Vec<Arc<dyn Event>>,
 }
 
 impl SimConnector {

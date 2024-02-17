@@ -95,6 +95,7 @@ impl<O: Organism> SimLayer for CoreLayer<O> {
             .map(|x| x.1)
             .flatten()
             .for_each(|evt| {
+                // populate the notify list for this event
                 if let Some(notify_list) = self.module_notifications.get(&evt.type_id()) {
                     for (_, comp_id) in notify_list {
                         self.notify_map
@@ -103,6 +104,7 @@ impl<O: Organism> SimLayer for CoreLayer<O> {
                             .insert(evt.type_id());
                     }
                 }
+
                 // Internal layer trigger events don't end up on the state
                 // or in the active_events list
                 if !evt.is::<InternalLayerTrigger>() {
@@ -114,7 +116,7 @@ impl<O: Organism> SimLayer for CoreLayer<O> {
     fn post_exec(&mut self, connector: &mut SimConnector) {
         // update state
         for evt in connector.active_events.drain(..) {
-            connector.state.put_state(evt);
+            connector.state.put_state(evt.into());
         }
     }
 }
@@ -122,7 +124,7 @@ impl<O: Organism> SimLayer for CoreLayer<O> {
 
 impl<O: Organism> SimLayerSync for CoreLayer<O> {
     fn pre_exec_sync(&mut self, connector: &mut SimConnector) {
-        self.pre_exec(connector)
+        self.pre_exec(connector);
     }
 
     fn post_exec_sync(&mut self, connector: &mut SimConnector) {
@@ -159,7 +161,7 @@ impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer
         }
 
         for event in initializer.initial_outputs {
-            connector.state.put_state(event);
+            connector.state.put_state(event.into());
         }
     }
 
@@ -171,8 +173,9 @@ impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer
     fn prepare_component(&mut self, connector: &mut SimConnector, component: &mut T) {
         self.prep_connector(connector, component);
 
-        // Swap out state with the connector
+        // Swap out state and active events with the connector
         swap(&mut connector.state, &mut component.core_connector().sim_state);
+        swap(&mut connector.active_events, &mut component.core_connector().active_events);
     }
 
     fn process_component(&mut self, connector: &mut SimConnector, component: &mut T) {
@@ -187,6 +190,7 @@ impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer
 impl<O: Organism, T: CoreComponent<O>> SimComponentProcessorSync<O, T> for CoreLayer<O> {
     fn setup_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {
         self.setup_component(connector, component);
+
     }
 
     fn check_component_sync(&mut self, component: &T) -> bool {
@@ -199,15 +203,32 @@ impl<O: Organism, T: CoreComponent<O>> SimComponentProcessorSync<O, T> for CoreL
         // Merge the events which were modified since the last update into the
         // component's copy of state
         component.core_connector().sim_state.merge_tainted(&mut connector.state);
+
+        // Clone any active events into the connector
+        component.core_connector().active_events.extend(
+            connector.active_events
+                .iter()
+                .map(|evt| evt.clone())
+        )
     }
 
     fn process_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {
-        self.process_connector(connector, component)
+        self.process_connector(connector, component);
+
+        // clear active events from the core connector
+        component.core_connector().active_events.drain(..);
     }
 }
 
 #[cfg(test)]
 pub mod test {
+    use std::panic::catch_unwind;
+
+    use simple_si_units::base::Amount;
+
+    use crate::units::base::Distance;
+
+    use crate::event::test::{TestEventA, TestEventB};
     use crate::sim::component::{SimComponent, SimComponentProcessor};
     use crate::sim::layer::{CoreLayer, SimLayer};
     use crate::sim::layer::core::component::test::{TestComponentA, TestComponentB};
@@ -226,17 +247,22 @@ pub mod test {
         layer.setup_component(&mut connector, &mut component_a);
         layer.setup_component(&mut connector, &mut component_b);
 
+        connector.time_manager.schedule_event(secs!(1.0), Box::new(TestEventA::new(Distance::from_m(1.0))));
+        connector.time_manager.schedule_event(secs!(1.0), Box::new(TestEventB::new(Amount::from_mmol(1.0))));
+
+        connector.time_manager.advance_by(secs!(2.0));
+
+        layer.pre_exec(&mut connector);
+
         layer.prepare_component(&mut connector, &mut component_a);
         component_a.run();
         layer.process_component(&mut connector, &mut component_a);
 
-        connector.time_manager.advance_by(secs!(2.0));
-        layer.pre_exec(&mut connector);
+        layer.prepare_component(&mut connector, &mut component_b);
+        component_b.run();
+        layer.process_component(&mut connector, &mut component_b);
 
-
-        connector.time_manager.advance_by(SimTime::from_s(2.0));
-        layer.pre_exec(&mut connector);
-
+        layer.post_exec(&mut connector);
     }
 
     // #[test]

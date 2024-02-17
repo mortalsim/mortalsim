@@ -22,7 +22,7 @@ pub struct EventHub<'a> {
     /// Listeners for any Event, regardless of Event type
     generic_event_listeners: Vec<Box<dyn EventListener + 'a>>,
     /// Listener to take ownership of emitted Events
-    on_emitted_fn: Option<Box<dyn FnMut(TypeId, Box<dyn Event>) + Send + 'a>>,
+    on_emitted_fn: Option<Box<dyn FnMut(TypeId, Arc<dyn Event>) + Send + 'a>>,
     /// Keeps track of which listener ids are associated with each TypeId
     listener_id_type_map: HashMap<IdType, TypeId>,
     /// Keeps track of which transformer ids are associated with each TypeId
@@ -79,8 +79,8 @@ impl<'a> EventHub<'a> {
             }
         }
 
-        // Event is now finalized, so convert it into an Rc for shared, read-only ownership
-        let final_evt: Box<dyn Event> = evt.into();
+        // Event is now finalized, so convert it into an Arc for shared, read-only ownership
+        let final_evt: Arc<dyn Event> = evt.into();
 
         // Call each generic listener with the event
         log::debug!(
@@ -114,7 +114,7 @@ impl<'a> EventHub<'a> {
     /// * `handler` - Event handling function
     ///
     /// Returns the registration ID for the listener
-    pub fn on_any(&mut self, handler: impl FnMut(Box<dyn Event>) + Send + 'a) -> IdType {
+    pub fn on_any(&mut self, handler: impl FnMut(Arc<dyn Event>) + Send + 'a) -> IdType {
         self.on_any_impl(Box::new(GenericListener::new(handler)))
     }
 
@@ -129,7 +129,7 @@ impl<'a> EventHub<'a> {
     pub fn on_any_prioritized(
         &mut self,
         priority: i32,
-        handler: impl FnMut(Box<dyn Event>) + Send + 'a,
+        handler: impl FnMut(Arc<dyn Event>) + Send + 'a,
     ) -> IdType {
         self.on_any_impl(Box::new(GenericListener::new_prioritized(
             handler, priority,
@@ -185,7 +185,7 @@ impl<'a> EventHub<'a> {
     /// * `handler` - Event handling function
     ///
     /// Returns the registration ID for the listener
-    pub fn on<T: Event>(&mut self, handler: impl FnMut(Box<T>) + Send + 'a) -> IdType {
+    pub fn on<T: Event>(&mut self, handler: impl FnMut(Arc<T>) + Send + 'a) -> IdType {
         self.on_impl(TypeId::of::<T>(), Box::new(ListenerItem::new(handler)))
     }
 
@@ -200,7 +200,7 @@ impl<'a> EventHub<'a> {
     pub fn on_prioritized<T: Event>(
         &mut self,
         priority: i32,
-        handler: impl FnMut(Box<T>) + Send + 'a,
+        handler: impl FnMut(Arc<T>) + Send + 'a,
     ) -> IdType {
         self.on_impl(
             TypeId::of::<T>(),
@@ -374,7 +374,7 @@ impl<'a> EventHub<'a> {
     /// * `handler` - Function to own the emitted Event
     pub(in super::super) fn on_emitted(
         &mut self,
-        handler: impl FnMut(TypeId, Box<dyn Event>) + Send + 'a,
+        handler: impl FnMut(TypeId, Arc<dyn Event>) + Send + 'a,
     ) {
         self.on_emitted_fn = Some(Box::new(handler));
     }
@@ -406,7 +406,7 @@ mod tests {
         let mut hub = EventHub::new();
 
         // Attach a handler for A Events
-        hub.on(|evt: Box<TestEventA>| {
+        hub.on(|evt: Arc<TestEventA>| {
             *on_val_a.write().unwrap() = evt.len;
             *a_count.write().unwrap() += 1;
         });
@@ -417,7 +417,7 @@ mod tests {
         assert_eq!(*a_count.read().unwrap(), 1);
 
         // Attach a handler for any Event
-        hub.on_any(|_evt: Box<dyn Event>| {
+        hub.on_any(|_evt: Arc<dyn Event>| {
             *any_count.write().unwrap() += 1;
         });
 
@@ -428,7 +428,7 @@ mod tests {
         assert_eq!(*any_count.read().unwrap(), 1);
 
         // Attach a handler for B Events
-        hub.on(|evt: Box<TestEventB>| {
+        hub.on(|evt: Arc<TestEventB>| {
             *on_val_b.write().unwrap() = evt.amt;
             *b_count.write().unwrap() += 1;
         });
@@ -461,17 +461,17 @@ mod tests {
         let mut hub = EventHub::new();
 
         // Attach handler 1 for A Events
-        hub.on_prioritized(2, |_evt: Box<TestEventA>| {
+        hub.on_prioritized(2, |_evt: Arc<TestEventA>| {
             calls.lock().unwrap().push(1);
         });
 
         // Attach handler 2 for A Events
-        hub.on_prioritized(5, |_evt: Box<TestEventA>| {
+        hub.on_prioritized(5, |_evt: Arc<TestEventA>| {
             calls.lock().unwrap().push(2);
         });
 
         // Attach handler 3 for A Events
-        hub.on_prioritized(3, |_evt: Box<TestEventA>| {
+        hub.on_prioritized(3, |_evt: Arc<TestEventA>| {
             calls.lock().unwrap().push(3);
         });
 
