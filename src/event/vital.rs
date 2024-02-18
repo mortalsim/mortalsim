@@ -29,10 +29,10 @@ macro_rules! unit_wrapper {
     };
 }
 
-/// Event indicating a change of heart rate or pulse
+/// Event indicating a change of heart contraction rate or pulse
 #[derive(Debug, Clone, Copy, PartialEq)]
-struct Pulse(Frequency<NumType>);
-unit_wrapper!(Pulse, Frequency<NumType>);
+struct HeartRate(Frequency<NumType>);
+unit_wrapper!(HeartRate, Frequency<NumType>);
 
 /// Event indicating a change of core body temperature
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -46,8 +46,8 @@ unit_wrapper!(AorticBloodPressure, Pressure<NumType>);
 
 /// Event indicating a change of respiration rate
 #[derive(Debug, Clone, Copy, PartialEq)]
-struct Respiration(Frequency<NumType>);
-unit_wrapper!(Respiration, Frequency<NumType>);
+struct RespiratoryRate(Frequency<NumType>);
+unit_wrapper!(RespiratoryRate, Frequency<NumType>);
 
 /// Event indicating a change in height
 #[derive(Debug, Clone, Copy, PartialEq)]
