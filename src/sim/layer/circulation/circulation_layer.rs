@@ -207,6 +207,7 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessorSync<O, T> fo
 mod tests {
     use std::cell::RefCell;
     use std::sync::{Arc, Mutex};
+    use std::thread::scope;
 
     use super::CirculationLayer;
     use crate::sim::component::{SimComponent, SimComponentProcessor, SimComponentProcessorSync};
@@ -280,22 +281,26 @@ mod tests {
 
     #[test]
     fn test_layer_process_sync() {
-        let mut layer = CirculationLayer::<TestOrganism>::new();
+        let layer = Mutex::new(CirculationLayer::<TestOrganism>::new());
+        let connector = Mutex::new(SimConnector::new());
         let mut component = TestCircComponentA::new();
-        let mut connector = SimConnector::new();
-        layer.setup_component_sync(&mut connector, &mut component);
+        layer.lock().unwrap().setup_component_sync(&mut connector.lock().unwrap(), &mut component);
 
         component
             .circulation_connector()
             .vessel_map_sync
             .insert(TestBloodVessel::VenaCava, Arc::new(Mutex::new(BloodStore::new())));
 
-        layer.pre_exec_sync(&mut connector);
+        layer.lock().unwrap().pre_exec_sync(&mut connector.lock().unwrap());
 
-        layer.prepare_component_sync(&mut connector, &mut component);
-        component.run();
-        layer.process_component_sync(&mut connector, &mut component);
+        scope(|s| {
+            s.spawn(|| {
+                layer.lock().unwrap().prepare_component_sync(&mut connector.lock().unwrap(), &mut component);
+                component.run();
+                layer.lock().unwrap().process_component_sync(&mut connector.lock().unwrap(), &mut component);
+            });
+        });
 
-        layer.post_exec_sync(&mut connector);
+        layer.lock().unwrap().post_exec_sync(&mut connector.lock().unwrap());
     }
 }

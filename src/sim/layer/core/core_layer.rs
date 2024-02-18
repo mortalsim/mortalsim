@@ -179,8 +179,9 @@ impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer
     }
 
     fn process_component(&mut self, connector: &mut SimConnector, component: &mut T) {
-        // Swap back state with the connector
+        // Swap back state and active events with the connector
         swap(&mut connector.state, &mut component.core_connector().sim_state);
+        swap(&mut connector.active_events, &mut component.core_connector().active_events);
 
         self.process_connector(connector, component)
     }
@@ -223,14 +224,16 @@ impl<O: Organism, T: CoreComponent<O>> SimComponentProcessorSync<O, T> for CoreL
 #[cfg(test)]
 pub mod test {
     use std::panic::catch_unwind;
+    use std::sync::Mutex;
+    use std::thread::{scope, spawn};
 
     use simple_si_units::base::Amount;
 
     use crate::units::base::Distance;
 
     use crate::event::test::{TestEventA, TestEventB};
-    use crate::sim::component::{SimComponent, SimComponentProcessor};
-    use crate::sim::layer::{CoreLayer, SimLayer};
+    use crate::sim::component::{SimComponent, SimComponentProcessor, SimComponentProcessorSync};
+    use crate::sim::layer::{CoreLayer, SimLayer, SimLayerSync};
     use crate::sim::layer::core::component::test::{TestComponentA, TestComponentB};
     use crate::sim::layer::core::component::connector::test::basic_event_a;
     use crate::sim::test::TestOrganism;
@@ -263,26 +266,47 @@ pub mod test {
         layer.process_component(&mut connector, &mut component_b);
 
         layer.post_exec(&mut connector);
+
+        assert_eq!(connector.state.get_state::<TestEventA>().unwrap().len, Distance::from_m(3.0));
+        assert_eq!(connector.state.get_state::<TestEventB>().unwrap().amt, Amount::from_mmol(1.0));
     }
 
-    // #[test]
-    // fn test_layer_process_sync() {
-    //     let mut layer = CirculationLayer::<TestOrganism>::new();
-    //     let mut component = TestCircComponentA::new();
-    //     let mut connector = SimConnector::new();
-    //     layer.setup_component_sync(&mut connector, &mut component);
+    #[test]
+    fn test_layer_process_sync() {
+        let layer = Mutex::new(CoreLayer::<TestOrganism>::new());
+        let mut component_a = TestComponentA::new();
+        let mut component_b = TestComponentB::new();
+        let connector = Mutex::new(SimConnector::new());
 
-    //     component
-    //         .circulation_connector()
-    //         .vessel_map_sync
-    //         .insert(TestBloodVessel::VenaCava, Arc::new(Mutex::new(BloodStore::new())));
+        layer.lock().unwrap().setup_component_sync(&mut connector.lock().unwrap(), &mut component_a);
+        layer.lock().unwrap().setup_component_sync(&mut connector.lock().unwrap(), &mut component_b);
 
-    //     layer.pre_exec_sync(&mut connector);
+        connector.lock().unwrap().time_manager.schedule_event(secs!(1.0), Box::new(TestEventA::new(Distance::from_m(1.0))));
+        connector.lock().unwrap().time_manager.schedule_event(secs!(1.0), Box::new(TestEventB::new(Amount::from_mmol(1.0))));
 
-    //     layer.prepare_component_sync(&mut connector, &mut component);
-    //     component.run();
-    //     layer.process_component_sync(&mut connector, &mut component);
+        connector.lock().unwrap().time_manager.advance_by(secs!(2.0));
 
-    //     layer.post_exec_sync(&mut connector);
-    // }
+        layer.lock().unwrap().pre_exec_sync(&mut connector.lock().unwrap());
+
+        scope(|s| {
+            s.spawn(|| {
+                layer.lock().unwrap().prepare_component_sync(&mut connector.lock().unwrap(), &mut component_a);
+                component_a.run();
+                layer.lock().unwrap().process_component_sync(&mut connector.lock().unwrap(), &mut component_a);
+            });
+
+            s.spawn(|| {
+                layer.lock().unwrap().prepare_component_sync(&mut connector.lock().unwrap(), &mut component_b);
+                component_b.run();
+                layer.lock().unwrap().process_component_sync(&mut connector.lock().unwrap(), &mut component_b);
+            });
+        });
+
+        layer.lock().unwrap().post_exec_sync(&mut connector.lock().unwrap());
+
+        assert_eq!(connector.lock().unwrap()
+            .state.get_state::<TestEventA>().unwrap().len, Distance::from_m(3.0));
+        assert_eq!(connector.lock().unwrap()
+            .state.get_state::<TestEventB>().unwrap().amt, Amount::from_mmol(1.0));
+    }
 }

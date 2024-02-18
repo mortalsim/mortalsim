@@ -66,10 +66,9 @@ impl<O: Organism> CirculationConnector<O> {
     }
 
     /// Retrieves the blood store for the associated vessel
-    /// WARNING: will panic if the vessel is already being
+    /// Will panic if the vessel is already being
     /// borrowed by the current component
     pub fn blood_store(&self, vessel: &O::VesselType) -> Option<Either<RefMut<'_, BloodStore>, MutexGuard<'_, BloodStore>>> {
-
         if let Some(store) = self.vessel_map.get(vessel) {
             return Some(Either::Left(store.borrow_mut()));
         } else if let Some(store) = self.vessel_map_sync.get(vessel) {
