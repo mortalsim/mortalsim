@@ -13,8 +13,9 @@ use crate::sim::layer::nervous::nerve::test::TestNerve;
 use crate::sim::Sim;
 use crate::util::secs;
 
-use super::{impl_sim, Organism};
+use super::{impl_sim, AnatomicalRegion, Organism};
 
+#[derive(Debug, Clone, Copy)]
 pub struct TestOrganism;
 
 impl Organism for TestOrganism {
@@ -34,6 +35,8 @@ pub enum TestAnatomicalRegion {
     LeftLeg,
     RightLeg,
 }
+
+impl AnatomicalRegion for TestAnatomicalRegion {}
 
 #[test]
 fn test_default() {

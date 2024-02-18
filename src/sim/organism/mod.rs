@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use super::layer::circulation::BloodVessel;
 use super::layer::nervous::Nerve;
 
@@ -8,8 +10,10 @@ pub use impl_sim::*;
 pub mod test;
 pub mod human;
 
-pub trait Organism: Send  + 'static {
+pub trait AnatomicalRegion: Debug + Copy + PartialEq + Eq + Send + Sync {}
+
+pub trait Organism: Debug + Send  + 'static {
     type VesselType: BloodVessel;
     type NerveType: Nerve;
-    type AnatomyType;
+    type AnatomyType: AnatomicalRegion;
 }

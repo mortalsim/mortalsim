@@ -2,6 +2,17 @@ use downcast_rs::{Downcast, DowncastSync};
 use std::fmt::Debug;
 use std::sync::Arc;
 
+mod vital;
+mod infection;
+mod wound;
+
+pub use vital::*;
+pub use infection::*;
+pub use wound::*;
+
+// Numeric type to use for all built-in Events
+type NumType = f64;
+
 pub trait Event: Debug + Send + DowncastSync {}
 
 impl_downcast!(sync Event);

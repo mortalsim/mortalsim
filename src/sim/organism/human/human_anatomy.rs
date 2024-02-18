@@ -4,6 +4,8 @@
  * SOURCE: config/human/anatomy.yaml
  */
 
+use crate::sim::organism::AnatomicalRegion;
+
 #[derive(Debug, Display, Hash, Clone, Copy, PartialEq, Eq, EnumString, IntoStaticStr)]
 pub enum HumanAnatomicalRegion {
     Cranial,
@@ -72,3 +74,5 @@ pub enum HumanAnatomicalRegion {
     RightLowerPhalangeal,
     RightPlantar
 }
+
+impl AnatomicalRegion for HumanAnatomicalRegion {}

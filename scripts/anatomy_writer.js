@@ -24,9 +24,13 @@ function writeAnatomyFile(namespace, config) {
  * SOURCE: config/${namespace}/anatomy.yaml
  */
 
+use crate::sim::organism::AnatomicalRegion;
+
 #[derive(Debug, Display, Hash, Clone, Copy, PartialEq, Eq, EnumString, IntoStaticStr)]
 pub enum ${namespaceCapitalized}AnatomicalRegion {
     ${config.regions.join(',\n    ')}
 }
+
+impl AnatomicalRegion for ${namespaceCapitalized}AnatomicalRegion {}
 `)
 }

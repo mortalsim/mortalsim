@@ -8,6 +8,7 @@ pub use human_nervous::HumanNerve;
 
 use super::{impl_sim, Organism};
 
+#[derive(Debug, Clone, Copy)]
 pub struct HumanOrganism;
 
 impl Organism for HumanOrganism {
