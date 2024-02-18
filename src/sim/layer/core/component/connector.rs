@@ -74,6 +74,9 @@ impl<O: Organism> CoreConnector<O> {
     /// Whether to unschedule all previously scheduled `Event` objects (default is true)
     /// Set to `false` in order to manually specify which `Event` objects to unschedule
     /// using `unschedule_event`
+    /// 
+    /// ### Arguments
+    /// * `setting` - whether to turn automatic unscheduling on or off
     pub fn unschedule_all(&mut self, setting: bool) {
         self.unschedule_all = setting;
     }
@@ -140,6 +143,8 @@ impl<O: Organism> CoreConnector<O> {
     ///
     /// ### Arguments
     /// * `handler` - Function to modify the `Event`
+    /// 
+    /// Returns a registration id for this transformer
     pub fn transform<E: Event>(&mut self, handler: impl FnMut(&mut E) + Send + 'static) -> IdType {
         self.register_transform(TransformerItem::new(handler))
     }
@@ -150,6 +155,8 @@ impl<O: Organism> CoreConnector<O> {
     /// ### Arguments
     /// * `priority` - Transformation order priority for this registration
     /// * `handler` - Function to modify the `Event`
+    /// 
+    /// Returns a registration id for this transformer
     pub fn transform_prioritized<E: Event>(
         &mut self,
         priority: i32,
@@ -160,6 +167,12 @@ impl<O: Organism> CoreConnector<O> {
         ))
     }
 
+    /// Unregisters a previously set transformation function.
+    ///
+    /// ### Arguments
+    /// * `transform_id` - Id returned from a previous `transform` or `transform_prioritized` call
+    /// 
+    /// Returns Ok if successful, and Err if the transform_id is invalid
     pub fn unset_transform(&mut self, transform_id: &IdType) -> anyhow::Result<()> {
         if let Some(layer_transform_id) = self.transform_id_map.remove(transform_id) {
             return Ok(self.pending_untransforms.push(layer_transform_id));

@@ -15,7 +15,9 @@ use super::CoreConnector;
 #[derive(Debug)]
 pub struct CoreLayer<O: Organism> {
     pd: PhantomData<O>,
-    module_notifications: HashMap<TypeId, Vec<(i32, &'static str)>>,
+    /// Map of event types to component names to trigger when
+    /// the event is emitted
+    module_notifications: HashMap<TypeId, Vec<&'static str>>,
     /// Map of pending updates for each module
     notify_map: HashMap<&'static str, HashSet<TypeId>>,
 }
@@ -97,7 +99,7 @@ impl<O: Organism> SimLayer for CoreLayer<O> {
             .for_each(|evt| {
                 // populate the notify list for this event
                 if let Some(notify_list) = self.module_notifications.get(&evt.type_id()) {
-                    for (_, comp_id) in notify_list {
+                    for comp_id in notify_list {
                         self.notify_map
                             .entry(comp_id)
                             .or_default()
@@ -148,16 +150,11 @@ impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer
             comp_connector.transform_id_map.insert(local_id, transform_id);
         }
 
-        for (priority, type_id) in initializer.pending_notifies {
-            match self.module_notifications.get_mut(&type_id) {
-                None => {
-                    self.module_notifications
-                        .insert(type_id, vec![(priority, component.id())]);
-                }
-                Some(list) => {
-                    list.push((priority, component.id()));
-                }
-            }
+        for type_id in initializer.pending_notifies {
+            self.module_notifications
+                .entry(type_id)
+                .or_default()
+                .push(component.id());
         }
 
         for event in initializer.initial_outputs {

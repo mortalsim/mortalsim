@@ -1,3 +1,5 @@
+use simple_si_units::base::Amount;
+
 use crate::sim::SimTime;
 use crate::substance::substance_wrapper::substance_store_wrapper;
 use crate::substance::{Substance, SubstanceStore};
@@ -24,12 +26,17 @@ impl Consumable {
             change_map: HashMap::new(),
         }
     }
+
     pub fn advance(&mut self, sim_time: SimTime) {
         self.store.advance(sim_time)
     }
 
     pub fn volume(&self) -> Volume<f64> {
         self.volume
+    }
+
+    pub fn amount_of(&self, substance: Substance) -> Amount<f64> {
+        self.store.concentration_of(&substance) * self.volume
     }
 
     pub fn set_volume(&mut self, volume: Volume<f64>) -> anyhow::Result<()> {

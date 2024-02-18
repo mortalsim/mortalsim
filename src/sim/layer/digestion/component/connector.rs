@@ -34,11 +34,9 @@ impl<O: Organism> DigestionConnector<O> {
         self.sim_time
     }
 
-    /// Iterates through consumed items
+    /// Retrieves an iterator of consumables currently owned
+    /// by this component
     pub fn consumed(&mut self) -> impl Iterator<Item = &mut Consumed> {
         self.consumed_list.iter_mut()
     }
 }
-
-#[cfg(test)]
-pub mod test {}

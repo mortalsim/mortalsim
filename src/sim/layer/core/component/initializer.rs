@@ -9,14 +9,10 @@ use std::marker::PhantomData;
 
 pub struct CoreInitializer<O: Organism> {
     pd: PhantomData<O>,
-    /// Input events for the associated component
-    input_events: HashSet<TypeId>,
-    /// Output events for the associated component
-    output_events: HashSet<TypeId>,
     /// Local id generator for transformation registration
     pub(crate) id_gen: IdGenerator,
     /// Notifications pending from the last run of the component
-    pub(crate) pending_notifies: Vec<(i32, TypeId)>,
+    pub(crate) pending_notifies: Vec<TypeId>,
     /// Transforms pending initial addition
     pub(crate) pending_transforms: Vec<(IdType, Box<dyn EventTransformer>)>,
     /// Default event state from the component
@@ -27,8 +23,6 @@ impl<O: Organism> CoreInitializer<O> {
     pub fn new() -> Self {
         Self {
             pd: PhantomData,
-            input_events: HashSet::new(),
-            output_events: HashSet::new(),
             id_gen: IdGenerator::new(),
             pending_notifies: Vec::new(),
             pending_transforms: Vec::new(),
@@ -42,25 +36,7 @@ impl<O: Organism> CoreInitializer<O> {
     /// ### Arguments
     /// * `default` - Default `Event` value when one isn't provided by another module
     pub fn notify<E: Event>(&mut self) {
-        self.notify_prioritized::<E>(0);
-    }
-
-    /// Registers the associated `CoreComponent` to `run` whenever the
-    /// provided `Event` is modified on the `Sim` with a given priority value.
-    ///
-    /// ### Arguments
-    /// * `priority` - Notify order priority for this registration
-    /// * `default` - Default `Event` value when one isn't provided by another module
-    pub fn notify_prioritized<E: Event>(&mut self, priority: i32) {
-        let type_key = TypeId::of::<E>();
-
-        // If this event type has already been registered as an output, panic
-        if self.output_events.contains(&type_key) {
-            panic!("Modules cannot register notifications for Events they are producing! This could cause an infinite loop.")
-        }
-
-        self.input_events.insert(type_key);
-        self.pending_notifies.push((priority, type_key))
+        self.pending_notifies.push(TypeId::of::<E>())
     }
 
     fn register_transform<E: Event>(&mut self, transformer: TransformerItem<'static, E>) -> IdType {
@@ -77,6 +53,8 @@ impl<O: Organism> CoreInitializer<O> {
     ///
     /// ### Arguments
     /// * `handler` - Function to modify the `Event`
+    /// 
+    /// Returns a registration id for this transformer
     pub fn transform<E: Event>(&mut self, handler: impl FnMut(&mut E) + Send + 'static) -> IdType {
         self.register_transform(TransformerItem::new(handler))
     }
@@ -87,6 +65,8 @@ impl<O: Organism> CoreInitializer<O> {
     /// ### Arguments
     /// * `priority` - Transformation order priority for this registration
     /// * `handler` - Function to modify the `Event`
+    /// 
+    /// Returns a registration id for this transformer
     pub fn transform_prioritized<E: Event>(
         &mut self,
         priority: i32,
@@ -102,14 +82,6 @@ impl<O: Organism> CoreInitializer<O> {
     /// ### Arguments
     /// * `event` - `Event` instance to set on initial state
     pub fn set_output<E: Event>(&mut self, initial_value: E) {
-        let type_key = TypeId::of::<E>();
-
-        // If this event type has already been registered as an output, panic
-        if self.input_events.contains(&type_key) {
-            panic!("Modules cannot produce Events they are notifying on! This could cause an infinite loop.")
-        }
-
-        self.output_events.insert(type_key);
         self.initial_outputs.push(Box::new(initial_value))
     }
 }
@@ -139,13 +111,6 @@ pub mod test {
     fn test_notify() {
         let mut initializer = CoreInitializer::<TestOrganism>::new();
         initializer.notify::<TestEventA>();
-    }
-
-    #[test]
-    fn test_notify_with_priority() {
-        let mut initializer = CoreInitializer::<TestOrganism>::new();
-        initializer.notify::<TestEventA>();
-        initializer.notify_prioritized::<TestEventA>(1);
     }
 
     #[test]

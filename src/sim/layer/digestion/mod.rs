@@ -19,7 +19,7 @@ pub enum DigestionDirection {
 }
 
 #[derive(Debug, Clone)]
-pub struct ConsumeEvent(Consumable);
+pub struct ConsumeEvent(pub Consumable);
 
 impl Event for ConsumeEvent {}
 
