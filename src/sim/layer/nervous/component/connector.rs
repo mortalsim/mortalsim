@@ -6,8 +6,7 @@ use downcast_rs::Downcast;
 
 use crate::event::Event;
 use crate::sim::layer::nervous::nerve::NerveSignal;
-use crate::sim::layer::nervous::transform::TransformFn;
-use crate::sim::layer::nervous::NerveSignalTransformer;
+use crate::sim::layer::nervous::transform::{TransformFn, NerveSignalTransformer};
 use crate::sim::organism::Organism;
 use crate::sim::SimTime;
 use crate::util::{IdType, OrderedTime};

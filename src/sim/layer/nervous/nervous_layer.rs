@@ -13,7 +13,7 @@ use crate::util::{secs, IdGenerator, IdType, OrderedTime};
 
 use super::component::{NervousComponent, NervousInitializer};
 use super::nerve::NerveSignal;
-use super::NerveSignalTransformer;
+use super::transform::NerveSignalTransformer;
 
 pub struct NervousLayer<O: Organism> {
     /// ID generator for transform registration

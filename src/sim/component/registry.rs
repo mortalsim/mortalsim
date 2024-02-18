@@ -9,18 +9,10 @@ use std::collections::HashSet;
 use crate::sim::organism::Organism;
 use crate::sim::layer::{
     LayerType,
-    CoreComponent,
-    CoreInitializer,
-    CoreConnector,
-    CirculationComponent,
-    CirculationInitializer,
-    CirculationConnector,
-    DigestionComponent,
-    DigestionInitializer,
-    DigestionConnector,
-    NervousComponent,
-    NervousInitializer,
-    NervousConnector,
+    core::{CoreComponent, CoreInitializer, CoreConnector},
+    circulation::{CirculationComponent, CirculationInitializer, CirculationConnector},
+    digestion::{DigestionComponent, DigestionInitializer, DigestionConnector},
+    nervous::{NervousComponent, NervousInitializer, NervousConnector},
 };
 use super::SimComponent;
 

@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::units::geometry::Volume;
 
 use crate::sim::layer::digestion::Consumable;
-use crate::sim::layer::DigestionDirection;
+use crate::sim::layer::digestion::DigestionDirection;
 use crate::sim::SimTime;
 use crate::substance::substance_wrapper::substance_store_wrapper;
 use crate::substance::Substance;

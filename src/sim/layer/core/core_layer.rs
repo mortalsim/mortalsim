@@ -229,11 +229,11 @@ pub mod test {
 
     use simple_si_units::base::Amount;
 
+    use super::CoreLayer;
     use crate::units::base::Distance;
-
     use crate::event::test::{TestEventA, TestEventB};
     use crate::sim::component::{SimComponent, SimComponentProcessor, SimComponentProcessorSync};
-    use crate::sim::layer::{CoreLayer, SimLayer, SimLayerSync};
+    use crate::sim::layer::{SimLayer, SimLayerSync};
     use crate::sim::layer::core::component::test::{TestComponentA, TestComponentB};
     use crate::sim::layer::core::component::connector::test::basic_event_a;
     use crate::sim::test::TestOrganism;

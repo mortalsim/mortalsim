@@ -1,28 +1,18 @@
 use std::collections::hash_set;
 use std::fmt::Debug;
 
+pub(crate) mod layer_processor;
+pub(crate) mod layer_manager;
+
 pub mod circulation;
 pub mod core;
 pub mod digestion;
-pub mod layer_manager;
-pub mod layer_processor;
 pub mod nervous;
 
 use crate::event::Event;
 
-pub use self::core::{CoreComponent, CoreConnector, CoreInitializer, CoreLayer};
-pub use circulation::{
-    BloodStore, BloodVessel, CirculationComponent, CirculationConnector, CirculationInitializer,
-    CirculationLayer,
-};
-pub use digestion::{
-    DigestionComponent, DigestionConnector, DigestionDirection, DigestionInitializer,
-    DigestionLayer,
-};
-pub use layer_manager::*;
-pub use nervous::{
-    Nerve, NerveIter, NervousComponent, NervousConnector, NervousInitializer, NervousLayer,
-};
+pub use layer_processor::{LayerProcessor, LayerProcessorSync};
+pub use layer_manager::LayerManager;
 
 use super::SimConnector;
 

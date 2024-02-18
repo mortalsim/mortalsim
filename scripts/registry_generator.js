@@ -108,9 +108,8 @@ use crate::sim::organism::Organism;
 use crate::sim::layer::{
     LayerType,
 ${layerList.map(l =>
-`    ${l.cap()}Component,
-    ${l.cap()}Initializer,
-    ${l.cap()}Connector`).join(',\n')},
+`    ${l}::{${l.cap()}Component, ${l.cap()}Initializer, ${l.cap()}Connector}`)
+.join(',\n')},
 };
 use super::SimComponent;
 

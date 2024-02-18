@@ -2,7 +2,11 @@ use crate::sim::component::{registry::ComponentWrapper, SimComponentProcessorSyn
 use crate::sim::component::SimComponentProcessor;
 use crate::sim::Organism;
 
-use super::{CirculationLayer, CoreLayer, DigestionLayer, LayerType, NervousLayer, SimLayer, SimLayerSync};
+use super::circulation::CirculationLayer;
+use super::core::CoreLayer;
+use super::digestion::DigestionLayer;
+use super::nervous::NervousLayer;
+use super::{LayerType, SimLayer, SimLayerSync};
 
 pub enum LayerProcessor<O: Organism> {
     Core(CoreLayer<O>),
