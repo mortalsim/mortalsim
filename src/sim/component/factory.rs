@@ -8,7 +8,7 @@ pub struct ComponentFactory<'a, O: Organism> {
     attach_fn: Box<dyn FnMut(&mut ComponentRegistry<O>) + 'a + Send>,
 }
 
-impl<'a, O: Organism + 'static> ComponentFactory<'a, O> {
+impl<'a, O: Organism> ComponentFactory<'a, O> {
     pub fn new<T: SimComponent<O>>(mut factory: impl FnMut() -> T + 'a + Send) -> Self {
         Self {
             // Magic happens here. We get compile-time assurance and usage

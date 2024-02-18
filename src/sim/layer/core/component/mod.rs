@@ -5,6 +5,65 @@ use crate::sim::organism::Organism;
 pub use connector::CoreConnector;
 pub use initializer::CoreInitializer;
 
+/// Trait to implement for `Core` simulation components.
+/// 
+/// Example:
+/// ```
+/// use mortalsim::event::Event;
+/// use mortalsim::units::base::Distance;
+/// use mortalsim::sim::component::{ComponentRegistry, SimComponent};
+/// use mortalsim::sim::layer::core::{CoreInitializer, CoreConnector, CoreComponent};
+/// use mortalsim::sim::organism::Organism;
+/// 
+/// #[derive(Debug)]
+/// struct ExampleEventA {
+///     len: Distance<f64>
+/// };
+/// impl Event for ExampleEventA {}
+/// 
+/// #[derive(Debug)]
+/// struct ExampleEventB;
+/// impl Event for ExampleEventB {}
+/// 
+/// struct ExampleComponentA<O: Organism> {
+///     connector: CoreConnector<O>,
+/// }
+/// impl<O: Organism> ExampleComponentA<O> {
+///     pub fn new() -> Self {
+///         Self { 
+///             connector: CoreConnector::new()
+///         }
+///     }
+/// }
+/// impl<O: Organism> CoreComponent<O> for ExampleComponentA<O> {
+///     fn core_connector(&mut self) -> &mut CoreConnector<O> {
+///         &mut self.connector
+///     }
+///     fn core_init(&mut self, initializer: &mut CoreInitializer<O>) {
+///         initializer.notify::<ExampleEventB>();
+///         initializer.transform(|evt: &mut ExampleEventA| {
+///             evt.len += Distance::from_m(3.0);
+///         });
+///     }
+/// }
+/// 
+/// impl<O: Organism> SimComponent<O> for ExampleComponentA<O> {
+///     fn id(&self) -> &'static str {
+///         "ExampleComponentA"
+///     }
+///     fn attach(self, registry: &mut ComponentRegistry<O>) {
+///         registry.add_core_component(self);
+///     }
+///     fn run(&mut self) {
+///         if let Some(evt_b) = self.connector.get::<ExampleEventB>() {
+///             println!("{:?} emitted", evt_b)
+///         }
+///         else {
+///             println!("ExampleEventB not emitted")
+///         }
+///     }
+/// }
+/// ```
 pub trait CoreComponent<O: Organism>: SimComponent<O> {
     /// Initializes the module. Should register any `Event` objects to listen for
     /// and set initial state.
@@ -30,7 +89,7 @@ pub mod test {
     use crate::sim::component::SimComponent;
     use crate::sim::organism::test::TestSim;
     use crate::sim::organism::Organism;
-    use crate::sim::test::TestOrganism;
+    use crate::sim::organism::test::TestOrganism;
     use crate::units::base::Amount;
     use crate::units::base::Distance;
     use std::any::TypeId;
@@ -45,7 +104,7 @@ pub mod test {
             }
         }
     }
-    impl<O: Organism + 'static> CoreComponent<O> for TestComponentA<O> {
+    impl<O: Organism> CoreComponent<O> for TestComponentA<O> {
         fn core_connector(&mut self) -> &mut CoreConnector<O> {
             &mut self.connector
         }
@@ -58,7 +117,7 @@ pub mod test {
         }
     }
 
-    impl<O: Organism + 'static> SimComponent<O> for TestComponentA<O> {
+    impl<O: Organism> SimComponent<O> for TestComponentA<O> {
         fn id(&self) -> &'static str {
             "TestComponentA"
         }
@@ -90,7 +149,7 @@ pub mod test {
             evt.amt = evt.amt + Amount::from_mol(0.0);
         }
     }
-    impl<O: Organism + 'static> CoreComponent<O> for TestComponentB<O> {
+    impl<O: Organism> CoreComponent<O> for TestComponentB<O> {
         fn core_init(&mut self, initializer: &mut CoreInitializer<O>) {
             initializer.notify::<TestEventA>();
             initializer.transform(Self::transform_b);
@@ -100,7 +159,7 @@ pub mod test {
         }
     }
 
-    impl<O: Organism + 'static> SimComponent<O> for TestComponentB<O> {
+    impl<O: Organism> SimComponent<O> for TestComponentB<O> {
         fn id(&self) -> &'static str {
             "TestComponentB"
         }

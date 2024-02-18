@@ -33,8 +33,7 @@ pub mod test {
     use crate::sim::component::SimComponent;
     use crate::sim::layer::circulation::component::connector::BloodStore;
     use crate::sim::layer::circulation::vessel::test::TestBloodVessel;
-    use crate::sim::organism::test::TestSim;
-    use crate::sim::test::TestOrganism;
+    use crate::sim::organism::test::{TestSim, TestOrganism};
     use crate::sim::SimTime;
     use crate::substance::Substance;
     use crate::util::mmol_per_L;

@@ -10,7 +10,7 @@ pub use sim::Sim;
 pub use sim_state::SimState;
 pub use time_manager::{SimTime, TimeManager};
 
-pub use organism::*;
+pub use organism::Organism;
 
 use crate::event::Event;
 

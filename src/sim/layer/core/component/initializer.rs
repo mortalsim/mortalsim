@@ -7,6 +7,7 @@ use std::any::TypeId;
 use std::collections::HashSet;
 use std::marker::PhantomData;
 
+/// Provides `Core` component initialization methods
 pub struct CoreInitializer<O: Organism> {
     pd: PhantomData<O>,
     /// Local id generator for transformation registration
@@ -89,7 +90,7 @@ impl<O: Organism> CoreInitializer<O> {
 #[cfg(test)]
 pub mod test {
     use crate::event::test::{TestEventA, TestEventB};
-    use crate::sim::test::{TestOrganism, TestSim};
+    use crate::sim::organism::test::{TestOrganism, TestSim};
     use crate::units::base::Distance;
 
     use super::CoreInitializer;

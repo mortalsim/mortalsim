@@ -215,8 +215,7 @@ mod tests {
     use crate::sim::layer::circulation::vessel::test::TestBloodVessel;
     use crate::sim::layer::circulation::{BloodStore, CirculationComponent};
     use crate::sim::layer::{SimLayer, SimLayerSync};
-    use crate::sim::organism::test::TestSim;
-    use crate::sim::test::TestOrganism;
+    use crate::sim::organism::test::{TestSim, TestOrganism};
     use crate::sim::{SimConnector, SimTime};
     use crate::substance::Substance;
     use crate::util::mmol_per_L;

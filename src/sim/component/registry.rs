@@ -99,7 +99,7 @@ impl<O: Organism> NervousComponent<O> for Box<dyn ComponentWrapper<O>> {
 
 pub struct CoreCirculationDigestionWrapper<O: Organism, T: Send + CoreComponent<O> + CirculationComponent<O> + DigestionComponent<O> + 'static>(pub T, pub PhantomData<O>);
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O> + CirculationComponent<O> + DigestionComponent<O>> SimComponent<O> for CoreCirculationDigestionWrapper<O, T> {
+impl<O: Organism, T: Send + CoreComponent<O> + CirculationComponent<O> + DigestionComponent<O>> SimComponent<O> for CoreCirculationDigestionWrapper<O, T> {
     fn id(&self) -> &'static str {
         self.0.id()
     }
@@ -112,7 +112,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O> + CirculationComponent<O>
 }
 
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O> + CirculationComponent<O> + DigestionComponent<O>> CoreComponent<O> for CoreCirculationDigestionWrapper<O, T> {
+impl<O: Organism, T: Send + CoreComponent<O> + CirculationComponent<O> + DigestionComponent<O>> CoreComponent<O> for CoreCirculationDigestionWrapper<O, T> {
     fn core_init(&mut self, initializer: &mut CoreInitializer<O>) {
         self.0.core_init(initializer)
     }
@@ -121,7 +121,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O> + CirculationComponent<O>
     }
 }
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O> + CirculationComponent<O> + DigestionComponent<O>> CirculationComponent<O> for CoreCirculationDigestionWrapper<O, T> {
+impl<O: Organism, T: Send + CoreComponent<O> + CirculationComponent<O> + DigestionComponent<O>> CirculationComponent<O> for CoreCirculationDigestionWrapper<O, T> {
     fn circulation_init(&mut self, initializer: &mut CirculationInitializer<O>) {
         self.0.circulation_init(initializer)
     }
@@ -130,7 +130,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O> + CirculationComponent<O>
     }
 }
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O> + CirculationComponent<O> + DigestionComponent<O>> DigestionComponent<O> for CoreCirculationDigestionWrapper<O, T> {
+impl<O: Organism, T: Send + CoreComponent<O> + CirculationComponent<O> + DigestionComponent<O>> DigestionComponent<O> for CoreCirculationDigestionWrapper<O, T> {
     fn digestion_init(&mut self, initializer: &mut DigestionInitializer<O>) {
         self.0.digestion_init(initializer)
     }
@@ -141,7 +141,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O> + CirculationComponent<O>
 
 
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O> + CirculationComponent<O> + DigestionComponent<O>> NervousComponent<O> for CoreCirculationDigestionWrapper<O, T> {
+impl<O: Organism, T: Send + CoreComponent<O> + CirculationComponent<O> + DigestionComponent<O>> NervousComponent<O> for CoreCirculationDigestionWrapper<O, T> {
     fn nervous_init(&mut self, _initializer: &mut NervousInitializer<O>) {
         panic!("Improper wrapper method called!")
     }
@@ -151,7 +151,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O> + CirculationComponent<O>
 }
 
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O> + CirculationComponent<O> + DigestionComponent<O>> ComponentWrapper<O> for CoreCirculationDigestionWrapper<O,T> {
+impl<O: Organism, T: Send + CoreComponent<O> + CirculationComponent<O> + DigestionComponent<O>> ComponentWrapper<O> for CoreCirculationDigestionWrapper<O,T> {
 
     fn is_core_component(&self) -> bool {
         true
@@ -186,7 +186,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O> + CirculationComponent<O>
 
 pub struct CoreCirculationNervousWrapper<O: Organism, T: Send + CoreComponent<O> + CirculationComponent<O> + NervousComponent<O> + 'static>(pub T, pub PhantomData<O>);
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O> + CirculationComponent<O> + NervousComponent<O>> SimComponent<O> for CoreCirculationNervousWrapper<O, T> {
+impl<O: Organism, T: Send + CoreComponent<O> + CirculationComponent<O> + NervousComponent<O>> SimComponent<O> for CoreCirculationNervousWrapper<O, T> {
     fn id(&self) -> &'static str {
         self.0.id()
     }
@@ -199,7 +199,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O> + CirculationComponent<O>
 }
 
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O> + CirculationComponent<O> + NervousComponent<O>> CoreComponent<O> for CoreCirculationNervousWrapper<O, T> {
+impl<O: Organism, T: Send + CoreComponent<O> + CirculationComponent<O> + NervousComponent<O>> CoreComponent<O> for CoreCirculationNervousWrapper<O, T> {
     fn core_init(&mut self, initializer: &mut CoreInitializer<O>) {
         self.0.core_init(initializer)
     }
@@ -208,7 +208,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O> + CirculationComponent<O>
     }
 }
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O> + CirculationComponent<O> + NervousComponent<O>> CirculationComponent<O> for CoreCirculationNervousWrapper<O, T> {
+impl<O: Organism, T: Send + CoreComponent<O> + CirculationComponent<O> + NervousComponent<O>> CirculationComponent<O> for CoreCirculationNervousWrapper<O, T> {
     fn circulation_init(&mut self, initializer: &mut CirculationInitializer<O>) {
         self.0.circulation_init(initializer)
     }
@@ -217,7 +217,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O> + CirculationComponent<O>
     }
 }
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O> + CirculationComponent<O> + NervousComponent<O>> NervousComponent<O> for CoreCirculationNervousWrapper<O, T> {
+impl<O: Organism, T: Send + CoreComponent<O> + CirculationComponent<O> + NervousComponent<O>> NervousComponent<O> for CoreCirculationNervousWrapper<O, T> {
     fn nervous_init(&mut self, initializer: &mut NervousInitializer<O>) {
         self.0.nervous_init(initializer)
     }
@@ -228,7 +228,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O> + CirculationComponent<O>
 
 
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O> + CirculationComponent<O> + NervousComponent<O>> DigestionComponent<O> for CoreCirculationNervousWrapper<O, T> {
+impl<O: Organism, T: Send + CoreComponent<O> + CirculationComponent<O> + NervousComponent<O>> DigestionComponent<O> for CoreCirculationNervousWrapper<O, T> {
     fn digestion_init(&mut self, _initializer: &mut DigestionInitializer<O>) {
         panic!("Improper wrapper method called!")
     }
@@ -238,7 +238,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O> + CirculationComponent<O>
 }
 
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O> + CirculationComponent<O> + NervousComponent<O>> ComponentWrapper<O> for CoreCirculationNervousWrapper<O,T> {
+impl<O: Organism, T: Send + CoreComponent<O> + CirculationComponent<O> + NervousComponent<O>> ComponentWrapper<O> for CoreCirculationNervousWrapper<O,T> {
 
     fn is_core_component(&self) -> bool {
         true
@@ -273,7 +273,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O> + CirculationComponent<O>
 
 pub struct CoreCirculationWrapper<O: Organism, T: Send + CoreComponent<O> + CirculationComponent<O> + 'static>(pub T, pub PhantomData<O>);
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O> + CirculationComponent<O>> SimComponent<O> for CoreCirculationWrapper<O, T> {
+impl<O: Organism, T: Send + CoreComponent<O> + CirculationComponent<O>> SimComponent<O> for CoreCirculationWrapper<O, T> {
     fn id(&self) -> &'static str {
         self.0.id()
     }
@@ -286,7 +286,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O> + CirculationComponent<O>
 }
 
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O> + CirculationComponent<O>> CoreComponent<O> for CoreCirculationWrapper<O, T> {
+impl<O: Organism, T: Send + CoreComponent<O> + CirculationComponent<O>> CoreComponent<O> for CoreCirculationWrapper<O, T> {
     fn core_init(&mut self, initializer: &mut CoreInitializer<O>) {
         self.0.core_init(initializer)
     }
@@ -295,7 +295,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O> + CirculationComponent<O>
     }
 }
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O> + CirculationComponent<O>> CirculationComponent<O> for CoreCirculationWrapper<O, T> {
+impl<O: Organism, T: Send + CoreComponent<O> + CirculationComponent<O>> CirculationComponent<O> for CoreCirculationWrapper<O, T> {
     fn circulation_init(&mut self, initializer: &mut CirculationInitializer<O>) {
         self.0.circulation_init(initializer)
     }
@@ -306,7 +306,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O> + CirculationComponent<O>
 
 
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O> + CirculationComponent<O>> DigestionComponent<O> for CoreCirculationWrapper<O, T> {
+impl<O: Organism, T: Send + CoreComponent<O> + CirculationComponent<O>> DigestionComponent<O> for CoreCirculationWrapper<O, T> {
     fn digestion_init(&mut self, _initializer: &mut DigestionInitializer<O>) {
         panic!("Improper wrapper method called!")
     }
@@ -315,7 +315,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O> + CirculationComponent<O>
     }
 }
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O> + CirculationComponent<O>> NervousComponent<O> for CoreCirculationWrapper<O, T> {
+impl<O: Organism, T: Send + CoreComponent<O> + CirculationComponent<O>> NervousComponent<O> for CoreCirculationWrapper<O, T> {
     fn nervous_init(&mut self, _initializer: &mut NervousInitializer<O>) {
         panic!("Improper wrapper method called!")
     }
@@ -325,7 +325,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O> + CirculationComponent<O>
 }
 
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O> + CirculationComponent<O>> ComponentWrapper<O> for CoreCirculationWrapper<O,T> {
+impl<O: Organism, T: Send + CoreComponent<O> + CirculationComponent<O>> ComponentWrapper<O> for CoreCirculationWrapper<O,T> {
 
     fn is_core_component(&self) -> bool {
         true
@@ -360,7 +360,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O> + CirculationComponent<O>
 
 pub struct CoreDigestionNervousWrapper<O: Organism, T: Send + CoreComponent<O> + DigestionComponent<O> + NervousComponent<O> + 'static>(pub T, pub PhantomData<O>);
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O> + DigestionComponent<O> + NervousComponent<O>> SimComponent<O> for CoreDigestionNervousWrapper<O, T> {
+impl<O: Organism, T: Send + CoreComponent<O> + DigestionComponent<O> + NervousComponent<O>> SimComponent<O> for CoreDigestionNervousWrapper<O, T> {
     fn id(&self) -> &'static str {
         self.0.id()
     }
@@ -373,7 +373,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O> + DigestionComponent<O> +
 }
 
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O> + DigestionComponent<O> + NervousComponent<O>> CoreComponent<O> for CoreDigestionNervousWrapper<O, T> {
+impl<O: Organism, T: Send + CoreComponent<O> + DigestionComponent<O> + NervousComponent<O>> CoreComponent<O> for CoreDigestionNervousWrapper<O, T> {
     fn core_init(&mut self, initializer: &mut CoreInitializer<O>) {
         self.0.core_init(initializer)
     }
@@ -382,7 +382,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O> + DigestionComponent<O> +
     }
 }
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O> + DigestionComponent<O> + NervousComponent<O>> DigestionComponent<O> for CoreDigestionNervousWrapper<O, T> {
+impl<O: Organism, T: Send + CoreComponent<O> + DigestionComponent<O> + NervousComponent<O>> DigestionComponent<O> for CoreDigestionNervousWrapper<O, T> {
     fn digestion_init(&mut self, initializer: &mut DigestionInitializer<O>) {
         self.0.digestion_init(initializer)
     }
@@ -391,7 +391,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O> + DigestionComponent<O> +
     }
 }
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O> + DigestionComponent<O> + NervousComponent<O>> NervousComponent<O> for CoreDigestionNervousWrapper<O, T> {
+impl<O: Organism, T: Send + CoreComponent<O> + DigestionComponent<O> + NervousComponent<O>> NervousComponent<O> for CoreDigestionNervousWrapper<O, T> {
     fn nervous_init(&mut self, initializer: &mut NervousInitializer<O>) {
         self.0.nervous_init(initializer)
     }
@@ -402,7 +402,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O> + DigestionComponent<O> +
 
 
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O> + DigestionComponent<O> + NervousComponent<O>> CirculationComponent<O> for CoreDigestionNervousWrapper<O, T> {
+impl<O: Organism, T: Send + CoreComponent<O> + DigestionComponent<O> + NervousComponent<O>> CirculationComponent<O> for CoreDigestionNervousWrapper<O, T> {
     fn circulation_init(&mut self, _initializer: &mut CirculationInitializer<O>) {
         panic!("Improper wrapper method called!")
     }
@@ -412,7 +412,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O> + DigestionComponent<O> +
 }
 
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O> + DigestionComponent<O> + NervousComponent<O>> ComponentWrapper<O> for CoreDigestionNervousWrapper<O,T> {
+impl<O: Organism, T: Send + CoreComponent<O> + DigestionComponent<O> + NervousComponent<O>> ComponentWrapper<O> for CoreDigestionNervousWrapper<O,T> {
 
     fn is_core_component(&self) -> bool {
         true
@@ -447,7 +447,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O> + DigestionComponent<O> +
 
 pub struct CoreDigestionWrapper<O: Organism, T: Send + CoreComponent<O> + DigestionComponent<O> + 'static>(pub T, pub PhantomData<O>);
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O> + DigestionComponent<O>> SimComponent<O> for CoreDigestionWrapper<O, T> {
+impl<O: Organism, T: Send + CoreComponent<O> + DigestionComponent<O>> SimComponent<O> for CoreDigestionWrapper<O, T> {
     fn id(&self) -> &'static str {
         self.0.id()
     }
@@ -460,7 +460,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O> + DigestionComponent<O>> 
 }
 
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O> + DigestionComponent<O>> CoreComponent<O> for CoreDigestionWrapper<O, T> {
+impl<O: Organism, T: Send + CoreComponent<O> + DigestionComponent<O>> CoreComponent<O> for CoreDigestionWrapper<O, T> {
     fn core_init(&mut self, initializer: &mut CoreInitializer<O>) {
         self.0.core_init(initializer)
     }
@@ -469,7 +469,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O> + DigestionComponent<O>> 
     }
 }
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O> + DigestionComponent<O>> DigestionComponent<O> for CoreDigestionWrapper<O, T> {
+impl<O: Organism, T: Send + CoreComponent<O> + DigestionComponent<O>> DigestionComponent<O> for CoreDigestionWrapper<O, T> {
     fn digestion_init(&mut self, initializer: &mut DigestionInitializer<O>) {
         self.0.digestion_init(initializer)
     }
@@ -480,7 +480,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O> + DigestionComponent<O>> 
 
 
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O> + DigestionComponent<O>> CirculationComponent<O> for CoreDigestionWrapper<O, T> {
+impl<O: Organism, T: Send + CoreComponent<O> + DigestionComponent<O>> CirculationComponent<O> for CoreDigestionWrapper<O, T> {
     fn circulation_init(&mut self, _initializer: &mut CirculationInitializer<O>) {
         panic!("Improper wrapper method called!")
     }
@@ -489,7 +489,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O> + DigestionComponent<O>> 
     }
 }
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O> + DigestionComponent<O>> NervousComponent<O> for CoreDigestionWrapper<O, T> {
+impl<O: Organism, T: Send + CoreComponent<O> + DigestionComponent<O>> NervousComponent<O> for CoreDigestionWrapper<O, T> {
     fn nervous_init(&mut self, _initializer: &mut NervousInitializer<O>) {
         panic!("Improper wrapper method called!")
     }
@@ -499,7 +499,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O> + DigestionComponent<O>> 
 }
 
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O> + DigestionComponent<O>> ComponentWrapper<O> for CoreDigestionWrapper<O,T> {
+impl<O: Organism, T: Send + CoreComponent<O> + DigestionComponent<O>> ComponentWrapper<O> for CoreDigestionWrapper<O,T> {
 
     fn is_core_component(&self) -> bool {
         true
@@ -534,7 +534,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O> + DigestionComponent<O>> 
 
 pub struct CoreNervousWrapper<O: Organism, T: Send + CoreComponent<O> + NervousComponent<O> + 'static>(pub T, pub PhantomData<O>);
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O> + NervousComponent<O>> SimComponent<O> for CoreNervousWrapper<O, T> {
+impl<O: Organism, T: Send + CoreComponent<O> + NervousComponent<O>> SimComponent<O> for CoreNervousWrapper<O, T> {
     fn id(&self) -> &'static str {
         self.0.id()
     }
@@ -547,7 +547,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O> + NervousComponent<O>> Si
 }
 
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O> + NervousComponent<O>> CoreComponent<O> for CoreNervousWrapper<O, T> {
+impl<O: Organism, T: Send + CoreComponent<O> + NervousComponent<O>> CoreComponent<O> for CoreNervousWrapper<O, T> {
     fn core_init(&mut self, initializer: &mut CoreInitializer<O>) {
         self.0.core_init(initializer)
     }
@@ -556,7 +556,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O> + NervousComponent<O>> Co
     }
 }
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O> + NervousComponent<O>> NervousComponent<O> for CoreNervousWrapper<O, T> {
+impl<O: Organism, T: Send + CoreComponent<O> + NervousComponent<O>> NervousComponent<O> for CoreNervousWrapper<O, T> {
     fn nervous_init(&mut self, initializer: &mut NervousInitializer<O>) {
         self.0.nervous_init(initializer)
     }
@@ -567,7 +567,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O> + NervousComponent<O>> Ne
 
 
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O> + NervousComponent<O>> CirculationComponent<O> for CoreNervousWrapper<O, T> {
+impl<O: Organism, T: Send + CoreComponent<O> + NervousComponent<O>> CirculationComponent<O> for CoreNervousWrapper<O, T> {
     fn circulation_init(&mut self, _initializer: &mut CirculationInitializer<O>) {
         panic!("Improper wrapper method called!")
     }
@@ -576,7 +576,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O> + NervousComponent<O>> Ci
     }
 }
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O> + NervousComponent<O>> DigestionComponent<O> for CoreNervousWrapper<O, T> {
+impl<O: Organism, T: Send + CoreComponent<O> + NervousComponent<O>> DigestionComponent<O> for CoreNervousWrapper<O, T> {
     fn digestion_init(&mut self, _initializer: &mut DigestionInitializer<O>) {
         panic!("Improper wrapper method called!")
     }
@@ -586,7 +586,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O> + NervousComponent<O>> Di
 }
 
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O> + NervousComponent<O>> ComponentWrapper<O> for CoreNervousWrapper<O,T> {
+impl<O: Organism, T: Send + CoreComponent<O> + NervousComponent<O>> ComponentWrapper<O> for CoreNervousWrapper<O,T> {
 
     fn is_core_component(&self) -> bool {
         true
@@ -621,7 +621,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O> + NervousComponent<O>> Co
 
 pub struct CoreWrapper<O: Organism, T: Send + CoreComponent<O> + 'static>(pub T, pub PhantomData<O>);
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O>> SimComponent<O> for CoreWrapper<O, T> {
+impl<O: Organism, T: Send + CoreComponent<O>> SimComponent<O> for CoreWrapper<O, T> {
     fn id(&self) -> &'static str {
         self.0.id()
     }
@@ -634,7 +634,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O>> SimComponent<O> for Core
 }
 
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O>> CoreComponent<O> for CoreWrapper<O, T> {
+impl<O: Organism, T: Send + CoreComponent<O>> CoreComponent<O> for CoreWrapper<O, T> {
     fn core_init(&mut self, initializer: &mut CoreInitializer<O>) {
         self.0.core_init(initializer)
     }
@@ -645,7 +645,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O>> CoreComponent<O> for Cor
 
 
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O>> CirculationComponent<O> for CoreWrapper<O, T> {
+impl<O: Organism, T: Send + CoreComponent<O>> CirculationComponent<O> for CoreWrapper<O, T> {
     fn circulation_init(&mut self, _initializer: &mut CirculationInitializer<O>) {
         panic!("Improper wrapper method called!")
     }
@@ -654,7 +654,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O>> CirculationComponent<O> 
     }
 }
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O>> DigestionComponent<O> for CoreWrapper<O, T> {
+impl<O: Organism, T: Send + CoreComponent<O>> DigestionComponent<O> for CoreWrapper<O, T> {
     fn digestion_init(&mut self, _initializer: &mut DigestionInitializer<O>) {
         panic!("Improper wrapper method called!")
     }
@@ -663,7 +663,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O>> DigestionComponent<O> fo
     }
 }
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O>> NervousComponent<O> for CoreWrapper<O, T> {
+impl<O: Organism, T: Send + CoreComponent<O>> NervousComponent<O> for CoreWrapper<O, T> {
     fn nervous_init(&mut self, _initializer: &mut NervousInitializer<O>) {
         panic!("Improper wrapper method called!")
     }
@@ -673,7 +673,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O>> NervousComponent<O> for 
 }
 
 
-impl<O: Organism + 'static, T: Send + CoreComponent<O>> ComponentWrapper<O> for CoreWrapper<O,T> {
+impl<O: Organism, T: Send + CoreComponent<O>> ComponentWrapper<O> for CoreWrapper<O,T> {
 
     fn is_core_component(&self) -> bool {
         true
@@ -708,7 +708,7 @@ impl<O: Organism + 'static, T: Send + CoreComponent<O>> ComponentWrapper<O> for 
 
 pub struct CirculationDigestionNervousWrapper<O: Organism, T: Send + CirculationComponent<O> + DigestionComponent<O> + NervousComponent<O> + 'static>(pub T, pub PhantomData<O>);
 
-impl<O: Organism + 'static, T: Send + CirculationComponent<O> + DigestionComponent<O> + NervousComponent<O>> SimComponent<O> for CirculationDigestionNervousWrapper<O, T> {
+impl<O: Organism, T: Send + CirculationComponent<O> + DigestionComponent<O> + NervousComponent<O>> SimComponent<O> for CirculationDigestionNervousWrapper<O, T> {
     fn id(&self) -> &'static str {
         self.0.id()
     }
@@ -721,7 +721,7 @@ impl<O: Organism + 'static, T: Send + CirculationComponent<O> + DigestionCompone
 }
 
 
-impl<O: Organism + 'static, T: Send + CirculationComponent<O> + DigestionComponent<O> + NervousComponent<O>> CirculationComponent<O> for CirculationDigestionNervousWrapper<O, T> {
+impl<O: Organism, T: Send + CirculationComponent<O> + DigestionComponent<O> + NervousComponent<O>> CirculationComponent<O> for CirculationDigestionNervousWrapper<O, T> {
     fn circulation_init(&mut self, initializer: &mut CirculationInitializer<O>) {
         self.0.circulation_init(initializer)
     }
@@ -730,7 +730,7 @@ impl<O: Organism + 'static, T: Send + CirculationComponent<O> + DigestionCompone
     }
 }
 
-impl<O: Organism + 'static, T: Send + CirculationComponent<O> + DigestionComponent<O> + NervousComponent<O>> DigestionComponent<O> for CirculationDigestionNervousWrapper<O, T> {
+impl<O: Organism, T: Send + CirculationComponent<O> + DigestionComponent<O> + NervousComponent<O>> DigestionComponent<O> for CirculationDigestionNervousWrapper<O, T> {
     fn digestion_init(&mut self, initializer: &mut DigestionInitializer<O>) {
         self.0.digestion_init(initializer)
     }
@@ -739,7 +739,7 @@ impl<O: Organism + 'static, T: Send + CirculationComponent<O> + DigestionCompone
     }
 }
 
-impl<O: Organism + 'static, T: Send + CirculationComponent<O> + DigestionComponent<O> + NervousComponent<O>> NervousComponent<O> for CirculationDigestionNervousWrapper<O, T> {
+impl<O: Organism, T: Send + CirculationComponent<O> + DigestionComponent<O> + NervousComponent<O>> NervousComponent<O> for CirculationDigestionNervousWrapper<O, T> {
     fn nervous_init(&mut self, initializer: &mut NervousInitializer<O>) {
         self.0.nervous_init(initializer)
     }
@@ -750,7 +750,7 @@ impl<O: Organism + 'static, T: Send + CirculationComponent<O> + DigestionCompone
 
 
 
-impl<O: Organism + 'static, T: Send + CirculationComponent<O> + DigestionComponent<O> + NervousComponent<O>> CoreComponent<O> for CirculationDigestionNervousWrapper<O, T> {
+impl<O: Organism, T: Send + CirculationComponent<O> + DigestionComponent<O> + NervousComponent<O>> CoreComponent<O> for CirculationDigestionNervousWrapper<O, T> {
     fn core_init(&mut self, _initializer: &mut CoreInitializer<O>) {
         panic!("Improper wrapper method called!")
     }
@@ -760,7 +760,7 @@ impl<O: Organism + 'static, T: Send + CirculationComponent<O> + DigestionCompone
 }
 
 
-impl<O: Organism + 'static, T: Send + CirculationComponent<O> + DigestionComponent<O> + NervousComponent<O>> ComponentWrapper<O> for CirculationDigestionNervousWrapper<O,T> {
+impl<O: Organism, T: Send + CirculationComponent<O> + DigestionComponent<O> + NervousComponent<O>> ComponentWrapper<O> for CirculationDigestionNervousWrapper<O,T> {
 
     fn is_core_component(&self) -> bool {
         false
@@ -795,7 +795,7 @@ impl<O: Organism + 'static, T: Send + CirculationComponent<O> + DigestionCompone
 
 pub struct CirculationDigestionWrapper<O: Organism, T: Send + CirculationComponent<O> + DigestionComponent<O> + 'static>(pub T, pub PhantomData<O>);
 
-impl<O: Organism + 'static, T: Send + CirculationComponent<O> + DigestionComponent<O>> SimComponent<O> for CirculationDigestionWrapper<O, T> {
+impl<O: Organism, T: Send + CirculationComponent<O> + DigestionComponent<O>> SimComponent<O> for CirculationDigestionWrapper<O, T> {
     fn id(&self) -> &'static str {
         self.0.id()
     }
@@ -808,7 +808,7 @@ impl<O: Organism + 'static, T: Send + CirculationComponent<O> + DigestionCompone
 }
 
 
-impl<O: Organism + 'static, T: Send + CirculationComponent<O> + DigestionComponent<O>> CirculationComponent<O> for CirculationDigestionWrapper<O, T> {
+impl<O: Organism, T: Send + CirculationComponent<O> + DigestionComponent<O>> CirculationComponent<O> for CirculationDigestionWrapper<O, T> {
     fn circulation_init(&mut self, initializer: &mut CirculationInitializer<O>) {
         self.0.circulation_init(initializer)
     }
@@ -817,7 +817,7 @@ impl<O: Organism + 'static, T: Send + CirculationComponent<O> + DigestionCompone
     }
 }
 
-impl<O: Organism + 'static, T: Send + CirculationComponent<O> + DigestionComponent<O>> DigestionComponent<O> for CirculationDigestionWrapper<O, T> {
+impl<O: Organism, T: Send + CirculationComponent<O> + DigestionComponent<O>> DigestionComponent<O> for CirculationDigestionWrapper<O, T> {
     fn digestion_init(&mut self, initializer: &mut DigestionInitializer<O>) {
         self.0.digestion_init(initializer)
     }
@@ -828,7 +828,7 @@ impl<O: Organism + 'static, T: Send + CirculationComponent<O> + DigestionCompone
 
 
 
-impl<O: Organism + 'static, T: Send + CirculationComponent<O> + DigestionComponent<O>> CoreComponent<O> for CirculationDigestionWrapper<O, T> {
+impl<O: Organism, T: Send + CirculationComponent<O> + DigestionComponent<O>> CoreComponent<O> for CirculationDigestionWrapper<O, T> {
     fn core_init(&mut self, _initializer: &mut CoreInitializer<O>) {
         panic!("Improper wrapper method called!")
     }
@@ -837,7 +837,7 @@ impl<O: Organism + 'static, T: Send + CirculationComponent<O> + DigestionCompone
     }
 }
 
-impl<O: Organism + 'static, T: Send + CirculationComponent<O> + DigestionComponent<O>> NervousComponent<O> for CirculationDigestionWrapper<O, T> {
+impl<O: Organism, T: Send + CirculationComponent<O> + DigestionComponent<O>> NervousComponent<O> for CirculationDigestionWrapper<O, T> {
     fn nervous_init(&mut self, _initializer: &mut NervousInitializer<O>) {
         panic!("Improper wrapper method called!")
     }
@@ -847,7 +847,7 @@ impl<O: Organism + 'static, T: Send + CirculationComponent<O> + DigestionCompone
 }
 
 
-impl<O: Organism + 'static, T: Send + CirculationComponent<O> + DigestionComponent<O>> ComponentWrapper<O> for CirculationDigestionWrapper<O,T> {
+impl<O: Organism, T: Send + CirculationComponent<O> + DigestionComponent<O>> ComponentWrapper<O> for CirculationDigestionWrapper<O,T> {
 
     fn is_core_component(&self) -> bool {
         false
@@ -882,7 +882,7 @@ impl<O: Organism + 'static, T: Send + CirculationComponent<O> + DigestionCompone
 
 pub struct CirculationNervousWrapper<O: Organism, T: Send + CirculationComponent<O> + NervousComponent<O> + 'static>(pub T, pub PhantomData<O>);
 
-impl<O: Organism + 'static, T: Send + CirculationComponent<O> + NervousComponent<O>> SimComponent<O> for CirculationNervousWrapper<O, T> {
+impl<O: Organism, T: Send + CirculationComponent<O> + NervousComponent<O>> SimComponent<O> for CirculationNervousWrapper<O, T> {
     fn id(&self) -> &'static str {
         self.0.id()
     }
@@ -895,7 +895,7 @@ impl<O: Organism + 'static, T: Send + CirculationComponent<O> + NervousComponent
 }
 
 
-impl<O: Organism + 'static, T: Send + CirculationComponent<O> + NervousComponent<O>> CirculationComponent<O> for CirculationNervousWrapper<O, T> {
+impl<O: Organism, T: Send + CirculationComponent<O> + NervousComponent<O>> CirculationComponent<O> for CirculationNervousWrapper<O, T> {
     fn circulation_init(&mut self, initializer: &mut CirculationInitializer<O>) {
         self.0.circulation_init(initializer)
     }
@@ -904,7 +904,7 @@ impl<O: Organism + 'static, T: Send + CirculationComponent<O> + NervousComponent
     }
 }
 
-impl<O: Organism + 'static, T: Send + CirculationComponent<O> + NervousComponent<O>> NervousComponent<O> for CirculationNervousWrapper<O, T> {
+impl<O: Organism, T: Send + CirculationComponent<O> + NervousComponent<O>> NervousComponent<O> for CirculationNervousWrapper<O, T> {
     fn nervous_init(&mut self, initializer: &mut NervousInitializer<O>) {
         self.0.nervous_init(initializer)
     }
@@ -915,7 +915,7 @@ impl<O: Organism + 'static, T: Send + CirculationComponent<O> + NervousComponent
 
 
 
-impl<O: Organism + 'static, T: Send + CirculationComponent<O> + NervousComponent<O>> CoreComponent<O> for CirculationNervousWrapper<O, T> {
+impl<O: Organism, T: Send + CirculationComponent<O> + NervousComponent<O>> CoreComponent<O> for CirculationNervousWrapper<O, T> {
     fn core_init(&mut self, _initializer: &mut CoreInitializer<O>) {
         panic!("Improper wrapper method called!")
     }
@@ -924,7 +924,7 @@ impl<O: Organism + 'static, T: Send + CirculationComponent<O> + NervousComponent
     }
 }
 
-impl<O: Organism + 'static, T: Send + CirculationComponent<O> + NervousComponent<O>> DigestionComponent<O> for CirculationNervousWrapper<O, T> {
+impl<O: Organism, T: Send + CirculationComponent<O> + NervousComponent<O>> DigestionComponent<O> for CirculationNervousWrapper<O, T> {
     fn digestion_init(&mut self, _initializer: &mut DigestionInitializer<O>) {
         panic!("Improper wrapper method called!")
     }
@@ -934,7 +934,7 @@ impl<O: Organism + 'static, T: Send + CirculationComponent<O> + NervousComponent
 }
 
 
-impl<O: Organism + 'static, T: Send + CirculationComponent<O> + NervousComponent<O>> ComponentWrapper<O> for CirculationNervousWrapper<O,T> {
+impl<O: Organism, T: Send + CirculationComponent<O> + NervousComponent<O>> ComponentWrapper<O> for CirculationNervousWrapper<O,T> {
 
     fn is_core_component(&self) -> bool {
         false
@@ -969,7 +969,7 @@ impl<O: Organism + 'static, T: Send + CirculationComponent<O> + NervousComponent
 
 pub struct CirculationWrapper<O: Organism, T: Send + CirculationComponent<O> + 'static>(pub T, pub PhantomData<O>);
 
-impl<O: Organism + 'static, T: Send + CirculationComponent<O>> SimComponent<O> for CirculationWrapper<O, T> {
+impl<O: Organism, T: Send + CirculationComponent<O>> SimComponent<O> for CirculationWrapper<O, T> {
     fn id(&self) -> &'static str {
         self.0.id()
     }
@@ -982,7 +982,7 @@ impl<O: Organism + 'static, T: Send + CirculationComponent<O>> SimComponent<O> f
 }
 
 
-impl<O: Organism + 'static, T: Send + CirculationComponent<O>> CirculationComponent<O> for CirculationWrapper<O, T> {
+impl<O: Organism, T: Send + CirculationComponent<O>> CirculationComponent<O> for CirculationWrapper<O, T> {
     fn circulation_init(&mut self, initializer: &mut CirculationInitializer<O>) {
         self.0.circulation_init(initializer)
     }
@@ -993,7 +993,7 @@ impl<O: Organism + 'static, T: Send + CirculationComponent<O>> CirculationCompon
 
 
 
-impl<O: Organism + 'static, T: Send + CirculationComponent<O>> CoreComponent<O> for CirculationWrapper<O, T> {
+impl<O: Organism, T: Send + CirculationComponent<O>> CoreComponent<O> for CirculationWrapper<O, T> {
     fn core_init(&mut self, _initializer: &mut CoreInitializer<O>) {
         panic!("Improper wrapper method called!")
     }
@@ -1002,7 +1002,7 @@ impl<O: Organism + 'static, T: Send + CirculationComponent<O>> CoreComponent<O> 
     }
 }
 
-impl<O: Organism + 'static, T: Send + CirculationComponent<O>> DigestionComponent<O> for CirculationWrapper<O, T> {
+impl<O: Organism, T: Send + CirculationComponent<O>> DigestionComponent<O> for CirculationWrapper<O, T> {
     fn digestion_init(&mut self, _initializer: &mut DigestionInitializer<O>) {
         panic!("Improper wrapper method called!")
     }
@@ -1011,7 +1011,7 @@ impl<O: Organism + 'static, T: Send + CirculationComponent<O>> DigestionComponen
     }
 }
 
-impl<O: Organism + 'static, T: Send + CirculationComponent<O>> NervousComponent<O> for CirculationWrapper<O, T> {
+impl<O: Organism, T: Send + CirculationComponent<O>> NervousComponent<O> for CirculationWrapper<O, T> {
     fn nervous_init(&mut self, _initializer: &mut NervousInitializer<O>) {
         panic!("Improper wrapper method called!")
     }
@@ -1021,7 +1021,7 @@ impl<O: Organism + 'static, T: Send + CirculationComponent<O>> NervousComponent<
 }
 
 
-impl<O: Organism + 'static, T: Send + CirculationComponent<O>> ComponentWrapper<O> for CirculationWrapper<O,T> {
+impl<O: Organism, T: Send + CirculationComponent<O>> ComponentWrapper<O> for CirculationWrapper<O,T> {
 
     fn is_core_component(&self) -> bool {
         false
@@ -1056,7 +1056,7 @@ impl<O: Organism + 'static, T: Send + CirculationComponent<O>> ComponentWrapper<
 
 pub struct DigestionNervousWrapper<O: Organism, T: Send + DigestionComponent<O> + NervousComponent<O> + 'static>(pub T, pub PhantomData<O>);
 
-impl<O: Organism + 'static, T: Send + DigestionComponent<O> + NervousComponent<O>> SimComponent<O> for DigestionNervousWrapper<O, T> {
+impl<O: Organism, T: Send + DigestionComponent<O> + NervousComponent<O>> SimComponent<O> for DigestionNervousWrapper<O, T> {
     fn id(&self) -> &'static str {
         self.0.id()
     }
@@ -1069,7 +1069,7 @@ impl<O: Organism + 'static, T: Send + DigestionComponent<O> + NervousComponent<O
 }
 
 
-impl<O: Organism + 'static, T: Send + DigestionComponent<O> + NervousComponent<O>> DigestionComponent<O> for DigestionNervousWrapper<O, T> {
+impl<O: Organism, T: Send + DigestionComponent<O> + NervousComponent<O>> DigestionComponent<O> for DigestionNervousWrapper<O, T> {
     fn digestion_init(&mut self, initializer: &mut DigestionInitializer<O>) {
         self.0.digestion_init(initializer)
     }
@@ -1078,7 +1078,7 @@ impl<O: Organism + 'static, T: Send + DigestionComponent<O> + NervousComponent<O
     }
 }
 
-impl<O: Organism + 'static, T: Send + DigestionComponent<O> + NervousComponent<O>> NervousComponent<O> for DigestionNervousWrapper<O, T> {
+impl<O: Organism, T: Send + DigestionComponent<O> + NervousComponent<O>> NervousComponent<O> for DigestionNervousWrapper<O, T> {
     fn nervous_init(&mut self, initializer: &mut NervousInitializer<O>) {
         self.0.nervous_init(initializer)
     }
@@ -1089,7 +1089,7 @@ impl<O: Organism + 'static, T: Send + DigestionComponent<O> + NervousComponent<O
 
 
 
-impl<O: Organism + 'static, T: Send + DigestionComponent<O> + NervousComponent<O>> CoreComponent<O> for DigestionNervousWrapper<O, T> {
+impl<O: Organism, T: Send + DigestionComponent<O> + NervousComponent<O>> CoreComponent<O> for DigestionNervousWrapper<O, T> {
     fn core_init(&mut self, _initializer: &mut CoreInitializer<O>) {
         panic!("Improper wrapper method called!")
     }
@@ -1098,7 +1098,7 @@ impl<O: Organism + 'static, T: Send + DigestionComponent<O> + NervousComponent<O
     }
 }
 
-impl<O: Organism + 'static, T: Send + DigestionComponent<O> + NervousComponent<O>> CirculationComponent<O> for DigestionNervousWrapper<O, T> {
+impl<O: Organism, T: Send + DigestionComponent<O> + NervousComponent<O>> CirculationComponent<O> for DigestionNervousWrapper<O, T> {
     fn circulation_init(&mut self, _initializer: &mut CirculationInitializer<O>) {
         panic!("Improper wrapper method called!")
     }
@@ -1108,7 +1108,7 @@ impl<O: Organism + 'static, T: Send + DigestionComponent<O> + NervousComponent<O
 }
 
 
-impl<O: Organism + 'static, T: Send + DigestionComponent<O> + NervousComponent<O>> ComponentWrapper<O> for DigestionNervousWrapper<O,T> {
+impl<O: Organism, T: Send + DigestionComponent<O> + NervousComponent<O>> ComponentWrapper<O> for DigestionNervousWrapper<O,T> {
 
     fn is_core_component(&self) -> bool {
         false
@@ -1143,7 +1143,7 @@ impl<O: Organism + 'static, T: Send + DigestionComponent<O> + NervousComponent<O
 
 pub struct DigestionWrapper<O: Organism, T: Send + DigestionComponent<O> + 'static>(pub T, pub PhantomData<O>);
 
-impl<O: Organism + 'static, T: Send + DigestionComponent<O>> SimComponent<O> for DigestionWrapper<O, T> {
+impl<O: Organism, T: Send + DigestionComponent<O>> SimComponent<O> for DigestionWrapper<O, T> {
     fn id(&self) -> &'static str {
         self.0.id()
     }
@@ -1156,7 +1156,7 @@ impl<O: Organism + 'static, T: Send + DigestionComponent<O>> SimComponent<O> for
 }
 
 
-impl<O: Organism + 'static, T: Send + DigestionComponent<O>> DigestionComponent<O> for DigestionWrapper<O, T> {
+impl<O: Organism, T: Send + DigestionComponent<O>> DigestionComponent<O> for DigestionWrapper<O, T> {
     fn digestion_init(&mut self, initializer: &mut DigestionInitializer<O>) {
         self.0.digestion_init(initializer)
     }
@@ -1167,7 +1167,7 @@ impl<O: Organism + 'static, T: Send + DigestionComponent<O>> DigestionComponent<
 
 
 
-impl<O: Organism + 'static, T: Send + DigestionComponent<O>> CoreComponent<O> for DigestionWrapper<O, T> {
+impl<O: Organism, T: Send + DigestionComponent<O>> CoreComponent<O> for DigestionWrapper<O, T> {
     fn core_init(&mut self, _initializer: &mut CoreInitializer<O>) {
         panic!("Improper wrapper method called!")
     }
@@ -1176,7 +1176,7 @@ impl<O: Organism + 'static, T: Send + DigestionComponent<O>> CoreComponent<O> fo
     }
 }
 
-impl<O: Organism + 'static, T: Send + DigestionComponent<O>> CirculationComponent<O> for DigestionWrapper<O, T> {
+impl<O: Organism, T: Send + DigestionComponent<O>> CirculationComponent<O> for DigestionWrapper<O, T> {
     fn circulation_init(&mut self, _initializer: &mut CirculationInitializer<O>) {
         panic!("Improper wrapper method called!")
     }
@@ -1185,7 +1185,7 @@ impl<O: Organism + 'static, T: Send + DigestionComponent<O>> CirculationComponen
     }
 }
 
-impl<O: Organism + 'static, T: Send + DigestionComponent<O>> NervousComponent<O> for DigestionWrapper<O, T> {
+impl<O: Organism, T: Send + DigestionComponent<O>> NervousComponent<O> for DigestionWrapper<O, T> {
     fn nervous_init(&mut self, _initializer: &mut NervousInitializer<O>) {
         panic!("Improper wrapper method called!")
     }
@@ -1195,7 +1195,7 @@ impl<O: Organism + 'static, T: Send + DigestionComponent<O>> NervousComponent<O>
 }
 
 
-impl<O: Organism + 'static, T: Send + DigestionComponent<O>> ComponentWrapper<O> for DigestionWrapper<O,T> {
+impl<O: Organism, T: Send + DigestionComponent<O>> ComponentWrapper<O> for DigestionWrapper<O,T> {
 
     fn is_core_component(&self) -> bool {
         false
@@ -1230,7 +1230,7 @@ impl<O: Organism + 'static, T: Send + DigestionComponent<O>> ComponentWrapper<O>
 
 pub struct NervousWrapper<O: Organism, T: Send + NervousComponent<O> + 'static>(pub T, pub PhantomData<O>);
 
-impl<O: Organism + 'static, T: Send + NervousComponent<O>> SimComponent<O> for NervousWrapper<O, T> {
+impl<O: Organism, T: Send + NervousComponent<O>> SimComponent<O> for NervousWrapper<O, T> {
     fn id(&self) -> &'static str {
         self.0.id()
     }
@@ -1243,7 +1243,7 @@ impl<O: Organism + 'static, T: Send + NervousComponent<O>> SimComponent<O> for N
 }
 
 
-impl<O: Organism + 'static, T: Send + NervousComponent<O>> NervousComponent<O> for NervousWrapper<O, T> {
+impl<O: Organism, T: Send + NervousComponent<O>> NervousComponent<O> for NervousWrapper<O, T> {
     fn nervous_init(&mut self, initializer: &mut NervousInitializer<O>) {
         self.0.nervous_init(initializer)
     }
@@ -1254,7 +1254,7 @@ impl<O: Organism + 'static, T: Send + NervousComponent<O>> NervousComponent<O> f
 
 
 
-impl<O: Organism + 'static, T: Send + NervousComponent<O>> CoreComponent<O> for NervousWrapper<O, T> {
+impl<O: Organism, T: Send + NervousComponent<O>> CoreComponent<O> for NervousWrapper<O, T> {
     fn core_init(&mut self, _initializer: &mut CoreInitializer<O>) {
         panic!("Improper wrapper method called!")
     }
@@ -1263,7 +1263,7 @@ impl<O: Organism + 'static, T: Send + NervousComponent<O>> CoreComponent<O> for 
     }
 }
 
-impl<O: Organism + 'static, T: Send + NervousComponent<O>> CirculationComponent<O> for NervousWrapper<O, T> {
+impl<O: Organism, T: Send + NervousComponent<O>> CirculationComponent<O> for NervousWrapper<O, T> {
     fn circulation_init(&mut self, _initializer: &mut CirculationInitializer<O>) {
         panic!("Improper wrapper method called!")
     }
@@ -1272,7 +1272,7 @@ impl<O: Organism + 'static, T: Send + NervousComponent<O>> CirculationComponent<
     }
 }
 
-impl<O: Organism + 'static, T: Send + NervousComponent<O>> DigestionComponent<O> for NervousWrapper<O, T> {
+impl<O: Organism, T: Send + NervousComponent<O>> DigestionComponent<O> for NervousWrapper<O, T> {
     fn digestion_init(&mut self, _initializer: &mut DigestionInitializer<O>) {
         panic!("Improper wrapper method called!")
     }
@@ -1282,7 +1282,7 @@ impl<O: Organism + 'static, T: Send + NervousComponent<O>> DigestionComponent<O>
 }
 
 
-impl<O: Organism + 'static, T: Send + NervousComponent<O>> ComponentWrapper<O> for NervousWrapper<O,T> {
+impl<O: Organism, T: Send + NervousComponent<O>> ComponentWrapper<O> for NervousWrapper<O,T> {
 
     fn is_core_component(&self) -> bool {
         false
@@ -1321,7 +1321,7 @@ pub struct ComponentRegistry<O: Organism> {
     components: Vec<Box<dyn ComponentWrapper<O>>>,
 }
 
-impl<O: Organism + 'static> ComponentRegistry<O> {
+impl<O: Organism> ComponentRegistry<O> {
     pub fn new() -> Self {
         Self {
             id_set: HashSet::new(),

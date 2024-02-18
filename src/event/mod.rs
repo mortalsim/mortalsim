@@ -2,8 +2,6 @@ use downcast_rs::{Downcast, DowncastSync};
 use std::fmt::Debug;
 use std::sync::Arc;
 
-pub type EventHandler<T> = dyn FnMut(Box<T>);
-
 pub trait Event: Debug + Send + DowncastSync {}
 
 impl_downcast!(sync Event);

@@ -8,7 +8,7 @@ pub use impl_sim::*;
 pub mod test;
 pub mod human;
 
-pub trait Organism: Send {
+pub trait Organism: Send  + 'static {
     type VesselType: BloodVessel;
     type NerveType: Nerve;
     type AnatomyType;

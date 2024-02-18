@@ -31,7 +31,7 @@ pub struct NervousConnector<O: Organism> {
     empty: Vec<NerveSignal<O>>,
 }
 
-impl<O: Organism + 'static> NervousConnector<O> {
+impl<O: Organism> NervousConnector<O> {
     pub fn new() -> Self {
         Self {
             sim_time: SimTime::from_s(0.0),

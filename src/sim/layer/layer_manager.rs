@@ -21,7 +21,7 @@ pub struct LayerManager<O: Organism> {
     missing_layers: Vec<&'static LayerType>,
 }
 
-impl<O: Organism + 'static> LayerManager<O> {
+impl<O: Organism> LayerManager<O> {
     pub fn new() -> Self {
         Self {
             registry: ComponentRegistry::new(),

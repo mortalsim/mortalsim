@@ -10,7 +10,7 @@ use std::collections::HashMap;
 use std::marker::PhantomData;
 use std::sync::Arc;
 
-/// Provides methods for `Sim` modules to interact with the simulation
+/// Provides methods for `Core` modules to interact with the simulation
 pub struct CoreConnector<O: Organism> {
     pd: PhantomData<O>,
     /// Local id generator for transformation registration
@@ -189,8 +189,7 @@ pub mod test {
 
     use crate::event::test::TestEventA;
     use crate::event::test::TestEventB;
-    use crate::sim::test::TestOrganism;
-    use crate::sim::test::TestSim;
+    use crate::sim::organism::test::{TestOrganism, TestSim};
     use crate::sim::SimState;
     use crate::units::base::Amount;
     use crate::units::base::Distance;

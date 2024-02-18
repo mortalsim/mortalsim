@@ -73,7 +73,7 @@ function layersToBounds(list) {
 function layerImpl(wrapperName, impls, noimpls) {
     return `
 ${impls.map(impl => `
-impl<O: Organism + 'static, T: Send + ${layersToBounds(impls)}> ${impl.cap()}Component<O> for ${wrapperName}<O, T> {
+impl<O: Organism, T: Send + ${layersToBounds(impls)}> ${impl.cap()}Component<O> for ${wrapperName}<O, T> {
     fn ${impl}_init(&mut self, initializer: &mut ${impl.cap()}Initializer<O>) {
         self.0.${impl}_init(initializer)
     }
@@ -84,7 +84,7 @@ impl<O: Organism + 'static, T: Send + ${layersToBounds(impls)}> ${impl.cap()}Com
 `).join('')}
 
 ${noimpls.map(impl => `
-impl<O: Organism + 'static, T: Send + ${layersToBounds(impls)}> ${impl.cap()}Component<O> for ${wrapperName}<O, T> {
+impl<O: Organism, T: Send + ${layersToBounds(impls)}> ${impl.cap()}Component<O> for ${wrapperName}<O, T> {
     fn ${impl}_init(&mut self, _initializer: &mut ${impl.cap()}Initializer<O>) {
         panic!("Improper wrapper method called!")
     }
@@ -157,7 +157,7 @@ ${layerCombos.map(items => {
     return `
 pub struct ${wrapperName}<O: Organism, T: Send + ${layersToBounds(items)} + 'static>(pub T, pub PhantomData<O>);
 
-impl<O: Organism + 'static, T: Send + ${layersToBounds(items)}> SimComponent<O> for ${wrapperName}<O, T> {
+impl<O: Organism, T: Send + ${layersToBounds(items)}> SimComponent<O> for ${wrapperName}<O, T> {
     fn id(&self) -> &'static str {
         self.0.id()
     }
@@ -169,7 +169,7 @@ impl<O: Organism + 'static, T: Send + ${layersToBounds(items)}> SimComponent<O> 
     }
 }
 ${layerImpl(wrapperName, items, layerList.filter(l => !items.includes(l)))}
-impl<O: Organism + 'static, T: Send + ${layersToBounds(items)}> ComponentWrapper<O> for ${wrapperName}<O,T> {
+impl<O: Organism, T: Send + ${layersToBounds(items)}> ComponentWrapper<O> for ${wrapperName}<O,T> {
 ${layerList.map(layer => `
     fn is_${layer}_component(&self) -> bool {
         ${items.includes(layer)}
@@ -191,7 +191,7 @@ pub struct ComponentRegistry<O: Organism> {
     components: Vec<Box<dyn ComponentWrapper<O>>>,
 }
 
-impl<O: Organism + 'static> ComponentRegistry<O> {
+impl<O: Organism> ComponentRegistry<O> {
     pub fn new() -> Self {
         Self {
             id_set: HashSet::new(),
@@ -252,7 +252,7 @@ ${layerCombos.map(items => `
 // `).join('')}
 // }
 
-// impl<O: Organism + 'static> ${managerName}LayerManager<O> {
+// impl<O: Organism> ${managerName}LayerManager<O> {
 //     pub fn new() -> Self {
 //         Self {
 //             registry: ComponentRegistry::new(),

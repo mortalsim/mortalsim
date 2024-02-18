@@ -233,7 +233,7 @@ pub mod test {
     use crate::sim::layer::{SimLayer, SimLayerSync};
     use crate::sim::layer::core::component::test::{TestComponentA, TestComponentB};
     use crate::sim::layer::core::component::connector::test::basic_event_a;
-    use crate::sim::test::TestOrganism;
+    use crate::sim::organism::test::TestOrganism;
     use crate::sim::{SimConnector, SimTime};
     use crate::util::secs;
 

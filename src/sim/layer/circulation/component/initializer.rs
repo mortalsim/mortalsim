@@ -61,8 +61,7 @@ impl<O: Organism> CirculationInitializer<O> {
 #[cfg(test)]
 pub mod test {
     use crate::sim::layer::circulation::vessel::test::TestBloodVessel;
-    use crate::sim::organism::test::TestSim;
-    use crate::sim::test::TestOrganism;
+    use crate::sim::organism::test::{TestSim, TestOrganism};
     use crate::substance::Substance;
     use crate::util::mmol_per_L;
 
