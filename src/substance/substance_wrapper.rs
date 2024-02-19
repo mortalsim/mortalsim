@@ -115,24 +115,6 @@ macro_rules! substance_store_wrapper {
             id
         }
 
-        /// Schedule a substance change on this store
-        /// defined by the given `SubstanceChange`
-        ///
-        /// ### Arguments
-        /// * `substance`  - the substance to change
-        /// * `change`     - the change to exert on the substance
-        ///
-        /// Returns an id corresponding to this change
-        pub(crate) fn schedule_substance_change(
-            &mut self,
-            substance: crate::substance::Substance,
-            change: crate::substance::SubstanceChange
-        ) -> IdType {
-            let id = self.$($field_path).+.schedule_substance_change(substance, change);
-            self.$($id_map_path).+.entry(substance).or_default().push(id);
-            id
-        }
-
         /// Unschedule a substance change on this store
         ///
         /// ### Arguments

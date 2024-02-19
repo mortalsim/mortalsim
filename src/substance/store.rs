@@ -155,28 +155,6 @@ impl SubstanceStore {
         change_id
     }
 
-    /// Schedule a substance change on this store
-    /// defined by the given `SubstanceChange`
-    ///
-    /// ### Arguments
-    /// * `substance`  - the substance to change
-    /// * `change`     - the change to exert on the substance
-    ///
-    /// Returns an id corresponding to this change
-    pub fn schedule_substance_change(
-        &mut self,
-        substance: Substance,
-        change: SubstanceChange,
-    ) -> IdType {
-        let change_id = self.id_gen.get_id();
-        self.substance_changes
-            .entry(substance)
-            .or_default()
-            .insert(change_id, change);
-
-        change_id
-    }
-
     /// Get a reference to a previously added `SubstanceChange`
     ///
     /// ### Arguments
@@ -207,6 +185,12 @@ impl SubstanceStore {
             .entry(*substance)
             .or_default()
             .remove(change_id)
+    }
+
+
+    /// Clear all scheduled changes on this store
+    pub fn clear_all_changes(&mut self) {
+        self.substance_changes.clear()
     }
 
     /// Advances time for this substance store, making any necessary changes

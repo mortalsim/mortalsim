@@ -7,23 +7,35 @@ use crate::units::geometry::Volume;
 use crate::util::IdType;
 use std::collections::HashMap;
 
+/// An item to be consumed by a `Sim`'s digestive system
+/// 
+/// ```
+/// use crate::substance::{Substance, SubstanceStore};
+/// use crate::units::geometry::Volume;
+/// use crate::sim::Consumable;
+/// 
+/// fn main() {
+///     let store = SubstanceStore::new();
+///     store.
+/// }
+/// 
+/// ```
 #[derive(Clone, Debug)]
 pub struct Consumable {
+    /// Name of the `Consumable``
     name: String,
-    pub(super) store: SubstanceStore,
+    /// Total volume of the `Consumable`
     volume: Volume<f64>,
-    change_map: HashMap<Substance, Vec<IdType>>,
+    /// Store of substances in the `Consumable`
+    pub(super) store: SubstanceStore,
 }
 
 impl Consumable {
-    substance_store_wrapper!(store, change_map);
-
-    pub fn new(name: String, store: SubstanceStore, volume: Volume<f64>) -> Consumable {
+    pub fn new(name: String, volume: Volume<f64>, store: SubstanceStore) -> Consumable {
         Consumable {
             name: name,
-            store: store,
             volume: volume,
-            change_map: HashMap::new(),
+            store: store,
         }
     }
 
@@ -53,6 +65,7 @@ impl Consumable {
 
 #[cfg(test)]
 pub mod test {
+    use crate::sim::SimTime;
     use crate::substance::{Substance, SubstanceStore};
     use crate::units::geometry::Volume;
     use crate::util::{mmol_per_L, secs};
@@ -61,13 +74,8 @@ pub mod test {
 
     #[test]
     fn test_new_consumable() {
-        Consumable::new(String::new(), SubstanceStore::new(), Volume::from_L(0.5));
-    }
-
-    #[test]
-    fn test_advance() {
-        let mut consumable =
-            Consumable::new(String::new(), SubstanceStore::new(), Volume::from_L(0.5));
-        consumable.schedule_change(Substance::O2, mmol_per_L!(1.0), secs!(1.0));
+        let mut store = SubstanceStore::new();
+        store.set_concentration(Substance::GLC, mmol_per_L!(1.0));
+        Consumable::new(String::new(), Volume::from_L(0.5), SubstanceStore::new());
     }
 }

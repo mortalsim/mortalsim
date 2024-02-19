@@ -9,6 +9,7 @@ use std::sync::Arc;
 pub use sim::Sim;
 pub use sim_state::SimState;
 pub use time_manager::{SimTime, TimeManager};
+pub use layer::Consumable;
 
 pub use organism::Organism;
 

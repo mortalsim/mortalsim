@@ -9,6 +9,8 @@ pub mod core;
 pub mod digestion;
 pub mod nervous;
 
+pub use digestion::Consumable;
+
 use crate::event::Event;
 
 pub use layer_processor::{LayerProcessor, LayerProcessorSync};
