@@ -51,6 +51,11 @@ pub enum Substance {
     TRP, // Tryptophan 
     TYR, // Tyrosine 
     VAL, // Valine 
+
+    // Starch
+    AML(u16), // Amylose with avg chain length
+    AMN(u16), // Amylopectin with avg total chain length
+
 }
 
 impl fmt::Display for Substance {
@@ -119,6 +124,10 @@ impl Substance {
             Self::TRP => "Tryptophan",
             Self::TYR => "Tyrosine",
             Self::VAL => "Valine",
+
+            // Starch
+            Self::AML(_) => "Amylose",
+            Self::AMN(_) => "Amylopectin",
         }
     }
     /// Overall substance charge
@@ -170,6 +179,10 @@ impl Substance {
             Self::TRP => 0,
             Self::TYR => 0,
             Self::VAL => 0,
+
+            // Starch
+            Self::AML(_) => 0,
+            Self::AMN(_) => 0,
         }
     }
     /// Typical molar mass of the substance
@@ -221,6 +234,10 @@ impl Substance {
             Self::TRP => MolarMass::from_gpmol(204.2),
             Self::TYR => MolarMass::from_gpmol(181.2),
             Self::VAL => MolarMass::from_gpmol(117.5),
+
+            // Starch
+            Self::AML(len) => Self::GLC.molar_mass()*f64::from(*len),
+            Self::AMN(len) => Self::GLC.molar_mass()*f64::from(*len),
         }
     }
 }
