@@ -6,56 +6,110 @@ use std::fmt;
 /// Variations are suffixed with appropriate identifiers
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Copy)]
 pub enum Substance {
-    ADP,  // Adenosine Diphosphate (ADP)
-    AMP,  // Adenosine Monophosphate (AMP)
-    ATP,  // Adenosine Triphosphate (ATP)
-    Ca,   // Calcium (Ca 2+)
-    CO2,  // Carbon Dioxide (CO2)
-    Cl,   // Chloride (Cl-)
-    GLC,  // Alpha D Glucose (GLC)
-    GLCL, // L-Glucose (GLCL)
-    H,    // Hydrogen (H+)
-    H2O,  // Water (H2O)
-    K,    // Potassium (K+)
-    LAC,  // Lactate (LAC)
-    LDH,  // Lactate Dehydrogenase (LDH)
-    MSG,  // Monosodium Glutamate (MSG)
-    N2,   // Dinitrogen (N2)
-    NAD,  // Nicotinamide Adenine Dinucleotide (NAD+)
-    NADH, // Reduced NAD (NADH)
-    Na,   // Sodium (Na+)
-    NaCl, // Salt (NaCl)
-    O2,   // Dioxygen (O2)
-    PFK,  // Phosphofructokinase (PFK)
-    PGK,  // Phosphoglycerate Kinase (PGK)
-    PYR,  // Pyruvate (PYR)
+    /// Adenosine Diphosphate (ADP)
+    ADP,
+    /// Adenosine Monophosphate (AMP)
+    AMP,
+    /// Adenosine Triphosphate (ATP)
+    ATP,
+    /// Calcium (Ca 2+)
+    Ca,
+    /// Carbon Dioxide (CO2)
+    CO2,
+    /// Chloride (Cl-)
+    Cl,
+    /// Alpha D Glucose (GLC)
+    GLC,
+    // L-Glucose (GLCL)
+    GLCL,
+    /// Hydrogen (H+)
+    H,
+    /// Water (H2O)
+    H2O,
+    /// Potassium (K+)
+    K,
+    /// Lactate (LAC)
+    LAC,
+    /// Lactate Dehydrogenase (LDH)
+    LDH,
+    /// Monosodium Glutamate (MSG)
+    MSG,
+    /// Dinitrogen (N2)
+    N2,
+    /// Nicotinamide Adenine Dinucleotide (NAD+)
+    NAD,
+    /// Reduced NAD (NADH)
+    NADH,
+    /// Sodium (Na+)
+    Na,
+    /// Salt (NaCl)
+    NaCl,
+    /// Dioxygen (O2)
+    O2,
+    /// Phosphofructokinase (PFK)
+    PFK,
+    /// Phosphoglycerate Kinase (PGK)
+    PGK,
+    /// Pyruvate (PYR)
+    PYR,
 
     // Amino acids
-    ALA, // Alanine 
-    ARG, // Arginine 
-    ASN, // Asparagine 
-    ASP, // Aspartic Acid 
-    CYS, // Cysteine 
-    GLN, // Glutamine 
-    GLU, // Glutamic Acid
-    GLY, // Glycine
-    HIS, // Histidine 
-    ILE, // Isoleucine 
-    LEU, // Leucine 
-    LYS, // Lysine 
-    MET, // Methionine 
-    PHE, // Phenylalanine 
-    PRO, // Proline 
-    SER, // Serine 
-    THR, // Threonine 
-    TRP, // Tryptophan 
-    TYR, // Tyrosine 
-    VAL, // Valine 
+    /// Alanine
+    ALA,
+    /// Arginine
+    ARG,
+    /// Asparagine 
+    ASN,
+    /// Aspartic Acid 
+    ASP,
+    /// Cysteine 
+    CYS,
+    /// Glutamine 
+    GLN,
+    /// Glutamic Acid
+    GLU,
+    /// Glycine
+    GLY,
+    /// Histidine
+    HIS,
+    /// Isoleucine
+    ILE,
+    /// Leucine
+    LEU,
+    /// Lysine
+    LYS,
+    /// Methionine
+    MET,
+    /// Phenylalanine
+    PHE,
+    /// Proline
+    PRO,
+    /// Serine
+    SER,
+    /// Threonine
+    THR,
+    /// Tryptophan
+    TRP,
+    /// Tyrosine
+    TYR,
+    /// Valine
+    VAL,
+
+    // Vitamins
+    /// Vitamin A1 (Retinol)
+    Retinol,
+    /// Vitamin A Aldehyde (Retinal)
+    Retinal,
+    /// Vitamin A Acid (Retinoic Acid)
+    RetinoicAcid,
+    /// Vitamin B1 (Thiamine)
+    Thiamine,
 
     // Starch
-    AML(u16), // Amylose with avg chain length
-    AMN(u16), // Amylopectin with avg total chain length
-
+    /// Amylose with avg chain length
+    AML(u32),
+    /// Amylopectin with avg total chain length
+    APN(u32),
 }
 
 impl fmt::Display for Substance {
@@ -125,9 +179,15 @@ impl Substance {
             Self::TYR => "Tyrosine",
             Self::VAL => "Valine",
 
+            // Vitamins
+            Self::Retinol => "Retinol (Vitamin A1)",
+            Self::Retinal => "Retinal (Vitamin A Aldehyde)",
+            Self::RetinoicAcid => "Retinoic acid (Vitamin A Acid)",
+            Self::Thiamine => "Thiamine (Vitamin B1)",
+
             // Starch
             Self::AML(_) => "Amylose",
-            Self::AMN(_) => "Amylopectin",
+            Self::APN(_) => "Amylopectin",
         }
     }
     /// Overall substance charge
@@ -180,9 +240,15 @@ impl Substance {
             Self::TYR => 0,
             Self::VAL => 0,
 
+            // Vitamins
+            Self::Retinol => 0,
+            Self::Retinal => 0,
+            Self::RetinoicAcid => 0,
+            Self::Thiamine => 1,
+
             // Starch
             Self::AML(_) => 0,
-            Self::AMN(_) => 0,
+            Self::APN(_) => 0,
         }
     }
     /// Typical molar mass of the substance
@@ -235,9 +301,15 @@ impl Substance {
             Self::TYR => MolarMass::from_gpmol(181.2),
             Self::VAL => MolarMass::from_gpmol(117.5),
 
+            // Vitamins
+            Self::Retinol => MolarMass::from_gpmol(286.459),
+            Self::Retinal => MolarMass::from_gpmol(284.443),
+            Self::RetinoicAcid => MolarMass::from_gpmol(300.43512),
+            Self::Thiamine => MolarMass::from_gpmol(265.36),
+
             // Starch
             Self::AML(len) => Self::GLC.molar_mass()*f64::from(*len),
-            Self::AMN(len) => Self::GLC.molar_mass()*f64::from(*len),
+            Self::APN(len) => Self::GLC.molar_mass()*f64::from(*len),
         }
     }
 }
