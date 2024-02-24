@@ -107,6 +107,52 @@ pub enum Substance {
     Thiamine,
     /// Vitamin B2 (Riboflavin)
     Riboflavin,
+    /// Vitamin B3 (Niacin)
+    Niacin,
+    /// Vitamin B5 (PantothenicAcid)
+    PantothenicAcid,
+    /// Vitamin B6 (Pyridoxine)
+    Pyridoxine,
+    /// Vitamin B7 (Biotin)
+    Biotin,
+    /// Vitamin B9 (Folate)
+    Folate,
+    /// Vitamin B12a (HdxCbl)
+    HdxCbl,
+    /// Coenzyme B12 (AdoCbl)
+    AdoCbl,
+    /// Methylcobalamin B12 (MeCbl)
+    MeCbl,
+    /// Cyanocobalamin B12 (CynCbl)
+    CynCbl,
+    /// Vitamin C (AscorbicAcid)
+    AscorbicAcid,
+    /// Vitamin D2 (Ergocalciferol)
+    Ergocalciferol,
+    /// Vitamin D3 (Cholecalciferol)
+    Cholecalciferol,
+    /// Vitamin E (AlphaTocopherol)
+    AlphaTocopherol,
+    /// Vitamin E (BetaTocopherol)
+    BetaTocopherol,
+    /// Vitamin E (DeltaTocopherol)
+    DeltaTocopherol,
+    /// Vitamin E (GammaTocopherol)
+    GammaTocopherol,
+    /// Vitamin E (AlphaTocotrienol)
+    AlphaTocotrienol,
+    /// Vitamin E (BetaTocotrienol)
+    BetaTocotrienol,
+    /// Vitamin E (DeltaTocotrienol)
+    DeltaTocotrienol,
+    /// Vitamin E (GammaTocotrienol)
+    GammaTocotrienol,
+    /// Vitamin K1 (Phytomenadione)
+    Phytomenadione,
+    /// Vitamin K2-4 (MK4)
+    MK4,
+    /// Vitamin K3 (Menadione)
+    Menadione,
 
 }
 
@@ -179,6 +225,29 @@ impl Substance {
             Self::RetinoicAcid => "Vitamin A Acid",
             Self::Thiamine => "Vitamin B1",
             Self::Riboflavin => "Vitamin B2",
+            Self::Niacin => "Vitamin B3",
+            Self::PantothenicAcid => "Vitamin B5",
+            Self::Pyridoxine => "Vitamin B6",
+            Self::Biotin => "Vitamin B7",
+            Self::Folate => "Vitamin B9",
+            Self::HdxCbl => "Vitamin B12a",
+            Self::AdoCbl => "Coenzyme B12",
+            Self::MeCbl => "Methylcobalamin B12",
+            Self::CynCbl => "Cyanocobalamin B12",
+            Self::AscorbicAcid => "Vitamin C",
+            Self::Ergocalciferol => "Vitamin D2",
+            Self::Cholecalciferol => "Vitamin D3",
+            Self::AlphaTocopherol => "Vitamin E",
+            Self::BetaTocopherol => "Vitamin E",
+            Self::DeltaTocopherol => "Vitamin E",
+            Self::GammaTocopherol => "Vitamin E",
+            Self::AlphaTocotrienol => "Vitamin E",
+            Self::BetaTocotrienol => "Vitamin E",
+            Self::DeltaTocotrienol => "Vitamin E",
+            Self::GammaTocotrienol => "Vitamin E",
+            Self::Phytomenadione => "Vitamin K1",
+            Self::MK4 => "Vitamin K2-4",
+            Self::Menadione => "Vitamin K3",
 
         }
     }
@@ -234,6 +303,29 @@ impl Substance {
             Self::RetinoicAcid => 0,
             Self::Thiamine => 1,
             Self::Riboflavin => 0,
+            Self::Niacin => 0,
+            Self::PantothenicAcid => 0,
+            Self::Pyridoxine => 0,
+            Self::Biotin => 0,
+            Self::Folate => 0,
+            Self::HdxCbl => 0,
+            Self::AdoCbl => 0,
+            Self::MeCbl => 0,
+            Self::CynCbl => 0,
+            Self::AscorbicAcid => 0,
+            Self::Ergocalciferol => 0,
+            Self::Cholecalciferol => 0,
+            Self::AlphaTocopherol => 0,
+            Self::BetaTocopherol => 0,
+            Self::DeltaTocopherol => 0,
+            Self::GammaTocopherol => 0,
+            Self::AlphaTocotrienol => 0,
+            Self::BetaTocotrienol => 0,
+            Self::DeltaTocotrienol => 0,
+            Self::GammaTocotrienol => 0,
+            Self::Phytomenadione => 0,
+            Self::MK4 => 0,
+            Self::Menadione => 0,
 
         }
     }
@@ -289,6 +381,29 @@ impl Substance {
             Self::RetinoicAcid => MolarMass::from_gpmol(300.43512),
             Self::Thiamine => MolarMass::from_gpmol(265.36),
             Self::Riboflavin => MolarMass::from_gpmol(376.369),
+            Self::Niacin => MolarMass::from_gpmol(123.111),
+            Self::PantothenicAcid => MolarMass::from_gpmol(219.237),
+            Self::Pyridoxine => MolarMass::from_gpmol(169.18),
+            Self::Biotin => MolarMass::from_gpmol(244.31),
+            Self::Folate => MolarMass::from_gpmol(441.404),
+            Self::HdxCbl => MolarMass::from_gpmol(1346.377),
+            Self::AdoCbl => MolarMass::from_gpmol(1579.608),
+            Self::MeCbl => MolarMass::from_gpmol(1344.405),
+            Self::CynCbl => MolarMass::from_gpmol(1355.388),
+            Self::AscorbicAcid => MolarMass::from_gpmol(176.124),
+            Self::Ergocalciferol => MolarMass::from_gpmol(396.659),
+            Self::Cholecalciferol => MolarMass::from_gpmol(384.648),
+            Self::AlphaTocopherol => MolarMass::from_gpmol(430.71),
+            Self::BetaTocopherol => MolarMass::from_gpmol(416.68),
+            Self::DeltaTocopherol => MolarMass::from_gpmol(402.65),
+            Self::GammaTocopherol => MolarMass::from_gpmol(416.68),
+            Self::AlphaTocotrienol => MolarMass::from_gpmol(424.7),
+            Self::BetaTocotrienol => MolarMass::from_gpmol(410.6),
+            Self::DeltaTocotrienol => MolarMass::from_gpmol(396.6),
+            Self::GammaTocotrienol => MolarMass::from_gpmol(410.6),
+            Self::Phytomenadione => MolarMass::from_gpmol(450.707),
+            Self::MK4 => MolarMass::from_gpmol(444.659),
+            Self::Menadione => MolarMass::from_gpmol(172.183),
 
         }
     }

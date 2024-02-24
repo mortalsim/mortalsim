@@ -195,3 +195,95 @@ Riboflavin:
   name: Vitamin B2
   charge: 0
   molar_mass: 376.369
+Niacin:
+  name: Vitamin B3
+  charge: 0
+  molar_mass: 123.111
+PantothenicAcid:
+  name: Vitamin B5
+  charge: 0
+  molar_mass: 219.237
+Pyridoxine:
+  name: Vitamin B6
+  charge: 0
+  molar_mass: 169.180
+Biotin:
+  name: Vitamin B7
+  charge: 0
+  molar_mass: 244.31
+Folate:
+  name: Vitamin B9
+  charge: 0
+  molar_mass: 441.404
+HdxCbl:
+  name: Vitamin B12a
+  charge: 0
+  molar_mass: 1346.377
+AdoCbl:
+  name: Coenzyme B12
+  charge: 0
+  molar_mass: 1579.608
+MeCbl:
+  name: Methylcobalamin B12
+  charge: 0
+  molar_mass: 1344.405
+CynCbl:
+  name: Cyanocobalamin B12
+  charge: 0
+  molar_mass: 1355.388
+AscorbicAcid:
+  name: Vitamin C
+  charge: 0
+  molar_mass: 176.124
+Ergocalciferol:
+  name: Vitamin D2
+  charge: 0
+  molar_mass: 396.659
+Cholecalciferol:
+  name: Vitamin D3
+  charge: 0
+  molar_mass: 384.648
+AlphaTocopherol:
+  name: Vitamin E
+  charge: 0
+  molar_mass: 430.71
+BetaTocopherol:
+  name: Vitamin E
+  charge: 0
+  molar_mass: 416.68
+DeltaTocopherol:
+  name: Vitamin E
+  charge: 0
+  molar_mass: 402.65
+GammaTocopherol:
+  name: Vitamin E
+  charge: 0
+  molar_mass: 416.68
+AlphaTocotrienol:
+  name: Vitamin E
+  charge: 0
+  molar_mass: 424.7
+BetaTocotrienol:
+  name: Vitamin E
+  charge: 0
+  molar_mass: 410.6
+DeltaTocotrienol:
+  name: Vitamin E
+  charge: 0
+  molar_mass: 396.6
+GammaTocotrienol:
+  name: Vitamin E
+  charge: 0
+  molar_mass: 410.6
+Phytomenadione:
+  name: Vitamin K1
+  charge: 0
+  molar_mass: 450.707
+MK4:
+  name: Vitamin K2-4
+  charge: 0
+  molar_mass: 444.659
+Menadione:
+  name: Vitamin K3
+  charge: 0
+  molar_mass: 172.183
