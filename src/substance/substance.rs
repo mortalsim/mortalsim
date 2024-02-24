@@ -27,6 +27,8 @@ pub enum Substance {
     GLC,
     /// L-Glucose (GLCL)
     GLCL,
+    /// Fructose (FRC)
+    FRC,
     /// Hydrogen (H+)
     H,
     /// Water (H2O)
@@ -153,6 +155,14 @@ pub enum Substance {
     MK4,
     /// Vitamin K3 (Menadione)
     Menadione,
+    /// Starch (Amylose)
+    Amylose,
+    /// Starch (Amylopectin)
+    Amylopectin,
+    /// Cellulose (Cellulose)
+    Cellulose,
+    /// Glycogen (Glycogen)
+    Glycogen,
 
 }
 
@@ -185,6 +195,7 @@ impl Substance {
             Self::Cl => "Chloride",
             Self::GLC => "Alpha D Glucose",
             Self::GLCL => "L-Glucose",
+            Self::FRC => "Fructose",
             Self::H => "Hydrogen",
             Self::H2O => "Water",
             Self::K => "Potassium",
@@ -248,6 +259,10 @@ impl Substance {
             Self::Phytomenadione => "Vitamin K1",
             Self::MK4 => "Vitamin K2-4",
             Self::Menadione => "Vitamin K3",
+            Self::Amylose => "Starch",
+            Self::Amylopectin => "Starch",
+            Self::Cellulose => "Cellulose",
+            Self::Glycogen => "Glycogen",
 
         }
     }
@@ -263,6 +278,7 @@ impl Substance {
             Self::Cl => -1,
             Self::GLC => 0,
             Self::GLCL => 0,
+            Self::FRC => 0,
             Self::H => 1,
             Self::H2O => 0,
             Self::K => 1,
@@ -326,6 +342,10 @@ impl Substance {
             Self::Phytomenadione => 0,
             Self::MK4 => 0,
             Self::Menadione => 0,
+            Self::Amylose => 0,
+            Self::Amylopectin => 0,
+            Self::Cellulose => 0,
+            Self::Glycogen => 0,
 
         }
     }
@@ -341,6 +361,7 @@ impl Substance {
             Self::Cl => MolarMass::from_gpmol(35.453),
             Self::GLC => MolarMass::from_gpmol(180.156),
             Self::GLCL => MolarMass::from_gpmol(180.156),
+            Self::FRC => MolarMass::from_gpmol(180.156),
             Self::H => MolarMass::from_gpmol(1.00794),
             Self::H2O => MolarMass::from_gpmol(18.0153),
             Self::K => MolarMass::from_gpmol(39.0983),
@@ -404,6 +425,10 @@ impl Substance {
             Self::Phytomenadione => MolarMass::from_gpmol(450.707),
             Self::MK4 => MolarMass::from_gpmol(444.659),
             Self::Menadione => MolarMass::from_gpmol(172.183),
+            Self::Amylose => MolarMass::from_gpmol(100000.0),
+            Self::Amylopectin => MolarMass::from_gpmol(1500000.0),
+            Self::Cellulose => MolarMass::from_gpmol(162000.0),
+            Self::Glycogen => MolarMass::from_gpmol(5404680.0),
 
         }
     }

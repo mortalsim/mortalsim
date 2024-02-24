@@ -31,6 +31,10 @@ GLCL:
   name: L-Glucose
   charge: 0
   molar_mass: 180.156
+FRC:
+  name: Fructose
+  charge: 0
+  molar_mass: 180.156
 H:
   name: Hydrogen
   charge: 1
@@ -287,3 +291,21 @@ Menadione:
   name: Vitamin K3
   charge: 0
   molar_mass: 172.183
+
+# Polysaccharides
+Amylose:
+  name: Starch
+  charge: 0
+  molar_mass: 100000
+Amylopectin:
+  name: Starch
+  charge: 0
+  molar_mass: 1500000
+Cellulose:
+  name: Cellulose
+  charge: 0
+  molar_mass: 162000
+Glycogen:
+  name: Glycogen
+  charge: 0
+  molar_mass: 5404680
