@@ -10,12 +10,23 @@ use std::collections::HashMap;
 /// An item to be consumed by a `Sim`'s digestive system
 /// 
 /// ```
-/// use crate::substance::{Substance, SubstanceStore};
-/// use crate::units::geometry::Volume;
-/// use crate::sim::Consumable;
+/// use mortalsim::substance::{Substance, SubstanceStore};
+/// use mortalsim::units::geometry::Volume;
+/// use mortalsim::substance::SubstanceConcentration;
+/// use mortalsim::sim::Consumable;
 /// 
 /// fn main() {
-///     let store = SubstanceStore::new();
+///     let mut store = SubstanceStore::new();
+///     store.set_concentration(Substance::Retinal, SubstanceConcentration::from_nM(0.349));
+///     store.set_concentration(Substance::Thiamine, SubstanceConcentration::from_nM(0.119));
+///     store.set_concentration(Substance::GLN, SubstanceConcentration::from_nM(0.0570));
+///     store.set_concentration(Substance::PRO, SubstanceConcentration::from_nM(0.0261));
+///     store.set_concentration(Substance::Amylose, SubstanceConcentration::from_nM(2.4684));
+///     store.set_concentration(Substance::Amylopectin, SubstanceConcentration::from_nM(0.65824));
+///     
+///     let bite1 = Consumable::new("Rice".to_string(), Volume::from_mL(250.0), store.clone());
+///     let bite2 = bite1.clone();
+///     let bite3 = bite1.clone();
 /// }
 /// 
 /// ```
@@ -32,7 +43,7 @@ pub struct Consumable {
 impl Consumable {
     pub fn new(name: String, volume: Volume<f64>, store: SubstanceStore) -> Consumable {
         Consumable {
-            name: name,
+            name: String::from(name),
             volume: volume,
             store: store,
         }
@@ -76,8 +87,10 @@ pub mod test {
         let mut store = SubstanceStore::new();
         store.set_concentration(Substance::Retinal, SubstanceConcentration::from_nM(0.349));
         store.set_concentration(Substance::Thiamine, SubstanceConcentration::from_nM(0.119));
-        store.set_concentration(Substance::GLN, SubstanceConcentration::from_uM(57.0));
-        store.set_concentration(Substance::PRO, SubstanceConcentration::from_uM(26.1));
-        Consumable::new(String::new(), Volume::from_L(0.5), SubstanceStore::new());
+        store.set_concentration(Substance::GLN, SubstanceConcentration::from_nM(0.0570));
+        store.set_concentration(Substance::PRO, SubstanceConcentration::from_nM(0.0261));
+        store.set_concentration(Substance::Amylose, SubstanceConcentration::from_nM(2.4684));
+        store.set_concentration(Substance::Amylopectin, SubstanceConcentration::from_nM(0.65824));
+        Consumable::new("".to_string(), Volume::from_L(0.5), SubstanceStore::new());
     }
 }
