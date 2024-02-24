@@ -4,11 +4,12 @@
   "description": "",
   "main": "registry_generator.js",
   "scripts": {
-    "all": "concurrently \"npm run registry\" \"npm run anatomy\" \"npm run circulation\" \"npm run nervous\"",
+    "all": "concurrently \"npm run registry\" \"npm run substance\" \"npm run anatomy\" \"npm run circulation\" \"npm run nervous\"",
     "registry": "node registry_generator.js",
     "anatomy": "node anatomy_writer.js",
     "circulation": "node circulation_writer.js",
-    "nervous": "node nervous_writer.js"
+    "nervous": "node nervous_writer.js",
+    "substance": "node substance_writer.js"
   },
   "author": "",
   "license": "ISC",

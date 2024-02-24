@@ -58,8 +58,6 @@ impl Consumed {
         exit_time: SimTime,
         exit_direction: DigestionDirection,
     ) -> anyhow::Result<()> {
-        Substance::ADP;
-
         if exit_time < self.entry_time {
             Err(anyhow!(
                 "Digestion component exit_time cannot be less than entry time!"

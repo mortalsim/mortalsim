@@ -16,7 +16,6 @@ use std::collections::HashMap;
 /// 
 /// fn main() {
 ///     let store = SubstanceStore::new();
-///     store.
 /// }
 /// 
 /// ```
@@ -66,7 +65,7 @@ impl Consumable {
 #[cfg(test)]
 pub mod test {
     use crate::sim::SimTime;
-    use crate::substance::{Substance, SubstanceStore};
+    use crate::substance::{Substance, SubstanceConcentration, SubstanceStore};
     use crate::units::geometry::Volume;
     use crate::util::{mmol_per_L, secs};
 
@@ -75,7 +74,10 @@ pub mod test {
     #[test]
     fn test_new_consumable() {
         let mut store = SubstanceStore::new();
-        store.set_concentration(Substance::GLC, mmol_per_L!(1.0));
+        store.set_concentration(Substance::Retinal, SubstanceConcentration::from_nM(0.349));
+        store.set_concentration(Substance::Thiamine, SubstanceConcentration::from_nM(0.119));
+        store.set_concentration(Substance::GLN, SubstanceConcentration::from_uM(57.0));
+        store.set_concentration(Substance::PRO, SubstanceConcentration::from_uM(26.1));
         Consumable::new(String::new(), Volume::from_L(0.5), SubstanceStore::new());
     }
 }

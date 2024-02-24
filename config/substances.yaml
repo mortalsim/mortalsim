@@ -1,0 +1,197 @@
+---
+ADP:
+  name: Adenosine Diphosphate
+  charge: 0
+  molar_mass: 427.201
+AMP:
+  name: Adenosine Monophosphate
+  charge: 0
+  molar_mass: 347.2212
+ATP:
+  name: Adenosine Triphosphate
+  charge: 0
+  molar_mass: 507.18
+Ca:
+  name: Calcium
+  charge: 2
+  molar_mass: 40.078
+CO2:
+  name: Carbon Dioxide
+  charge: 0
+  molar_mass: 44.01
+Cl:
+  name: Chloride
+  charge: -1
+  molar_mass: 35.453
+GLC:
+  name: Alpha D Glucose
+  charge: 0
+  molar_mass: 180.156
+GLCL:
+  name: L-Glucose
+  charge: 0
+  molar_mass: 180.156
+H:
+  name: Hydrogen
+  charge: 1
+  molar_mass: 1.00794
+H2O:
+  name: Water
+  charge: 0
+  molar_mass: 18.0153
+K:
+  name: Potassium
+  charge: 1
+  molar_mass: 39.0983
+LAC:
+  name: Lactate
+  charge: 0
+  molar_mass: 89.07
+LDH:
+  name: Lactate Dehydrogenase
+  charge: 0
+  molar_mass: 140000
+N2:
+  name: Dinitrogen
+  charge: 0
+  molar_mass: 28.0134
+NAD:
+  name: Nicotinamide Adenine Dinucleotide
+  charge: 1
+  molar_mass: 663.43
+NADH:
+  name: Reduced NAD
+  charge: 0
+  molar_mass: 665.125
+Na:
+  name: Sodium
+  charge: 1
+  molar_mass: 22.989769
+NaCl:
+  name: Salt
+  charge: 0
+  molar_mass: 58.44
+O2:
+  name: Dioxygen
+  charge: 0
+  molar_mass: 31.9988
+PFK:
+  name: Phosphofructokinase
+  charge: 0
+  molar_mass: 85000
+PGK:
+  name: Phosphoglycerate Kinase
+  charge: 0
+  molar_mass: 45000
+PYR:
+  name: Pyruvate
+  charge: 0
+  molar_mass: 88.06
+MSG:
+  name: Monosodium Glutamate
+  charge: 0
+  molar_mass: 88.06
+
+# Amino Acids
+ALA:
+  name: Alanine
+  charge: 0
+  molar_mass: 89.1
+ARG:
+  name: Arginine
+  charge: 1
+  molar_mass: 174.2
+ASN:
+  name: Asparagine
+  charge: 0
+  molar_mass: 132.1
+ASP:
+  name: Aspartic Acid
+  charge: -1
+  molar_mass: 133.1
+CYS:
+  name: Cysteine
+  charge: 0
+  molar_mass: 121.6
+GLN:
+  name: Glutamine
+  charge: 0
+  molar_mass: 146.1
+GLU:
+  name: Glutamic Acid
+  charge: -1
+  molar_mass: 147.1
+GLY:
+  name: Glycine
+  charge: 0
+  molar_mass: 75.1
+HIS:
+  name: Histidine
+  charge: 1
+  molar_mass: 155.2
+ILE:
+  name: Isoleucine
+  charge: 0
+  molar_mass: 131.2
+LEU:
+  name: Leucine
+  charge: 0
+  molar_mass: 131.2
+LYS:
+  name: Lysine
+  charge: 1
+  molar_mass: 146.2
+MET:
+  name: Methionine
+  charge: 0
+  molar_mass: 149.2
+PHE:
+  name: Phenylalanine
+  charge: 0
+  molar_mass: 165.2
+PRO:
+  name: Proline
+  charge: 0
+  molar_mass: 115.1
+SER:
+  name: Serine
+  charge: 0
+  molar_mass: 105.1
+THR:
+  name: Threonine
+  charge: 0
+  molar_mass: 119.2
+TRP:
+  name: Tryptophan
+  charge: 0
+  molar_mass: 204.2
+TYR:
+  name: Tyrosine
+  charge: 0
+  molar_mass: 181.2
+VAL:
+  name: Valine
+  charge: 0
+  molar_mass: 117.5
+
+# Vitamins
+Retinol:
+  name: Vitamin A
+  charge: 0
+  molar_mass: 286.459
+Retinal:
+  name: Vitamin A Aldehyde
+  charge: 0
+  molar_mass: 284.443
+RetinoicAcid:
+  name: Vitamin A Acid
+  charge: 0
+  molar_mass: 300.43512
+Thiamine:
+  name: Vitamin B1
+  charge: 1
+  molar_mass: 265.36
+Riboflavin:
+  name: Vitamin B2
+  charge: 0
+  molar_mass: 376.369
