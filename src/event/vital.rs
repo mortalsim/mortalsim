@@ -7,7 +7,11 @@ use super::{Event, NumType};
 
 macro_rules! unit_wrapper {
     ($name:ident, $unit:ty) => {
-        impl Event for $name {}
+        impl Event for $name {
+            fn transient(&self) -> bool {
+                false
+            }
+        }
 
         impl AsRef<$unit> for $name {
             fn as_ref(&self) -> &$unit {
@@ -68,8 +72,12 @@ enum ConciousLevel {
     Confused,
     Lethargic,
     Obtundated,
-    Stupor,
-    Coma,
+    Stuporous,
+    Comatose,
 }
 
-impl Event for ConciousLevel {}
+impl Event for ConciousLevel {
+    fn transient(&self) -> bool {
+        false
+    }
+}

@@ -1,6 +1,7 @@
 use downcast_rs::{Downcast, DowncastSync};
 use std::fmt::Debug;
 use std::sync::Arc;
+use std::vec::Drain;
 
 mod vital;
 mod infection;
@@ -13,13 +14,24 @@ pub use wound::*;
 // Numeric type to use for all built-in Events
 type NumType = f64;
 
-pub trait Event: Debug + Send + DowncastSync {}
+pub trait Event: Debug + Send + DowncastSync {
+    // Indicates whether the event should be considered
+    // transient, in which case it will not remain on
+    // SimState after emission. Default is true.
+    fn transient(&self) -> bool {
+        true
+    }
+}
 
 impl_downcast!(sync Event);
 
-pub struct EventIterator<'a, E: Event> {
-    evt_list: Option<Vec<Box<E>>>,
-    iter_ref: Option<&'a Vec<Box<E>>>,
+pub struct EventDrainIterator<'a>(pub(crate) Drain<'a, Arc<dyn Event>>);
+
+impl<'a> Iterator for EventDrainIterator<'a> {
+    type Item = Arc<dyn Event>;
+    fn next(&mut self) -> Option<Self::Item> {
+        self.0.next()
+    }
 }
 
 #[cfg(test)]

@@ -1,6 +1,9 @@
 use std::collections::HashSet;
+use std::sync::Arc;
+use std::vec::Drain;
 
-use crate::{event::Event, util::IdType};
+use crate::event::{Event, EventDrainIterator};
+use crate::util::IdType;
 
 use super::component::registry::ComponentRegistry;
 use super::{Organism, SimTime};
@@ -53,4 +56,7 @@ pub trait Sim {
     ///
     /// Returns an Err Result if the provided ID is invalid
     fn unschedule_event(&mut self, schedule_id: &IdType) -> anyhow::Result<()>;
+
+    /// Drains the last active `Event`s from the Sim
+    fn drain_active(&mut self) -> EventDrainIterator;
 }

@@ -91,6 +91,9 @@ impl<O: Organism> CoreLayer<O> {
 
 impl<O: Organism> SimLayer for CoreLayer<O> {
     fn pre_exec(&mut self, connector: &mut SimConnector) {
+        // Drain events from the last run, if any
+        connector.active_events.drain(..);
+
         connector
             .time_manager
             .next_events()
@@ -117,8 +120,10 @@ impl<O: Organism> SimLayer for CoreLayer<O> {
 
     fn post_exec(&mut self, connector: &mut SimConnector) {
         // update state
-        for evt in connector.active_events.drain(..) {
-            connector.state.put_state(evt.into());
+        for evt in connector.active_events.iter() {
+            if !evt.transient() {
+                connector.state.put_state(evt.clone());
+            }
         }
     }
 }

@@ -140,6 +140,12 @@ macro_rules! impl_sim {
             ) -> anyhow::Result<()> {
                 self.connector.time_manager.unschedule_event(schedule_id)
             }
+
+            fn drain_active(
+                &mut self
+            ) -> crate::event::EventDrainIterator {
+                crate::event::EventDrainIterator(self.connector.active_events.drain(..))
+            }
         }
     };
 }
