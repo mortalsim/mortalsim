@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use crate::units::base::{Amount, Mass};
 use crate::units::geometry::Volume;
 
 use crate::sim::layer::digestion::Consumable;
@@ -47,6 +48,14 @@ impl Consumed {
 
     pub fn set_volume(&mut self, volume: Volume<f64>) -> anyhow::Result<()> {
         self.consumable.set_volume(volume)
+    }
+
+    pub fn amount_of(&self, substance: &Substance) -> Amount<f64> {
+        self.consumable.amount_of(substance)
+    }
+
+    pub fn mass_of(&self, substance: &Substance) -> Mass<f64> {
+        self.consumable.mass_of(substance)
     }
 
     pub fn entry_time(&self) -> SimTime {

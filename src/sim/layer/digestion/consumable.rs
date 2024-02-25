@@ -1,8 +1,8 @@
-use simple_si_units::base::Amount;
 
 use crate::sim::SimTime;
 use crate::substance::substance_wrapper::substance_store_wrapper;
 use crate::substance::{Substance, SubstanceStore};
+use crate::units::base::{Amount, Mass};
 use crate::units::geometry::Volume;
 use crate::util::IdType;
 use std::collections::HashMap;
@@ -24,7 +24,7 @@ use std::collections::HashMap;
 ///     store.set_concentration(Substance::Amylose, SubstanceConcentration::from_nM(2.4684));
 ///     store.set_concentration(Substance::Amylopectin, SubstanceConcentration::from_nM(0.65824));
 ///     
-///     let bite1 = Consumable::new("Rice".to_string(), Volume::from_mL(250.0), store.clone());
+///     let bite1 = Consumable::new("Food".to_string(), Volume::from_mL(250.0), store.clone());
 ///     let bite2 = bite1.clone();
 ///     let bite3 = bite1.clone();
 /// }
@@ -57,8 +57,12 @@ impl Consumable {
         self.volume
     }
 
-    pub fn amount_of(&self, substance: Substance) -> Amount<f64> {
-        self.store.concentration_of(&substance) * self.volume
+    pub fn amount_of(&self, substance: &Substance) -> Amount<f64> {
+        self.store.concentration_of(substance) * self.volume
+    }
+
+    pub fn mass_of(&self, substance: &Substance) -> Mass<f64> {
+        self.amount_of(substance) * substance.molar_mass()
     }
 
     pub fn set_volume(&mut self, volume: Volume<f64>) -> anyhow::Result<()> {
