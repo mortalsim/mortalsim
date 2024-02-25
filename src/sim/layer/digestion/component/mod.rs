@@ -22,114 +22,52 @@ pub trait DigestionComponent<O: Organism>: SimComponent<O> {
     fn digestion_connector(&mut self) -> &mut DigestionConnector<O>;
 }
 
-// #[cfg(test)]
-// pub mod test {
-//     use super::{CoreComponent, SimComponent};
-//     use super::{CoreInitializer, CoreConnector};
-//     use crate::event::test::{TestEventA, TestEventB};
-//     use crate::event::Event;
-//     use crate::sim::component::registry::ComponentRegistry;
-//     use crate::sim::SimState;
-//     use crate::units::base::Amount;
-//     use crate::units::base::Distance;
-//     use std::any::TypeId;
-//     use std::sync::{Arc, Mutex};
+#[cfg(test)]
+pub mod test {
+    use crate::{sim::{component::{ComponentRegistry, SimComponent}, layer::digestion::DigestionDirection, Organism}, substance::Substance, util::{mmol_per_L, secs}};
 
-//     pub struct TestComponentA {
-//         connector: CoreConnector,
-//     }
-//     impl TestComponentA {
-//         fn new() -> TestComponentA {
-//             TestComponentA {
-//                 connector: CoreConnector::new(),
-//             }
-//         }
-//     }
-//     impl CoreComponent for TestComponentA {
-//         fn core_connector(&mut self) -> &mut CoreConnector {
-//             &mut self.connector
-//         }
-//         fn core_init(&mut self, initializer: &mut CoreInitializer) {
-//             initializer.notify(TestEventA::new(Distance::from_m(1.0)));
-//             initializer.notify(TestEventB::new(Amount::from_mol(1.0)));
-//             initializer.transform(|evt: &mut TestEventA| {
-//                 evt.len = Distance::from_m(3.0);
-//             });
-//         }
-//     }
+    use super::{DigestionComponent, DigestionConnector};
 
-//     impl SimComponent for TestComponentA {
-//         fn id(&self) -> &'static str {
-//             "TestComponentA"
-//         }
-//         fn attach(self, registry: &mut ComponentRegistry) {
-//             registry.add_core_component(self)
-//         }
-//         fn run(&mut self) {
-//             let evt_a = self.connector.get::<TestEventA>().unwrap();
-//             assert_eq!(evt_a.len, Distance::from_m(3.0));
+    pub struct TestDigestionComponent<O: Organism> {
+        connector: DigestionConnector<O>,
+    }
+    impl<O: Organism> TestDigestionComponent<O> {
+        fn new() -> Self {
+            Self {
+                connector: DigestionConnector::new(),
+            }
+        }
+    }
+    impl<O: Organism> DigestionComponent<O> for TestDigestionComponent<O> {
+        fn digestion_connector(&mut self) -> &mut DigestionConnector<O> {
+            &mut self.connector
+        }
+    }
 
-//             log::debug!(
-//                 "Trigger Events: {:?}",
-//                 self.connector
-//                     .trigger_events()
-//                     .collect::<Vec<&TypeId>>()
-//             );
-//         }
-//     }
+    impl<O: Organism> SimComponent<O> for TestDigestionComponent<O> {
+        fn id(&self) -> &'static str {
+            "TestDigestionComponent"
+        }
+        fn attach(self, registry: &mut ComponentRegistry<O>) {
+            registry.add_digestion_component(self)
+        }
+        fn run(&mut self) {
+            for food in self.connector.consumed() {
+                if food.concentration_of(&Substance::NH3) > mmol_per_L!(1.0) {
+                    food.set_exit(secs!(5.0), DigestionDirection::BACK);
+                }
+            }
+        }
+    }
 
-//     pub struct TestComponentB {
-//         connector: CoreConnector,
-//     }
-//     impl TestComponentB {
-//         pub fn new() -> TestComponentB {
-//             TestComponentB {
-//                 connector: CoreConnector::new(),
-//             }
-//         }
 
-//         pub fn transform_b(evt: &mut TestEventB) {
-//             evt.amt = evt.amt + Amount::from_mol(0.0);
-//         }
-//     }
-//     impl CoreComponent for TestComponentB {
-//         fn core_init(&mut self, initializer: &mut CoreInitializer) {
-//             initializer.notify(TestEventA::new(Distance::from_m(2.0)));
-//             initializer.notify(TestEventB::new(Amount::from_mol(2.0)));
-//             initializer.transform(Self::transform_b);
-//         }
-//         fn core_connector(&mut self) -> &mut CoreConnector {
-//             &mut self.connector
-//         }
-//     }
+    #[test]
+    fn test_component() {
+        // let mut component = TestComponentA::new();
+        // let mut initializer = CoreInitializer::new();
+        // component.core_init(&mut initializer);
 
-//     impl SimComponent for TestComponentB {
-//         fn id(&self) -> &'static str {
-//             "TestComponentB"
-//         }
-//         fn attach(self, registry: &mut ComponentRegistry) {
-//             registry.add_core_component(self)
-//         }
-//         fn run(&mut self) {
-//             let evt_a = self.connector.get::<TestEventA>().unwrap();
-//             assert_eq!(evt_a.len, Distance::from_m(3.0));
-
-//             log::debug!(
-//                 "Trigger Events: {:?}",
-//                 self.connector
-//                     .trigger_events()
-//                     .collect::<Vec<&TypeId>>()
-//             );
-//         }
-//     }
-
-//     #[test]
-//     fn test_component() {
-//         let mut component = TestComponentA::new();
-//         let mut initializer = CoreInitializer::new();
-//         component.core_init(&mut initializer);
-
-//         assert!(initializer.pending_notifies.len() == 2);
-//         assert!(initializer.pending_transforms.len() == 1);
-//     }
-// }
+        // assert!(initializer.pending_notifies.len() == 2);
+        // assert!(initializer.pending_transforms.len() == 1);
+    }
+}

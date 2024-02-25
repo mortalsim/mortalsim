@@ -16,7 +16,7 @@ function stringifyCharge(charge) {
     return ''
 }
 
-function fmtMass(num) {
+function fmtValue(num) {
     if(Number.isInteger(num)) return num.toFixed(1);
     return num;
 }
@@ -27,8 +27,9 @@ fs.writeFileSync(substancePath, `
  * SOURCE: scripts/substance_writer.js
  */
 
-use crate::units::chemical::MolarMass;
 use std::fmt;
+use crate::units::chemical::MolarMass;
+use crate::units::mechanical::Density;
 
 /// Enumeration of chemical substances.
 /// These are typically named as their most abundant form in biological contexts.
@@ -80,7 +81,16 @@ ${Object.entries(substanceConfigs).map(([sid, cfg]) =>
     pub fn molar_mass(&self) -> MolarMass<f64> {
         match self {
 ${Object.entries(substanceConfigs).map(([sid, cfg]) =>
-`            Self::${sid} => MolarMass::from_gpmol(${fmtMass(cfg.molar_mass)}),
+`            Self::${sid} => MolarMass::from_gpmol(${fmtValue(cfg.molar_mass)}),
+`).join('')}
+        }
+    }
+
+    /// Typical density of the substance
+    pub fn density(&self) -> MolarMass<f64> {
+        match self {
+${Object.entries(substanceConfigs).map(([sid, cfg]) =>
+`            Self::${sid} => Density::from_gpcc(${fmtValue(cfg.density)}),
 `).join('')}
         }
     }

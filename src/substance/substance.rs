@@ -4,8 +4,9 @@
  * SOURCE: scripts/substance_writer.js
  */
 
-use crate::units::chemical::MolarMass;
 use std::fmt;
+use crate::units::chemical::MolarMass;
+use crate::units::mechanical::Density;
 
 /// Enumeration of chemical substances.
 /// These are typically named as their most abundant form in biological contexts.
@@ -59,6 +60,10 @@ pub enum Substance {
     PYR,
     /// Monosodium Glutamate (MSG)
     MSG,
+    /// Ammonia (NH3)
+    NH3,
+    /// Bleach (NaClO)
+    NaClO,
     /// Alanine (ALA)
     ALA,
     /// Arginine (ARG+)
@@ -211,6 +216,8 @@ impl Substance {
             Self::PGK => "Phosphoglycerate Kinase",
             Self::PYR => "Pyruvate",
             Self::MSG => "Monosodium Glutamate",
+            Self::NH3 => "Ammonia",
+            Self::NaClO => "Bleach",
             Self::ALA => "Alanine",
             Self::ARG => "Arginine",
             Self::ASN => "Asparagine",
@@ -294,6 +301,8 @@ impl Substance {
             Self::PGK => 0,
             Self::PYR => 0,
             Self::MSG => 0,
+            Self::NH3 => 0,
+            Self::NaClO => 0,
             Self::ALA => 0,
             Self::ARG => 1,
             Self::ASN => 0,
@@ -366,7 +375,7 @@ impl Substance {
             Self::H2O => MolarMass::from_gpmol(18.0153),
             Self::K => MolarMass::from_gpmol(39.0983),
             Self::LAC => MolarMass::from_gpmol(89.07),
-            Self::LDH => MolarMass::from_gpmol(140000.0),
+            Self::LDH => MolarMass::from_gpmol(144000.0),
             Self::N2 => MolarMass::from_gpmol(28.0134),
             Self::NAD => MolarMass::from_gpmol(663.43),
             Self::NADH => MolarMass::from_gpmol(665.125),
@@ -377,6 +386,8 @@ impl Substance {
             Self::PGK => MolarMass::from_gpmol(45000.0),
             Self::PYR => MolarMass::from_gpmol(88.06),
             Self::MSG => MolarMass::from_gpmol(88.06),
+            Self::NH3 => MolarMass::from_gpmol(17.031),
+            Self::NaClO => MolarMass::from_gpmol(74.44),
             Self::ALA => MolarMass::from_gpmol(89.1),
             Self::ARG => MolarMass::from_gpmol(174.2),
             Self::ASN => MolarMass::from_gpmol(132.1),
@@ -429,6 +440,91 @@ impl Substance {
             Self::Amylopectin => MolarMass::from_gpmol(1500000.0),
             Self::Cellulose => MolarMass::from_gpmol(162000.0),
             Self::Glycogen => MolarMass::from_gpmol(5404680.0),
+
+        }
+    }
+
+    /// Typical density of the substance
+    pub fn density(&self) -> MolarMass<f64> {
+        match self {
+            Self::ADP => Density::from_gpcc(2.49),
+            Self::AMP => Density::from_gpcc(1.04),
+            Self::ATP => Density::from_gpcc(1.04),
+            Self::Ca => Density::from_gpcc(1.55),
+            Self::CO2 => Density::from_gpcc(0.001977),
+            Self::Cl => Density::from_gpcc(0.0032),
+            Self::GLC => Density::from_gpcc(1.54),
+            Self::GLCL => Density::from_gpcc(1.54),
+            Self::FRC => Density::from_gpcc(1.694),
+            Self::H => Density::from_gpcc(0.00008988),
+            Self::H2O => Density::from_gpcc(1.0),
+            Self::K => Density::from_gpcc(0.862),
+            Self::LAC => Density::from_gpcc(1.21),
+            Self::LDH => Density::from_gpcc(1.43),
+            Self::N2 => Density::from_gpcc(0.001251),
+            Self::NAD => Density::from_gpcc(1.578),
+            Self::NADH => Density::from_gpcc(1.578),
+            Self::Na => Density::from_gpcc(0.97),
+            Self::NaCl => Density::from_gpcc(2.16),
+            Self::O2 => Density::from_gpcc(0.001429),
+            Self::PFK => Density::from_gpcc(1.5625),
+            Self::PGK => Density::from_gpcc(1.642),
+            Self::PYR => Density::from_gpcc(1.25),
+            Self::MSG => Density::from_gpcc(1.52),
+            Self::NH3 => Density::from_gpcc(0.73),
+            Self::NaClO => Density::from_gpcc(1.11),
+            Self::ALA => Density::from_gpcc(1.42),
+            Self::ARG => Density::from_gpcc(1.48),
+            Self::ASN => Density::from_gpcc(1.53),
+            Self::ASP => Density::from_gpcc(1.66),
+            Self::CYS => Density::from_gpcc(1.92),
+            Self::GLN => Density::from_gpcc(1.36),
+            Self::GLU => Density::from_gpcc(1.54),
+            Self::GLY => Density::from_gpcc(1.6),
+            Self::HIS => Density::from_gpcc(1.49),
+            Self::ILE => Density::from_gpcc(1.34),
+            Self::LEU => Density::from_gpcc(1.34),
+            Self::LYS => Density::from_gpcc(1.36),
+            Self::MET => Density::from_gpcc(1.34),
+            Self::PHE => Density::from_gpcc(1.08),
+            Self::PRO => Density::from_gpcc(1.36),
+            Self::SER => Density::from_gpcc(1.48),
+            Self::THR => Density::from_gpcc(1.31),
+            Self::TRP => Density::from_gpcc(1.2),
+            Self::TYR => Density::from_gpcc(1.18),
+            Self::VAL => Density::from_gpcc(1.23),
+            Self::Retinol => Density::from_gpcc(0.944),
+            Self::Retinal => Density::from_gpcc(0.97),
+            Self::RetinoicAcid => Density::from_gpcc(1.06),
+            Self::Thiamine => Density::from_gpcc(1.24),
+            Self::Riboflavin => Density::from_gpcc(1.454),
+            Self::Niacin => Density::from_gpcc(1.473),
+            Self::PantothenicAcid => Density::from_gpcc(1.213),
+            Self::Pyridoxine => Density::from_gpcc(1.626),
+            Self::Biotin => Density::from_gpcc(1.213),
+            Self::Folate => Density::from_gpcc(1.77),
+            Self::HdxCbl => Density::from_gpcc(1.9),
+            Self::AdoCbl => Density::from_gpcc(1.12),
+            Self::MeCbl => Density::from_gpcc(1.37),
+            Self::CynCbl => Density::from_gpcc(1.53),
+            Self::AscorbicAcid => Density::from_gpcc(1.65),
+            Self::Ergocalciferol => Density::from_gpcc(0.94),
+            Self::Cholecalciferol => Density::from_gpcc(0.96),
+            Self::AlphaTocopherol => Density::from_gpcc(0.95),
+            Self::BetaTocopherol => Density::from_gpcc(0.95),
+            Self::DeltaTocopherol => Density::from_gpcc(0.96),
+            Self::GammaTocopherol => Density::from_gpcc(0.95),
+            Self::AlphaTocotrienol => Density::from_gpcc(0.88),
+            Self::BetaTocotrienol => Density::from_gpcc(0.89),
+            Self::DeltaTocotrienol => Density::from_gpcc(0.91),
+            Self::GammaTocotrienol => Density::from_gpcc(0.89),
+            Self::Phytomenadione => Density::from_gpcc(0.989),
+            Self::MK4 => Density::from_gpcc(1.1),
+            Self::Menadione => Density::from_gpcc(1.28),
+            Self::Amylose => Density::from_gpcc(1.5),
+            Self::Amylopectin => Density::from_gpcc(1.6),
+            Self::Cellulose => Density::from_gpcc(1.5),
+            Self::Glycogen => Density::from_gpcc(1.6),
 
         }
     }
