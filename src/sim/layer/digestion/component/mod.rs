@@ -24,7 +24,9 @@ pub trait DigestionComponent<O: Organism>: SimComponent<O> {
 
 #[cfg(test)]
 pub mod test {
-    use crate::{sim::{component::{ComponentRegistry, SimComponent}, layer::digestion::DigestionDirection, Organism}, substance::Substance, util::{mmol_per_L, secs}};
+    use simple_si_units::geometry::Volume;
+
+    use crate::{sim::{component::{ComponentRegistry, SimComponent}, layer::digestion::{DigestionDirection, DigestionInitializer}, organism::test::TestOrganism, Consumable, Organism, SimTime}, substance::Substance, util::{mmol_per_L, secs}};
 
     use super::{DigestionComponent, DigestionConnector};
 
@@ -54,7 +56,15 @@ pub mod test {
         fn run(&mut self) {
             for food in self.connector.consumed() {
                 if food.concentration_of(&Substance::NH3) > mmol_per_L!(1.0) {
-                    food.set_exit(secs!(5.0), DigestionDirection::BACK);
+                    food.set_exit(secs!(5.0), DigestionDirection::BACK).unwrap();
+                }
+                else if food.concentration_of(&Substance::GLC) > mmol_per_L!(0.0) {
+                    // Mmmm sugar!
+                    food.schedule_change(Substance::GLC, mmol_per_L!(0.0), SimTime::from_min(5.0));
+                    food.set_exit(SimTime::from_min(5.0), DigestionDirection::FORWARD).unwrap();
+                }
+                else {
+                    food.set_exit(SimTime::from_min(1.0), DigestionDirection::EXHAUSTED).unwrap();
                 }
             }
         }
@@ -63,11 +73,8 @@ pub mod test {
 
     #[test]
     fn test_component() {
-        // let mut component = TestComponentA::new();
-        // let mut initializer = CoreInitializer::new();
-        // component.core_init(&mut initializer);
+        let mut component: TestDigestionComponent<TestOrganism> = TestDigestionComponent::new();
+        let mut consumable = Consumable::new("Sugar".to_string(), Volume::from_mL(2.0));
 
-        // assert!(initializer.pending_notifies.len() == 2);
-        // assert!(initializer.pending_transforms.len() == 1);
     }
 }

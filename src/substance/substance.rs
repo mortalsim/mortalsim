@@ -445,7 +445,7 @@ impl Substance {
     }
 
     /// Typical density of the substance
-    pub fn density(&self) -> MolarMass<f64> {
+    pub fn density(&self) -> Density<f64> {
         match self {
             Self::ADP => Density::from_gpcc(2.49),
             Self::AMP => Density::from_gpcc(1.04),

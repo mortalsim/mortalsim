@@ -117,6 +117,9 @@ impl<O: Organism> SimLayer for DigestionLayer<O> {
                     .expect("moving_indices referenced invalid position")
                     .remove(idx);
 
+                // update sim time
+                removed.sim_time = connector.sim_time();
+
                 // update entry time
                 removed.entry_time = removed.exit_time;
 

@@ -87,7 +87,7 @@ ${Object.entries(substanceConfigs).map(([sid, cfg]) =>
     }
 
     /// Typical density of the substance
-    pub fn density(&self) -> MolarMass<f64> {
+    pub fn density(&self) -> Density<f64> {
         match self {
 ${Object.entries(substanceConfigs).map(([sid, cfg]) =>
 `            Self::${sid} => Density::from_gpcc(${fmtValue(cfg.density)}),

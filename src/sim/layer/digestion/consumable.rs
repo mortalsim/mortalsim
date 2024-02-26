@@ -41,7 +41,15 @@ pub struct Consumable {
 }
 
 impl Consumable {
-    pub fn new(name: String, volume: Volume<f64>, store: SubstanceStore) -> Consumable {
+    pub fn new(name: String, volume: Volume<f64>) -> Consumable {
+        Consumable {
+            name: String::from(name),
+            volume: volume,
+            store: SubstanceStore::new(),
+        }
+    }
+
+    pub fn new_with_store(name: String, volume: Volume<f64>, store: SubstanceStore) -> Consumable {
         Consumable {
             name: String::from(name),
             volume: volume,
@@ -95,6 +103,6 @@ pub mod test {
         store.set_concentration(Substance::PRO, SubstanceConcentration::from_nM(0.0261));
         store.set_concentration(Substance::Amylose, SubstanceConcentration::from_nM(2.4684));
         store.set_concentration(Substance::Amylopectin, SubstanceConcentration::from_nM(0.65824));
-        Consumable::new("".to_string(), Volume::from_L(0.5), SubstanceStore::new());
+        Consumable::new_with_store("".to_string(), Volume::from_L(0.5), SubstanceStore::new());
     }
 }

@@ -11,6 +11,8 @@ use crate::substance::Substance;
 use crate::IdType;
 
 pub struct Consumed {
+    /// Copy of the current Simulation time
+    pub(crate) sim_time: SimTime,
     /// Consumable accessible by the current module
     pub(crate) consumable: Consumable,
     /// Time which the consumable entered the component
@@ -33,6 +35,7 @@ impl Consumed {
 
     pub(crate) fn new(consumable: Consumable) -> Self {
         Self {
+            sim_time: SimTime::from_s(0.0),
             consumable,
             entry_time: SimTime::from_s(0.0),
             entry_direction: DigestionDirection::FORWARD,
@@ -58,21 +61,21 @@ impl Consumed {
         self.consumable.mass_of(substance)
     }
 
-    pub fn entry_time(&self) -> SimTime {
-        self.entry_time
+    pub fn time_since_entry(&self) -> SimTime {
+        self.entry_time - self.sim_time
     }
 
     pub fn set_exit(
         &mut self,
-        exit_time: SimTime,
+        delay: SimTime,
         exit_direction: DigestionDirection,
     ) -> anyhow::Result<()> {
-        if exit_time < self.entry_time {
+        if delay <= SimTime::from_s(0.0) {
             Err(anyhow!(
-                "Digestion component exit_time cannot be less than entry time!"
+                "Consumed exit delay must be greater than zero!"
             ))
         } else {
-            self.exit_time = exit_time;
+            self.exit_time = delay + self.sim_time;
             self.exit_direction = exit_direction;
             Ok(())
         }
