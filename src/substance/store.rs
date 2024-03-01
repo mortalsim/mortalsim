@@ -97,12 +97,20 @@ impl SubstanceStore {
         self.composition.insert(substance, concentration);
     }
 
+    /// Retrieves the current composition as a HashMap
+    ///
+    /// ### Arguments
+    /// * `composition` - the Substance composition to merge
+    pub(crate) fn get_composition(&self) -> &HashMap<Substance, simple_si_units::chemical::Concentration<f64>>{
+        &self.composition
+    }
+
     /// Merges the provided composition with this store's internal composition, updating
     /// any existing substances and adding any new concentrations
     ///
     /// ### Arguments
     /// * `composition` - the Substance composition to merge
-    pub fn merge_composition(&mut self, composition: &HashMap<Substance, SubstanceConcentration>) {
+    pub(crate) fn merge_composition(&mut self, composition: &HashMap<Substance, SubstanceConcentration>) {
         self.composition.extend(composition);
     }
 
