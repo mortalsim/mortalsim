@@ -131,7 +131,6 @@ impl SubstanceStore {
     /// ### Arguments
     /// * `substance`  - the substance to change
     /// * `delay`      - future simulation time to start the change
-    /// * `substance`  - the substance to change
     /// * `amount`     - total concentration change to take place
     /// * `duration`   - amount of time over which the change takes place
     /// * `bound_fn`   - the shape of the function

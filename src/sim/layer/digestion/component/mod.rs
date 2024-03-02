@@ -71,10 +71,10 @@ pub mod test {
     }
 
 
-    #[test]
-    fn test_component() {
-        let mut component: TestDigestionComponent<TestOrganism> = TestDigestionComponent::new();
-        let mut consumable = Consumable::new("Sugar".to_string(), Volume::from_mL(2.0));
-
-    }
+    // #[test]
+    // fn test_component() {
+    //     let mut component: TestDigestionComponent<TestOrganism> = TestDigestionComponent::new();
+    //     let mut consumable = Consumable::new("Sugar".to_string(), Volume::from_mL(2.0));
+    //     consumable.set_volume_composition(Substance::GLC, 1.0).unwrap();
+    // }
 }

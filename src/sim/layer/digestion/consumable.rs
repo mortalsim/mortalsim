@@ -90,21 +90,27 @@ impl Consumable {
             let mass_substance = amt_substance * substance.molar_mass();
             calc_mass += mass_substance;
         }
+        let solvent_vol = self.volume - self.solute_volume;
+        calc_mass += solvent_vol * self.solvent.density();
         calc_mass
     }
 
     fn calc_volume_of_solutes(&self) -> Volume<f64> {
         let mut solute_vol = Volume::from_L(0.0);
         for (substance, concentration) in self.store.get_composition().iter() {
-            solute_vol += concentration * self.volume() * (substance.molar_mass() / substance.density());
+            let part_vol = concentration * self.volume() * (substance.molar_mass() / substance.density());
+            solute_vol += part_vol;
+            print!("{:?}: {:?}", substance, part_vol)
         }
         solute_vol
     }
 
-    fn check_solute_volume(&self) -> anyhow::Result<()> {
+    fn check_solute_volume(&mut self) -> anyhow::Result<()> {
         if self.solute_volume > self.volume() {
+            self.distill();
+            self.mass = self.calc_mass();
             return Err(anyhow!(
-                "Invalid volume. Cannot fit solutes in solution with total Volume {:?}",
+                "Invalid volume (cannot fit solutes in {:?}), setting to minimum / distilled volume.",
                 self.volume()
             ))
         }
@@ -132,30 +138,32 @@ impl Consumable {
     }
 
     pub fn volume_of(&self, substance: &Substance) -> Volume<f64> {
-        self.store.concentration_of(substance) * self.volume() * (substance.molar_mass() / substance.density())
+        self.amount_of(substance) * (substance.molar_mass() / substance.density())
     }
 
     pub fn set_volume(&mut self, volume: Volume<f64>) -> anyhow::Result<()> {
         if volume <= Volume::from_L(0.0) {
             return Err(anyhow!(
-                "Consumable volume cannot be less than zero (set to {:?})",
+                "Consumable volume cannot be less than or equal to zero (set to {:?})",
                 volume
             ));
         }
         self.volume = volume;
         self.solute_volume = self.calc_volume_of_solutes();
-        self.check_solute_volume()?;
-        self.mass = self.calc_mass();
-        Ok(())
+        self.check_solute_volume()
+    }
+
+    pub fn distill(&mut self) {
+        self.volume = self.solute_volume
     }
 
     pub fn set_concentration(&mut self, substance: Substance, concentration: SubstanceConcentration) -> anyhow::Result<()> {
         let prev = self.store.concentration_of(&substance);
         let diff = concentration - prev;
-        self.solute_volume += diff * self.volume() * (substance.molar_mass() / substance.density());
-        self.check_solute_volume()?;
+        let part_vol = diff * self.volume() * (substance.molar_mass() / substance.density());
+        self.solute_volume += part_vol;
         self.store.set_concentration(substance, concentration);
-        Ok(())
+        self.check_solute_volume()
     }
 
     pub fn set_volume_composition(&mut self, substance: Substance, percent_volume: f64) -> anyhow::Result<()>{
