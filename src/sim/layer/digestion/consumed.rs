@@ -31,8 +31,6 @@ pub struct Consumed {
     pub(crate) entry_direction: DigestionDirection,
     /// Time which the consumable will exit the component.
     /// (Default is 60s after entry time)
-    /// Note: if there are any lingering substance changes, they will be
-    /// cancelled at exit time
     pub(crate) exit_time: SimTime,
     /// Where the consumable should go after this component is done with it (Default is FORWARD)
     pub(crate) exit_direction: DigestionDirection,
@@ -49,6 +47,7 @@ pub struct Consumed {
 impl Consumed {
     substance_store_wrapper!(consumable.store, change_map);
 
+    /// Creates a new Consumed to wrap a Consumable.
     pub(crate) fn new(consumable: Consumable) -> Self {
         Self {
             sim_time: SimTime::from_s(0.0),
@@ -64,26 +63,40 @@ impl Consumed {
         }
     }
 
+    /// Volume of the solution
     pub fn volume(&self) -> Volume<f64> {
         self.consumable.volume()
     }
 
+    /// Amount of the given substance in the solution
     pub fn amount_of(&self, substance: &Substance) -> Amount<f64> {
         self.consumable.amount_of(substance)
     }
     
+    /// Volume of the given substance in the solution
     pub fn volume_of(&self, substance: &Substance) -> Volume<f64> {
         self.consumable.volume_of(substance)
     }
 
+    /// Mass of the given substance in the solution
     pub fn mass_of(&self, substance: &Substance) -> Mass<f64> {
         self.consumable.mass_of(substance)
     }
 
+    /// Time since the `Consumed` entered the current component
     pub fn time_since_entry(&self) -> SimTime {
         self.entry_time - self.sim_time
     }
 
+    /// Schedules a future change in solution volume with a sigmoidal shape.
+    ///
+    /// Note that all substance and volume changes will be
+    /// unset when the `Consumed` moves on to the next component.
+    ///
+    /// ### Arguments
+    /// * `amount`   - magnitude of the volume change
+    /// * `delay`    - delay in simulation time before starting the change
+    /// * `duration` - amount of time over which the change takes place
     pub fn schedule_volume_change(&mut self,
         amount: Volume<f64>,
         delay: SimTime,
@@ -92,6 +105,16 @@ impl Consumed {
             self.schedule_custom_volume_change(amount, delay, duration, BoundFn::Sigmoid)
     }
 
+    /// Schedules a future change in solution volume with a custom shape.
+    ///
+    /// Note that all substance and volume changes will be
+    /// unset when the `Consumed` moves on to the next component.
+    ///
+    /// ### Arguments
+    /// * `amount`   - magnitude of the volume change
+    /// * `delay`    - delay in simulation time before starting the change
+    /// * `duration` - amount of time over which the change takes place
+    /// * `bound_fn` - the shape of the function
     pub fn schedule_custom_volume_change(&mut self,
         amount: Volume<f64>,
         delay: SimTime,
@@ -109,43 +132,11 @@ impl Consumed {
             change_id
     }
 
-    pub fn schedule_extract(
-        &mut self,
-        substance: &Substance,
-        amount: Amount<f64>,
-        duration: SimTime,
-    ) -> anyhow::Result<IdType> {
-        self.schedule_custom_extract(substance, amount, SimTime::from_s(0.0), duration, BoundFn::Sigmoid)
-    }
-
-    pub fn schedule_custom_extract(
-        &mut self,
-        substance: &Substance,
-        amount: Amount<f64>,
-        delay: SimTime,
-        duration: SimTime,
-        bound_fn: BoundFn,
-    ) -> anyhow::Result<IdType> {
-        let cur_amt_substance = self.amount_of(substance);
-        if cur_amt_substance < amount {
-            return Err(anyhow!(
-                "Cannot extract {} of substance. Only {} remains.",
-                amount,
-                self.amount_of(substance)
-            ))
-        }
-        let result_volume = (amount - cur_amt_substance) * (substance.molar_mass() / substance.density());
-        let change_a = self.schedule_custom_volume_change(result_volume, delay, duration, bound_fn);
-
-        let result_concentration = (amount / self.amount_of(substance)) * self.concentration_of(substance);
-        let change_b = self.schedule_custom_change(*substance, result_concentration, delay, duration, bound_fn);
-
-        let comp_id = self.id_gen.get_id();
-        self.composite_changes.insert(comp_id, (change_a, change_b));
-
-        Ok(comp_id)
-    }
-
+    /// Sets the exit time and direction of the `Consumed`
+    ///
+    /// ### Arguments
+    /// * `delay`          - delay in simulation time before the `Consumed` exits
+    /// * `exit_direction` - direction in which the `Consumed` is exiting
     pub fn set_exit(
         &mut self,
         delay: SimTime,
@@ -162,6 +153,7 @@ impl Consumed {
         }
     }
 
+    /// Remove all pending changes, and extract the consumable and its exit direction
     pub(crate) fn exit(mut self) -> (Consumable, DigestionDirection) {
         for (substance, change_ids) in self.change_map.drain() {
             for change_id in change_ids {
@@ -174,6 +166,7 @@ impl Consumed {
         (self.consumable, self.exit_direction)
     }
 
+    /// Internal execution of volume changes on each advance
     fn execute_volume_changes(&mut self) {
         for change in self.volume_changes.iter() {
             if change.start < self.sim_time && change.end > self.sim_time {
@@ -182,10 +175,9 @@ impl Consumed {
                     change.end.s - change.start.s,
                     change.amount.m3,
                 );
-                // Log volume errors as warnings, but continue on
-                if let Err(e) = self.consumable.set_volume(self.volume() + Volume::from_m3(result)) {
-                    log::warn!("{}", e);
-                }
+                // Set unchecked here, since the consumable will check automatically
+                // when advancing
+                self.consumable.set_volume_unchecked(self.volume() + Volume::from_m3(result));
             }
         }
         // Pop off any volume changes which have completed
@@ -194,8 +186,13 @@ impl Consumed {
         }
     }
 
+    /// Advance simulation time to the given value.
+    ///
+    /// Volume changes are executed before the consumable advances,
+    /// at which time mass and solute volume are calculated, and validity
+    /// of the solution volume is checked.
     pub(crate) fn advance(&mut self, sim_time: SimTime) {
-        self.consumable.advance(sim_time);
         self.execute_volume_changes();
+        self.consumable.advance(sim_time);
     }
 }

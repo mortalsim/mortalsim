@@ -21,27 +21,33 @@ use std::sync::{Mutex, RwLock};
 /// use mortalsim::sim::Consumable;
 /// 
 /// fn main() {
-///     let mut bite1 = Consumable::new("Food".to_string(), Volume::from_mL(250.0));
+///     // Create our first bite of 250mL, with water (default) as the solvent
+///     let mut bite1 = Consumable::new(Volume::from_mL(250.0));
+///
+///     // Add some starch
 ///     bite1.set_volume_composition(Substance::Amylose, 0.15).unwrap();
 ///     bite1.set_volume_composition(Substance::Amylopectin, 0.65).unwrap();
+///
+///     // A couple of vitamins
 ///     bite1.set_volume_composition(Substance::Retinal, 0.01).unwrap();
 ///     bite1.set_volume_composition(Substance::Thiamine, 0.02).unwrap();
+///
+///     // Some proteins
 ///     bite1.set_volume_composition(Substance::GLN, 0.001).unwrap();
 ///     bite1.set_volume_composition(Substance::PRO, 0.003).unwrap();
-
+///
+///     // create a second bite with a different volume, but the same
+///     // composition, by cloning the store of solutes
 ///     let bite2 = Consumable::new_custom(
-///         bite1.name().to_string(),
 ///         Volume::from_mL(200.0),
 ///         Substance::H2O,
-///         bite1.clone_store(),
+///         bite1.store().clone(),
 ///     );
 /// }
 /// 
 /// ```
 #[derive(Clone, Debug)]
 pub struct Consumable {
-    /// Name of the `Consumable``
-    name: String,
     /// Solvent of the solution (water by default)
     solvent: Substance,
     /// Total volume of the `Consumable`
@@ -57,17 +63,32 @@ pub struct Consumable {
 }
 
 impl Consumable {
-    pub fn new(name: String, volume: Volume<f64>) -> Self {
-        Self::new_custom(name, volume, Substance::H2O, SubstanceStore::new())
+    /// Create a new pure water Consumable with given `Volume`.
+    ///
+    /// ### Arguments
+    /// * `volume` - Initial volume of the solution
+    pub fn new(volume: Volume<f64>) -> Self {
+        Self::new_custom(volume, Substance::H2O, SubstanceStore::new())
     }
 
-    pub fn new_with_solute(name: String, volume: Volume<f64>, solvent: Substance) -> Self {
-        Self::new_custom(name, volume, solvent, SubstanceStore::new())
+    /// Create a new Consumable with given `Volume` and solvent
+    ///
+    /// ### Arguments
+    /// * `volume` - Initial volume of the solution
+    /// * `solvent` - Base in which solutes are dissolved to form a solution
+    pub fn new_with_solvent(volume: Volume<f64>, solvent: Substance) -> Self {
+        Self::new_custom(volume, solvent, SubstanceStore::new())
     }
 
-    pub fn new_custom(name: String, volume: Volume<f64>, solvent: Substance, store: SubstanceStore) -> Self {
+    /// Create a new Consumable with given `Volume`, solvent, and initial set
+    /// of solutes
+    ///
+    /// ### Arguments
+    /// * `volume` - Initial volume of the solution
+    /// * `solvent` - Base in which solutes are dissolved to form a solution
+    /// * `store` - `SubstanceStore` of solutes
+    pub fn new_custom(volume: Volume<f64>, solvent: Substance, store: SubstanceStore) -> Self {
         Self {
-            name: String::from(name),
             volume: volume,
             solvent: solvent,
             mass: solvent.density() * volume,
@@ -77,12 +98,23 @@ impl Consumable {
         }
     }
 
+    /// Advance simulation time to the given value.
+    ///
+    /// Total mass and solute volume are determined at each step
+    /// of the simulation. 
     pub(crate) fn advance(&mut self, sim_time: SimTime) {
         self.store.advance(sim_time);
-        self.mass = self.calc_mass();
         self.solute_volume = self.calc_volume_of_solutes();
+        // If volume has become too small to fit the solutes
+        // log as a warning and continue on
+        if let Err(e) = self.check_solute_volume() {
+            log::warn!("{}", e);
+        }
+        self.mass = self.calc_mass();
     }
 
+    /// Calculates the total mass of the solution based on the current
+    /// chemical composition
     fn calc_mass(&self) -> Mass<f64> {
         let mut calc_mass = Mass::from_g(0.0);
         for (substance, concentration) in self.store.get_composition().iter() {
@@ -95,6 +127,7 @@ impl Consumable {
         calc_mass
     }
 
+    /// Calculates the total volume of all solutes in the solution
     fn calc_volume_of_solutes(&self) -> Volume<f64> {
         let mut solute_vol = Volume::from_L(0.0);
         for (substance, concentration) in self.store.get_composition().iter() {
@@ -105,6 +138,7 @@ impl Consumable {
         solute_vol
     }
 
+    /// Checks the validity of total solute volume (must be less than total volume)
     fn check_solute_volume(&mut self) -> anyhow::Result<()> {
         if self.solute_volume > self.volume() {
             self.distill();
@@ -117,46 +151,65 @@ impl Consumable {
         Ok(())
     }
 
-    pub fn name(&self) -> &str {
-        self.name.as_str()
-    }
-
+    /// Total volume of the solution
     pub fn volume(&self) -> Volume<f64> {
         self.volume
     }
 
+    /// Total mass of the solution
     pub fn mass(&self) -> Mass<f64> {
         self.mass
     }
 
+    /// Amount of the given substance in the solution
     pub fn amount_of(&self, substance: &Substance) -> Amount<f64> {
         self.store.concentration_of(substance) * self.volume()
     }
 
+    /// Mass of the given substance in the solution
     pub fn mass_of(&self, substance: &Substance) -> Mass<f64> {
         self.amount_of(substance) * substance.molar_mass()
     }
 
+    /// Volume of the given substance in the solution
     pub fn volume_of(&self, substance: &Substance) -> Volume<f64> {
         self.amount_of(substance) * (substance.molar_mass() / substance.density())
     }
 
+    /// Sets the volume of the `Consumable` without any additional checks
+    pub(crate) fn set_volume_unchecked(&mut self, volume: Volume<f64>) {
+        self.volume = volume;
+    }
+
+    /// Sets the volume of the `Consumable`
+    ///
+    /// Volume is checked for validity. If the given value is less than
+    /// the total volume of solutes in the solution, an Err will be returned
     pub fn set_volume(&mut self, volume: Volume<f64>) -> anyhow::Result<()> {
-        if volume <= Volume::from_L(0.0) {
-            return Err(anyhow!(
-                "Consumable volume cannot be less than or equal to zero (set to {:?})",
-                volume
-            ));
-        }
         self.volume = volume;
         self.solute_volume = self.calc_volume_of_solutes();
         self.check_solute_volume()
     }
 
+    /// Distills the solution.
+    ///
+    /// Effectively removes the solvent, creating a "dry" solution.
+    /// Note that solvent will be reintroduced to fill the vacant space
+    /// if solutes are removed.
     pub fn distill(&mut self) {
         self.volume = self.solute_volume
     }
 
+    /// Sets the concentration of a given Substance in the solution.
+    ///
+    /// Validity of the solution volume is checked against the change. If
+    /// the new total solute volume is invalid, an Err will be returned
+    /// and the volume of the solution will be set to the minimum "dry"
+    /// value based on the current composition.
+    ///
+    /// ### Arguments
+    /// * `substance` - Substance to set the concentration for
+    /// * `concentration` - concentration to set for the Substance
     pub fn set_concentration(&mut self, substance: Substance, concentration: SubstanceConcentration) -> anyhow::Result<()> {
         let prev = self.store.concentration_of(&substance);
         let diff = concentration - prev;
@@ -166,14 +219,25 @@ impl Consumable {
         self.check_solute_volume()
     }
 
+    /// Sets the concentration of a given Substance in the solution based
+    /// on the percent volume of that Substance.
+    ///
+    /// Validity of the solution volume is checked against the change. If
+    /// the new total solute volume is invalid, an Err will be returned
+    /// and the volume of the solution will be set to the minimum "dry"
+    /// value based on the current composition.
+    ///
+    /// ### Arguments
+    /// * `substance` - Substance to set the concentration for
+    /// * `concentration` - concentration to set for the Substance
     pub fn set_volume_composition(&mut self, substance: Substance, percent_volume: f64) -> anyhow::Result<()>{
         // gpcc / gpmol = molpcc
         let concentration = (substance.density() / substance.molar_mass()) * percent_volume;
         self.set_concentration(substance, concentration)
     }
 
-    pub fn clone_store(&self) -> SubstanceStore {
-        self.store.clone()
+    pub fn store(&self) -> &SubstanceStore {
+        &self.store
     }
 
 }
@@ -189,7 +253,7 @@ pub mod test {
 
     #[test]
     fn test_new_consumable() {
-        let mut bite1 = Consumable::new("Food".to_string(), Volume::from_mL(250.0));
+        let mut bite1 = Consumable::new(Volume::from_mL(250.0));
         bite1.set_volume_composition(Substance::Amylose, 0.15).unwrap();
         bite1.set_volume_composition(Substance::Amylopectin, 0.65).unwrap();
         bite1.set_volume_composition(Substance::Retinal, 0.01).unwrap();
@@ -198,10 +262,9 @@ pub mod test {
         bite1.set_volume_composition(Substance::PRO, 0.003).unwrap();
 
         let bite2 = Consumable::new_custom(
-            bite1.name().to_string(),
             Volume::from_mL(200.0),
             Substance::H2O,
-            bite1.clone_store(),
+            bite1.store().clone(),
         );
 
         let expected_val = 0.65 * bite2.volume();
