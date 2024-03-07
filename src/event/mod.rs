@@ -52,7 +52,11 @@ pub mod test {
         }
     }
 
-    impl Event for TestEventA {}
+    impl Event for TestEventA {
+        fn transient(&self) -> bool {
+            false
+        }
+    }
 
     #[derive(Debug, Clone, Copy)]
     pub struct TestEventB {

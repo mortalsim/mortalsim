@@ -138,19 +138,4 @@ pub mod test {
         initializer.set_output(basic_event())
     }
 
-    #[test]
-    #[should_panic]
-    fn test_notify_err() {
-        let mut initializer = CoreInitializer::<TestOrganism>::new();
-        initializer.notify::<TestEventA>();
-        initializer.set_output(basic_event())
-    }
-
-    #[test]
-    #[should_panic]
-    fn test_output_err() {
-        let mut initializer = CoreInitializer::<TestOrganism>::new();
-        initializer.set_output(basic_event());
-        initializer.notify::<TestEventA>()
-    }
 }

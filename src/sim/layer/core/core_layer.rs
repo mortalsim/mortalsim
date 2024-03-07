@@ -269,8 +269,19 @@ pub mod test {
 
         layer.post_exec(&mut connector);
 
-        assert_eq!(connector.state.get_state::<TestEventA>().unwrap().len, Distance::from_m(3.0));
-        assert_eq!(connector.state.get_state::<TestEventB>().unwrap().amt, Amount::from_mmol(1.0));
+        assert!(connector.state.get_state::<TestEventA>().is_some());
+        assert!(connector.state.get_state::<TestEventB>().is_none());
+
+        for evt in  connector.active_events.drain(..) {
+            assert!(evt.is::<TestEventA>() || evt.is::<TestEventB>());
+
+            if evt.is::<TestEventA>() {
+                assert_eq!(evt.downcast_ref::<TestEventA>().unwrap().len, Distance::from_m(3.0));
+            }
+            if evt.is::<TestEventB>() {
+                assert_eq!(evt.downcast_ref::<TestEventB>().unwrap().amt, Amount::from_mmol(1.0));
+            }
+        }
     }
 
     #[test]
@@ -306,9 +317,18 @@ pub mod test {
 
         layer.lock().unwrap().post_exec_sync(&mut connector.lock().unwrap());
 
-        assert_eq!(connector.lock().unwrap()
-            .state.get_state::<TestEventA>().unwrap().len, Distance::from_m(3.0));
-        assert_eq!(connector.lock().unwrap()
-            .state.get_state::<TestEventB>().unwrap().amt, Amount::from_mmol(1.0));
+        assert!(connector.lock().unwrap().state.get_state::<TestEventA>().is_some());
+        assert!(connector.lock().unwrap().state.get_state::<TestEventB>().is_none());
+
+        for evt in  connector.lock().unwrap().active_events.drain(..) {
+            assert!(evt.is::<TestEventA>() || evt.is::<TestEventB>());
+
+            if evt.is::<TestEventA>() {
+                assert_eq!(evt.downcast_ref::<TestEventA>().unwrap().len, Distance::from_m(3.0));
+            }
+            if evt.is::<TestEventB>() {
+                assert_eq!(evt.downcast_ref::<TestEventB>().unwrap().amt, Amount::from_mmol(1.0));
+            }
+        }
     }
 }
