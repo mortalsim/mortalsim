@@ -528,4 +528,9 @@ impl Substance {
 
         }
     }
+
+    /// Typical molar volume of the substance
+    pub fn molar_volume(&self) -> crate::units::chemical::MolarVolume<f64> {
+        self.molar_mass() / self.density()
+    }
 }

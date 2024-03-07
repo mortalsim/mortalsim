@@ -122,7 +122,7 @@ impl SimState {
             match self.state.get(type_key) {
                 Some(local_rc) => {
                     // If both refs point to the same object, ignore it
-                    if &**local_rc as *const dyn Event == &**evt_rc as *const dyn Event {
+                    if std::ptr::addr_eq(&**local_rc as *const dyn Event, &**evt_rc as *const dyn Event) {
                         return;
                     }
                 }
