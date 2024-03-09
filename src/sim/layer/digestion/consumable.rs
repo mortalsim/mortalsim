@@ -307,6 +307,15 @@ pub mod test {
     fn test_zero_consumable() {
         Consumable::new(Volume::from_mL(0.0));
     }
+
+    #[test]
+    fn test_bad_composition() {
+        let mut bite1 = Consumable::new(Volume::from_mL(250.0));
+        bite1.set_volume_composition(Substance::Amylose, 0.15).unwrap();
+        bite1.set_volume_composition(Substance::Amylopectin, 0.65).unwrap();
+        // Oops, went over 100%
+        assert!(bite1.set_volume_composition(Substance::Retinal, 0.30).is_err());
+    }
     
     #[test]
     fn test_set_concentration() {
