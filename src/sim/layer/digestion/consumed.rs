@@ -12,13 +12,7 @@ use crate::substance::Substance;
 use crate::util::{BoundFn, IdGenerator};
 use crate::IdType;
 
-struct VolumeChange {
-    id: IdType,
-    amount: Volume<f64>,
-    function: BoundFn,
-    start: SimTime,
-    end: SimTime,
-}
+use super::consumable::VolumeChange;
 
 pub struct Consumed {
     /// Copy of the current Simulation time
@@ -36,12 +30,8 @@ pub struct Consumed {
     pub(crate) exit_direction: DigestionDirection,
     /// Local map of previous changes to this consumable
     pub(crate) change_map: HashMap<Substance, Vec<IdType>>,
-    /// Id generator for volume change registrations
-    id_gen: IdGenerator,
-    /// Volume changes
-    volume_changes: VecDeque<VolumeChange>,
-    /// composite changes (volume & substance)
-    composite_changes: HashMap<IdType, (IdType, IdType)>,
+    /// Local list of active volume changes to this consumable
+    pub(crate) vol_changes: Vec<IdType>,
 }
 
 impl Consumed {
@@ -57,9 +47,7 @@ impl Consumed {
             exit_time: SimTime::from_s(60.0),
             exit_direction: DigestionDirection::FORWARD,
             change_map: HashMap::new(),
-            id_gen: IdGenerator::new(),
-            volume_changes: VecDeque::new(),
-            composite_changes: HashMap::new(),
+            vol_changes: Vec::new(),
         }
     }
 
@@ -83,11 +71,6 @@ impl Consumed {
         self.consumable.mass_of(substance)
     }
 
-    /// Time since the `Consumed` entered the current component
-    pub fn time_since_entry(&self) -> SimTime {
-        self.entry_time - self.sim_time
-    }
-
     /// Schedules a future change in solution volume with a sigmoidal shape.
     ///
     /// Note that all substance and volume changes will be
@@ -95,14 +78,16 @@ impl Consumed {
     ///
     /// ### Arguments
     /// * `amount`   - magnitude of the volume change
-    /// * `delay`    - delay in simulation time before starting the change
-    /// * `duration` - amount of time over which the change takes place
+    /// * `start`    - simulation time to start the change
+    /// * `end`      - simulation time to end the change
+    ///
+    /// Returns an id corresponding to the change
     pub fn schedule_volume_change(&mut self,
         amount: Volume<f64>,
-        delay: SimTime,
-        duration: SimTime,
+        start: SimTime,
+        end: SimTime,
         ) -> IdType {
-            self.schedule_custom_volume_change(amount, delay, duration, BoundFn::Sigmoid)
+            self.schedule_custom_volume_change(amount, start, end, BoundFn::Sigmoid)
     }
 
     /// Schedules a future change in solution volume with a custom shape.
@@ -112,24 +97,35 @@ impl Consumed {
     ///
     /// ### Arguments
     /// * `amount`   - magnitude of the volume change
-    /// * `delay`    - delay in simulation time before starting the change
-    /// * `duration` - amount of time over which the change takes place
+    /// * `start`    - simulation time to start the change
+    /// * `end`      - simulation time to end the change
     /// * `bound_fn` - the shape of the function
+    ///
+    /// Returns an id corresponding to the change
     pub fn schedule_custom_volume_change(&mut self,
         amount: Volume<f64>,
-        delay: SimTime,
-        duration: SimTime,
+        start: SimTime,
+        end: SimTime,
         bound_fn: BoundFn,
         ) -> IdType {
-            let change_id = self.id_gen.get_id();
-            self.volume_changes.push_back(VolumeChange {
-                id: change_id,
-                amount: amount,
-                function: bound_fn,
-                start: self.sim_time() + delay,
-                end: self.sim_time() + delay + duration,
-            });
-            change_id
+            let cid = self.consumable.schedule_custom_volume_change(amount, start, end, bound_fn);
+            self.vol_changes.push(cid);
+            cid
+    }
+    
+    /// Unschedules a previously scheduled volume change the `Consumable`
+    /// 
+    /// ### Arguments
+    /// * `change_id`` - change id returned from a previous volume change schedule
+    ///
+    /// Will return the scheduled VolumeChange if the change_id is valid and it hasn't completed yet
+    pub fn unschedule_volume_change(&mut self, change_id: IdType) -> Option<VolumeChange> {
+        self.consumable.unschedule_volume_change(change_id)
+    }
+
+    /// Time since the `Consumed` entered the current component
+    pub fn time_since_entry(&self) -> SimTime {
+        self.entry_time - self.sim_time
     }
 
     /// Sets the exit time and direction of the `Consumed`
@@ -162,37 +158,14 @@ impl Consumed {
                     .unschedule_change(&substance, &change_id);
             }
         }
-        self.volume_changes.drain(..);
+        for change_id in self.vol_changes {
+            self.consumable.unschedule_volume_change(change_id);
+        }
         (self.consumable, self.exit_direction)
     }
 
-    /// Internal execution of volume changes on each advance
-    fn execute_volume_changes(&mut self) {
-        for change in self.volume_changes.iter() {
-            if change.start < self.sim_time && change.end > self.sim_time {
-                let result = change.function.call(
-                    self.sim_time.s - change.start.s,
-                    change.end.s - change.start.s,
-                    change.amount.m3,
-                );
-                // Set unchecked here, since the consumable will check automatically
-                // when advancing
-                self.consumable.set_volume_unchecked(self.volume() + Volume::from_m3(result));
-            }
-        }
-        // Pop off any volume changes which have completed
-        while self.volume_changes.front().is_some_and(|c| c.end < self.sim_time) {
-            self.volume_changes.pop_front();
-        }
-    }
-
     /// Advance simulation time to the given value.
-    ///
-    /// Volume changes are executed before the consumable advances,
-    /// at which time mass and solute volume are calculated, and validity
-    /// of the solution volume is checked.
     pub(crate) fn advance(&mut self, sim_time: SimTime) {
-        self.execute_volume_changes();
         self.consumable.advance(sim_time);
     }
 }

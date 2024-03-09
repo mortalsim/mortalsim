@@ -7,11 +7,20 @@ use crate::substance::substance_wrapper::substance_store_wrapper;
 use crate::substance::{Substance, SubstanceConcentration, SubstanceStore};
 use crate::units::base::{Amount, Mass};
 use crate::units::geometry::Volume;
-use crate::util::IdType;
+use crate::util::{BoundFn, IdGenerator, IdType};
 use std::borrow::Borrow;
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
 use std::ops::Sub;
 use std::sync::{Mutex, RwLock};
+
+#[derive(Debug, Clone)]
+pub struct VolumeChange {
+    id: IdType,
+    amount: Volume<f64>,
+    function: BoundFn,
+    start: SimTime,
+    end: SimTime,
+}
 
 /// A homogeneous chemical solution to be consumed by a `Sim`'s
 /// digestive system
@@ -58,6 +67,12 @@ pub struct Consumable {
     mass: Mass<f64>,
     /// For temporarily tracking composition percentages
     composition_parts: Vec<(Substance, f64)>,
+    /// Id generator for volume change registrations
+    id_gen: IdGenerator,
+    /// Volume changes
+    volume_changes: HashMap<IdType, VolumeChange>,
+    /// composite changes (volume & substance)
+    composite_changes: HashMap<IdType, (IdType, IdType)>,
     /// Store of substances in the `Consumable`
     pub(crate) store: SubstanceStore,
 }
@@ -93,6 +108,9 @@ impl Consumable {
             solvent: solvent,
             mass: solvent.density() * volume,
             composition_parts: Vec::new(),
+            id_gen: IdGenerator::new(),
+            volume_changes: HashMap::new(),
+            composite_changes: HashMap::new(),
             store: store,
         };
 
@@ -105,11 +123,40 @@ impl Consumable {
 
     /// Advance simulation time to the given value.
     ///
-    /// Total mass and solute volume are determined at each step
-    /// of the simulation. 
+    /// Volume changes are executed before the store advances.
+    /// Total mass is calculated at each step of the simulation. 
     pub(crate) fn advance(&mut self, sim_time: SimTime) {
+        self.execute_volume_changes(sim_time);
         self.store.advance(sim_time);
         self.mass = self.calc_mass();
+    }
+
+    /// Internal execution of volume changes on each advance
+    fn execute_volume_changes(&mut self, sim_time: SimTime) {
+        let mut remove_list = Vec::new();
+        for (cid, change) in self.volume_changes.iter() {
+            if change.start < sim_time && change.end > sim_time {
+                let result = change.function.call(
+                    sim_time.s - change.start.s,
+                    change.end.s - change.start.s,
+                    change.amount.m3,
+                );
+                // Make sure the volume change is valid, and log a warning if it's not
+                let new_vol = self.volume() + Volume::from_m3(result);
+                if new_vol <= Volume::from_L(0.0) {
+                    log::warn!("Scheduled volume change attempted to set invalid volume: {}", new_vol);
+                    continue;
+                }
+                self.volume = new_vol;
+            }
+            if change.end < sim_time {
+                remove_list.push(*cid);
+            }
+        }
+        // Remove any volume changes which have completed
+        for cid in remove_list {
+            self.volume_changes.remove(&cid);
+        }
     }
 
     /// Calculates the total mass of the solution based on the current
@@ -169,9 +216,62 @@ impl Consumable {
         self.amount_of(substance) * substance.molar_volume()
     }
 
-    /// Sets the volume of the `Consumable` without any additional checks
-    pub(crate) fn set_volume_unchecked(&mut self, volume: Volume<f64>) {
-        self.volume = volume;
+    /// Schedules a future change in solution volume with a sigmoidal shape.
+    ///
+    /// Note that all substance and volume changes will be
+    /// unset when the `Consumed` moves on to the next component.
+    ///
+    /// ### Arguments
+    /// * `amount`   - magnitude of the volume change
+    /// * `start`    - simulation time to start the change
+    /// * `end`      - simulation time to end the change
+    ///
+    /// Returns an id corresponding to the change
+    pub fn schedule_volume_change(&mut self,
+        amount: Volume<f64>,
+        start: SimTime,
+        end: SimTime,
+        ) -> IdType {
+            self.schedule_custom_volume_change(amount, start, end, BoundFn::Sigmoid)
+    }
+
+    /// Schedules a future change in solution volume with a custom shape.
+    ///
+    /// Note that all substance and volume changes will be
+    /// unset when the `Consumed` moves on to the next component.
+    ///
+    /// ### Arguments
+    /// * `amount`   - magnitude of the volume change
+    /// * `start`    - simulation time to start the change
+    /// * `end`      - simulation time to end the change
+    /// * `bound_fn` - the shape of the function
+    ///
+    /// Returns an id corresponding to the change
+    pub fn schedule_custom_volume_change(&mut self,
+        amount: Volume<f64>,
+        start: SimTime,
+        end: SimTime,
+        bound_fn: BoundFn,
+        ) -> IdType {
+            let change_id = self.id_gen.get_id();
+            self.volume_changes.insert(change_id, VolumeChange {
+                id: change_id,
+                amount: amount,
+                function: bound_fn,
+                start: start,
+                end: end,
+            });
+            change_id
+    }
+
+    /// Unschedules a previously scheduled volume change the `Consumable`
+    /// 
+    /// ### Arguments
+    /// * `change_id`` - change id returned from a previous volume change schedule
+    ///
+    /// Will return an Err if the change_id is invalid
+    pub fn unschedule_volume_change(&mut self, change_id: IdType) -> Option<VolumeChange> {
+        self.volume_changes.remove(&change_id)
     }
 
     /// Sets the volume of the `Consumable`

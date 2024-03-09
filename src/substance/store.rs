@@ -230,7 +230,7 @@ impl SubstanceStore {
     ///
     /// ### Arguments
     /// * `sim_time` - the new simulation time
-    pub fn advance(&mut self, sim_time: SimTime) {
+    pub(crate) fn advance(&mut self, sim_time: SimTime) {
         for (substance, change_map) in self.substance_changes.iter_mut() {
             let mut ids_to_remove = Vec::new();
 
