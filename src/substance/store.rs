@@ -21,6 +21,8 @@ pub struct SubstanceStore {
     composition: HashMap<Substance, SubstanceConcentration>,
     /// Keep track of any Substances which are changing
     substance_changes: HashMap<Substance, HashMap<IdType, SubstanceChange>>,
+    /// Keep track of the solute percentage to ensure validity
+    solute_pct: f64,
 }
 
 impl fmt::Debug for SubstanceStore {
@@ -63,12 +65,23 @@ impl SubstanceStore {
             sim_time: secs!(0.0),
             composition: HashMap::new(),
             substance_changes: HashMap::new(),
+            solute_pct: 0.0,
         }
     }
 
     /// Retrieves the current simulation time for the store.
     pub fn sim_time(&self) -> SimTime {
         self.sim_time
+    }
+
+    /// Retrieves the total percent volume of solutes in the solution
+    pub fn solute_pct(&self) -> f64 {
+        self.solute_pct
+    }
+    
+    /// Retrieves the total percent volume of solvent in the solution
+    pub fn solvent_pct(&self) -> f64 {
+        1.0 - self.solute_pct
     }
 
     /// Retrieves the concentration of a given Substance in the store.
@@ -94,13 +107,18 @@ impl SubstanceStore {
         substance: Substance,
         concentration: SubstanceConcentration,
     ) -> anyhow::Result<()> {
-        if concentration > 1/substance.molar_volume() {
-            return Err(anyhow!("Invalid concentration. {} is greater than the specific volume of {}: {}",
-            concentration,
-            substance,
-            1/substance.molar_volume(),
-        ))
+        if concentration < SubstanceConcentration::from_M(0.0) {
+            return Err(anyhow!("Concentration must be a positive value."));
         }
+        let concentration_change = concentration - self.concentration_of(&substance);
+        let pct_change = concentration_change.molpm3*substance.molar_volume().m3_per_mol;
+        if self.solute_pct + pct_change > 1.0 {
+            return Err(anyhow!("Invalid concentration. Setting {} of {} increases the total solute concentration to greater than 100%.",
+                concentration,
+                substance,
+            ))
+        }
+        self.solute_pct += pct_change;
         self.composition.insert(substance, concentration);
         Ok(())
     }
@@ -225,7 +243,20 @@ impl SubstanceStore {
                         .composition
                         .get(substance)
                         .unwrap_or(Self::zero_concentration());
+
+                    // Check to make sure new concentration is valid
                     let new_conc = *prev_conc + change_amt;
+                    let change_pct = change_amt.molpm3*substance.molar_volume().m3_per_mol;
+                    if new_conc < SubstanceConcentration::from_M(0.0) || self.solute_pct + change_pct > 1.0 {
+                        log::warn!(
+                            "Substance change attempted to set an invalid solute concentration for {}: {}",
+                            substance,
+                            new_conc,
+                        );
+                        continue;
+                    }
+                    // register the change in solute percent and the concentration change
+                    self.solute_pct += change_pct;
                     self.composition.insert(*substance, new_conc);
                 }
 
@@ -258,6 +289,8 @@ mod tests {
         let err = store.set_concentration(Substance::GLC, SubstanceConcentration::from_M(200.0));
         println!("{:?}", err);
         assert!(err.is_err());
+
+        assert!(store.set_concentration(Substance::GLC, SubstanceConcentration::from_M(-1.0)).is_err());
     }
 
     #[test]

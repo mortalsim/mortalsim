@@ -56,8 +56,6 @@ pub struct Consumable {
     volume: Volume<f64>,
     /// Total mass of the `Consumable`, calculated each time step
     mass: Mass<f64>,
-    /// Volume of solutes in the solution
-    solute_volume: Volume<f64>,
     /// For temporarily tracking composition percentages
     composition_parts: Vec<(Substance, f64)>,
     /// Store of substances in the `Consumable`
@@ -94,7 +92,6 @@ impl Consumable {
             volume: volume,
             solvent: solvent,
             mass: solvent.density() * volume,
-            solute_volume: Volume::from_L(0.0),
             composition_parts: Vec::new(),
             store: store,
         };
@@ -102,13 +99,8 @@ impl Consumable {
         if volume <= Volume::from_L(0.0) {
             panic!("Consumable volume must be a positive, non-zero value!");
         }
-        item.calc();
+        item.mass = item.calc_mass();
         item
-    }
-
-    fn calc(&mut self) {
-        self.solute_volume = self.calc_volume_of_solutes();
-        self.mass = self.calc_mass();
     }
 
     /// Advance simulation time to the given value.
@@ -117,7 +109,7 @@ impl Consumable {
     /// of the simulation. 
     pub(crate) fn advance(&mut self, sim_time: SimTime) {
         self.store.advance(sim_time);
-        self.calc();
+        self.mass = self.calc_mass();
     }
 
     /// Calculates the total mass of the solution based on the current
@@ -129,7 +121,7 @@ impl Consumable {
             let mass_substance = amt_substance * substance.molar_mass();
             calc_mass += mass_substance;
         }
-        let solvent_vol = self.volume - self.solute_volume;
+        let solvent_vol = self.volume*self.store.solvent_pct();
         calc_mass += solvent_vol * self.solvent.density();
         calc_mass
     }
@@ -162,7 +154,7 @@ impl Consumable {
     /// Amount of the given substance in the solution
     pub fn amount_of(&self, substance: &Substance) -> Amount<f64> {
         if substance == &self.solvent {
-            return (self.volume() - self.solute_volume) / self.solvent.molar_volume()
+            return (self.volume()*self.store.solvent_pct()) / self.solvent.molar_volume()
         }
         self.store.concentration_of(substance) * self.volume()
     }
@@ -191,7 +183,6 @@ impl Consumable {
             return Err(anyhow!("Volume must be a positive numeric value"));
         }
         self.volume = volume;
-        self.solute_volume = self.calc_volume_of_solutes();
         Ok(())
     }
 
@@ -211,20 +202,11 @@ impl Consumable {
 
         // calculate change in solute volume
         let vol_change = diff * self.volume() * substance.molar_volume();
-        if self.solute_volume + vol_change > self.volume() {
-            return Err(anyhow!(
-                "Invalid concentration for {}: {}. Solutes cannot fit volume",
-                substance,
-                concentration,
-            ));
-        }
-        self.solute_volume += vol_change;
 
         // Calculate mass change based on the amount of solvent displaced
         self.mass += vol_change*substance.density() - vol_change*self.solvent.density();
 
-        self.store.set_concentration(substance, concentration)?;
-        Ok(())
+        self.store.set_concentration(substance, concentration)
     }
 
     /// Sets the concentration of a given Substance in the solution based
@@ -260,7 +242,7 @@ pub mod test {
     use super::Consumable;
 
     #[test]
-    fn test_consumable() {
+    fn consumable() {
         let mut bite1 = Consumable::new(Volume::from_mL(250.0));
         bite1.set_volume_composition(Substance::Amylose, 0.15).unwrap();
         bite1.set_volume_composition(Substance::Amylopectin, 0.65).unwrap();
@@ -304,12 +286,12 @@ pub mod test {
 
     #[test]
     #[should_panic]
-    fn test_zero_consumable() {
+    fn zero_consumable() {
         Consumable::new(Volume::from_mL(0.0));
     }
 
     #[test]
-    fn test_bad_composition() {
+    fn bad_composition() {
         let mut bite1 = Consumable::new(Volume::from_mL(250.0));
         bite1.set_volume_composition(Substance::Amylose, 0.15).unwrap();
         bite1.set_volume_composition(Substance::Amylopectin, 0.65).unwrap();
@@ -318,7 +300,7 @@ pub mod test {
     }
     
     #[test]
-    fn test_set_concentration() {
+    fn set_concentration() {
         let mut sugar = Consumable::new(Volume::from_mL(250.0));
         let original_mass = sugar.mass();
 
@@ -336,14 +318,14 @@ pub mod test {
     }
 
     #[test]
-    fn test_bad_concentration() {
+    fn bad_concentration() {
         // Should Err because 200 M of GLC can't fit in 250mL of Solution
         let mut sugar = Consumable::new(Volume::from_mL(250.0));
         assert!(sugar.set_concentration(Substance::GLC, SubstanceConcentration::from_M(200.0)).is_err());
     }
 
     #[test]
-    fn test_volume_change() {
+    fn volume_change() {
         let mut sugar = Consumable::new(Volume::from_mL(250.0));
         sugar.set_concentration(Substance::GLC, mmol_per_L!(3.0)).unwrap();
 
@@ -364,7 +346,7 @@ pub mod test {
     }
 
     #[test]
-    fn test_bad_volume_change() {
+    fn bad_volume_change() {
         let mut sugar = Consumable::new(Volume::from_mL(250.0));
         sugar.set_concentration(Substance::GLC, mmol_per_L!(3.0)).unwrap();
 
