@@ -99,17 +99,15 @@ impl Consumable {
             store: store,
         };
 
+        if volume <= Volume::from_L(0.0) {
+            panic!("Consumable volume must be a positive, non-zero value!");
+        }
         item.calc();
         item
     }
 
     fn calc(&mut self) {
         self.solute_volume = self.calc_volume_of_solutes();
-        // If volume has become too small to fit the solutes
-        // log as a warning and continue on
-        if let Err(e) = self.check_solute_volume() {
-            log::warn!("{}", e);
-        }
         self.mass = self.calc_mass();
     }
 
@@ -146,19 +144,6 @@ impl Consumable {
         solute_vol
     }
 
-    /// Checks the validity of total solute volume (must be less than total volume)
-    fn check_solute_volume(&mut self) -> anyhow::Result<()> {
-        if self.solute_volume > self.volume() {
-            self.distill();
-            self.mass = self.calc_mass();
-            return Err(anyhow!(
-                "Invalid volume (cannot fit solutes in {:?}), setting to minimum / distilled volume.",
-                self.volume()
-            ))
-        }
-        Ok(())
-    }
-
     /// Total volume of the solution
     pub fn volume(&self) -> Volume<f64> {
         self.volume
@@ -167,6 +152,11 @@ impl Consumable {
     /// Total mass of the solution
     pub fn mass(&self) -> Mass<f64> {
         self.mass
+    }
+
+    /// Concentration of the given substance in the solution
+    pub fn concentration_of(&self, substance: &Substance) -> SubstanceConcentration {
+        self.store.concentration_of(substance)
     }
 
     /// Amount of the given substance in the solution
@@ -197,18 +187,12 @@ impl Consumable {
     /// Volume is checked for validity. If the given value is less than
     /// the total volume of solutes in the solution, an Err will be returned
     pub fn set_volume(&mut self, volume: Volume<f64>) -> anyhow::Result<()> {
+        if volume <= Volume::from_L(0.0) {
+            return Err(anyhow!("Volume must be a positive numeric value"));
+        }
         self.volume = volume;
         self.solute_volume = self.calc_volume_of_solutes();
-        self.check_solute_volume()
-    }
-
-    /// Distills the solution.
-    ///
-    /// Effectively removes the solvent, creating a "dry" solution.
-    /// Note that solvent will be reintroduced to fill the vacant space
-    /// if solutes are removed.
-    pub fn distill(&mut self) {
-        self.volume = self.solute_volume
+        Ok(())
     }
 
     /// Sets the concentration of a given Substance in the solution.
@@ -226,14 +210,21 @@ impl Consumable {
         let diff = concentration - prev;
 
         // calculate change in solute volume
-        let part_vol = diff * self.volume() * substance.molar_volume();
-        self.solute_volume += part_vol;
+        let vol_change = diff * self.volume() * substance.molar_volume();
+        if self.solute_volume + vol_change > self.volume() {
+            return Err(anyhow!(
+                "Invalid concentration for {}: {}. Solutes cannot fit volume",
+                substance,
+                concentration,
+            ));
+        }
+        self.solute_volume += vol_change;
 
         // Calculate mass change based on the amount of solvent displaced
-        self.mass += part_vol*substance.density() - part_vol*self.solvent.density();
+        self.mass += vol_change*substance.density() - vol_change*self.solvent.density();
 
-        self.store.set_concentration(substance, concentration);
-        self.check_solute_volume()
+        self.store.set_concentration(substance, concentration)?;
+        Ok(())
     }
 
     /// Sets the concentration of a given Substance in the solution based
@@ -248,7 +239,6 @@ impl Consumable {
     /// * `substance` - Substance to set the concentration for
     /// * `concentration` - concentration to set for the Substance
     pub fn set_volume_composition(&mut self, substance: Substance, percent_volume: f64) -> anyhow::Result<()>{
-        // gpcc / gpmol = molpcc
         let concentration = percent_volume / substance.molar_volume();
         self.set_concentration(substance, concentration)
     }
@@ -311,9 +301,15 @@ pub mod test {
         );
 
     }
+
+    #[test]
+    #[should_panic]
+    fn test_zero_consumable() {
+        Consumable::new(Volume::from_mL(0.0));
+    }
     
     #[test]
-    fn test_consumable_set_concentration() {
+    fn test_set_concentration() {
         let mut sugar = Consumable::new(Volume::from_mL(250.0));
         let original_mass = sugar.mass();
 
@@ -328,5 +324,42 @@ pub mod test {
                 .contains(&sugar.mass()),
             "{} != {}", expected_mass, sugar.mass()
         );
+    }
+
+    #[test]
+    fn test_bad_concentration() {
+        // Should Err because 200 M of GLC can't fit in 250mL of Solution
+        let mut sugar = Consumable::new(Volume::from_mL(250.0));
+        assert!(sugar.set_concentration(Substance::GLC, SubstanceConcentration::from_M(200.0)).is_err());
+    }
+
+    #[test]
+    fn test_volume_change() {
+        let mut sugar = Consumable::new(Volume::from_mL(250.0));
+        sugar.set_concentration(Substance::GLC, mmol_per_L!(3.0)).unwrap();
+
+        let orig_volume = sugar.volume_of(&Substance::GLC);
+
+        // Concentrations should remain the same after a change in volume
+        sugar.set_volume(Volume::from_mL(300.0)).unwrap();
+
+        let expected_conc = mmol_per_L!(3.0);
+        let threshold = SubstanceConcentration::from_nM(1.0);
+        assert!(
+            (expected_conc-threshold..expected_conc+threshold).contains(
+                &sugar.concentration_of(&Substance::GLC)
+            )
+        );
+
+        assert!(sugar.volume_of(&Substance::GLC) > orig_volume);
+    }
+
+    #[test]
+    fn test_bad_volume_change() {
+        let mut sugar = Consumable::new(Volume::from_mL(250.0));
+        sugar.set_concentration(Substance::GLC, mmol_per_L!(3.0)).unwrap();
+
+        assert!(sugar.set_volume(Volume::from_mL(0.0)).is_err());
+        assert!(sugar.set_volume(Volume::from_mL(-1.0)).is_err());
     }
 }

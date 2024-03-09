@@ -93,8 +93,16 @@ impl SubstanceStore {
         &mut self,
         substance: Substance,
         concentration: SubstanceConcentration,
-    ) {
+    ) -> anyhow::Result<()> {
+        if concentration > 1/substance.molar_volume() {
+            return Err(anyhow!("Invalid concentration. {} is greater than the specific volume of {}: {}",
+            concentration,
+            substance,
+            1/substance.molar_volume(),
+        ))
+        }
         self.composition.insert(substance, concentration);
+        Ok(())
     }
 
     /// Retrieves the current composition as a HashMap
@@ -245,6 +253,14 @@ mod tests {
     use std::collections::HashMap;
 
     #[test]
+    fn bad_concentration() {
+        let mut store = SubstanceStore::new();
+        let err = store.set_concentration(Substance::GLC, SubstanceConcentration::from_M(200.0));
+        println!("{:?}", err);
+        assert!(err.is_err());
+    }
+
+    #[test]
     fn has_empty() {
         let store = SubstanceStore::new();
         assert_eq!(
@@ -257,7 +273,7 @@ mod tests {
     fn has_value() {
         let mut store = SubstanceStore::new();
         let concentration = mmol_per_L!(1.0);
-        store.set_concentration(Substance::ADP, concentration.clone());
+        store.set_concentration(Substance::ADP, concentration.clone()).unwrap();
         assert_eq!(store.concentration_of(&Substance::ADP), concentration);
     }
 
@@ -277,8 +293,8 @@ mod tests {
     fn merge_from() {
         let mut store = SubstanceStore::new();
         let mut other_store = SubstanceStore::new();
-        other_store.set_concentration(Substance::ADP, mmol_per_L!(1.0));
-        other_store.set_concentration(Substance::ATP, mmol_per_L!(2.0));
+        other_store.set_concentration(Substance::ADP, mmol_per_L!(1.0)).unwrap();
+        other_store.set_concentration(Substance::ATP, mmol_per_L!(2.0)).unwrap();
         store.merge_from(&other_store);
 
         assert_eq!(store.concentration_of(&Substance::ADP), mmol_per_L!(1.0));

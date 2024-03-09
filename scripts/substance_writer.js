@@ -95,7 +95,7 @@ ${Object.entries(substanceConfigs).map(([sid, cfg]) =>
         }
     }
 
-    /// Typical molar volume of the substance
+    /// Typical molar volume of the substance at body temperature
     pub fn molar_volume(&self) -> crate::units::chemical::MolarVolume<f64> {
         self.molar_mass() / self.density()
     }
