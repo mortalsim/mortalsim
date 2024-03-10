@@ -138,9 +138,9 @@ impl Consumed {
         delay: SimTime,
         exit_direction: DigestionDirection,
     ) -> anyhow::Result<()> {
-        if delay <= SimTime::from_s(0.0) {
+        if delay < SimTime::from_s(0.0) {
             Err(anyhow!(
-                "Consumed exit delay must be greater than zero!"
+                "Consumed exit delay must not be negative!"
             ))
         } else {
             self.exit_time = delay + self.sim_time;
@@ -167,5 +167,60 @@ impl Consumed {
     /// Advance simulation time to the given value.
     pub(crate) fn advance(&mut self, sim_time: SimTime) {
         self.consumable.advance(sim_time);
+    }
+}
+
+#[cfg(test)]
+pub mod test {
+    use crate::sim::layer::digestion::DigestionDirection;
+    use crate::units::base::{Amount, Mass};
+    use crate::units::geometry::Volume;
+
+    use crate::util::secs;
+    use crate::{sim::Consumable, substance::Substance};
+
+    use super::Consumed;
+
+    #[test]
+    fn consumed_workflow() {
+        let mut food = Consumable::new(Volume::from_mL(250.0));
+        food.set_volume_composition(Substance::Amylopectin, 0.5).unwrap();
+        food.set_volume_composition(Substance::Amylose, 0.25).unwrap();
+        let mut consumed = Consumed::new(food);
+
+        assert!(consumed.amount_of(&Substance::Amylopectin) > Amount::from_mol(0.0));
+        assert!(consumed.volume_of(&Substance::Amylopectin) > Volume::from_L(0.0));
+        assert!(consumed.mass_of(&Substance::Amylopectin) > Mass::from_g(0.0));
+
+        consumed.schedule_volume_change(Volume::from_mL(-100.0), secs!(10.0), secs!(50.0));
+        consumed.schedule_volume_change(Volume::from_mL(-50.0), secs!(30.0), secs!(50.0));
+        consumed.set_exit(secs!(40.0), DigestionDirection::FORWARD).unwrap();
+
+        consumed.advance(secs!(20.0));
+
+        // The first volume change should have started
+        assert!(consumed.volume() < Volume::from_mL(250.0));
+
+        consumed.advance(secs!(45.0));
+        assert_eq!(consumed.exit_time, secs!(40.0));
+
+        let (mut food, exit_dir) = consumed.exit();
+        assert_eq!(exit_dir, DigestionDirection::FORWARD);
+        let exit_vol = food.volume();
+
+        // Advance consumable, Volume changes should no longer happen
+        food.advance(secs!(120.0));
+        assert_eq!(food.volume(), exit_vol);
+
+    }
+
+    #[test]
+    fn consumed_bad_exit() {
+        let mut food = Consumable::new(Volume::from_mL(250.0));
+        food.set_volume_composition(Substance::Amylopectin, 0.5).unwrap();
+        food.set_volume_composition(Substance::Amylose, 0.25).unwrap();
+        let mut consumed = Consumed::new(food);
+
+        assert!(consumed.set_exit(secs!(-1.0), DigestionDirection::FORWARD).is_err());
     }
 }
