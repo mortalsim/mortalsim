@@ -341,20 +341,26 @@ pub mod test {
 
     use super::Consumable;
 
+    pub fn test_food() -> Consumable {
+        let mut food = Consumable::new(Volume::from_mL(250.0));
+        food.set_volume_composition(Substance::Amylose, 0.15).unwrap();
+        food.set_volume_composition(Substance::Amylopectin, 0.65).unwrap();
+        food.set_volume_composition(Substance::GLC, 0.05).unwrap();
+        food.set_volume_composition(Substance::Retinal, 0.01).unwrap();
+        food.set_volume_composition(Substance::Thiamine, 0.02).unwrap();
+        food.set_volume_composition(Substance::GLN, 0.001).unwrap();
+        food.set_volume_composition(Substance::PRO, 0.003).unwrap();
+        food
+    }
+
     #[test]
     fn consumable() {
-        let mut bite1 = Consumable::new(Volume::from_mL(250.0));
-        bite1.set_volume_composition(Substance::Amylose, 0.15).unwrap();
-        bite1.set_volume_composition(Substance::Amylopectin, 0.65).unwrap();
-        bite1.set_volume_composition(Substance::Retinal, 0.01).unwrap();
-        bite1.set_volume_composition(Substance::Thiamine, 0.02).unwrap();
-        bite1.set_volume_composition(Substance::GLN, 0.001).unwrap();
-        bite1.set_volume_composition(Substance::PRO, 0.003).unwrap();
-
+        let bite1 = test_food();
 
         let expected_mass =
             bite1.mass_of(&Substance::Amylose) + 
             bite1.mass_of(&Substance::Amylopectin) + 
+            bite1.mass_of(&Substance::GLC) + 
             bite1.mass_of(&Substance::Retinal) + 
             bite1.mass_of(&Substance::Thiamine) + 
             bite1.mass_of(&Substance::GLN) + 

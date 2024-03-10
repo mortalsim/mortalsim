@@ -26,7 +26,7 @@ pub trait DigestionComponent<O: Organism>: SimComponent<O> {
 pub mod test {
     use simple_si_units::geometry::Volume;
 
-    use crate::{sim::{component::{ComponentRegistry, SimComponent}, layer::digestion::{DigestionDirection, DigestionInitializer}, organism::test::TestOrganism, Consumable, Organism, SimTime}, substance::Substance, util::{mmol_per_L, secs}};
+    use crate::{sim::{component::{ComponentRegistry, SimComponent}, layer::digestion::{consumable::test::test_food, consumed::Consumed, DigestionDirection, DigestionInitializer}, organism::test::TestOrganism, Consumable, Organism, SimTime}, substance::Substance, util::{mmol_per_L, secs}};
 
     use super::{DigestionComponent, DigestionConnector};
 
@@ -54,27 +54,47 @@ pub mod test {
             registry.add_digestion_component(self)
         }
         fn run(&mut self) {
-            for food in self.connector.consumed() {
-                if food.concentration_of(&Substance::NH3) > mmol_per_L!(1.0) {
-                    food.set_exit(secs!(5.0), DigestionDirection::BACK).unwrap();
+            for cons in self.connector.consumed() {
+                if cons.concentration_of(&Substance::NH3) > mmol_per_L!(1.0) {
+                    cons.set_exit(secs!(5.0), DigestionDirection::BACK).unwrap();
                 }
-                else if food.concentration_of(&Substance::GLC) > mmol_per_L!(0.0) {
+                else if cons.concentration_of(&Substance::GLC) > mmol_per_L!(0.0) {
                     // Mmmm sugar!
-                    food.schedule_change(Substance::GLC, mmol_per_L!(0.0), SimTime::from_min(5.0));
-                    food.set_exit(SimTime::from_min(5.0), DigestionDirection::FORWARD).unwrap();
+                    cons.schedule_change(Substance::GLC, mmol_per_L!(0.0), SimTime::from_min(5.0));
+                    cons.set_exit(SimTime::from_min(5.0), DigestionDirection::EXHAUSTED).unwrap();
                 }
                 else {
-                    food.set_exit(SimTime::from_min(1.0), DigestionDirection::EXHAUSTED).unwrap();
+                    cons.set_exit(SimTime::from_min(1.0), DigestionDirection::FORWARD).unwrap();
                 }
             }
         }
     }
 
 
-    // #[test]
-    // fn test_component() {
-    //     let mut component: TestDigestionComponent<TestOrganism> = TestDigestionComponent::new();
-    //     let mut consumable = Consumable::new("Sugar".to_string(), Volume::from_mL(2.0));
-    //     consumable.set_volume_composition(Substance::GLC, 1.0).unwrap();
-    // }
+    #[test]
+    fn test_component() {
+        let mut component: TestDigestionComponent<TestOrganism> = TestDigestionComponent::new();
+        let food = test_food(); 
+        component.digestion_connector().consumed_list.push(Consumed::new(food));
+
+        let mut ammonia = Consumable::new(Volume::from_mL(50.0));
+        ammonia.set_volume_composition(Substance::NH3, 0.5).unwrap();
+        ammonia.set_volume_composition(Substance::GLC, 0.1).unwrap();
+        component.digestion_connector().consumed_list.push(Consumed::new(ammonia));
+
+        let mut fiber = Consumable::new(Volume::from_mL(100.0));
+        fiber.set_volume_composition(Substance::Cellulose, 0.8).unwrap();
+        component.digestion_connector().consumed_list.push(Consumed::new(fiber));
+
+        component.run();
+
+        let fiber = component.digestion_connector().consumed_list.pop().unwrap();
+        let ammonia = component.digestion_connector().consumed_list.pop().unwrap();
+        let food = component.digestion_connector().consumed_list.pop().unwrap();
+
+        assert_eq!(food.exit_direction, DigestionDirection::EXHAUSTED);
+        assert_eq!(ammonia.exit_direction, DigestionDirection::BACK);
+        assert_eq!(fiber.exit_direction, DigestionDirection::FORWARD);
+
+    }
 }
