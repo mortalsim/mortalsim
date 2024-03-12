@@ -341,8 +341,8 @@ pub mod test {
 
     use super::Consumable;
 
-    pub fn test_food() -> Consumable {
-        let mut food = Consumable::new(Volume::from_mL(250.0));
+    pub fn test_food(ml: f64) -> Consumable {
+        let mut food = Consumable::new(Volume::from_mL(ml));
         food.set_volume_composition(Substance::Amylose, 0.15).unwrap();
         food.set_volume_composition(Substance::Amylopectin, 0.65).unwrap();
         food.set_volume_composition(Substance::GLC, 0.05).unwrap();
@@ -353,9 +353,22 @@ pub mod test {
         food
     }
 
+    pub fn test_ammonia(ml: f64) -> Consumable {
+        let mut ammonia = Consumable::new(Volume::from_mL(ml));
+        ammonia.set_volume_composition(Substance::NH3, 0.7).unwrap();
+        ammonia.set_volume_composition(Substance::GLC, 0.05).unwrap();
+        ammonia
+    }
+
+    pub fn test_fiber(ml: f64) -> Consumable {
+        let mut fiber = Consumable::new(Volume::from_mL(ml));
+        fiber.set_volume_composition(Substance::Cellulose, 0.8).unwrap();
+        fiber
+    }
+
     #[test]
     fn consumable() {
-        let bite1 = test_food();
+        let bite1 = test_food(250.0);
 
         let expected_mass =
             bite1.mass_of(&Substance::Amylose) + 

@@ -69,7 +69,7 @@ macro_rules! substance_store_wrapper {
 
         /// Schedule a substance change on a given Vessel
         /// with a sigmoid shape over the given duration,
-        /// startinig immediately.
+        /// starting immediately.
         ///
         /// Panics if `duration <= 0`
         ///

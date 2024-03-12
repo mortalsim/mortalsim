@@ -19,31 +19,23 @@ pub struct DigestionLayer<O: Organism> {
     default_digestion_duration: SimTime,
     /// Tracks the order in which substance stores pass
     /// through each component, according to the order
-    /// they were added, as well as whether they should
-    /// trigger due to a new consumable coming in.
+    /// they were added
     component_map: HashMap<&'static str, usize>,
     /// Keeps track of component indices which should
     /// trigger due to a new consumable coming in.
     trigger_map: HashSet<usize>,
     /// Map to track stores in between components
-    consumed_map: HashMap<usize, Vec<Consumed>>,
+    consumed_map: Vec<Vec<Consumed>>,
     /// Consumables staged for elimination
     elimination_list: Vec<(Consumable, DigestionDirection)>,
     /// Internal trigger id to unschedule if needed
     internal_trigger_id: Option<IdType>,
 }
 
-// impl fmt::Debug for DigestionLayer {
-//     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-//         write!(
-//             f,
-//             "DigestionLayer {{ consumed_map: {:?} }}",
-//             self.consumed_map
-//         )
-//     }
-// }
-
 impl<O: Organism> DigestionLayer<O> {
+    // Delay between elimination discovery and execution
+    const ELIMINATION_DELAY: SimTime = SimTime {s: 0.0};
+
     /// Creates a Sim with the default set of modules which is equal to all registered
     /// modules at the time of execution.
     pub fn new() -> Self {
@@ -52,7 +44,7 @@ impl<O: Organism> DigestionLayer<O> {
             default_digestion_duration: secs!(60.0),
             component_map: HashMap::new(),
             trigger_map: HashSet::new(),
-            consumed_map: HashMap::new(),
+            consumed_map: Vec::new(),
             elimination_list: Vec::new(),
             internal_trigger_id: None,
         }
@@ -61,9 +53,13 @@ impl<O: Organism> DigestionLayer<O> {
     /// Consume a new SubstanceStore
     fn consume(&mut self, consumable: Consumable) {
         let consumed = Consumed::new(consumable);
-        self.consumed_map.entry(0).or_default().push(consumed);
+        if let Some(list) = self.consumed_map.get_mut(0) {
+            list.push(consumed);
+        }
     }
 
+    // Internal method for retrieving the position of a component
+    // in the digestive tract
     fn component_position<T: SimComponent<O>>(&self, component: &T) -> usize {
         *self
             .component_map
@@ -87,14 +83,14 @@ impl<O: Organism> SimLayer for DigestionLayer<O> {
         }
         // Keep track of vector indices of items which need to move
         let mut moving_indices: Vec<Vec<usize>> = vec![vec![]; self.consumed_map.len()];
-        for (pos, consumed_list) in self.consumed_map.iter_mut() {
+        for (pos, consumed_list) in self.consumed_map.iter_mut().enumerate() {
             for (idx, consumed) in consumed_list.iter_mut().enumerate() {
                 // advance time for the consumable
                 consumed.advance(connector.sim_time());
                 // if time has exceeded the exit time, stage it for movement
                 if consumed.exit_time <= connector.sim_time() {
                     moving_indices
-                        .get_mut(*pos)
+                        .get_mut(pos)
                         .expect("moving_indices initialized improperly")
                         .push(idx);
                 }
@@ -113,10 +109,22 @@ impl<O: Organism> SimLayer for DigestionLayer<O> {
             for idx in indices {
                 let mut removed = self
                     .consumed_map
-                    .get_mut(&pos)
+                    .get_mut(pos)
                     .expect("moving_indices referenced invalid position")
                     .remove(idx);
 
+                // Check cases for elimination, either forward or backward
+                if (pos == 0 && removed.exit_direction == DigestionDirection::BACK)
+                    || (pos >= last && removed.exit_direction == DigestionDirection::FORWARD)
+                {
+                    let evt = Box::new(EliminateEvent::new(
+                        removed.consumable,
+                        removed.exit_direction,
+                    ));
+                    connector.time_manager.schedule_event(Self::ELIMINATION_DELAY, evt);
+                    continue;
+                }
+                
                 // update sim time
                 removed.sim_time = connector.sim_time();
 
@@ -125,38 +133,28 @@ impl<O: Organism> SimLayer for DigestionLayer<O> {
 
                 // set defaults, which the component may override
                 removed.exit_time = removed.entry_time + self.default_digestion_duration;
-                removed.exit_direction = DigestionDirection::FORWARD;
-
-                // Check cases for elimination, either forward or backward
-                if (pos == 0 && removed.exit_direction == DigestionDirection::BACK)
-                    || (pos == last && removed.exit_direction == DigestionDirection::FORWARD)
-                {
-                    let evt = Box::new(EliminateEvent::new(
-                        removed.consumable,
-                        removed.exit_direction,
-                    ));
-                    connector.time_manager.schedule_event(secs!(0.0), evt);
-                } else {
-                    match removed.exit_direction {
-                        DigestionDirection::FORWARD => {
-                            let target_idx = pos + 1;
-                            self.consumed_map
-                                .get_mut(&target_idx)
-                                .expect("invalid index")
-                                .push(removed);
-                            self.trigger_map.insert(target_idx);
-                        }
-                        DigestionDirection::BACK => {
-                            let target_idx = pos - 1;
-                            self.consumed_map
-                                .get_mut(&target_idx)
-                                .expect("invalid index")
-                                .push(removed);
-                            self.trigger_map.insert(target_idx);
-                        }
-                        DigestionDirection::EXHAUSTED => {
-                            // Drop the removed consumable completely
-                        }
+                
+                match removed.exit_direction {
+                    DigestionDirection::FORWARD => {
+                        let target_idx = pos + 1;
+                        self.consumed_map
+                            .get_mut(target_idx)
+                            .expect("invalid index")
+                            .push(removed);
+                        self.trigger_map.insert(target_idx);
+                    }
+                    DigestionDirection::BACK => {
+                        // Always default to FORWARD, even if it was previously BACK
+                        removed.exit_direction = DigestionDirection::FORWARD;
+                        let target_idx = pos - 1;
+                        self.consumed_map
+                            .get_mut(target_idx)
+                            .expect("invalid index")
+                            .push(removed);
+                        self.trigger_map.insert(target_idx);
+                    }
+                    DigestionDirection::EXHAUSTED => {
+                        // Drop the removed consumable completely
                     }
                 }
             }
@@ -166,7 +164,7 @@ impl<O: Organism> SimLayer for DigestionLayer<O> {
     fn post_exec(&mut self, connector: &mut SimConnector) {
         if let Some(min_consumed) = self
             .consumed_map
-            .values()
+            .iter()
             .flatten()
             .min_by(|a, b| a.exit_time.partial_cmp(&b.exit_time).unwrap())
         {
@@ -200,6 +198,10 @@ impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessor<O, T> for Dige
 
         self.component_map
             .insert(component.id(), self.component_map.len());
+
+        if self.consumed_map.len() < self.component_map.len() {
+            self.consumed_map.push(Vec::new());
+        }
     }
 
     fn check_component(&mut self, component: &T) -> bool {
@@ -211,7 +213,12 @@ impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessor<O, T> for Dige
         let component_pos = self.component_position(component);
 
         // move consumed items from the layer map into the component connector
-        let consumed_list = self.consumed_map.entry(component_pos).or_default();
+        let consumed_list = self.consumed_map.get_mut(component_pos).unwrap();
+
+        if component.digestion_connector().unschedule_all {
+            consumed_list.iter_mut().for_each(|c| c.clear_all_changes());
+        }
+
         component
             .digestion_connector()
             .consumed_list
@@ -224,8 +231,8 @@ impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessor<O, T> for Dige
         // move consumed items from the component connector back into the layer map
         let consumed_list = &mut component.digestion_connector().consumed_list;
         self.consumed_map
-            .entry(component_pos)
-            .or_default()
+            .get_mut(component_pos)
+            .unwrap()
             .extend(consumed_list.drain(..));
 
         // Reset the trigger
@@ -253,4 +260,195 @@ impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessorSync<O, T> for 
     fn process_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {
         self.process_component(connector, component)
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::{ops::RangeBounds, sync::Arc};
+
+    use crate::{sim::{component::{SimComponent, SimComponentProcessor}, layer::{digestion::{component::test::TestDigestionComponent, consumable::test::{test_ammonia, test_fiber, test_food}, ConsumeEvent, DigestionDirection, EliminateEvent}, InternalLayerTrigger, SimLayer}, organism::test::TestOrganism, SimConnector, SimTime}, substance::{Substance, SubstanceConcentration}, util::secs};
+
+    use super::DigestionLayer;
+
+
+    #[test]
+    fn layer() {
+        DigestionLayer::<TestOrganism>::new();
+    }
+
+    #[test]
+    fn layer_process() {
+        let mut layer = DigestionLayer::<TestOrganism>::new();
+        let mut components = vec![
+            TestDigestionComponent::new(),
+            TestDigestionComponent::new(),
+        ];
+        let mut connector = SimConnector::new();
+        for component in components.iter_mut() {
+            layer.setup_component(&mut connector, component);
+        }
+
+        let food = test_food(200.0);
+        let starting_glc = food.concentration_of(&Substance::GLC);
+
+        connector.active_events.push(Arc::new(ConsumeEvent(food)));
+        connector.active_events.push(Arc::new(ConsumeEvent(test_ammonia(50.0))));
+        connector.active_events.push(Arc::new(ConsumeEvent(test_fiber(150.0))));
+
+        // Initial run (nothing should happen)
+        for component in components.iter_mut() {
+            layer.prepare_component(&mut connector, component);
+            component.run();
+            layer.process_component(&mut connector, component);
+        }
+
+        // First pre_exec should pull in the 3 ConsumeEvents
+        layer.pre_exec(&mut connector);
+        assert!(layer.consumed_map.get(0).is_some_and(|x| x.len() == 3));
+
+        for component in components.iter_mut() {
+            layer.prepare_component(&mut connector, component);
+            component.run();
+            layer.process_component(&mut connector, component);
+        }
+
+        layer.post_exec(&mut connector);
+
+        // Make sure to drain the active events so they don't keep
+        // getting added
+        connector.active_events.drain(..);
+
+        connector.time_manager.advance_by(SimTime::from_s(10.0));
+
+        // Should schedule an internal trigger event
+        let mut next_events = connector.time_manager.next_events();
+        assert!(next_events.next().unwrap().1.get(0).unwrap().is::<InternalLayerTrigger>());
+
+        // Shouldn't see any EliminateEvents yet
+        assert!(next_events.next().is_none());
+
+        layer.pre_exec(&mut connector);
+
+        for component in components.iter_mut() {
+            layer.prepare_component(&mut connector, component);
+            component.run();
+            layer.process_component(&mut connector, component);
+        }
+        
+        layer.post_exec(&mut connector);
+
+        connector.time_manager.advance_by(SimTime::from_s(2.0));
+
+        // Should be eliminating the ammonia
+        let (exec_time, mut evts) = connector.time_manager.next_events().next().unwrap();
+        let expected_time = SimTime::from_s(10.0) + DigestionLayer::<TestOrganism>::ELIMINATION_DELAY;
+        let threshold = secs!(0.1);
+        assert!(
+            (exec_time-threshold..exec_time+threshold).contains(&expected_time),
+            "Expected time {} != {}",
+            expected_time,
+            exec_time
+        );
+
+        assert!(evts.get(0).is_some());
+        assert!(evts.get(0).unwrap().is::<EliminateEvent>());
+
+        let elim = evts.pop().unwrap().downcast::<EliminateEvent>().unwrap();
+        assert_eq!(elim.direction, DigestionDirection::BACK);
+        assert!(elim.excrement.concentration_of(&Substance::NH3) > SubstanceConcentration::from_mM(0.0));
+
+        layer.pre_exec(&mut connector);
+
+
+        // Both of the remaining consumables should still be with the first component
+        assert_eq!(layer.consumed_map.get(0).unwrap().len(), 2);
+        
+        // Should be consuming some sugar
+        assert!(layer.consumed_map.get(0).unwrap().get(0).unwrap().concentration_of(&Substance::GLC) < starting_glc);
+        
+        // Exec for completeness (shouldn't change anything)
+        for component in components.iter_mut() {
+            layer.prepare_component(&mut connector, component);
+            component.run();
+            layer.process_component(&mut connector, component);
+        }
+        layer.post_exec(&mut connector);
+
+        connector.time_manager.advance_by(SimTime::from_min(1.0));
+        layer.pre_exec(&mut connector);
+
+        // First component should still have the food
+        assert_eq!(layer.consumed_map.get(0).unwrap().len(), 1);
+
+        // Fiber should have moved to the next component
+        assert_eq!(layer.consumed_map.get(1).unwrap().len(), 1);
+        assert!(layer.consumed_map.get(1).unwrap().get(0).unwrap().concentration_of(&Substance::Cellulose) > SubstanceConcentration::from_mM(0.0));
+
+        for component in components.iter_mut() {
+            layer.prepare_component(&mut connector, component);
+            component.run();
+            layer.process_component(&mut connector, component);
+        }
+        layer.post_exec(&mut connector);
+
+        // each component should have 1 consumed
+        assert_eq!(layer.consumed_map.get(0).unwrap().len(), 1);
+        assert_eq!(layer.consumed_map.get(1).unwrap().len(), 1);
+
+        // Go through a cycle
+        connector.time_manager.advance_by(SimTime::from_min(5.0));
+        layer.pre_exec(&mut connector);
+        for component in components.iter_mut() {
+            layer.prepare_component(&mut connector, component);
+            component.run();
+            layer.process_component(&mut connector, component);
+        }
+        layer.post_exec(&mut connector);
+        
+        // Each list should be empty now
+        assert_eq!(layer.consumed_map.get(0).unwrap().len(), 0);
+        assert_eq!(layer.consumed_map.get(1).unwrap().len(), 0);
+
+        connector.time_manager.advance_by(SimTime::from_s(1.0));
+
+        // Should be eliminating the fiber
+        let (ot, mut evts) = connector.time_manager.next_events().next().unwrap();
+
+        assert!(evts.get(0).is_some());
+        assert!(evts.get(0).unwrap().is::<EliminateEvent>());
+
+        let elim = evts.pop().unwrap().downcast::<EliminateEvent>().unwrap();
+        assert_eq!(elim.direction, DigestionDirection::FORWARD);
+        assert!(elim.excrement.concentration_of(&Substance::Cellulose) > SubstanceConcentration::from_mM(0.0));
+
+        // Food should have dissappeared
+        assert!(layer.consumed_map.get(0).unwrap().is_empty());
+        assert!(layer.consumed_map.get(1).unwrap().is_empty());
+
+    }
+
+    // #[test]
+    // fn layer_process_sync() {
+    //     let layer = Mutex::new(CirculationLayer::<TestOrganism>::new());
+    //     let connector = Mutex::new(SimConnector::new());
+    //     let mut component = TestCircComponentA::new();
+    //     layer.lock().unwrap().setup_component_sync(&mut connector.lock().unwrap(), &mut component);
+
+    //     component
+    //         .circulation_connector()
+    //         .vessel_map_sync
+    //         .insert(TestBloodVessel::VenaCava, Arc::new(Mutex::new(BloodStore::new())));
+
+    //     layer.lock().unwrap().pre_exec_sync(&mut connector.lock().unwrap());
+
+    //     scope(|s| {
+    //         s.spawn(|| {
+    //             layer.lock().unwrap().prepare_component_sync(&mut connector.lock().unwrap(), &mut component);
+    //             component.run();
+    //             layer.lock().unwrap().process_component_sync(&mut connector.lock().unwrap(), &mut component);
+    //         });
+    //     });
+
+    //     layer.lock().unwrap().post_exec_sync(&mut connector.lock().unwrap());
+    // }
 }

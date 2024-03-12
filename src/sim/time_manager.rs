@@ -137,7 +137,7 @@ impl TimeManager {
                     Ok(())
                 }
                 None => {
-                    panic!("Scheduled ID {} refers to an invalid time!", schedule_id,);
+                    Err(anyhow!("Scheduled ID {} refers to an invalid time!", schedule_id))
                 }
             },
             None => Err(anyhow!(
@@ -147,7 +147,9 @@ impl TimeManager {
         }
     }
 
-    pub fn next_events(&mut self) -> impl Iterator<Item = (OrderedTime, Vec<Box<dyn Event>>)> {
+    /// Gets an iterator of all events that are ready for emission
+    /// with their associated emission time.
+    pub fn next_events(&mut self) -> impl Iterator<Item = (SimTime, Vec<Box<dyn Event>>)> {
         let mut evt_times = self.event_queue.keys();
         let mut next_evt_time = evt_times.next();
         let mut times_to_remove = Vec::new();
@@ -180,7 +182,9 @@ impl TimeManager {
                 }
             }
 
-            results.push((evt_time, result));
+            if !result.is_empty() {
+                results.push((evt_time.0, result));
+            }
         }
         results.into_iter()
     }
@@ -280,6 +284,7 @@ mod tests {
     use crate::event::test::TestEventB;
     use crate::event::Event;
     use crate::hub::event_transformer::{EventTransformer, TransformerItem};
+    use crate::sim::SimTime;
     use crate::units::base::Amount;
     use crate::units::base::Distance;
     use crate::util::secs;
@@ -333,7 +338,7 @@ mod tests {
         time_manager.advance_by(one_sec);
         assert_eq!(time_manager.get_time(), Time::from_s(1.0));
 
-        let mut next_events: Vec<(OrderedTime, Vec<Box<dyn Event>>)> =
+        let mut next_events: Vec<(SimTime, Vec<Box<dyn Event>>)> =
             time_manager.next_events().collect();
         assert!(next_events.is_empty());
 

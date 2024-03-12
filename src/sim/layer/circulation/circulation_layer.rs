@@ -30,12 +30,6 @@ impl<O: Organism> CirculationLayer<O> {
             component_settings: HashMap::new(),
         }
     }
-
-    pub fn as_processor<T: CirculationComponent<O>>(
-        &mut self,
-    ) -> &mut dyn SimComponentProcessor<O, T> {
-        self
-    }
 }
 
 impl<O: Organism> SimLayer for CirculationLayer<O> {
@@ -221,12 +215,12 @@ mod tests {
     use crate::util::mmol_per_L;
 
     #[test]
-    fn test_layer() {
+    fn layer() {
         CirculationLayer::<TestOrganism>::new();
     }
 
     #[test]
-    fn test_layer_process() {
+    fn layer_process() {
         let mut layer = CirculationLayer::<TestOrganism>::new();
         let mut component = TestCircComponentA::new();
         let mut connector = SimConnector::new();
@@ -279,7 +273,7 @@ mod tests {
     }
 
     #[test]
-    fn test_layer_process_sync() {
+    fn layer_process_sync() {
         let layer = Mutex::new(CirculationLayer::<TestOrganism>::new());
         let connector = Mutex::new(SimConnector::new());
         let mut component = TestCircComponentA::new();

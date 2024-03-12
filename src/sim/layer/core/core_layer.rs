@@ -243,7 +243,7 @@ pub mod test {
     use crate::util::secs;
 
     #[test]
-    fn test_layer_process() {
+    fn layer_process() {
         let mut layer = CoreLayer::<TestOrganism>::new();
         let mut component_a = TestComponentA::new();
         let mut component_b = TestComponentB::new();
@@ -285,7 +285,7 @@ pub mod test {
     }
 
     #[test]
-    fn test_layer_process_sync() {
+    fn layer_process_sync() {
         let layer = Mutex::new(CoreLayer::<TestOrganism>::new());
         let mut component_a = TestComponentA::new();
         let mut component_b = TestComponentB::new();

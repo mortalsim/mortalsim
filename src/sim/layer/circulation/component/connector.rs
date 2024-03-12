@@ -82,7 +82,9 @@ impl<O: Organism> CirculationConnector<O> {
         self.sim_time
     }
 
-    /// Retrieves the current simulation time
+    /// Whether to unschedule all changes automatically before each run
+    /// NOTE: If this is set to false, the component is responsible for
+    /// tracking and unscheduling preexisting changes, if necessary
     pub fn unschedule_all(&mut self, value: bool) {
         self.unschedule_all = value
     }

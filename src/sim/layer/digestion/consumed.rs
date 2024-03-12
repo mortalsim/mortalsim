@@ -14,6 +14,7 @@ use crate::IdType;
 
 use super::consumable::VolumeChange;
 
+#[derive(Debug)]
 pub struct Consumed {
     /// Copy of the current Simulation time
     pub(crate) sim_time: SimTime,
@@ -131,26 +132,25 @@ impl Consumed {
     /// Sets the exit time and direction of the `Consumed`
     ///
     /// ### Arguments
-    /// * `delay`          - delay in simulation time before the `Consumed` exits
+    /// * `exit_time`      - simulation time when the `Consumed` should exit the component
     /// * `exit_direction` - direction in which the `Consumed` is exiting
     pub fn set_exit(
         &mut self,
-        delay: SimTime,
+        exit_time: SimTime,
         exit_direction: DigestionDirection,
     ) -> anyhow::Result<()> {
-        if delay < SimTime::from_s(0.0) {
+        if exit_time < self.sim_time {
             Err(anyhow!(
-                "Consumed exit delay must not be negative!"
+                "Consumed exit time must not be less than the current time!"
             ))
         } else {
-            self.exit_time = delay + self.sim_time;
+            self.exit_time = exit_time;
             self.exit_direction = exit_direction;
             Ok(())
         }
     }
 
-    /// Remove all pending changes, and extract the consumable and its exit direction
-    pub(crate) fn exit(mut self) -> (Consumable, DigestionDirection) {
+    pub(crate) fn clear_all_changes(&mut self) {
         for (substance, change_ids) in self.change_map.drain() {
             for change_id in change_ids {
                 self.consumable
@@ -158,9 +158,14 @@ impl Consumed {
                     .unschedule_change(&substance, &change_id);
             }
         }
-        for change_id in self.vol_changes {
+        for change_id in self.vol_changes.drain(..) {
             self.consumable.unschedule_volume_change(change_id);
         }
+    }
+
+    /// Remove all pending changes, and extract the consumable and its exit direction
+    pub(crate) fn exit(mut self) -> (Consumable, DigestionDirection) {
+        self.clear_all_changes();
         (self.consumable, self.exit_direction)
     }
 

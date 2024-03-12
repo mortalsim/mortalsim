@@ -244,17 +244,31 @@ impl SubstanceStore {
                         .get(substance)
                         .unwrap_or(Self::zero_concentration());
 
-                    // Check to make sure new concentration is valid
-                    let new_conc = *prev_conc + change_amt;
-                    let change_pct = change_amt.molpm3*substance.molar_volume().m3_per_mol;
-                    if new_conc < SubstanceConcentration::from_M(0.0) || self.solute_pct + change_pct > 1.0 {
+                    // Check to make sure new concentration is non-negative
+                    let mut new_conc = *prev_conc + change_amt;
+                    if new_conc < SubstanceConcentration::from_M(0.0) {
                         log::warn!(
-                            "Substance change attempted to set an invalid solute concentration for {}: {}",
+                            "Substance change attempted to set a negative solute concentration for {}: {}\n{}",
                             substance,
                             new_conc,
+                            "Setting to zero.",
+                        );
+                        new_conc = SubstanceConcentration::from_M(0.0);
+                    }
+
+                    // Check to make sure new concentration doesn't exceed possible solute volume
+                    let change_pct = change_amt.molpm3*substance.molar_volume().m3_per_mol;
+                    if self.solute_pct + change_pct > 1.0 {
+                        log::warn!(
+                            "Substance change attempted to set an invalid solute concentration for {}: {}\n{}\n{}",
+                            substance,
+                            new_conc,
+                            format!("Total solute percentage would be {:.1}%",change_pct*100.0),
+                            format!("{} concentration will remain unchanged.", substance),
                         );
                         continue;
                     }
+                    
                     // register the change in solute percent and the concentration change
                     self.solute_pct += change_pct;
                     self.composition.insert(*substance, new_conc);
