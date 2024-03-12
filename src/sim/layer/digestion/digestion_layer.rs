@@ -412,7 +412,7 @@ mod tests {
         connector.time_manager.advance_by(SimTime::from_s(1.0));
 
         // Should be eliminating the fiber
-        let (ot, mut evts) = connector.time_manager.next_events().next().unwrap();
+        let (_, mut evts) = connector.time_manager.next_events().next().unwrap();
 
         assert!(evts.get(0).is_some());
         assert!(evts.get(0).unwrap().is::<EliminateEvent>());
