@@ -12,7 +12,7 @@ use crate::sim::SimConnector;
 use crate::util::{secs, IdGenerator, IdType, OrderedTime};
 
 use super::component::{NervousComponent, NervousInitializer};
-use super::nerve::NerveSignal;
+use super::nerve_signal::NerveSignal;
 use super::transform::NerveSignalTransformer;
 
 pub struct NervousLayer<O: Organism> {

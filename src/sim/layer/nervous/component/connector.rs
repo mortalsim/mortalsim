@@ -5,7 +5,7 @@ use std::sync::{Arc, Mutex};
 use downcast_rs::Downcast;
 
 use crate::event::Event;
-use crate::sim::layer::nervous::nerve::NerveSignal;
+use crate::sim::layer::nervous::NerveSignal;
 use crate::sim::layer::nervous::transform::{TransformFn, NerveSignalTransformer};
 use crate::sim::organism::Organism;
 use crate::sim::SimTime;
