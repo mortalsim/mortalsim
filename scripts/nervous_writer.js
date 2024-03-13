@@ -29,10 +29,14 @@ function writeNeuralFile(namespace, config) {
         nerveMap[entry.id] = nerve;
     }
 
-    config.sections.forEach(e => processNerve(e, null, 0));
+    config.sections.forEach(processNerve);
     const allNerves = [...Object.values(nerveMap)];
     allNerves.forEach(n => {
         n.downlink.forEach(did => {
+            if(!nerveMap[did]) {
+                console.error(`Invalid nerve link defined from '${n.id}' to '${did}'`);
+                process.exit();
+            }
             nerveMap[did].uplink.push(n.id);
         });
     });

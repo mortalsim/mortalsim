@@ -1,0 +1,36 @@
+---
+path: src/sim/organism/test/test_nervous.rs
+sections:
+  - id: Brain
+    regions: [Head]
+  - id: SpinalCord
+    regions: [Head, Torso]
+    links:
+      - RightC
+      - LeftC
+      - RightL
+      - LeftL
+  - id: RightC
+    regions: [Torso]
+    links:
+      - RightAxillary
+  - id: RightL
+    regions: [Torso]
+    links:
+      - RightFemoral
+  - id: RightAxillary
+    regions: [RightArm]
+  - id: RightFemoral
+    regions: [RightLeg]
+  - id: LeftC
+    regions: [Torso]
+    links:
+      - LeftAxillary
+  - id: LeftL
+    regions: [Torso]
+    links:
+      - LeftFemoral
+  - id: LeftAxillary
+    regions: [LeftArm]
+  - id: LeftFemoral
+    regions: [LeftLeg]

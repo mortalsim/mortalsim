@@ -106,8 +106,7 @@ pub mod test {
     use simple_si_units::base::Distance;
 
     use crate::event::test::TestEventA;
-    use crate::sim::layer::nervous::nerve::test::TestNerve;
-    use crate::sim::organism::test::TestOrganism;
+    use crate::sim::organism::test::{TestNerve, TestOrganism};
     use crate::sim::SimTime;
 
     use super::NerveSignal;

@@ -1,3 +1,11 @@
+mod test_anatomy;
+mod test_circulation;
+mod test_nervous;
+
+pub use test_circulation::TestBloodVessel;
+pub use test_anatomy::TestAnatomicalRegion;
+pub use test_nervous::TestNerve;
+
 use std::any::Any;
 use std::cell::Cell;
 use std::collections::HashSet;
@@ -7,9 +15,7 @@ use std::sync::{Mutex, MutexGuard, OnceLock};
 use crate::units::base::Distance;
 
 use crate::event::test::TestEventA;
-use crate::sim::layer::circulation::vessel::test::TestBloodVessel;
 use crate::sim::layer::core::component::test::{TestComponentA, TestComponentB};
-use crate::sim::layer::nervous::nerve::test::TestNerve;
 use crate::sim::Sim;
 use crate::util::secs;
 
@@ -25,18 +31,6 @@ impl Organism for TestOrganism {
 }
 
 impl_sim!(TestSim, TestOrganism);
-
-#[derive(Debug, Display, Hash, Clone, Copy, PartialEq, Eq, EnumString, IntoStaticStr)]
-pub enum TestAnatomicalRegion {
-    Head,
-    Torso,
-    LeftArm,
-    RightArm,
-    LeftLeg,
-    RightLeg,
-}
-
-impl AnatomicalRegion for TestAnatomicalRegion {}
 
 #[test]
 fn test_default() {

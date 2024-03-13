@@ -1,0 +1,46 @@
+---
+path: src/sim/organism/test/test_circulation.rs
+arterial:
+  - id: Aorta
+    regions: [Torso]
+    links:
+      - id: RightCarotidArtery
+        regions: [Torso, Head]
+        bridges: [RightJugularVein]
+      - id: LeftCarotidArtery
+        regions: [Torso, Head]
+        bridges: [LeftJugularVein]
+      - id: RightAxillaryArtery
+        regions: [Torso, RightArm]
+        bridges: [RightAxillaryVein]
+      - id: LeftAxillaryArtery
+        regions: [Torso, LeftArm]
+        bridges: [LeftAxillaryVein]
+      - id: AbdominalAorta
+        regions: [Torso]
+        links:
+          - id: RightFemoralArtery
+            regions: [RightLeg]
+            bridges: [RightFemoralVein]
+          - id: LeftFemoralArtery
+            regions: [LeftLeg]
+            bridges: [LeftFemoralVein]
+venous:
+  - id: VenaCava
+    regions: [Torso]
+    links:
+      - id: RightAxillaryVein
+        regions: [Torso, RightArm]
+      - id: LeftAxillaryVein
+        regions: [Torso, LeftArm]
+      - id: RightJugularVein
+        regions: [Torso, Head]
+      - id: LeftJugularVein
+        regions: [Torso, Head]
+  - id: InferiorVenaCava
+    regions: [Torso]
+    links:
+      - id: RightFemoralVein
+        regions: [RightLeg]
+      - id: LeftFemoralVein
+        regions: [LeftLeg]

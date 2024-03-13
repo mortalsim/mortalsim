@@ -457,7 +457,7 @@ impl Substance {
             Self::GLCL => Density::from_gpcc(1.54),
             Self::FRC => Density::from_gpcc(1.694),
             Self::H => Density::from_gpcc(0.00008988),
-            Self::H2O => Density::from_gpcc(1.0),
+            Self::H2O => Density::from_gpcc(0.993),
             Self::K => Density::from_gpcc(0.862),
             Self::LAC => Density::from_gpcc(1.21),
             Self::LDH => Density::from_gpcc(1.43),
@@ -529,7 +529,7 @@ impl Substance {
         }
     }
 
-    /// Typical molar volume of the substance
+    /// Typical molar volume of the substance at body temperature
     pub fn molar_volume(&self) -> crate::units::chemical::MolarVolume<f64> {
         self.molar_mass() / self.density()
     }

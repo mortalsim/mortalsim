@@ -1,0 +1,9 @@
+---
+path: src/sim/organism/test/test_anatomy.rs
+regions:
+  - Head
+  - Torso
+  - LeftArm
+  - RightArm
+  - LeftLeg
+  - RightLeg
