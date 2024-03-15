@@ -137,4 +137,13 @@ pub mod test {
             SimTime::from_s(-1.0)
         ).is_err());
     }
+
+    #[test]
+    fn new_invalid_signal() {
+        assert!(NerveSignal::<TestOrganism>::new(
+            TestEventA::new(Distance::from_m(1.0)),
+            vec![TestNerve::Brain, TestNerve::LeftFemoral],
+            SimTime::from_s(1.0)
+        ).is_err());
+    }
 }

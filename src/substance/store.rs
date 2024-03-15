@@ -152,11 +152,11 @@ impl SubstanceStore {
     /// Schedule a substance change on this store
     /// with a custom shape over the given duration.
     ///
-    /// Panics if `delay < 0` or `duration <= 0`
+    /// Panics if `start_time < sim_time` or `duration <= 0`
     ///
     /// ### Arguments
     /// * `substance`  - the substance to change
-    /// * `delay`      - delay in simulation time before starting the change
+    /// * `start_time` - simulation time to start the change
     /// * `amount`     - total concentration change to take place
     /// * `duration`   - amount of time over which the change takes place
     /// * `bound_fn`   - the shape of the function
@@ -166,20 +166,17 @@ impl SubstanceStore {
         &mut self,
         substance: Substance,
         amount: SubstanceConcentration,
-        delay: SimTime,
+        start_time: SimTime,
         duration: SimTime,
         bound_fn: BoundFn,
     ) -> IdType {
         // Constrain the start time to a minimum of the current sim time
-        let x_start_time = {
-            if delay.s < 0.0 {
-                panic!("Delay cannot be less than zero!");
-            }
-            self.sim_time + delay
-        };
+        if start_time < self.sim_time {
+            panic!("start_time cannot be less than the current sim time!");
+        }
 
         let change_id = self.id_gen.get_id();
-        let change = SubstanceChange::new(x_start_time, amount, duration, bound_fn);
+        let change = SubstanceChange::new(start_time, amount, duration, bound_fn);
         self.substance_changes
             .entry(substance)
             .or_default()
