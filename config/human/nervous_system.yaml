@@ -14,6 +14,7 @@ sections:
   - id: Brainstem
     regions: [Cranial]
     links:
+      - SpinalCord
       - LeftTrigeminal
       - RightTrigeminal
       - LeftFacial
@@ -162,6 +163,7 @@ sections:
       - LeftPosteriorBrachialPlexus
       - LeftDorsalScapular
       - LeftSuprascapular
+      - LeftLongThoracic
   - id: LeftC6
     regions: [Cervical]
     links:
@@ -170,6 +172,7 @@ sections:
       - LeftLateralBrachialPlexus
       - LeftPosteriorBrachialPlexus
       - LeftSuprascapular
+      - LeftLongThoracic
   - id: LeftC7
     regions: [Cervical]
     links:
@@ -177,6 +180,7 @@ sections:
       - LeftThoracodorsal
       - LeftLateralBrachialPlexus
       - LeftPosteriorBrachialPlexus
+      - LeftLongThoracic
   - id: LeftC8
     regions: [Cervical]
     links:
@@ -184,6 +188,7 @@ sections:
       - LeftThoracodorsal
       - LeftPosteriorBrachialPlexus
       - LeftMedialBrachialPlexus
+      - LeftLongThoracic
   - id: LeftT1
     regions: [Thoracic]
     links:
@@ -264,6 +269,15 @@ sections:
       - LeftS3
       - LeftS4
       - LeftS5
+      - RightL2
+      - RightL3
+      - RightL4
+      - RightL5
+      - RightS1
+      - RightS2
+      - RightS3
+      - RightS4
+      - RightS5
   - id: LeftL2
     regions: [Lumbar]
     links:
@@ -463,6 +477,7 @@ sections:
     regions: [Sacral, LeftGluteal, LeftFemoral, LeftPopliteal]
     links:
       - LeftCommonFibular
+      - LeftTibial
   - id: LeftPudendal
     regions: [Sacral, LeftGluteal]
     links:
@@ -525,6 +540,7 @@ sections:
       - RightPosteriorBrachialPlexus
       - RightDorsalScapular
       - RightSuprascapular
+      - RightLongThoracic
   - id: RightC6
     regions: [Cervical]
     links:
@@ -533,6 +549,7 @@ sections:
       - RightLateralBrachialPlexus
       - RightPosteriorBrachialPlexus
       - RightSuprascapular
+      - RightLongThoracic
   - id: RightC7
     regions: [Cervical]
     links:
@@ -540,6 +557,7 @@ sections:
       - RightThoracodorsal
       - RightLateralBrachialPlexus
       - RightPosteriorBrachialPlexus
+      - RightLongThoracic
   - id: RightC8
     regions: [Cervical]
     links:
@@ -547,6 +565,7 @@ sections:
       - RightThoracodorsal
       - RightPosteriorBrachialPlexus
       - RightMedialBrachialPlexus
+      - RightLongThoracic
   - id: RightT1
     regions: [Thoracic]
     links:
@@ -615,18 +634,6 @@ sections:
       - RightIliohypogastric
       - RightIlioInguinal
       - RightGenitofemoral
-  - id: CaudaEquina
-    regions: [Lumbar]
-    links:
-      - RightL2
-      - RightL3
-      - RightL4
-      - RightL5
-      - RightS1
-      - RightS2
-      - RightS3
-      - RightS4
-      - RightS5
   - id: RightL2
     regions: [Lumbar]
     links:
@@ -826,6 +833,7 @@ sections:
     regions: [Sacral, RightGluteal, RightFemoral, RightPopliteal]
     links:
       - RightCommonFibular
+      - RightTibial
   - id: RightPudendal
     regions: [Sacral, RightGluteal]
     links:
