@@ -49,6 +49,32 @@ impl<O: Organism> NervousLayer<O> {
         }
     }
 
+    fn add_transforms(
+        &mut self,
+        registered_transforms: &mut HashMap<O::NerveType, HashMap<TypeId, IdType>>,
+        new_transforms: impl Iterator<Item = (
+            O::NerveType,
+            HashMap<TypeId, Box<dyn NerveSignalTransformer>>
+        )>,
+    ) {
+        for (nerve, mut type_map) in new_transforms {
+            for (type_id, transformer) in type_map.drain() {
+                let transform_id = self.id_gen.get_id();
+                registered_transforms
+                    .entry(nerve)
+                    .or_default()
+                    .insert(type_id, transform_id);
+
+                self.transforms
+                    .entry(nerve)
+                    .or_default()
+                    .entry(type_id)
+                    .or_default()
+                    .insert(transform_id, transformer);
+            }
+        }
+    }
+
     fn prepare_connector(&mut self, connector: &mut SimConnector, component: &mut impl NervousComponent<O>) -> HashSet<u32> {
         component.nervous_connector().sim_time = connector.sim_time();
 
@@ -74,23 +100,10 @@ impl<O: Organism> NervousLayer<O> {
         }
 
         // Add any newly registered transforms
-        for (nerve, mut type_map) in n_connector.adding_transforms.drain() {
-            for (type_id, transformer) in type_map.drain() {
-                let transform_id = self.id_gen.get_id();
-                n_connector
-                    .registered_transforms
-                    .entry(nerve)
-                    .or_default()
-                    .insert(type_id, transform_id);
-
-                self.transforms
-                    .entry(nerve)
-                    .or_default()
-                    .entry(type_id)
-                    .or_default()
-                    .insert(transform_id, transformer);
-            }
-        }
+        self.add_transforms(
+            &mut n_connector.registered_transforms,
+            n_connector.adding_transforms.drain()
+        );
 
         // Add any new signals
         for signal in n_connector.outgoing.drain(..) {
@@ -198,6 +211,12 @@ impl<O: Organism, T: NervousComponent<O>> SimComponentProcessor<O, T> for Nervou
                     .insert(component.id());
             }
         }
+
+        // Add any initial transformations
+        self.add_transforms(
+            &mut component.nervous_connector().registered_transforms,
+            initializer.adding_transforms.drain()
+        );
     }
 
     fn check_component(&mut self, component: &T) -> bool {

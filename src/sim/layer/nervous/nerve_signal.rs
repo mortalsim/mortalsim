@@ -60,6 +60,10 @@ impl<O: Organism> NerveSignal<O> {
         NerveIter(self.path.iter())
     }
 
+    pub fn terminating_nerve(&self) -> O::NerveType {
+        *self.path.last().unwrap()
+    }
+
     pub fn send_time(&self) -> SimTime {
         self.send_time
     }

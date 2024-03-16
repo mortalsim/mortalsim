@@ -50,10 +50,14 @@ impl<O: Organism> NervousConnector<O> {
         self.sim_time
     }
 
-    pub fn get_messages<T: Event>(&self) -> impl Iterator<Item = &'_ T> {
+    pub fn get_messages<'a, T: Event>(&'a self) -> impl Iterator<Item = (O::NerveType, &'a T)> {
+        let item_cons = |s: &'a NerveSignal<O>| (
+            s.terminating_nerve(),
+            s.message::<T>()
+        );
         match self.incoming.get(&TypeId::of::<T>()) {
-            Some(signals) => either::Left(signals.iter().map(|s| s.message::<T>())),
-            None => either::Right(self.empty.iter().map(|s| s.message::<T>())),
+            Some(signals) => either::Left(signals.iter().map(item_cons)),
+            None => either::Right(self.empty.iter().map(item_cons)),
         }
     }
 
