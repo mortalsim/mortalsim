@@ -72,8 +72,7 @@ impl Nerve for TestNerve {
     fn terminal_nerves<'a>() -> NerveIter<'a, Self> {
         NerveIter(TERMINAL_NERVES.get_or_init(|| {
             let mut nerve_list = Vec::new();
-            nerve_list.push(TestNerve::Brain);
-               nerve_list.push(TestNerve::RightAxillary);
+            nerve_list.push(TestNerve::RightAxillary);
                nerve_list.push(TestNerve::RightFemoral);
                nerve_list.push(TestNerve::LeftAxillary);
                nerve_list.push(TestNerve::LeftFemoral);
@@ -87,7 +86,11 @@ impl Nerve for TestNerve {
                 Vec::new()
             }).iter()),
             TestNerve::SpinalCord => NerveIter(SPINALCORD_UPLINK.get_or_init(|| {
-                Vec::new()
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(TestNerve::Brain);
+                nerve_list
+                
             }).iter()),
             TestNerve::RightC => NerveIter(RIGHTC_UPLINK.get_or_init(|| {
                 
@@ -151,7 +154,11 @@ impl Nerve for TestNerve {
         match self {
             
             TestNerve::Brain => NerveIter(BRAIN_DOWNLINK.get_or_init(|| {
-                Vec::new()
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(TestNerve::SpinalCord);
+                nerve_list
+                
             }).iter()),
             TestNerve::SpinalCord => NerveIter(SPINALCORD_DOWNLINK.get_or_init(|| {
                 

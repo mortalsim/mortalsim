@@ -3,6 +3,8 @@ path: src/sim/organism/test/test_nervous.rs
 sections:
   - id: Brain
     regions: [Head]
+    links:
+      - SpinalCord
   - id: SpinalCord
     regions: [Head, Torso]
     links:

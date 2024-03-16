@@ -1375,7 +1375,11 @@ impl Nerve for HumanNerve {
                 
             }).iter()),
             HumanNerve::SpinalCord => NerveIter(SPINALCORD_UPLINK.get_or_init(|| {
-                Vec::new()
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::Brainstem);
+                nerve_list
+                
             }).iter()),
             HumanNerve::LeftSpinalAccessory => NerveIter(LEFTSPINALACCESSORY_UPLINK.get_or_init(|| {
                 
@@ -1546,31 +1550,67 @@ impl Nerve for HumanNerve {
                 
             }).iter()),
             HumanNerve::LeftL2 => NerveIter(LEFTL2_UPLINK.get_or_init(|| {
-                Vec::new()
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::CaudaEquina);
+                nerve_list
+                
             }).iter()),
             HumanNerve::LeftL3 => NerveIter(LEFTL3_UPLINK.get_or_init(|| {
-                Vec::new()
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::CaudaEquina);
+                nerve_list
+                
             }).iter()),
             HumanNerve::LeftL4 => NerveIter(LEFTL4_UPLINK.get_or_init(|| {
-                Vec::new()
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::CaudaEquina);
+                nerve_list
+                
             }).iter()),
             HumanNerve::LeftL5 => NerveIter(LEFTL5_UPLINK.get_or_init(|| {
-                Vec::new()
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::CaudaEquina);
+                nerve_list
+                
             }).iter()),
             HumanNerve::LeftS1 => NerveIter(LEFTS1_UPLINK.get_or_init(|| {
-                Vec::new()
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::CaudaEquina);
+                nerve_list
+                
             }).iter()),
             HumanNerve::LeftS2 => NerveIter(LEFTS2_UPLINK.get_or_init(|| {
-                Vec::new()
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::CaudaEquina);
+                nerve_list
+                
             }).iter()),
             HumanNerve::LeftS3 => NerveIter(LEFTS3_UPLINK.get_or_init(|| {
-                Vec::new()
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::CaudaEquina);
+                nerve_list
+                
             }).iter()),
             HumanNerve::LeftS4 => NerveIter(LEFTS4_UPLINK.get_or_init(|| {
-                Vec::new()
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::CaudaEquina);
+                nerve_list
+                
             }).iter()),
             HumanNerve::LeftS5 => NerveIter(LEFTS5_UPLINK.get_or_init(|| {
-                Vec::new()
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::CaudaEquina);
+                nerve_list
+                
             }).iter()),
             HumanNerve::LeftInternalCarotid => NerveIter(LEFTINTERNALCAROTID_UPLINK.get_or_init(|| {
                 
@@ -1883,7 +1923,14 @@ impl Nerve for HumanNerve {
                 
             }).iter()),
             HumanNerve::LeftLongThoracic => NerveIter(LEFTLONGTHORACIC_UPLINK.get_or_init(|| {
-                Vec::new()
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftC5);
+                nerve_list.push(HumanNerve::LeftC6);
+                nerve_list.push(HumanNerve::LeftC7);
+                nerve_list.push(HumanNerve::LeftC8);
+                nerve_list
+                
             }).iter()),
             HumanNerve::LeftSuprascapular => NerveIter(LEFTSUPRASCAPULAR_UPLINK.get_or_init(|| {
                 
@@ -2037,7 +2084,11 @@ impl Nerve for HumanNerve {
                 
             }).iter()),
             HumanNerve::LeftTibial => NerveIter(LEFTTIBIAL_UPLINK.get_or_init(|| {
-                Vec::new()
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftSciatic);
+                nerve_list
+                
             }).iter()),
             HumanNerve::LeftPlantal => NerveIter(LEFTPLANTAL_UPLINK.get_or_init(|| {
                 
@@ -2567,7 +2618,14 @@ impl Nerve for HumanNerve {
                 
             }).iter()),
             HumanNerve::RightLongThoracic => NerveIter(RIGHTLONGTHORACIC_UPLINK.get_or_init(|| {
-                Vec::new()
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightC5);
+                nerve_list.push(HumanNerve::RightC6);
+                nerve_list.push(HumanNerve::RightC7);
+                nerve_list.push(HumanNerve::RightC8);
+                nerve_list
+                
             }).iter()),
             HumanNerve::RightSuprascapular => NerveIter(RIGHTSUPRASCAPULAR_UPLINK.get_or_init(|| {
                 
@@ -2721,7 +2779,11 @@ impl Nerve for HumanNerve {
                 
             }).iter()),
             HumanNerve::RightTibial => NerveIter(RIGHTTIBIAL_UPLINK.get_or_init(|| {
-                Vec::new()
+                
+                let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::RightSciatic);
+                nerve_list
+                
             }).iter()),
             HumanNerve::RightPlantal => NerveIter(RIGHTPLANTAL_UPLINK.get_or_init(|| {
                 
@@ -2753,6 +2815,7 @@ impl Nerve for HumanNerve {
             HumanNerve::Brainstem => NerveIter(BRAINSTEM_DOWNLINK.get_or_init(|| {
                 
                 let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::SpinalCord);
                 nerve_list.push(HumanNerve::LeftTrigeminal);
                 nerve_list.push(HumanNerve::RightTrigeminal);
                 nerve_list.push(HumanNerve::LeftFacial);
@@ -2947,6 +3010,7 @@ impl Nerve for HumanNerve {
                 nerve_list.push(HumanNerve::LeftPosteriorBrachialPlexus);
                 nerve_list.push(HumanNerve::LeftDorsalScapular);
                 nerve_list.push(HumanNerve::LeftSuprascapular);
+                nerve_list.push(HumanNerve::LeftLongThoracic);
                 nerve_list
                 
             }).iter()),
@@ -2958,6 +3022,7 @@ impl Nerve for HumanNerve {
                 nerve_list.push(HumanNerve::LeftLateralBrachialPlexus);
                 nerve_list.push(HumanNerve::LeftPosteriorBrachialPlexus);
                 nerve_list.push(HumanNerve::LeftSuprascapular);
+                nerve_list.push(HumanNerve::LeftLongThoracic);
                 nerve_list
                 
             }).iter()),
@@ -2968,6 +3033,7 @@ impl Nerve for HumanNerve {
                 nerve_list.push(HumanNerve::LeftThoracodorsal);
                 nerve_list.push(HumanNerve::LeftLateralBrachialPlexus);
                 nerve_list.push(HumanNerve::LeftPosteriorBrachialPlexus);
+                nerve_list.push(HumanNerve::LeftLongThoracic);
                 nerve_list
                 
             }).iter()),
@@ -2978,6 +3044,7 @@ impl Nerve for HumanNerve {
                 nerve_list.push(HumanNerve::LeftThoracodorsal);
                 nerve_list.push(HumanNerve::LeftPosteriorBrachialPlexus);
                 nerve_list.push(HumanNerve::LeftMedialBrachialPlexus);
+                nerve_list.push(HumanNerve::LeftLongThoracic);
                 nerve_list
                 
             }).iter()),
@@ -3091,6 +3158,15 @@ impl Nerve for HumanNerve {
             HumanNerve::CaudaEquina => NerveIter(CAUDAEQUINA_DOWNLINK.get_or_init(|| {
                 
                 let mut nerve_list = Vec::new();
+                nerve_list.push(HumanNerve::LeftL2);
+                nerve_list.push(HumanNerve::LeftL3);
+                nerve_list.push(HumanNerve::LeftL4);
+                nerve_list.push(HumanNerve::LeftL5);
+                nerve_list.push(HumanNerve::LeftS1);
+                nerve_list.push(HumanNerve::LeftS2);
+                nerve_list.push(HumanNerve::LeftS3);
+                nerve_list.push(HumanNerve::LeftS4);
+                nerve_list.push(HumanNerve::LeftS5);
                 nerve_list.push(HumanNerve::RightL2);
                 nerve_list.push(HumanNerve::RightL3);
                 nerve_list.push(HumanNerve::RightL4);
@@ -3396,6 +3472,7 @@ impl Nerve for HumanNerve {
                 
                 let mut nerve_list = Vec::new();
                 nerve_list.push(HumanNerve::LeftCommonFibular);
+                nerve_list.push(HumanNerve::LeftTibial);
                 nerve_list
                 
             }).iter()),
@@ -3486,6 +3563,7 @@ impl Nerve for HumanNerve {
                 nerve_list.push(HumanNerve::RightPosteriorBrachialPlexus);
                 nerve_list.push(HumanNerve::RightDorsalScapular);
                 nerve_list.push(HumanNerve::RightSuprascapular);
+                nerve_list.push(HumanNerve::RightLongThoracic);
                 nerve_list
                 
             }).iter()),
@@ -3497,6 +3575,7 @@ impl Nerve for HumanNerve {
                 nerve_list.push(HumanNerve::RightLateralBrachialPlexus);
                 nerve_list.push(HumanNerve::RightPosteriorBrachialPlexus);
                 nerve_list.push(HumanNerve::RightSuprascapular);
+                nerve_list.push(HumanNerve::RightLongThoracic);
                 nerve_list
                 
             }).iter()),
@@ -3507,6 +3586,7 @@ impl Nerve for HumanNerve {
                 nerve_list.push(HumanNerve::RightThoracodorsal);
                 nerve_list.push(HumanNerve::RightLateralBrachialPlexus);
                 nerve_list.push(HumanNerve::RightPosteriorBrachialPlexus);
+                nerve_list.push(HumanNerve::RightLongThoracic);
                 nerve_list
                 
             }).iter()),
@@ -3517,6 +3597,7 @@ impl Nerve for HumanNerve {
                 nerve_list.push(HumanNerve::RightThoracodorsal);
                 nerve_list.push(HumanNerve::RightPosteriorBrachialPlexus);
                 nerve_list.push(HumanNerve::RightMedialBrachialPlexus);
+                nerve_list.push(HumanNerve::RightLongThoracic);
                 nerve_list
                 
             }).iter()),
@@ -3920,6 +4001,7 @@ impl Nerve for HumanNerve {
                 
                 let mut nerve_list = Vec::new();
                 nerve_list.push(HumanNerve::RightCommonFibular);
+                nerve_list.push(HumanNerve::RightTibial);
                 nerve_list
                 
             }).iter()),
