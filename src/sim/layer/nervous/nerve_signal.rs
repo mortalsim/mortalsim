@@ -1,5 +1,7 @@
 use std::any::TypeId;
-use std::sync::{Mutex, OnceLock};
+use std::sync::{Arc, Mutex, MutexGuard, OnceLock};
+
+use either::Either;
 
 use crate::event::Event;
 use crate::sim::{Organism, SimTime};
@@ -10,10 +12,11 @@ use super::{Nerve, NerveIter};
 
 static ID_GEN: OnceLock<Mutex<IdGenerator>> = OnceLock::new();
 
+#[derive(Clone)]
 pub struct NerveSignal<O: Organism> {
     id: IdType,
-    path: Vec<O::NerveType>,
-    message: Box<dyn Event>,
+    path: Arc<Vec<O::NerveType>>,
+    message: Arc<dyn Event>,
     send_time: SimTime,
     message_type_id: TypeId,
 }
@@ -24,11 +27,27 @@ impl<O: Organism> NerveSignal<O> {
         neural_path: Vec<O::NerveType>,
         send_time: SimTime,
     ) -> anyhow::Result<Self> {
-        if neural_path.is_empty() {
-            return Err(anyhow!("Neural path cannot be empty!"));
-        }
         if send_time < SimTime::from_s(0.0) {
             return Err(anyhow!("Invalid send time provided: {}", send_time));
+        }
+        Self::check_neural_path(&neural_path)?;
+
+        Ok(Self {
+            id: ID_GEN
+                .get_or_init(|| Mutex::new(IdGenerator::new()))
+                .lock()
+                .unwrap()
+                .get_id(),
+            path: Arc::new(neural_path),
+            message: Arc::new(message),
+            send_time,
+            message_type_id: TypeId::of::<T>()
+        })
+    }
+
+    fn check_neural_path(neural_path: &Vec<O::NerveType>) -> anyhow::Result<()> {
+        if neural_path.is_empty() {
+            return Err(anyhow!("Neural path cannot be empty!"));
         }
         for idx in 0..(neural_path.len() - 1) {
             let cur_nerve = neural_path.get(idx).unwrap();
@@ -38,18 +57,7 @@ impl<O: Organism> NerveSignal<O> {
                 return Err(anyhow!("Invalid link from {} to {}", cur_nerve, next_nerve));
             }
         }
-
-        Ok(Self {
-            id: ID_GEN
-                .get_or_init(|| Mutex::new(IdGenerator::new()))
-                .lock()
-                .unwrap()
-                .get_id(),
-            path: neural_path,
-            message: Box::new(message),
-            send_time,
-            message_type_id: TypeId::of::<T>()
-        })
+        Ok(())
     }
 
     pub fn id(&self) -> IdType {
@@ -82,18 +90,15 @@ impl<O: Organism> NerveSignal<O> {
             .expect("Invalid message type")
     }
 
-    pub fn message_mut<T: Event>(&mut self) -> &'_ mut T {
-        self.message
-            .downcast_mut::<T>()
-            .expect("Invalid message type")
-    }
-    
     pub fn dyn_message(&self) -> &dyn Event {
         self.message.as_ref()
     }
 
+    /// Attempts to get a mutable reference to the message
+    /// event. If there are existing Arc instances of it
+    /// this will panic.
     pub fn dyn_message_mut(&mut self) -> &mut dyn Event {
-        self.message.as_mut()
+        Arc::get_mut(&mut self.message).unwrap()
     }
 }
 

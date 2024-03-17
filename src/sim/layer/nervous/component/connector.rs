@@ -16,8 +16,6 @@ pub struct NervousConnector<O: Organism> {
     pub(crate) sim_time: SimTime,
     /// Incoming signals
     pub(crate) incoming: HashMap<TypeId, Vec<NerveSignal<O>>>,
-    /// Incoming signals (thread safe)
-    pub(crate) incoming_sync: HashMap<TypeId, Vec<Arc<Mutex<NerveSignal<O>>>>>,
     /// Outgoing signals
     pub(crate) outgoing: Vec<NerveSignal<O>>,
     /// Transformations to add
@@ -36,7 +34,6 @@ impl<O: Organism> NervousConnector<O> {
         Self {
             sim_time: SimTime::from_s(0.0),
             incoming: HashMap::new(),
-            incoming_sync: HashMap::new(),
             outgoing: Vec::new(),
             adding_transforms: HashMap::new(),
             registered_transforms: HashMap::new(),
@@ -50,17 +47,17 @@ impl<O: Organism> NervousConnector<O> {
         self.sim_time
     }
 
-    pub fn get_messages<'a, T: Event>(&'a self) -> impl Iterator<Item = (O::NerveType, &'a T)> {
-        let item_cons = |s: &'a NerveSignal<O>| (
-            s.terminating_nerve(),
-            s.message::<T>()
-        );
+    fn extract_message<T: Event>(s: &NerveSignal<O>) -> (O::NerveType, &'_ T) {
+        (s.terminating_nerve(), s.message::<T>())
+    }
+    
+    pub fn get_messages<T: Event>(&self) -> impl Iterator<Item = (O::NerveType, &'_ T)> {
         match self.incoming.get(&TypeId::of::<T>()) {
-            Some(signals) => either::Left(signals.iter().map(item_cons)),
-            None => either::Right(self.empty.iter().map(item_cons)),
+            Some(signals) => either::Left(signals.iter().map(Self::extract_message)),
+            None => either::Right(self.empty.iter().map(Self::extract_message)),
         }
     }
-
+    
     pub fn send_message<T: Event>(
         &mut self,
         message: T,
@@ -104,4 +101,13 @@ impl<O: Organism> NervousConnector<O> {
 }
 
 #[cfg(test)]
-pub mod test {}
+pub mod test {
+    use crate::sim::organism::test::TestOrganism;
+
+    use super::NervousConnector;
+
+    #[test]
+    fn get_messages() {
+        let connector = NervousConnector::<TestOrganism>::new();
+    }
+}

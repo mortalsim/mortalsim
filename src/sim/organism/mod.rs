@@ -12,7 +12,7 @@ pub mod human;
 
 pub trait AnatomicalRegion: Debug + Copy + PartialEq + Eq + Send + Sync {}
 
-pub trait Organism: Debug + Send  + 'static {
+pub trait Organism: Debug + Send + Clone + Copy + 'static {
     type VesselType: BloodVessel;
     type NerveType: Nerve;
     type AnatomyType: AnatomicalRegion;

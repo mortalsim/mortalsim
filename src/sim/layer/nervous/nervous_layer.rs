@@ -24,8 +24,6 @@ pub struct NervousLayer<O: Organism> {
     notify_map: HashMap<&'static str, HashSet<IdType>>,
     /// List of signals staged for delivery to components
     delivery_signals: Vec<NerveSignal<O>>,
-    /// List of signals staged for delivery to components (thread safe)
-    delivery_signals_sync: Vec<Arc<Mutex<NerveSignal<O>>>>,
     /// Signal transformers on given nerve segments
     transforms:
         HashMap<O::NerveType, HashMap<TypeId, HashMap<IdType, Box<dyn NerveSignalTransformer>>>>,
@@ -42,7 +40,6 @@ impl<O: Organism> NervousLayer<O> {
             signal_notifies: HashMap::new(),
             notify_map: HashMap::new(),
             delivery_signals: Vec::new(),
-            delivery_signals_sync: Vec::new(),
             transforms: HashMap::new(),
             pending_signals: BTreeMap::new(),
             internal_trigger_id: None,
@@ -139,6 +136,9 @@ impl<O: Organism> SimLayer for NervousLayer<O> {
                         if let Some(fn_map) = self.transforms.get_mut(&nerve) {
                             if let Some(transform_list) = fn_map.get_mut(&signal.message_type_id()) {
                                 for (_, transform_box) in transform_list.iter_mut() {
+                                    // Note the dyn_message_mut call will panic if there are multiple
+                                    // references to the inner message. But at this point there
+                                    // should always only be a single reference in operation
                                     if None == transform_box.transform(signal.dyn_message_mut()) {
                                         continue 'sigloop;
                                     }
@@ -181,14 +181,6 @@ impl<O: Organism> SimLayer for NervousLayer<O> {
 impl<O: Organism> SimLayerSync for NervousLayer<O> {
     fn pre_exec_sync(&mut self, connector: &mut SimConnector) {
         self.pre_exec(connector);
-
-        self.delivery_signals_sync.extend(
-            self.delivery_signals
-            .drain(..)
-            .map(|s| {
-                Arc::new(Mutex::new(s))
-            })
-        );
     }
 
     fn post_exec_sync(&mut self, connector: &mut SimConnector) {
@@ -271,16 +263,16 @@ impl<O: Organism, T: NervousComponent<O>> SimComponentProcessorSync<O, T> for Ne
 
         // partition the delivery_signals vector to extract the ones which
         // apply to this component only
-        let (incoming_signals, _): (Vec<&Arc<Mutex<NerveSignal<O>>>>, Vec<_>) = self
-            .delivery_signals_sync
+        let (incoming_signals, _): (Vec<&NerveSignal<O>>, Vec<_>) = self
+            .delivery_signals
             .iter()
-            .partition(|s| incoming.contains(&s.lock().unwrap().id()));
+            .partition(|s| incoming.contains(&s.id()));
 
-        // Add the incoming signals to the component's connector
+        // Clone the incoming signals to the component's connector (as opposed to moving them)
         for signal in incoming_signals {
             component.nervous_connector()
-                .incoming_sync
-                .entry(signal.lock().unwrap().message_type_id())
+                .incoming
+                .entry(signal.message_type_id())
                 .or_default()
                 .push(signal.clone());
         }
@@ -290,6 +282,6 @@ impl<O: Organism, T: NervousComponent<O>> SimComponentProcessorSync<O, T> for Ne
         self.process_connector(connector, component);
 
         // Drop the incoming signal references
-        component.nervous_connector().incoming_sync.clear();
+        component.nervous_connector().incoming.clear();
     }
 }
