@@ -30,76 +30,89 @@ pub mod test {
     use super::{NervousComponent, NervousConnector};
 
     #[derive(Debug)]
-    struct PainEvent {
-        level: u8,
-        region: TestAnatomicalRegion,
+    pub struct PainEvent {
+        pub level: u8,
+        pub region: TestAnatomicalRegion,
     }
 
     impl Event for PainEvent {}
 
     #[derive(Debug)]
-    struct MovementEvent {
-        amount: u8,
+    pub struct MovementEvent {
+        pub amount: u8,
     }
 
     impl Event for MovementEvent {}
 
-    struct TestPainReflexComponent {
+    pub struct TestPainReflexComponent {
         nervous_connector: NervousConnector<TestOrganism>,
-        head_path: Vec<TestNerve>,
-        torso_path: Vec<TestNerve>,
-        right_arm_path: Vec<TestNerve>,
-        left_arm_path: Vec<TestNerve>,
-        right_leg_path: Vec<TestNerve>,
-        left_leg_path: Vec<TestNerve>,
     }
 
     impl TestPainReflexComponent {
         pub fn new() -> Self {
             TestPainReflexComponent {
                 nervous_connector: NervousConnector::new(),
-                head_path: vec![
-                    TestNerve::Brain,
-                ],
-                torso_path: vec![
-                    TestNerve::Brain,
-                    TestNerve::SpinalCord,
-                ],
-                right_arm_path: vec![
-                    TestNerve::Brain,
-                    TestNerve::SpinalCord,
-                    TestNerve::RightC,
-                    TestNerve::RightAxillary,
-                ],
-                left_arm_path: vec![
-                    TestNerve::Brain,
-                    TestNerve::SpinalCord,
-                    TestNerve::LeftC,
-                    TestNerve::LeftAxillary,
-                ],
-                right_leg_path: vec![
-                    TestNerve::Brain,
-                    TestNerve::SpinalCord,
-                    TestNerve::RightL,
-                    TestNerve::RightFemoral,
-                ],
-                left_leg_path: vec![
-                    TestNerve::Brain,
-                    TestNerve::SpinalCord,
-                    TestNerve::LeftL,
-                    TestNerve::LeftFemoral,
-                ],
             }
+        }
+
+
+        pub fn head_path() -> Vec<TestNerve> {
+            vec![
+                TestNerve::Brain,
+            ]
+        }
+
+        pub fn torso_path() -> Vec<TestNerve> {
+            vec![
+                TestNerve::Brain,
+                TestNerve::SpinalCord,
+            ]
+        }
+
+        pub fn right_arm_path() -> Vec<TestNerve> {
+            vec![
+                TestNerve::Brain,
+                TestNerve::SpinalCord,
+                TestNerve::RightC,
+                TestNerve::RightAxillary,
+            ]
+        }
+
+        pub fn left_arm_path() -> Vec<TestNerve> {
+            vec![
+                TestNerve::Brain,
+                TestNerve::SpinalCord,
+                TestNerve::LeftC,
+                TestNerve::LeftAxillary,
+            ]
+        }
+
+        pub fn right_leg_path() -> Vec<TestNerve> {
+            vec![
+                TestNerve::Brain,
+                TestNerve::SpinalCord,
+                TestNerve::RightL,
+                TestNerve::RightFemoral,
+            ]
+        }
+
+        pub fn left_leg_path() -> Vec<TestNerve> {
+            vec![
+                TestNerve::Brain,
+                TestNerve::SpinalCord,
+                TestNerve::LeftL,
+                TestNerve::LeftFemoral,
+            ]
         }
 
         fn get_target_path(&self, region: TestAnatomicalRegion) -> Vec<TestNerve> {
             match region {
-                TestAnatomicalRegion::Head => self.head_path.clone(),
-                TestAnatomicalRegion::Torso => self.torso_path.clone(),
-                TestAnatomicalRegion::RightArm => self.right_arm_path.clone(),
-                TestAnatomicalRegion::LeftArm => self.left_arm_path.clone(),
-                TestAnatomicalRegion::RightLeg => self.right_arm_path.clone(),
-                TestAnatomicalRegion::LeftLeg => self.left_arm_path.clone(),
+                TestAnatomicalRegion::Head => Self::head_path(),
+                TestAnatomicalRegion::Torso => Self::torso_path(),
+                TestAnatomicalRegion::RightArm => Self::right_arm_path(),
+                TestAnatomicalRegion::LeftArm => Self::left_arm_path(),
+                TestAnatomicalRegion::RightLeg => Self::right_arm_path(),
+                TestAnatomicalRegion::LeftLeg => Self::left_arm_path(),
             }
         }
     }
@@ -159,7 +172,7 @@ pub mod test {
     }
 
 
-    struct TestMovementComponent {
+    pub struct TestMovementComponent {
         nervous_connector: NervousConnector<TestOrganism>,
     }
 
@@ -222,7 +235,7 @@ pub mod test {
         }
     }
 
-    struct TestPainkillerComponent {
+    pub struct TestPainkillerComponent {
         nervous_connector: NervousConnector<TestOrganism>,
     }
 

@@ -1,7 +1,6 @@
 use std::any::{Any, TypeId};
 use std::collections::{BTreeMap, HashMap};
-use std::sync::{Arc, Mutex};
-
+use std::sync::Arc;
 use downcast_rs::Downcast;
 
 use crate::event::Event;
@@ -102,12 +101,84 @@ impl<O: Organism> NervousConnector<O> {
 
 #[cfg(test)]
 pub mod test {
-    use crate::sim::organism::test::TestOrganism;
+    use std::any::TypeId;
+    use std::collections::HashMap;
+
+    use crate::sim::layer::circulation::component::connector;
+    use crate::sim::layer::nervous::component::test::{MovementEvent, PainEvent, TestPainReflexComponent};
+    use crate::sim::layer::nervous::NerveSignal;
+    use crate::sim::organism::test::{TestAnatomicalRegion, TestNerve, TestOrganism};
+    use crate::sim::SimTime;
 
     use super::NervousConnector;
 
     #[test]
     fn get_messages() {
-        let connector = NervousConnector::<TestOrganism>::new();
+        let mut connector = NervousConnector::<TestOrganism>::new();
+        connector.incoming.insert(TypeId::of::<PainEvent>(), vec![
+            NerveSignal::new(
+                PainEvent {level: 50, region: TestAnatomicalRegion::RightArm},
+                TestPainReflexComponent::right_arm_path(),
+                SimTime::from_s(1.0),
+            ).unwrap(),
+            NerveSignal::new(
+                PainEvent {level: 70, region: TestAnatomicalRegion::LeftArm},
+                TestPainReflexComponent::left_arm_path(),
+                SimTime::from_s(1.0),
+            ).unwrap(),
+        ]);
+    }
+
+    #[test]
+    fn send_message() {
+        let mut connector = NervousConnector::<TestOrganism>::new();
+        connector.send_message(
+            MovementEvent {amount: 1},
+            TestPainReflexComponent::left_arm_path(),
+            SimTime::from_min(1.0),
+        ).unwrap();
+
+        assert_eq!(connector.outgoing.len(), 1);
+        assert!(connector.outgoing.get(0).unwrap().message_is::<MovementEvent>());
+    }
+
+    #[test]
+    fn send_bad_message() {
+        let mut connector = NervousConnector::<TestOrganism>::new();
+        assert!(connector.send_message(
+            MovementEvent {amount: 1},
+            TestPainReflexComponent::left_arm_path(),
+            SimTime::from_min(-1.0),
+        ).is_err());
+    }
+
+    #[test]
+    fn transform_message() {
+        let mut connector = NervousConnector::<TestOrganism>::new();
+        connector.transform_message::<MovementEvent>(TestNerve::SpinalCord, |e| {
+            e.amount += 10;
+            Some(())
+        });
+    }
+
+    #[test]
+    fn stop_transform() {
+        let mut connector = NervousConnector::<TestOrganism>::new();
+        let mut id_map = HashMap::new();
+        id_map.insert(TypeId::of::<MovementEvent>(), 1);
+        connector.registered_transforms.insert(TestNerve::SpinalCord, id_map);
+
+        assert!(connector.stop_transform::<MovementEvent>(TestNerve::SpinalCord).is_ok());
+
+        assert_eq!(connector.removing_transforms.len(), 1);
+        assert!(connector.removing_transforms.get(&TestNerve::SpinalCord).is_some_and(|x| {
+            x.get(&TypeId::of::<MovementEvent>()).unwrap() == &1
+        }));
+    }
+
+    #[test]
+    fn stop_invalid_transform() {
+        let mut connector = NervousConnector::<TestOrganism>::new();
+        assert!(connector.stop_transform::<MovementEvent>(TestNerve::SpinalCord).is_err());
     }
 }
