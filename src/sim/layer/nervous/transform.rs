@@ -2,13 +2,13 @@ use crate::event::Event;
 
 
 pub trait NerveSignalTransformer: Send {
-    fn transform(&mut self, message: &'_ mut dyn Event) -> Option<()>;
+    fn transform<'b>(&mut self, message: &'b mut dyn Event) -> Option<&'b mut dyn Event>;
 }
 
-pub struct TransformFn<'a, T>(pub Box<dyn FnMut(&'_ mut T) -> Option<()> + Send + 'a>);
+pub struct TransformFn<'a, T>(pub Box<dyn FnMut(&'_ mut T) -> Option<&'_ mut T> + Send + 'a>);
 
 impl<'a, T: Event> NerveSignalTransformer for TransformFn<'a, T> {
-    fn transform(&mut self, message: &mut dyn Event) -> Option<()> {
-        self.0(message.downcast_mut::<T>().unwrap())
+    fn transform<'b>(&mut self, message: &'b mut dyn Event) -> Option<&'b mut dyn Event> {
+        self.0(message.downcast_mut::<T>().unwrap()).map(|x| x as &mut dyn Event)
     }
 }

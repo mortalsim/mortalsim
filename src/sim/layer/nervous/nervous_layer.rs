@@ -139,7 +139,7 @@ impl<O: Organism> SimLayer for NervousLayer<O> {
                                     // Note the dyn_message_mut call will panic if there are multiple
                                     // references to the inner message. But at this point there
                                     // should always only be a single reference in operation
-                                    if None == transform_box.transform(signal.dyn_message_mut()) {
+                                    if transform_box.transform(signal.dyn_message_mut()).is_none() {
                                         continue 'sigloop;
                                     }
                                 }

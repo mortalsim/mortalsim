@@ -78,7 +78,7 @@ impl<O: Organism> NervousConnector<O> {
     pub fn transform_message<T: Event>(
         &mut self,
         nerve: O::NerveType,
-        handler: impl (FnMut(&mut T) -> Option<()>) + Send + 'static,
+        handler: impl (FnMut(&mut T) -> Option<&mut T>) + Send + 'static,
     ) {
 
         self.adding_transforms
@@ -157,7 +157,7 @@ pub mod test {
         let mut connector = NervousConnector::<TestOrganism>::new();
         connector.transform_message::<MovementEvent>(TestNerve::SpinalCord, |e| {
             e.amount += 10;
-            Some(())
+            Some(e)
         });
     }
 

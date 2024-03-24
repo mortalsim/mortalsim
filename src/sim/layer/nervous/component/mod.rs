@@ -319,7 +319,7 @@ pub mod test {
                 if None == msg.level.checked_sub(111) {
                     msg.level = 1;
                 }
-                Some(())
+                Some(msg)
             });
         }
 

@@ -31,7 +31,7 @@ impl<O: Organism> NervousInitializer<O> {
     pub fn transform_message<T: Event>(
         &mut self,
         nerve: O::NerveType,
-        handler: impl (FnMut(&mut T) -> Option<()>) + Send + 'static,
+        handler: impl (FnMut(&mut T) -> Option<&mut T>) + Send + 'static,
     ) {
 
         self.adding_transforms
