@@ -174,12 +174,14 @@ pub mod test {
 
     pub struct TestMovementComponent {
         nervous_connector: NervousConnector<TestOrganism>,
+        first_run: bool,
     }
 
     impl TestMovementComponent {
         pub fn new() -> Self {
             TestMovementComponent {
                 nervous_connector: NervousConnector::new(),
+                first_run: false,
             }
         }
         
@@ -194,15 +196,15 @@ pub mod test {
         }
 
         fn print_movement_amt(amt: u8, appendage: &'static str) {
-            // What? Dirty? What are you talking abo- o_o
             if amt > 128 {
                 println!("I'm flailing my {} around!", appendage);
             }
             else if amt > 0 {
                 println!("My {} moves casually.", appendage);
             }
-
-            println!("My {} is not moving.", appendage);
+            else {
+                println!("My {} is not moving.", appendage);
+            }
         }
     }
 
@@ -232,6 +234,46 @@ pub mod test {
             for (target_nerve, movement_event) in self.nervous_connector.get_messages::<MovementEvent>() {
                 Self::print_movement_amt(movement_event.amount, Self::nerve_to_appendage(target_nerve))
             }
+            if !self.first_run {
+                // Schedule some pain events on the first run to kick things off
+                self.nervous_connector.send_message(
+                    PainEvent {
+                        level: 6,
+                        region: TestAnatomicalRegion::LeftArm,
+                    },
+                    TestPainReflexComponent::left_arm_path(),
+                    SimTime::from_s(0.5),
+                ).unwrap();
+
+                self.nervous_connector.send_message(
+                    PainEvent {
+                        level: 2,
+                        region: TestAnatomicalRegion::LeftArm,
+                    },
+                    TestPainReflexComponent::right_arm_path(),
+                    SimTime::from_s(5.0),
+                ).unwrap();
+
+                self.nervous_connector.send_message(
+                    PainEvent {
+                        level: 9,
+                        region: TestAnatomicalRegion::RightLeg,
+                    },
+                    TestPainReflexComponent::right_leg_path(),
+                    SimTime::from_s(10.0),
+                ).unwrap();
+
+                self.nervous_connector.send_message(
+                    PainEvent {
+                        level: 9,
+                        region: TestAnatomicalRegion::RightLeg,
+                    },
+                    TestPainReflexComponent::left_leg_path(),
+                    SimTime::from_s(12.0),
+                ).unwrap();
+
+                self.first_run = true;
+            }
         }
     }
 
@@ -257,15 +299,15 @@ pub mod test {
         }
 
         fn print_movement_amt(amt: u8, appendage: &'static str) {
-            // What? Dirty? What are you talking abo- o_o
             if amt > 128 {
                 println!("I'm flailing my {} around!", appendage);
             }
             else if amt > 0 {
                 println!("My {} moves casually.", appendage);
             }
-
-            println!("My {} is not moving.", appendage);
+            else {
+                println!("My {} is not moving.", appendage);
+            }
         }
     }
 

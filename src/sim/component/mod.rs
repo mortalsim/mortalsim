@@ -19,7 +19,7 @@ pub trait SimComponent<O: Organism>: Send {
 
 /// Trait to outline common methods for all layers that
 /// process `SimComponent`s
-pub trait SimComponentProcessor<O: Organism, T: SimComponent<O>> {
+pub trait SimComponentProcessor<O: Organism, T: SimComponent<O> + ?Sized> {
     /// Execute initial setup for a component
     fn setup_component(&mut self, connector: &mut SimConnector, component: &mut T);
     /// Indicate if the given component should trigger a run
@@ -32,7 +32,7 @@ pub trait SimComponentProcessor<O: Organism, T: SimComponent<O>> {
 
 /// Trait to outline common methods for all layers that
 /// process `SimComponent`s (thread safe)
-pub trait SimComponentProcessorSync<O: Organism, T: SimComponent<O>> {
+pub trait SimComponentProcessorSync<O: Organism, T: SimComponent<O> + ?Sized> {
     /// Execute initial setup for a component (thread safe)
     fn setup_component_sync(&mut self, connector: &mut SimConnector, component: &mut T);
     /// Indicate if the given component should trigger a run (thread safe)

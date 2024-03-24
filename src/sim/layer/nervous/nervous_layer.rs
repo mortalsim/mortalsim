@@ -72,16 +72,16 @@ impl<O: Organism> NervousLayer<O> {
         }
     }
 
-    fn prepare_connector(&mut self, connector: &mut SimConnector, component: &mut impl NervousComponent<O>) -> HashSet<u32> {
+    fn prepare_connector(&mut self, connector: &mut SimConnector, component: &mut (impl NervousComponent<O> + ?Sized)) -> HashSet<u32> {
         component.nervous_connector().sim_time = connector.sim_time();
 
         self
             .notify_map
             .remove(component.id())
-            .expect("missing component signals")
+            .unwrap_or_default()
     }
 
-    fn process_connector(&mut self, _connector: &mut SimConnector, component: &mut impl NervousComponent<O>) {
+    fn process_connector(&mut self, _connector: &mut SimConnector, component: &mut (impl NervousComponent<O> + ?Sized)) {
         let n_connector = component.nervous_connector();
 
         // Remove any transforms staged for removal
@@ -188,7 +188,7 @@ impl<O: Organism> SimLayerSync for NervousLayer<O> {
     }
 }
 
-impl<O: Organism, T: NervousComponent<O>> SimComponentProcessor<O, T> for NervousLayer<O> {
+impl<O: Organism, T: NervousComponent<O> + ?Sized> SimComponentProcessor<O, T> for NervousLayer<O> {
     fn setup_component(&mut self, _connector: &mut SimConnector, component: &mut T) {
         let mut initializer = NervousInitializer::new();
         component.nervous_init(&mut initializer);
@@ -283,5 +283,178 @@ impl<O: Organism, T: NervousComponent<O>> SimComponentProcessorSync<O, T> for Ne
 
         // Drop the incoming signal references
         component.nervous_connector().incoming.clear();
+    }
+}
+
+#[cfg(test)]
+pub mod test {
+    use std::os::windows::process;
+    use std::sync::Mutex;
+    use std::thread::scope;
+
+    use crate::event::test::TestEventA;
+    use crate::sim::component::{SimComponent, SimComponentProcessor};
+    use crate::sim::layer::nervous::component::test::{MovementEvent, PainEvent, TestMovementComponent, TestPainReflexComponent, TestPainkillerComponent};
+    use crate::sim::layer::nervous::{NervousComponent, NervousLayer};
+    use crate::sim::layer::{SimLayer, SimLayerSync};
+    use crate::sim::organism::test::TestOrganism;
+    use crate::sim::{Organism, SimConnector, SimTime};
+    use crate::util::OrderedTime;
+
+
+    fn process_components<O: Organism>(layer: &mut NervousLayer<O>, connector: &mut SimConnector, components: &mut Vec<Box<dyn NervousComponent<O>>>) {
+        layer.pre_exec(connector);
+
+        for component in components.iter_mut() {
+            layer.prepare_component(connector, component.as_mut());
+            component.run();
+            layer.process_component(connector, component.as_mut());
+        }
+
+        layer.post_exec(connector);
+    }
+
+    fn process_components_sync<O: Organism>(layer: &Mutex<NervousLayer<O>>, connector: &Mutex<SimConnector>, components: &mut Vec<Box<dyn NervousComponent<O>>>) {
+        layer.lock().unwrap().pre_exec_sync(&mut *connector.lock().unwrap());
+
+        scope(|s| {
+            for component in components.iter_mut() {
+                s.spawn(|| {
+                    layer.lock().unwrap().prepare_component(&mut *connector.lock().unwrap(), component.as_mut());
+                    component.run();
+                    layer.lock().unwrap().process_component(&mut *connector.lock().unwrap(), component.as_mut());
+                });
+            }
+        });
+
+        layer.lock().unwrap().post_exec_sync(&mut *connector.lock().unwrap());
+    }
+
+    #[test]
+    fn layer_process() {
+        let mut layer = NervousLayer::<TestOrganism>::new();
+        let mut connector = SimConnector::new();
+
+        let mut components: Vec<Box<dyn NervousComponent<TestOrganism>>> = vec![
+            Box::new(TestPainReflexComponent::new()),
+            Box::new(TestMovementComponent::new()),
+        ];
+
+        for component in components.iter_mut() {
+            layer.setup_component(&mut connector, component.as_mut());
+        }
+
+        process_components(&mut layer, &mut connector, &mut components);
+
+        // We should have four pain events ready to dispatch in the future
+        assert!(layer.pending_signals.len() == 4);
+        assert!(layer.pending_signals.values().all(|x| x.get(0).is_some_and(|s| s.message_is::<PainEvent>())));
+
+        println!("{:?}", layer.pending_signals.keys());
+
+        connector.time_manager.advance_by(SimTime::from_s(1.0));
+        process_components(&mut layer, &mut connector, &mut components);
+
+        // We should have one reflex movement pending
+        assert!(layer.pending_signals.len() == 4);
+        assert!(layer.pending_signals.values().any(|x| x.get(0).is_some_and(|s| s.message_is::<MovementEvent>())));
+
+        connector.time_manager.advance_by(SimTime::from_s(1.0));
+        process_components(&mut layer, &mut connector, &mut components);
+
+        // Reflex event should have completed (no longer in pending)
+        assert!(layer.pending_signals.len() == 3);
+        assert!(!layer.pending_signals.values().any(|x| x.get(0).is_some_and(|s| s.message_is::<MovementEvent>())));
+
+        connector.time_manager.advance_by(SimTime::from_s(4.0));
+        process_components(&mut layer, &mut connector, &mut components);
+
+        // We should only have one signal since the second PainEvent shouldn't evoke a movement
+        assert!(layer.pending_signals.len() == 2);
+        
+        connector.time_manager.advance_by(SimTime::from_s(5.0));
+        process_components(&mut layer, &mut connector, &mut components);
+
+        // We should have one additional movement response signal, and one last pain signal
+        assert!(layer.pending_signals.len() == 2);
+        assert!(layer.pending_signals.values().any(|x| x.get(0).is_some_and(|s| s.message_is::<MovementEvent>())));
+
+        // Lets add the painkiller component
+        println!("Gettin' some painkillers!");
+        let mut painkiller_component = TestPainkillerComponent::new();
+        layer.setup_component(&mut connector, &mut painkiller_component);
+        components.push(Box::new(painkiller_component));
+
+        connector.time_manager.advance_by(SimTime::from_s(1.0));
+        process_components(&mut layer, &mut connector, &mut components);
+
+        // The pain event should have been transformed so it shouldn't evoke
+        // any new movement response. i.e. pending signals should be zero
+        assert!(layer.pending_signals.len() == 0);
+
+    }
+
+    #[test]
+    fn layer_process_sync() {
+        let layer = Mutex::new(NervousLayer::<TestOrganism>::new());
+        let connector = Mutex::new(SimConnector::new());
+
+        let mut components: Vec<Box<dyn NervousComponent<TestOrganism>>> = vec![
+            Box::new(TestPainReflexComponent::new()),
+            Box::new(TestMovementComponent::new()),
+        ];
+
+        for component in components.iter_mut() {
+            layer.lock().unwrap().setup_component(&mut *connector.lock().unwrap(), component.as_mut());
+        }
+
+        process_components_sync(&layer, &connector, &mut components);
+
+        // We should have four pain events ready to dispatch in the future
+        assert!(layer.lock().unwrap().pending_signals.len() == 4);
+        assert!(layer.lock().unwrap().pending_signals.values().all(|x| x.get(0).is_some_and(|s| s.message_is::<PainEvent>())));
+
+        println!("{:?}", layer.lock().unwrap().pending_signals.keys());
+
+        connector.lock().unwrap().time_manager.advance_by(SimTime::from_s(1.0));
+        process_components_sync(&layer, &connector, &mut components);
+
+        // We should have one reflex movement pending
+        assert!(layer.lock().unwrap().pending_signals.len() == 4);
+        assert!(layer.lock().unwrap().pending_signals.values().any(|x| x.get(0).is_some_and(|s| s.message_is::<MovementEvent>())));
+
+        connector.lock().unwrap().time_manager.advance_by(SimTime::from_s(1.0));
+        process_components_sync(&layer, &connector, &mut components);
+
+        // Reflex event should have completed (no longer in pending)
+        assert!(layer.lock().unwrap().pending_signals.len() == 3);
+        assert!(!layer.lock().unwrap().pending_signals.values().any(|x| x.get(0).is_some_and(|s| s.message_is::<MovementEvent>())));
+
+        connector.lock().unwrap().time_manager.advance_by(SimTime::from_s(4.0));
+        process_components_sync(&layer, &connector, &mut components);
+
+        // We should only have one signal since the second PainEvent shouldn't evoke a movement
+        assert!(layer.lock().unwrap().pending_signals.len() == 2);
+        
+        connector.lock().unwrap().time_manager.advance_by(SimTime::from_s(5.0));
+        process_components_sync(&layer, &connector, &mut components);
+
+        // We should have one additional movement response signal, and one last pain signal
+        assert!(layer.lock().unwrap().pending_signals.len() == 2);
+        assert!(layer.lock().unwrap().pending_signals.values().any(|x| x.get(0).is_some_and(|s| s.message_is::<MovementEvent>())));
+
+        // Lets add the painkiller component
+        println!("Gettin' some painkillers!");
+        let mut painkiller_component = TestPainkillerComponent::new();
+        layer.lock().unwrap().setup_component(&mut *connector.lock().unwrap(), &mut painkiller_component);
+        components.push(Box::new(painkiller_component));
+
+        connector.lock().unwrap().time_manager.advance_by(SimTime::from_s(1.0));
+        process_components_sync(&layer, &connector, &mut components);
+
+        // The pain event should have been transformed so it shouldn't evoke
+        // any new movement response. i.e. pending signals should be zero
+        assert!(layer.lock().unwrap().pending_signals.len() == 0);
+
     }
 }
