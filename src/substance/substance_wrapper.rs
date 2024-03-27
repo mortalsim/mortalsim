@@ -85,7 +85,13 @@ macro_rules! substance_store_wrapper {
             amount: crate::substance::SubstanceConcentration,
             duration: crate::sim::SimTime
         ) -> IdType {
-            self.schedule_custom_change(substance, amount, crate::sim::SimTime::from_s(0.0), duration, crate::util::BoundFn::Sigmoid)
+            self.schedule_custom_change(
+                substance,
+                amount,
+                self.$($field_path).+.sim_time(),
+                duration,
+                crate::util::BoundFn::Sigmoid
+            )
         }
 
         /// Schedule a substance change on this store
