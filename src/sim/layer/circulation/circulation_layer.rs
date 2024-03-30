@@ -75,10 +75,12 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessor<O, T> for Ci
             }
         }
 
+        println!("adding circ component: {}", component.id());
         self.component_settings.insert(component.id(), initializer);
     }
 
     fn check_component(&mut self, component: &T) -> bool {
+        println!("checking circ component: {}", component.id());
         let comp_settings = self.component_settings.get_mut(component.id()).unwrap();
 
         let mut trigger = false;

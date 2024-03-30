@@ -1,26 +1,26 @@
 use crate::sim::Organism;
 
-use super::{ComponentRegistry, SimComponent};
+use super::{registry::ComponentWrapper, ComponentRegistry, SimComponent};
 
 
 pub struct ComponentFactory<'a, O: Organism> {
     /// Container for the factory function
-    attach_fn: Box<dyn FnMut(&mut ComponentRegistry<O>) + 'a + Send>,
+    attach_fn: Box<dyn (FnMut(&mut ComponentRegistry<O>) -> &'_ mut Box<dyn ComponentWrapper<O>>) + 'a + Send>,
 }
 
 impl<'a, O: Organism> ComponentFactory<'a, O> {
-    pub fn new<T: SimComponent<O>>(mut factory: impl FnMut() -> T + 'a + Send) -> Self {
+    pub fn new<T: SimComponent<O>>(mut factory: impl (FnMut() -> T) + 'a + Send) -> Self {
         Self {
             // Magic happens here. We get compile-time assurance and usage
             // of the actual ComponentFactory type while also encapsulating
             // the factory for dynamic dispatch
             attach_fn: Box::new(move |registry: &mut ComponentRegistry<O>| {
-                registry.add_component(factory()).unwrap();
+                registry.add_component(factory()).unwrap()
             }),
         }
     }
 
-    pub fn attach(&mut self, registry: &mut ComponentRegistry<O>) {
-        self.attach_fn.as_mut()(registry);
+    pub fn attach<'b>(&mut self, registry: &'b mut ComponentRegistry<O>) -> &'b mut Box<dyn ComponentWrapper<O>> {
+        self.attach_fn.as_mut()(registry)
     }
 }

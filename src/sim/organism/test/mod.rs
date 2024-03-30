@@ -12,11 +12,14 @@ use std::collections::HashSet;
 use std::path::Component;
 use std::sync::{Mutex, MutexGuard, OnceLock};
 
+use crate::sim::layer::circulation::component::test::TestCircComponentA;
+use crate::sim::layer::digestion::component::test::TestDigestionComponent;
+use crate::sim::layer::nervous::component::test::{TestMovementComponent, TestPainReflexComponent};
 use crate::units::base::Distance;
 
 use crate::event::test::TestEventA;
 use crate::sim::layer::core::component::test::{TestComponentA, TestComponentB};
-use crate::sim::Sim;
+use crate::sim::{Sim, SimTime};
 use crate::util::secs;
 
 use super::{impl_sim, AnatomicalRegion, Organism};
@@ -34,7 +37,7 @@ impl_sim!(TestSim, TestOrganism);
 
 #[test]
 fn test_default() {
-    TestSim::set_default(|| TestComponentA::new());
+    TestSim::set_default(TestComponentA::new);
 
     let mut tsim = TestSim::new();
     assert!(tsim.add_component(TestComponentB::new()).is_ok());
@@ -51,4 +54,37 @@ fn test_default() {
     sim.schedule_event(secs!(0.0), Box::new(TestEventA::new(Distance::from_m(1.0))));
     assert!(sim.unschedule_event(&1234).is_err());
     assert_eq!(sim.time(), secs!(1.0));
+}
+
+#[test]
+fn test_layers_init_run() {
+    TestSim::set_default(TestComponentA::new);
+    TestSim::set_default(TestComponentB::new);
+    TestSim::set_default(TestCircComponentA::new);
+    TestSim::set_default(TestDigestionComponent::new);
+    TestSim::set_default(TestPainReflexComponent::new);
+    TestSim::set_default(TestMovementComponent::new);
+
+    let mut tsim = TestSim::new();
+
+    for i in 1..10 {
+        tsim.advance_by(SimTime::from_s(i.into()));
+    }
+}
+
+
+#[test]
+fn test_layers_init_run_sync() {
+    TestSim::set_default(TestComponentA::new);
+    TestSim::set_default(TestComponentB::new);
+    TestSim::set_default(TestCircComponentA::new);
+    TestSim::set_default(TestDigestionComponent::new);
+    TestSim::set_default(TestPainReflexComponent::new);
+    TestSim::set_default(TestMovementComponent::new);
+
+    let mut tsim = TestSim::new_threaded();
+
+    for i in 1..10 {
+        tsim.advance_by(SimTime::from_s(i.into()));
+    }
 }

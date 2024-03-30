@@ -94,7 +94,29 @@ impl<O: Organism> LayerManager<O> {
         }
     }
 
-    pub fn add_component(&mut self, component: impl SimComponent<O>) -> anyhow::Result<()> {
+    fn setup_component(
+        layers: &mut Vec<LayerProcessor<O>>,
+        layers_sync: &mut Vec<Mutex<LayerProcessorSync<O>>>,
+        connector: &mut SimConnector,
+        wrapper: &mut Box<dyn ComponentWrapper<O>>) {
+        if layers_sync.is_empty() {
+            for layer in layers.iter_mut() {
+                if wrapper.has_layer(&layer.layer_type()) {
+                    layer.setup_component(connector, wrapper);
+                }
+            }
+        }
+        else {
+            for layer in layers_sync.iter_mut() {
+                let mut locked_layer = layer.lock().unwrap();
+                if wrapper.has_layer(&locked_layer.layer_type()) {
+                    locked_layer.setup_component_sync(connector, wrapper);
+                }
+            }
+        }
+    }
+
+    pub fn add_component(&mut self, connector: &mut SimConnector, component: impl SimComponent<O>) -> anyhow::Result<&'_ mut Box<dyn ComponentWrapper<O>>> {
         let wrapper = self.registry.add_component(component)?;
         if !self.missing_layers.is_empty() {
             if self.missing_layers.iter().any(|lt| wrapper.has_layer(lt)) {
@@ -104,11 +126,13 @@ impl<O: Organism> LayerManager<O> {
                 ));
             }
         }
-        Ok(())
+        Self::setup_component(&mut self.layers, &mut self.layers_sync, connector, wrapper);
+        Ok(wrapper)
     }
 
-    pub fn attach_component(&mut self, attach_fn: impl FnOnce(&mut ComponentRegistry<O>)) {
-        attach_fn(&mut self.registry)
+    pub fn attach_component<'a>(&mut self, connector: &mut SimConnector, attach_fn: impl FnOnce(&mut ComponentRegistry<O>) -> &'_ mut Box<dyn ComponentWrapper<O>>) {
+        let wrapper = attach_fn(&mut self.registry);
+        Self::setup_component(&mut self.layers, &mut self.layers_sync, connector, wrapper);
     }
 
     pub fn remove_component(&mut self, component_id: &str) -> anyhow::Result<&'static str> {

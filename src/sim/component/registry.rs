@@ -1329,13 +1329,13 @@ impl<O: Organism> ComponentRegistry<O> {
         }
     }
 
-    pub(crate) fn add_component(&mut self, component: impl SimComponent<O>) -> anyhow::Result<&'_ dyn ComponentWrapper<O>> {
+    pub(crate) fn add_component(&mut self, component: impl SimComponent<O>) -> anyhow::Result<&'_ mut Box<dyn ComponentWrapper<O>>> {
         if self.id_set.contains(&component.id()) {
             return Err(anyhow!("Component '{}' has already been registered!", component.id()))
         }
         self.id_set.insert(component.id());
         component.attach(self);
-        Ok(self.components.last().unwrap().as_ref())
+        Ok(self.components.last_mut().unwrap())
     }
 
     pub(crate) fn remove_component(&mut self, component_id: &str) -> anyhow::Result<Box<dyn ComponentWrapper<O>>> {

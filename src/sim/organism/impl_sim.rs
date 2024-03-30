@@ -37,7 +37,7 @@ macro_rules! impl_sim {
             }
 
             /// Attaches a default factory function for a component which will be called
-            /// whenever a new instance of `$name` is created, on which the factory-generated
+            /// whenever a new instance of the `Sim` is created, on which the factory-generated
             /// component will be registered by default.
             ///
             /// WARNING: when setting defaults, it is essential that two different factories
@@ -74,17 +74,20 @@ macro_rules! impl_sim {
                 &mut self,
                 component: impl crate::sim::component::SimComponent<$organism>,
             ) -> anyhow::Result<()> {
-                self.layer_manager.add_component(component)
+                self.layer_manager.add_component(&mut self.connector, component)?;
+                Ok(())
             }
-
+            
             fn init(mut layer_manager: crate::sim::layer::LayerManager<$organism>) -> Self {
+                let mut connector = crate::sim::SimConnector::new();
+
                 for (_, factory) in Self::default_factories().iter_mut() {
-                    layer_manager.attach_component(|reg| factory.attach(reg))
+                    layer_manager.attach_component(&mut connector, |reg| factory.attach(reg))
                 }
                 
                 Self {
                     id_gen: crate::util::IdGenerator::new(),
-                    connector: crate::sim::SimConnector::new(),
+                    connector: connector,
                     hub: crate::hub::EventHub::new(),
                     layer_manager,
                 }
