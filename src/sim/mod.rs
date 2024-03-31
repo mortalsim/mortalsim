@@ -1,6 +1,6 @@
+mod organism;
 pub mod component;
 pub mod layer;
-pub mod organism;
 pub mod sim;
 pub mod sim_state;
 pub mod time_manager;
@@ -11,7 +11,7 @@ pub use sim_state::SimState;
 pub use time_manager::{SimTime, TimeManager};
 pub use layer::Consumable;
 
-pub use organism::Organism;
+pub use organism::*;
 
 use crate::event::Event;
 
