@@ -116,6 +116,30 @@ impl<O: Organism> LayerManager<O> {
         }
     }
 
+
+    pub fn process_removal(
+        layers: &mut Vec<LayerProcessor<O>>,
+        layers_sync: &mut Vec<Mutex<LayerProcessorSync<O>>>,
+        connector: &mut SimConnector,
+        wrapper: &mut Box<dyn ComponentWrapper<O>>) {
+        if layers_sync.is_empty() {
+            for layer in layers.iter_mut() {
+                if wrapper.has_layer(&layer.layer_type()) {
+                    layer.remove_component(connector, wrapper);
+                }
+            }
+        }
+        else {
+            for layer in layers_sync.iter_mut() {
+                let mut locked_layer = layer.lock().unwrap();
+                if wrapper.has_layer(&locked_layer.layer_type()) {
+                    locked_layer.remove_component_sync(connector, wrapper);
+                }
+            }
+        }
+    }
+
+
     pub fn add_component(&mut self, connector: &mut SimConnector, component: impl SimComponent<O>) -> anyhow::Result<&'_ mut Box<dyn ComponentWrapper<O>>> {
         let wrapper = self.registry.add_component(component)?;
         if !self.missing_layers.is_empty() {
@@ -135,9 +159,13 @@ impl<O: Organism> LayerManager<O> {
         Self::setup_component(&mut self.layers, &mut self.layers_sync, connector, wrapper);
     }
 
-    pub fn remove_component(&mut self, component_id: &str) -> anyhow::Result<&'static str> {
+
+    pub fn remove_component(&mut self, connector: &mut SimConnector, component_id: &str) -> anyhow::Result<Box<dyn ComponentWrapper<O>>> {
         match self.registry.remove_component(component_id) {
-            Ok(c) => Ok(c.id()),
+            Ok(mut wrapper) => {
+                Self::process_removal(&mut self.layers, &mut self.layers_sync, connector, &mut wrapper);
+                Ok(wrapper)
+            },
             Err(msg) => Err(msg),
         }
     }

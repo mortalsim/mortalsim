@@ -89,6 +89,15 @@ impl<O: Organism, T: ComponentWrapper<O>> SimComponentProcessor<O, T> for LayerP
             Self::Nervous(layer) => layer.process_component(connector, component),
         }
     }
+
+    fn remove_component(&mut self, connector: &mut crate::sim::SimConnector, component: &mut T) {
+        match self {
+            Self::Core(layer) => layer.remove_component(connector, component),
+            Self::Circulation(layer) => layer.remove_component(connector, component),
+            Self::Digestion(layer) => layer.remove_component(connector, component),
+            Self::Nervous(layer) => layer.remove_component(connector, component),
+        }
+    }
 }
 
 
@@ -171,6 +180,15 @@ impl<O: Organism, T: ComponentWrapper<O>> SimComponentProcessorSync<O, T> for La
             Self::Circulation(layer) => layer.process_component_sync(connector, component),
             Self::Digestion(layer) => layer.process_component_sync(connector, component),
             Self::Nervous(layer) => layer.process_component_sync(connector, component),
+        }
+    }
+
+    fn remove_component_sync(&mut self, connector: &mut crate::sim::SimConnector, component: &mut T) {
+        match self {
+            Self::Core(layer) => layer.remove_component_sync(connector, component),
+            Self::Circulation(layer) => layer.remove_component_sync(connector, component),
+            Self::Digestion(layer) => layer.remove_component_sync(connector, component),
+            Self::Nervous(layer) => layer.remove_component_sync(connector, component),
         }
     }
 }

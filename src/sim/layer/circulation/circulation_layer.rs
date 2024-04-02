@@ -75,12 +75,10 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessor<O, T> for Ci
             }
         }
 
-        println!("adding circ component: {}", component.id());
         self.component_settings.insert(component.id(), initializer);
     }
 
     fn check_component(&mut self, component: &T) -> bool {
-        println!("checking circ component: {}", component.id());
         let comp_settings = self.component_settings.get_mut(component.id()).unwrap();
 
         let mut trigger = false;
@@ -134,6 +132,10 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessor<O, T> for Ci
                 self.composition_map.insert(*vessel, store);
             }
         }
+    }
+
+    fn remove_component(&mut self, _connector: &mut SimConnector, component: &mut T) {
+        self.component_settings.remove(component.id());
     }
 }
 
@@ -196,6 +198,10 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessorSync<O, T> fo
     fn process_component_sync(&mut self, _connector: &mut SimConnector, _component: &mut T) {
         // Nothing to do here. Everything is done directly on blood store objects
         // which are already shared via Arc & Mutex.
+    }
+
+    fn remove_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {
+        self.remove_component(connector, component)
     }
 }
 

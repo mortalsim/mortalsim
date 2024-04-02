@@ -31,7 +31,7 @@ pub struct CoreConnector<O: Organism> {
     pub(crate) pending_unschedules: Vec<IdType>,
     /// Transforms pending from the last run of the component
     pub(crate) pending_transforms: Vec<(IdType, Box<dyn EventTransformer>)>,
-    /// List of events to unschedule
+    /// List of transforms to unschedule
     pub(crate) pending_untransforms: Vec<IdType>,
     /// Copy of the current simulation time
     pub(crate) sim_time: SimTime,

@@ -28,6 +28,8 @@ pub trait SimComponentProcessor<O: Organism, T: SimComponent<O> + ?Sized> {
     fn prepare_component(&mut self, connector: &mut SimConnector, component: &mut T);
     /// Process a component after their run.
     fn process_component(&mut self, connector: &mut SimConnector, component: &mut T);
+    /// Execute removal of a component
+    fn remove_component(&mut self, connector: &mut SimConnector, component: &mut T);
 }
 
 /// Trait to outline common methods for all layers that
@@ -41,4 +43,6 @@ pub trait SimComponentProcessorSync<O: Organism, T: SimComponent<O> + ?Sized> {
     fn prepare_component_sync(&mut self, connector: &mut SimConnector, component: &mut T);
     /// Process a component after their run. (thread safe)
     fn process_component_sync(&mut self, connector: &mut SimConnector, component: &mut T);
+    /// Execute removal of a component
+    fn remove_component_sync(&mut self, connector: &mut SimConnector, component: &mut T);
 }

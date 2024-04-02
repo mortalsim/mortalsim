@@ -1,5 +1,6 @@
 use std::any::{Any, TypeId};
-use std::collections::{BTreeMap, HashMap};
+use std::collections::HashMap;
+use std::hash::Hash;
 use std::sync::Arc;
 use downcast_rs::Downcast;
 
@@ -8,7 +9,7 @@ use crate::sim::layer::nervous::NerveSignal;
 use crate::sim::layer::nervous::transform::{TransformFn, NerveSignalTransformer};
 use crate::sim::organism::Organism;
 use crate::sim::SimTime;
-use crate::util::{IdType, OrderedTime};
+use crate::util::{IdGenerator, IdType, OrderedTime};
 
 pub struct NervousConnector<O: Organism> {
     /// Copy of the current simulation time
@@ -17,6 +18,8 @@ pub struct NervousConnector<O: Organism> {
     pub(crate) incoming: HashMap<TypeId, Vec<NerveSignal<O>>>,
     /// Outgoing signals
     pub(crate) outgoing: Vec<NerveSignal<O>>,
+    /// Scheduled signals
+    pub(crate) scheduled_signals: HashMap<IdType, OrderedTime>,
     /// Transformations to add
     pub(crate) adding_transforms:
         HashMap<O::NerveType, HashMap<TypeId, Box<dyn NerveSignalTransformer>>>,
@@ -24,6 +27,8 @@ pub struct NervousConnector<O: Organism> {
     pub(crate) registered_transforms: HashMap<O::NerveType, HashMap<TypeId, IdType>>,
     /// Map of removing transformations
     pub(crate) removing_transforms: HashMap<O::NerveType, HashMap<TypeId, IdType>>,
+    /// List of signal ids to unschedule
+    pub(crate) pending_unschedules: Vec<(OrderedTime, IdType)>,
     /// Empty Event list for ergonomic message use
     empty: Vec<NerveSignal<O>>,
 }
@@ -34,9 +39,11 @@ impl<O: Organism> NervousConnector<O> {
             sim_time: SimTime::from_s(0.0),
             incoming: HashMap::new(),
             outgoing: Vec::new(),
+            scheduled_signals: HashMap::new(),
             adding_transforms: HashMap::new(),
             registered_transforms: HashMap::new(),
             removing_transforms: HashMap::new(),
+            pending_unschedules: Vec::new(),
             empty: Vec::new(),
         }
     }
@@ -62,7 +69,7 @@ impl<O: Organism> NervousConnector<O> {
         message: T,
         neural_path: Vec<O::NerveType>,
         send_time: SimTime,
-    ) -> anyhow::Result<()> {
+    ) -> anyhow::Result<IdType> {
         if send_time <= self.sim_time {
             return Err(anyhow!(
                 "Invalid send_time: time must be greater than the current time!"
@@ -71,8 +78,10 @@ impl<O: Organism> NervousConnector<O> {
 
         let signal = NerveSignal::new(message, neural_path, send_time)?;
 
+        self.scheduled_signals.insert(signal.id(), OrderedTime(signal.send_time()));
+        let signal_id = signal.id();
         self.outgoing.push(signal);
-        Ok(())
+        Ok(signal_id)
     }
 
     pub fn transform_message<T: Event>(
@@ -96,6 +105,25 @@ impl<O: Organism> NervousConnector<O> {
             }
         }
         Err(anyhow!("Transformation not registered for {}", nerve))
+    }
+
+    /// Unschedules an `Event` which has been scheduled previously.
+    ///
+    /// ### Arguments
+    /// * `signal_id` - id of the signal to unschedule
+    ///
+    /// Returns Ok if the id is valid, and Err otherwise
+    pub fn unschedule_signal(&mut self, signal_id: IdType) -> anyhow::Result<()> {
+        if let Some(signal_time) = self.scheduled_signals.remove(&signal_id) {
+            if signal_time.0 > self.sim_time {
+                self.pending_unschedules.push((signal_time, signal_id));
+                return Ok(())
+            }
+            else {
+                return Err(anyhow!("Invalid schedule_id provided"))
+            }
+        }
+        Err(anyhow!("Invalid schedule_id provided"))
     }
 }
 

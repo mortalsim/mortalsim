@@ -72,6 +72,33 @@ impl<O: Organism> NervousLayer<O> {
         }
     }
 
+    fn remove_signals(&mut self, items: impl Iterator<Item = (OrderedTime, IdType)>) {
+        for (signal_time, signal_id) in items {
+            if let Some(mut signal_ids) = self.pending_signals.remove(&signal_time) {
+                if let Some(idx) = signal_ids.iter().position(|x| x.id() == signal_id) {
+                    signal_ids.remove(idx);
+                    // Reinsert as long as there are other signals remaining
+                    if signal_ids.len() > 0 {
+                        self.pending_signals.insert(signal_time, signal_ids);
+                    }
+                }
+            }
+        }
+    }
+
+    fn remove_transforms(&mut self, items: impl Iterator<Item = (O::NerveType, HashMap<TypeId, IdType>)>) {
+        for (nerve, mut type_map) in items {
+            for (type_id, transform_id) in type_map.drain() {
+                self.transforms
+                    .entry(nerve)
+                    .or_default()
+                    .entry(type_id)
+                    .or_default()
+                    .remove(&transform_id);
+            }
+        }
+    }
+
     fn prepare_connector(&mut self, connector: &mut SimConnector, component: &mut (impl NervousComponent<O> + ?Sized)) -> HashSet<u32> {
         component.nervous_connector().sim_time = connector.sim_time();
 
@@ -84,17 +111,11 @@ impl<O: Organism> NervousLayer<O> {
     fn process_connector(&mut self, _connector: &mut SimConnector, component: &mut (impl NervousComponent<O> + ?Sized)) {
         let n_connector = component.nervous_connector();
 
+        // Remove any signals staged for removal
+        self.remove_signals(n_connector.pending_unschedules.drain(..));
+
         // Remove any transforms staged for removal
-        for (nerve, mut type_map) in n_connector.removing_transforms.drain() {
-            for (type_id, transform_id) in type_map.drain() {
-                self.transforms
-                    .entry(nerve)
-                    .or_default()
-                    .entry(type_id)
-                    .or_default()
-                    .remove(&transform_id);
-            }
-        }
+        self.remove_transforms(n_connector.removing_transforms.drain());
 
         // Add any newly registered transforms
         self.add_transforms(
@@ -236,6 +257,12 @@ impl<O: Organism, T: NervousComponent<O> + ?Sized> SimComponentProcessor<O, T> f
                 .or_default()
                 .push(signal);
         }
+
+        // Update sim time
+        component.nervous_connector().sim_time = connector.sim_time();
+
+        // Trim down the scheduled signals to remove any that have already passed
+        component.nervous_connector().scheduled_signals.retain(|_, time| time.0 > connector.sim_time());
     }
 
     fn process_component(&mut self, connector: &mut SimConnector, component: &mut T) {
@@ -245,6 +272,12 @@ impl<O: Organism, T: NervousComponent<O> + ?Sized> SimComponentProcessor<O, T> f
         for (_, mut signals) in component.nervous_connector().incoming.drain() {
             self.delivery_signals.append(&mut signals);
         }
+    }
+
+    fn remove_component(&mut self, _connector: &mut SimConnector, component: &mut T) {
+        let n_connector = component.nervous_connector();
+        self.remove_signals(n_connector.scheduled_signals.drain().map(|(t,i)| (i,t)));
+        self.remove_transforms(n_connector.registered_transforms.drain());
     }
 
 }
@@ -283,6 +316,10 @@ impl<O: Organism, T: NervousComponent<O>> SimComponentProcessorSync<O, T> for Ne
 
         // Drop the incoming signal references
         component.nervous_connector().incoming.clear();
+    }
+
+    fn remove_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {
+        self.remove_component(connector, component)
     }
 }
 

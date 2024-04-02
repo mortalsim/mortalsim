@@ -126,7 +126,7 @@ macro_rules! impl_sim {
             }
 
             fn remove_component(&mut self, component_id: &str) -> anyhow::Result<&str> {
-                self.layer_manager.remove_component(component_id)
+                Ok(self.layer_manager.remove_component(&mut self.connector, component_id)?.id())
             }
 
             fn schedule_event(

@@ -68,7 +68,7 @@ impl<O: Organism> CoreLayer<O> {
 
         // Unschedule any requested transforms
         for transformer_id in comp_connector.pending_untransforms.drain(..) {
-            connector.time_manager.unset_transform(transformer_id)
+            connector.time_manager.unset_transform(&transformer_id)
                 .expect("tried to unset an invalid transformer_id!");
         }
 
@@ -188,6 +188,16 @@ impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer
         self.process_connector(connector, component)
     }
 
+    fn remove_component(&mut self, connector: &mut SimConnector, component: &mut T) {
+        // unschedule all the component's pending events and transforms
+        for schedule_id in component.core_connector().scheduled_id_map.values() {
+            connector.time_manager.unschedule_event(schedule_id).ok();
+        }
+        for transformer_id in component.core_connector().transform_id_map.values() {
+            connector.time_manager.unset_transform(transformer_id).ok();
+        }
+    }
+
 }
 
 impl<O: Organism, T: CoreComponent<O>> SimComponentProcessorSync<O, T> for CoreLayer<O> {
@@ -220,6 +230,10 @@ impl<O: Organism, T: CoreComponent<O>> SimComponentProcessorSync<O, T> for CoreL
 
         // clear active events from the core connector
         component.core_connector().active_events.drain(..);
+    }
+
+    fn remove_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {
+        self.remove_component(connector, component)
     }
 }
 

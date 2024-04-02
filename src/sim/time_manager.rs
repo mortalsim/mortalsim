@@ -249,28 +249,28 @@ impl TimeManager {
     /// * `transformer_id` - transformer registration ID
     ///
     /// Returns Ok if successful, or Err if the provided ID is invalid.
-    pub fn unset_transform(&mut self, transformer_id: IdType) -> Result<()> {
+    pub fn unset_transform(&mut self, transformer_id: &IdType) -> Result<()> {
         match self.transformer_type_map.get(&transformer_id) {
             Some(type_key) => {
                 let transformers = self.event_transformers.get_mut(type_key).unwrap();
                 match transformers
                     .iter()
-                    .position(|l| l.transformer_id() == transformer_id)
+                    .position(|l| l.transformer_id() == *transformer_id)
                 {
                     Some(pos) => {
                         transformers.remove(pos);
-                        self.transformer_type_map.remove(&transformer_id);
+                        self.transformer_type_map.remove(transformer_id);
                         Ok(())
                     }
                     None => Err(anyhow::Error::new(InvalidIdError::new(
                         format!("{:?}", self),
-                        transformer_id,
+                        *transformer_id,
                     ))),
                 }
             }
             None => Err(anyhow::Error::new(InvalidIdError::new(
                 format!("{:?}", self),
-                transformer_id,
+                *transformer_id,
             ))),
         }
     }

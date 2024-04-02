@@ -239,6 +239,12 @@ impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessor<O, T> for Dige
         self.trigger_map.remove(&component_pos);
     }
 
+    fn remove_component(&mut self, _connector: &mut SimConnector, component: &mut T) {
+        let component_idx = self.component_map.remove(component.id())
+            .expect(format!("component index is missing for '{:?}'!", component.id()).as_str());
+        self.consumed_map.remove(component_idx);
+    }
+
 }
 
 // We can do the same thing here as the non-threaded version, since all
@@ -259,6 +265,10 @@ impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessorSync<O, T> for 
 
     fn process_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {
         self.process_component(connector, component)
+    }
+
+    fn remove_component_sync(&mut self, connector: &mut SimConnector, component: &mut T) {
+        self.remove_component(connector, component)
     }
 }
 
