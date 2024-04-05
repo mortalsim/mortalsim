@@ -1,5 +1,5 @@
 [package]
-name = "mortalsim"
+name = "mortalsim-core"
 version = "0.1.0"
 authors = ["Ryan Sivek <developer@ryansivek.com>"]
 edition = "2021"

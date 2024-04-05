@@ -1,0 +1,18 @@
+{
+	"folders": [
+		{
+			"path": "config"
+		},
+		{
+			"path": "scripts"
+		},
+		{
+			"path": "mortalsim-core"
+		}
+	],
+    "settings": {
+        "rust-analyzer.linkedProjects": [
+            ".\\Cargo.toml"
+        ]
+    }
+}

@@ -55,18 +55,24 @@ macro_rules! impl_sim {
                 factory_id
             }
 
-            pub fn remove_default<T: crate::sim::component::SimComponent<$organism>>(
+            pub fn remove_default(
                 factory_id: &crate::util::IdType,
             ) -> anyhow::Result<()> {
+                println!("removing {}", factory_id);
+                let mut found_idx = None;
                 if let Some((idx, _)) = Self::default_factories()
                     .iter()
                     .enumerate()
                     .find(|(_, (id, _f))| id == factory_id)
                 {
-                    Self::default_factories().remove(idx);
-
-                    return Self::default_id_gen().return_id(*factory_id);
+                    println!("found {}", idx);
+                    found_idx = Some(idx.clone());
                 };
+
+                if found_idx.is_some() {
+                    Self::default_factories().remove(found_idx.unwrap());
+                    return Self::default_id_gen().return_id(*factory_id);
+                }
                 Err(anyhow!("Invalid factory_id provided"))
             }
 

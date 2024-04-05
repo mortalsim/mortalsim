@@ -6,6 +6,7 @@ const configPath = path.join(__dirname, '..', 'config');
 
 fs.readdirSync(configPath)
     .filter(f => fs.statSync(path.join(configPath, f)).isDirectory())
+    .filter(f => f === 'test')
     .forEach(dir => {
         console.log(dir);
         let configFile = fs.readFileSync(path.join(configPath, dir, 'nervous_system.yaml'), 'utf8');

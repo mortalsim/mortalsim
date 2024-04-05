@@ -9,11 +9,11 @@ pub use initializer::CoreInitializer;
 /// 
 /// Example:
 /// ```
-/// use mortalsim::event::Event;
-/// use mortalsim::units::base::Distance;
-/// use mortalsim::sim::component::{ComponentRegistry, SimComponent};
-/// use mortalsim::sim::layer::core::{CoreInitializer, CoreConnector, CoreComponent};
-/// use mortalsim::sim::organism::Organism;
+/// use mortalsim_core::event::Event;
+/// use mortalsim_core::units::base::Distance;
+/// use mortalsim_core::sim::component::{ComponentRegistry, SimComponent};
+/// use mortalsim_core::sim::layer::core::{CoreInitializer, CoreConnector, CoreComponent};
+/// use mortalsim_core::sim::Organism;
 /// 
 /// #[derive(Debug)]
 /// struct ExampleEventA {

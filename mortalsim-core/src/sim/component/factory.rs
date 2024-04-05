@@ -10,12 +10,15 @@ pub struct ComponentFactory<'a, O: Organism> {
 
 impl<'a, O: Organism> ComponentFactory<'a, O> {
     pub fn new<T: SimComponent<O>>(mut factory: impl (FnMut() -> T) + 'a + Send) -> Self {
+        println!("Creating new factory for {}", factory().id());
         Self {
             // Magic happens here. We get compile-time assurance and usage
             // of the actual ComponentFactory type while also encapsulating
             // the factory for dynamic dispatch
             attach_fn: Box::new(move |registry: &mut ComponentRegistry<O>| {
-                registry.add_component(factory()).unwrap()
+                let comp = factory();
+                println!("adding component: {}", comp.id());
+                registry.add_component(comp).unwrap()
             }),
         }
     }

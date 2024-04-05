@@ -26,10 +26,10 @@ pub struct VolumeChange {
 /// digestive system
 /// 
 /// ```
-/// use mortalsim::substance::{Substance, SubstanceStore};
-/// use mortalsim::units::geometry::Volume;
-/// use mortalsim::substance::SubstanceConcentration;
-/// use mortalsim::sim::Consumable;
+/// use mortalsim_core::substance::{Substance, SubstanceStore};
+/// use mortalsim_core::units::geometry::Volume;
+/// use mortalsim_core::substance::SubstanceConcentration;
+/// use mortalsim_core::sim::Consumable;
 /// 
 /// fn main() {
 ///     // Create our first bite of 250mL, with water (default) as the solvent

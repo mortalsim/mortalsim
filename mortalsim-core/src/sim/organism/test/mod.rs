@@ -36,8 +36,16 @@ impl Organism for TestOrganism {
 impl_sim!(TestSim, TestOrganism);
 
 #[test]
+fn test_organism() {
+    // Since we're setting "global" properties here,
+    // we need to make sure the tests execute in sequence,
+    // not parallel
+    test_default();
+    test_layers_init_run();
+}
+
 fn test_default() {
-    TestSim::set_default(TestComponentA::new);
+    let fid = TestSim::set_default(TestComponentA::new);
 
     let mut tsim = TestSim::new();
     assert!(tsim.add_component(TestComponentB::new()).is_ok());
@@ -54,37 +62,39 @@ fn test_default() {
     sim.schedule_event(secs!(0.0), Box::new(TestEventA::new(Distance::from_m(1.0))));
     assert!(sim.unschedule_event(&1234).is_err());
     assert_eq!(sim.time(), secs!(1.0));
+
+    TestSim::remove_default(&fid).unwrap();
 }
 
-#[test]
 fn test_layers_init_run() {
-    TestSim::set_default(TestComponentA::new);
-    TestSim::set_default(TestComponentB::new);
-    TestSim::set_default(TestCircComponentA::new);
-    TestSim::set_default(TestDigestionComponent::new);
-    TestSim::set_default(TestPainReflexComponent::new);
-    TestSim::set_default(TestMovementComponent::new);
+    let fids = vec![
+        TestSim::set_default(TestComponentA::new),
+        TestSim::set_default(TestComponentB::new),
+        TestSim::set_default(TestCircComponentA::new),
+        TestSim::set_default(TestDigestionComponent::new),
+        TestSim::set_default(TestPainReflexComponent::new),
+        TestSim::set_default(TestMovementComponent::new),
+    ];
 
+    // Test the sequential version
+    println!("creating test sim");
     let mut tsim = TestSim::new();
 
+    println!("running test sim");
     for i in 1..10 {
         tsim.advance_by(SimTime::from_s(i.into()));
     }
-}
 
-
-#[test]
-fn test_layers_init_run_sync() {
-    TestSim::set_default(TestComponentA::new);
-    TestSim::set_default(TestComponentB::new);
-    TestSim::set_default(TestCircComponentA::new);
-    TestSim::set_default(TestDigestionComponent::new);
-    TestSim::set_default(TestPainReflexComponent::new);
-    TestSim::set_default(TestMovementComponent::new);
-
+    // test the threaded version
+    println!("creating threaded test sim");
     let mut tsim = TestSim::new_threaded();
 
+    println!("running threaded test sim");
     for i in 1..10 {
         tsim.advance_by(SimTime::from_s(i.into()));
+    }
+
+    for fid in fids {
+        TestSim::remove_default(&fid).unwrap();
     }
 }

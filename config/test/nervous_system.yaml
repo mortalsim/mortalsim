@@ -1,5 +1,5 @@
 ---
-path: src/sim/organism/test/test_nervous.rs
+path: mortalsim-core/src/sim/organism/test/test_nervous.rs
 sections:
   - id: Brain
     regions: [Head]

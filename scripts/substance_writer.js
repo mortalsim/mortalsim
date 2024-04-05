@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 const configPath = path.join(__dirname, '..', 'config', 'substances.yaml');
-const substancePath = path.join(__dirname, '..', 'src', 'substance', 'substance.rs')
+const substancePath = path.join(__dirname, '..', 'mortalsim-core', 'src', 'substance', 'substance.rs')
 
 const substanceConfigs = yaml.parse(fs.readFileSync(configPath, 'utf8'));
 
