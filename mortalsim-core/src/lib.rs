@@ -14,8 +14,11 @@ pub mod event;
 pub mod hub;
 pub mod sim;
 pub mod substance;
-pub mod units;
 pub use util::IdType;
+
+pub mod units {
+    pub use simple_si_units::*;
+}
 
 #[cfg(test)]
 mod test {

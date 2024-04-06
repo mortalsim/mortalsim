@@ -1,5 +1,5 @@
 ---
-path: src/sim/organism/human/human_nervous.rs
+path: mortalsim-core/src/sim/organism/human/human_nervous.rs
 sections:
   - id: Brain
     regions: [Cranial]
