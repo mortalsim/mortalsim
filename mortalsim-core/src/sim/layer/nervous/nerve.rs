@@ -13,7 +13,7 @@ use crate::IdType;
 
 
 pub trait Nerve:
-    FromStr + Hash + Clone + Copy + Eq + fmt::Debug + fmt::Display + Send + Sync + Into<&'static str>
+    Hash + Clone + Copy + Eq + fmt::Debug + fmt::Display + Send + Sync
 {
     type AnatomyType: Clone;
     fn terminal_nerves<'a>() -> NerveIter<'a, Self>;

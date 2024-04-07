@@ -13,7 +13,7 @@ pub use sim_state::SimState;
 pub use time_manager::{SimTime, TimeManager};
 pub use layer::Consumable;
 
-pub use organism::Organism;
+pub use organism::{Organism, AnatomicalRegion};
 pub use impl_sim::impl_sim;
 
 use crate::event::Event;
