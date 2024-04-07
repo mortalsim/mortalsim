@@ -8,7 +8,7 @@ use crate::sim::{Organism, SimTime};
 use crate::substance::substance_wrapper::substance_store_wrapper;
 use crate::substance::Substance;
 use crate::units::geometry::Volume;
-use crate::util::IdType;
+use crate::IdType;
 
 /// Provides methods for Digestion modules to interact with the simulation
 pub struct DigestionConnector<O: Organism> {

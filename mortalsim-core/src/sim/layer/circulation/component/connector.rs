@@ -4,7 +4,7 @@ use crate::sim::organism::Organism;
 use crate::sim::SimTime;
 use crate::substance::substance_wrapper::substance_store_wrapper;
 use crate::substance::{Substance, SubstanceStore};
-use crate::util::IdType;
+use crate::IdType;
 use std::borrow::{Borrow, BorrowMut};
 use std::cell::{RefCell, RefMut};
 use std::collections::HashMap;
@@ -98,7 +98,7 @@ pub mod test {
     use crate::sim::layer::circulation::component::connector::BloodStore;
     use crate::sim::SimTime;
     use crate::substance::{Substance, SubstanceStore};
-    use crate::util::mmol_per_L;
+    use crate::mmol_per_L;
     use simple_si_units::chemical::Concentration;
 
     #[test]
@@ -133,7 +133,7 @@ pub mod test {
             mmol_per_L!(1.0),
             SimTime::from_s(1.0),
             SimTime::from_s(1.0),
-            crate::util::BoundFn::Linear,
+            crate::math::BoundFn::Linear,
         );
     }
 

@@ -9,7 +9,8 @@ use crate::sim::layer::digestion::DigestionDirection;
 use crate::sim::SimTime;
 use crate::substance::substance_wrapper::substance_store_wrapper;
 use crate::substance::Substance;
-use crate::util::{BoundFn, IdGenerator};
+use crate::IdGenerator;
+use crate::math::BoundFn;
 use crate::IdType;
 
 use super::consumable::VolumeChange;
@@ -181,7 +182,7 @@ pub mod test {
     use crate::units::base::{Amount, Mass};
     use crate::units::geometry::Volume;
 
-    use crate::util::secs;
+    use crate::secs;
     use crate::{sim::Consumable, substance::Substance};
 
     use super::Consumed;

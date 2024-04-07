@@ -5,7 +5,7 @@ use either::Either;
 
 use crate::event::Event;
 use crate::sim::{Organism, SimTime};
-use crate::util::IdGenerator;
+use crate::IdGenerator;
 use crate::IdType;
 
 use super::{Nerve, NerveIter};

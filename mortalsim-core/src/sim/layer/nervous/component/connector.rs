@@ -9,7 +9,7 @@ use crate::sim::layer::nervous::NerveSignal;
 use crate::sim::layer::nervous::transform::{TransformFn, NerveSignalTransformer};
 use crate::sim::organism::Organism;
 use crate::sim::SimTime;
-use crate::util::{IdGenerator, IdType, OrderedTime};
+use crate::{IdGenerator, IdType, OrderedTime};
 
 pub struct NervousConnector<O: Organism> {
     /// Copy of the current simulation time

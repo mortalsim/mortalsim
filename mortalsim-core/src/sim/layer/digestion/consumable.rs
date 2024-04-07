@@ -7,7 +7,8 @@ use crate::substance::substance_wrapper::substance_store_wrapper;
 use crate::substance::{Substance, SubstanceConcentration, SubstanceStore};
 use crate::units::base::{Amount, Mass};
 use crate::units::geometry::Volume;
-use crate::util::{BoundFn, IdGenerator, IdType};
+use crate::{IdGenerator, IdType};
+use crate::math::BoundFn;
 use std::borrow::Borrow;
 use std::collections::{HashMap, VecDeque};
 use std::ops::Sub;
@@ -337,7 +338,7 @@ pub mod test {
     use crate::substance::{Substance, SubstanceConcentration, SubstanceStore};
     use crate::units::geometry::Volume;
     use crate::units::base::Mass;
-    use crate::util::{mmol_per_L, secs};
+    use crate::{mmol_per_L, secs};
 
     use super::Consumable;
 

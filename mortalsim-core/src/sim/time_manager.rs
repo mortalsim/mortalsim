@@ -7,8 +7,8 @@
 use crate::event::Event;
 use crate::hub::event_transformer::{EventTransformer, TransformerItem};
 use crate::units::base::Time;
-use crate::util::id_gen::{IdGenerator, IdType, InvalidIdError};
-use crate::util::quantity_wrapper::OrderedTime;
+use crate::id_gen::{IdGenerator, IdType, InvalidIdError};
+use crate::quantity_wrapper::OrderedTime;
 use anyhow::{Error, Result};
 use std::any::TypeId;
 use std::collections::hash_map::HashMap;
@@ -287,8 +287,8 @@ mod tests {
     use crate::sim::SimTime;
     use crate::units::base::Amount;
     use crate::units::base::Distance;
-    use crate::util::secs;
-    use crate::util::OrderedTime;
+    use crate::secs;
+    use crate::OrderedTime;
     use std::any::TypeId;
 
     #[test]

@@ -3,7 +3,7 @@
 //! Provides an Ord wrapper for `Event` handling functions
 
 use crate::event::Event;
-use crate::util::id_gen::{IdGenerator, IdType};
+use crate::id_gen::{IdGenerator, IdType};
 use std::cmp;
 use std::fmt;
 use std::sync::Mutex;

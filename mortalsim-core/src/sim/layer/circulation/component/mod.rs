@@ -35,7 +35,7 @@ pub mod test {
     use crate::sim::organism::test::{TestBloodVessel, TestOrganism, TestSim};
     use crate::sim::SimTime;
     use crate::substance::Substance;
-    use crate::util::mmol_per_L;
+    use crate::mmol_per_L;
     use simple_si_units::chemical::Concentration;
 
     pub struct TestCircComponentA {

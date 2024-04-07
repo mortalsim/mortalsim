@@ -5,8 +5,8 @@
  */
 use std::collections::HashSet;
 use std::sync::OnceLock;
-use crate::sim::layer::nervous::{Nerve, NerveIter};
-use crate::sim::layer::AnatomicalRegionIter;
+use mortalsim_core::sim::layer::nervous::{Nerve, NerveIter};
+use mortalsim_core::sim::layer::AnatomicalRegionIter;
 use super::HumanAnatomicalRegion;
 
 #[derive(Debug, Display, Hash, Clone, Copy, PartialEq, Eq, EnumString, IntoStaticStr)]

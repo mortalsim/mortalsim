@@ -8,7 +8,7 @@ use crate::sim::layer::{SimLayer, SimLayerSync};
 use crate::sim::organism::Organism;
 use crate::sim::SimConnector;
 use crate::substance::{Substance, SubstanceConcentration, SubstanceStore};
-use crate::util::IdType;
+use crate::IdType;
 
 use super::{vessel, BloodStore, CirculationComponent, CirculationInitializer};
 
@@ -219,7 +219,7 @@ mod tests {
     use crate::sim::organism::test::{TestBloodVessel, TestOrganism, TestSim};
     use crate::sim::{SimConnector, SimTime};
     use crate::substance::Substance;
-    use crate::util::mmol_per_L;
+    use crate::mmol_per_L;
 
     #[test]
     fn layer() {

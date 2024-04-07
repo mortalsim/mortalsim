@@ -24,7 +24,7 @@ macro_rules! substance_store_wrapper {
         pub(crate) fn get_substance_change<'a>(
             &'a self,
             substance: &crate::substance::Substance,
-            change_id: &crate::util::IdType,
+            change_id: &crate::IdType,
         ) -> Option<&'a crate::substance::SubstanceChange> {
             self.$($field_path).+.get_substance_change(substance, change_id)
         }
@@ -90,7 +90,7 @@ macro_rules! substance_store_wrapper {
                 amount,
                 self.$($field_path).+.sim_time(),
                 duration,
-                crate::util::BoundFn::Sigmoid
+                crate::math::BoundFn::Sigmoid
             )
         }
 
@@ -113,7 +113,7 @@ macro_rules! substance_store_wrapper {
             amount: crate::substance::SubstanceConcentration,
             start_time: crate::sim::SimTime,
             duration: crate::sim::SimTime,
-            bound_fn: crate::util::BoundFn,
+            bound_fn: crate::math::BoundFn,
         ) -> IdType {
             let id = self.$($field_path).+.schedule_change(substance, amount, start_time, duration, bound_fn);
             self.$($id_map_path).+.entry(substance).or_default().push(id);
@@ -130,7 +130,7 @@ macro_rules! substance_store_wrapper {
         pub fn unschedule_change(
             &mut self,
             substance: &crate::substance::Substance,
-            change_id: &crate::util::IdType,
+            change_id: &crate::IdType,
         ) -> Option<crate::substance::SubstanceChange> {
             self.$($id_map_path).+.entry(*substance).or_default().retain(|c| c != change_id);
             self.$($field_path).+.unschedule_change(substance, change_id)

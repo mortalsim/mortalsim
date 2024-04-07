@@ -1,9 +1,11 @@
-mod organism;
+pub mod organism;
 pub mod component;
 pub mod layer;
 pub mod sim;
 pub mod sim_state;
 pub mod time_manager;
+mod impl_sim;
+
 use std::sync::Arc;
 
 pub use sim::Sim;
@@ -11,14 +13,15 @@ pub use sim_state::SimState;
 pub use time_manager::{SimTime, TimeManager};
 pub use layer::Consumable;
 
-pub use organism::*;
+pub use organism::Organism;
+pub use impl_sim::impl_sim;
 
 use crate::event::Event;
 
 pub struct SimConnector {
-    state: SimState,
-    time_manager: TimeManager,
-    active_events: Vec<Arc<dyn Event>>,
+    pub state: SimState,
+    pub time_manager: TimeManager,
+    pub active_events: Vec<Arc<dyn Event>>,
 }
 
 impl SimConnector {

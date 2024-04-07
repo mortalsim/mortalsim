@@ -2,7 +2,7 @@ use crate::sim::component::{SimComponentProcessor, SimComponentProcessorSync};
 use crate::sim::layer::{InternalLayerTrigger, SimLayer, SimLayerSync};
 use crate::sim::organism::Organism;
 use crate::sim::SimConnector;
-use crate::util::id_gen::IdType;
+use crate::id_gen::IdType;
 use std::any::TypeId;
 use std::collections::{HashMap, HashSet};
 use std::fmt;
@@ -254,7 +254,7 @@ pub mod test {
     use crate::sim::layer::core::component::connector::test::basic_event_a;
     use crate::sim::organism::test::TestOrganism;
     use crate::sim::{SimConnector, SimTime};
-    use crate::util::secs;
+    use crate::secs;
 
     #[test]
     fn layer_process() {

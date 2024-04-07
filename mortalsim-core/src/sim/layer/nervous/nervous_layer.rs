@@ -9,7 +9,7 @@ use crate::sim::component::{SimComponentProcessor, SimComponentProcessorSync};
 use crate::sim::layer::{InternalLayerTrigger, SimLayer, SimLayerSync};
 use crate::sim::organism::Organism;
 use crate::sim::SimConnector;
-use crate::util::{secs, IdGenerator, IdType, OrderedTime};
+use crate::{secs, IdGenerator, IdType, OrderedTime};
 
 use super::component::{NervousComponent, NervousInitializer};
 use super::nerve_signal::NerveSignal;
@@ -336,7 +336,7 @@ pub mod test {
     use crate::sim::layer::{SimLayer, SimLayerSync};
     use crate::sim::organism::test::TestOrganism;
     use crate::sim::{Organism, SimConnector, SimTime};
-    use crate::util::OrderedTime;
+    use crate::OrderedTime;
 
 
     fn process_components<O: Organism>(layer: &mut NervousLayer<O>, connector: &mut SimConnector, components: &mut Vec<Box<dyn NervousComponent<O>>>) {

@@ -2,4 +2,6 @@
 
 members = [
     "mortalsim-core",
+    "mortalsim-human",
+    "mortalsim-component-simple-blood-flow",
 ]

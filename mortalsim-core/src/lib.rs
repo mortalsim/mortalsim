@@ -8,13 +8,19 @@ extern crate downcast_rs;
 extern crate strum_macros;
 
 mod spark;
+mod id_gen;
+mod quantity_wrapper;
 mod util;
+
+pub use id_gen::{IdGenerator, IdType};
+pub use quantity_wrapper::*;
+pub(crate) use util::*;
 
 pub mod event;
 pub mod hub;
 pub mod sim;
 pub mod substance;
-pub use util::IdType;
+pub mod math;
 
 pub mod units {
     pub use simple_si_units::*;

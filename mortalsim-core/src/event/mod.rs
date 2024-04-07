@@ -25,7 +25,7 @@ pub trait Event: Debug + Send + DowncastSync {
 
 impl_downcast!(sync Event);
 
-pub struct EventDrainIterator<'a>(pub(crate) Drain<'a, Arc<dyn Event>>);
+pub struct EventDrainIterator<'a>(pub Drain<'a, Arc<dyn Event>>);
 
 impl<'a> Iterator for EventDrainIterator<'a> {
     type Item = Arc<dyn Event>;

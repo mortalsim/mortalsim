@@ -1,8 +1,9 @@
 use super::{SubstanceChange, SubstanceConcentration};
 use crate::sim::SimTime;
 use crate::substance::Substance;
-use crate::util::id_gen::{IdGenerator, IdType};
-use crate::util::{secs, BoundFn};
+use crate::id_gen::{IdGenerator, IdType};
+use crate::math::BoundFn;
+use crate::secs;
 use core::panic;
 use std::collections::HashMap;
 use std::fmt;

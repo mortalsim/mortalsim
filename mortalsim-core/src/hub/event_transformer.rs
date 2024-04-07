@@ -1,5 +1,5 @@
 use crate::event::Event;
-use crate::util::id_gen::{IdGenerator, IdType};
+use crate::id_gen::{IdGenerator, IdType};
 use std::any::TypeId;
 use std::cmp;
 use std::fmt;

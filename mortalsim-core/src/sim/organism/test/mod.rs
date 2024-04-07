@@ -20,9 +20,10 @@ use crate::units::base::Distance;
 use crate::event::test::TestEventA;
 use crate::sim::layer::core::component::test::{TestComponentA, TestComponentB};
 use crate::sim::{Sim, SimTime};
-use crate::util::secs;
+use crate::secs;
 
-use super::{impl_sim, AnatomicalRegion, Organism};
+use crate::sim::impl_sim;
+use super::{AnatomicalRegion, Organism};
 
 #[derive(Debug, Clone, Copy)]
 pub struct TestOrganism;

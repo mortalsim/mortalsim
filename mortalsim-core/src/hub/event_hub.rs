@@ -6,7 +6,7 @@
 use super::event_listener::{EventListener, GenericListener, ListenerItem};
 use super::event_transformer::{EventTransformer, TransformerItem};
 use crate::event::Event;
-use crate::util::id_gen::{IdType, InvalidIdError};
+use crate::id_gen::{IdType, InvalidIdError};
 use anyhow::Result;
 use core::any::TypeId;
 use std::collections::HashMap;

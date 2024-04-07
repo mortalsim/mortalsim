@@ -5,8 +5,8 @@
  */
 use std::collections::HashSet;
 use std::sync::OnceLock;
-use crate::sim::layer::circulation::{BloodVesselType, BloodVessel, VesselIter};
-use crate::sim::layer::AnatomicalRegionIter;
+use mortalsim_core::sim::layer::circulation::{BloodVesselType, BloodVessel, VesselIter};
+use mortalsim_core::sim::layer::AnatomicalRegionIter;
 use super::HumanAnatomicalRegion;
 
 #[derive(Debug, Display, Hash, Clone, Copy, PartialEq, Eq, EnumString, IntoStaticStr)]

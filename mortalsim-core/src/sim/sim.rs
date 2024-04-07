@@ -3,7 +3,7 @@ use std::sync::Arc;
 use std::vec::Drain;
 
 use crate::event::{Event, EventDrainIterator};
-use crate::util::IdType;
+use crate::IdType;
 
 use super::component::registry::ComponentRegistry;
 use super::{Organism, SimTime};

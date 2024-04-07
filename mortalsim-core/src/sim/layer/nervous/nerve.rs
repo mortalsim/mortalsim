@@ -8,7 +8,7 @@ use crate::event::Event;
 use crate::sim::layer::AnatomicalRegionIter;
 use crate::sim::organism::Organism;
 use crate::sim::SimTime;
-use crate::util::IdGenerator;
+use crate::IdGenerator;
 use crate::IdType;
 
 

@@ -2,7 +2,7 @@ use crate::sim::component::{SimComponent, SimComponentProcessor, SimComponentPro
 use crate::sim::layer::{InternalLayerTrigger, SimLayer, SimLayerSync};
 use crate::sim::organism::Organism;
 use crate::sim::{SimConnector, SimTime};
-use crate::util::{secs, IdType};
+use crate::{secs, IdType};
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::marker::PhantomData;
 

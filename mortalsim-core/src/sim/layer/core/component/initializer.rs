@@ -1,7 +1,7 @@
 use crate::event::Event;
 use crate::hub::event_transformer::{EventTransformer, TransformerItem};
 use crate::sim::Organism;
-use crate::util::IdGenerator;
+use crate::IdGenerator;
 use crate::IdType;
 use std::any::TypeId;
 use std::collections::HashSet;
