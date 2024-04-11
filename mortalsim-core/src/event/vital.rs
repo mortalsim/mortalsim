@@ -1,4 +1,6 @@
 
+use either::Either;
+
 use crate::sim::Organism;
 use crate::units::base::{Distance, Mass, Temperature};
 use crate::units::mechanical::{Frequency, Force, Pressure};
@@ -77,6 +79,31 @@ enum ConciousLevel {
 }
 
 impl Event for ConciousLevel {
+    fn transient(&self) -> bool {
+        false
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+enum Arrhythmia {
+    None,
+    AtrialFibrillation,
+    AtrialFlutter,
+    AtrialTachycardia,
+    AVNRT,
+    BrugadaSyndrome,
+    CPVT,
+    HeartBlock,
+    LongQT,
+    PrematureVentricularBeats,
+    PSVT,
+    SickSinusSyndrome,
+    VentricularFibrillation,
+    VentricularTachycardia,
+    WolfParkinsonWhite,
+}
+
+impl Event for Arrhythmia {
     fn transient(&self) -> bool {
         false
     }
