@@ -9,7 +9,7 @@ use crate::sim::component::{SimComponentProcessor, SimComponentProcessorSync};
 use crate::sim::layer::{InternalLayerTrigger, SimLayer, SimLayerSync};
 use crate::sim::organism::Organism;
 use crate::sim::SimConnector;
-use crate::{secs, IdGenerator, IdType, OrderedTime};
+use crate::{secs, IdGenerator, IdType, SimTime};
 
 use super::component::{NervousComponent, NervousInitializer};
 use super::nerve_signal::NerveSignal;
@@ -28,7 +28,7 @@ pub struct NervousLayer<O: Organism> {
     transforms:
         HashMap<O::NerveType, HashMap<TypeId, HashMap<IdType, Box<dyn NerveSignalTransformer>>>>,
     /// Pending notifies
-    pending_signals: BTreeMap<OrderedTime, Vec<NerveSignal<O>>>,
+    pending_signals: BTreeMap<SimTime, Vec<NerveSignal<O>>>,
     /// Internal trigger id to unschedule if needed
     internal_trigger_id: Option<IdType>,
 }
@@ -72,7 +72,7 @@ impl<O: Organism> NervousLayer<O> {
         }
     }
 
-    fn remove_signals(&mut self, items: impl Iterator<Item = (OrderedTime, IdType)>) {
+    fn remove_signals(&mut self, items: impl Iterator<Item = (SimTime, IdType)>) {
         for (signal_time, signal_id) in items {
             if let Some(mut signal_ids) = self.pending_signals.remove(&signal_time) {
                 if let Some(idx) = signal_ids.iter().position(|x| x.id() == signal_id) {
@@ -125,7 +125,7 @@ impl<O: Organism> NervousLayer<O> {
 
         // Add any new signals
         for signal in n_connector.outgoing.drain(..) {
-            let signal_time = OrderedTime(signal.send_time());
+            let signal_time = signal.send_time();
             self.pending_signals
                 .entry(signal_time)
                 .or_default()
@@ -136,7 +136,7 @@ impl<O: Organism> NervousLayer<O> {
 
 impl<O: Organism> SimLayer for NervousLayer<O> {
     fn pre_exec(&mut self, connector: &mut SimConnector) {
-        let otime = OrderedTime(connector.sim_time());
+        let otime = connector.sim_time();
 
         if let Some(id) = self.internal_trigger_id.take() {
             let _ = connector.time_manager.unschedule_event(&id);
@@ -187,8 +187,8 @@ impl<O: Organism> SimLayer for NervousLayer<O> {
     fn post_exec(&mut self, connector: &mut SimConnector) {
         if let Some(min_time) = self.pending_signals.keys().min() {
             let mut delay = secs!(0.0);
-            if min_time.0 > connector.sim_time() {
-                delay = min_time.0 - connector.sim_time();
+            if *min_time > connector.sim_time() {
+                delay = *min_time - connector.sim_time();
             }
             let id = connector
                 .time_manager
@@ -262,7 +262,7 @@ impl<O: Organism, T: NervousComponent<O> + ?Sized> SimComponentProcessor<O, T> f
         component.nervous_connector().sim_time = connector.sim_time();
 
         // Trim down the scheduled signals to remove any that have already passed
-        component.nervous_connector().scheduled_signals.retain(|_, time| time.0 > connector.sim_time());
+        component.nervous_connector().scheduled_signals.retain(|_, time| *time > connector.sim_time());
     }
 
     fn process_component(&mut self, connector: &mut SimConnector, component: &mut T) {
@@ -336,7 +336,6 @@ pub mod test {
     use crate::sim::layer::{SimLayer, SimLayerSync};
     use crate::sim::organism::test::TestOrganism;
     use crate::sim::{Organism, SimConnector, SimTime};
-    use crate::OrderedTime;
 
 
     fn process_components<O: Organism>(layer: &mut NervousLayer<O>, connector: &mut SimConnector, components: &mut Vec<Box<dyn NervousComponent<O>>>) {

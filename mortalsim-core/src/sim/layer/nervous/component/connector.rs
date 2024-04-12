@@ -9,7 +9,7 @@ use crate::sim::layer::nervous::NerveSignal;
 use crate::sim::layer::nervous::transform::{TransformFn, NerveSignalTransformer};
 use crate::sim::organism::Organism;
 use crate::sim::SimTime;
-use crate::{IdGenerator, IdType, OrderedTime};
+use crate::{IdGenerator, IdType};
 
 pub struct NervousConnector<O: Organism> {
     /// Copy of the current simulation time
@@ -19,7 +19,7 @@ pub struct NervousConnector<O: Organism> {
     /// Outgoing signals
     pub(crate) outgoing: Vec<NerveSignal<O>>,
     /// Scheduled signals
-    pub(crate) scheduled_signals: HashMap<IdType, OrderedTime>,
+    pub(crate) scheduled_signals: HashMap<IdType, SimTime>,
     /// Transformations to add
     pub(crate) adding_transforms:
         HashMap<O::NerveType, HashMap<TypeId, Box<dyn NerveSignalTransformer>>>,
@@ -28,7 +28,7 @@ pub struct NervousConnector<O: Organism> {
     /// Map of removing transformations
     pub(crate) removing_transforms: HashMap<O::NerveType, HashMap<TypeId, IdType>>,
     /// List of signal ids to unschedule
-    pub(crate) pending_unschedules: Vec<(OrderedTime, IdType)>,
+    pub(crate) pending_unschedules: Vec<(SimTime, IdType)>,
     /// Empty Event list for ergonomic message use
     empty: Vec<NerveSignal<O>>,
 }
@@ -78,7 +78,7 @@ impl<O: Organism> NervousConnector<O> {
 
         let signal = NerveSignal::new(message, neural_path, send_time)?;
 
-        self.scheduled_signals.insert(signal.id(), OrderedTime(signal.send_time()));
+        self.scheduled_signals.insert(signal.id(), signal.send_time());
         let signal_id = signal.id();
         self.outgoing.push(signal);
         Ok(signal_id)
@@ -115,7 +115,7 @@ impl<O: Organism> NervousConnector<O> {
     /// Returns Ok if the id is valid, and Err otherwise
     pub fn unschedule_signal(&mut self, signal_id: IdType) -> anyhow::Result<()> {
         if let Some(signal_time) = self.scheduled_signals.remove(&signal_id) {
-            if signal_time.0 > self.sim_time {
+            if signal_time > self.sim_time {
                 self.pending_unschedules.push((signal_time, signal_id));
                 return Ok(())
             }

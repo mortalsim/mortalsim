@@ -272,7 +272,7 @@ impl SubstanceStore {
                     self.composition.insert(*substance, new_conc);
                 }
 
-                if sim_time.s > change.start_time.s + change.duration.s {
+                if sim_time > change.start_time + change.duration {
                     ids_to_remove.push(*change_id);
                 }
             }

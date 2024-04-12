@@ -194,6 +194,7 @@ pub mod test {
     use crate::units::base::Amount;
     use crate::units::base::Distance;
     use crate::units::base::Time;
+    use crate::SimTime;
 
     use super::CoreConnector;
 
@@ -214,7 +215,7 @@ pub mod test {
         let evt_a = Arc::new(basic_event_a());
         connector.sim_state.put_state(evt_a.clone());
         connector.trigger_events.push(TypeId::of::<TestEventA>());
-        connector.sim_time = Time::from_s(0.0);
+        connector.sim_time = SimTime::from_s(0.0);
         connector
     }
 
@@ -227,7 +228,7 @@ pub mod test {
     #[test]
     pub fn test_emit() {
         let mut connector = CoreConnector::<TestOrganism>::new();
-        connector.schedule_event(Time::from_s(1.0), basic_event_a());
+        connector.schedule_event(SimTime::from_s(1.0), basic_event_a());
     }
 
     #[test]
@@ -259,7 +260,7 @@ pub mod test {
     #[test]
     pub fn test_get_time() {
         let connector = connector();
-        assert!(connector.sim_time() == Time::from_s(0.0));
+        assert!(connector.sim_time() == SimTime::from_s(0.0));
     }
 
     #[test]

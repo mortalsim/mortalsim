@@ -1,6 +1,6 @@
 macro_rules! secs {
     ( $x:expr ) => {
-        crate::units::base::Time::from_s($x)
+        $crate::SimTime($crate::units::base::Time::<f64>{ s: $x })
     };
 }
 

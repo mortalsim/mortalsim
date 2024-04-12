@@ -10,12 +10,13 @@ use std::sync::Arc;
 
 pub use sim::Sim;
 pub use sim_state::SimState;
-pub use time_manager::{SimTime, TimeManager};
+pub use time_manager::TimeManager;
 pub use layer::Consumable;
 
 pub use organism::{Organism, AnatomicalRegion};
 pub use impl_sim::impl_sim;
 
+pub use crate::SimTime;
 use crate::event::Event;
 
 pub struct SimConnector {

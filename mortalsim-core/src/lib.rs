@@ -9,11 +9,11 @@ extern crate strum_macros;
 
 mod spark;
 mod id_gen;
-mod quantity_wrapper;
+mod quantity;
 mod util;
 
 pub use id_gen::{IdGenerator, IdType};
-pub use quantity_wrapper::*;
+pub use quantity::*;
 pub(crate) use util::*;
 
 pub mod event;

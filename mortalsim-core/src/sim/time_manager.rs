@@ -8,20 +8,18 @@ use crate::event::Event;
 use crate::hub::event_transformer::{EventTransformer, TransformerItem};
 use crate::units::base::Time;
 use crate::id_gen::{IdGenerator, IdType, InvalidIdError};
-use crate::quantity_wrapper::OrderedTime;
+use crate::SimTime;
 use anyhow::{Error, Result};
 use std::any::TypeId;
 use std::collections::hash_map::HashMap;
 use std::collections::BTreeMap;
 use std::fmt;
 
-pub type SimTime = Time<f64>;
-
 pub struct TimeManager {
     /// Current simulation time
     sim_time: SimTime,
     /// Sorted map of events to be executed
-    event_queue: BTreeMap<OrderedTime, Vec<(IdType, Box<dyn Event>)>>,
+    event_queue: BTreeMap<SimTime, Vec<(IdType, Box<dyn Event>)>>,
     /// Map of event transformer functions
     event_transformers: HashMap<TypeId, Vec<Box<dyn EventTransformer>>>,
     /// Map of event transformer ids to event types for quick lookup
@@ -29,7 +27,7 @@ pub struct TimeManager {
     /// Generator for our listener IDs
     id_gen: IdGenerator,
     /// Used to lookup listeners and Event objects for unscheduling
-    id_time_map: HashMap<IdType, OrderedTime>,
+    id_time_map: HashMap<IdType, SimTime>,
 }
 
 impl<'b> fmt::Debug for TimeManager {
@@ -46,7 +44,7 @@ impl TimeManager {
     /// Creates a new TimeManager object starting at t = 0
     pub fn new() -> TimeManager {
         TimeManager {
-            sim_time: Time::from_s(0.0),
+            sim_time: SimTime::from_s(0.0),
             event_queue: BTreeMap::new(),
             event_transformers: HashMap::new(),
             transformer_type_map: HashMap::new(),
@@ -68,7 +66,7 @@ impl TimeManager {
         let evt_queue_next = self.event_queue.iter().next();
 
         if evt_queue_next.is_some() {
-            self.sim_time = evt_queue_next.unwrap().0.into();
+            self.sim_time = evt_queue_next.unwrap().0.clone();
         }
     }
 
@@ -82,7 +80,7 @@ impl TimeManager {
     pub fn advance_by(&mut self, time_step: SimTime) {
         // If the time_step is zero or negative, advance to the next
         // point in the simulation
-        if time_step <= Time::from_s(0.0) {
+        if time_step <= SimTime::from_s(0.0) {
             return self.advance();
         }
 
@@ -98,7 +96,7 @@ impl TimeManager {
     ///
     /// Returns the schedule ID
     pub fn schedule_event(&mut self, wait_time: SimTime, event: Box<dyn Event>) -> IdType {
-        let exec_time = OrderedTime(self.sim_time + wait_time);
+        let exec_time = self.sim_time + wait_time;
         let mut evt_list = self.event_queue.get_mut(&exec_time);
 
         // If we haven't already created a vector for this time step,
@@ -157,7 +155,7 @@ impl TimeManager {
         while let Some(evt_time) = next_evt_time {
             // stop when we reach the first event time that
             // hasn't occurred yet
-            if *evt_time > OrderedTime(self.sim_time) {
+            if *evt_time > self.sim_time {
                 break;
             }
             times_to_remove.push(*evt_time);
@@ -183,7 +181,7 @@ impl TimeManager {
             }
 
             if !result.is_empty() {
-                results.push((evt_time.0, result));
+                results.push((evt_time, result));
             }
         }
         results.into_iter()
@@ -288,7 +286,6 @@ mod tests {
     use crate::units::base::Amount;
     use crate::units::base::Distance;
     use crate::secs;
-    use crate::OrderedTime;
     use std::any::TypeId;
 
     #[test]
@@ -296,10 +293,10 @@ mod tests {
         // Create a time manager and a handy reusable
         // variable representing one second
         let mut time_manager = TimeManager::new();
-        let one_sec = Time::from_s(1.0);
+        let one_sec = SimTime::from_s(1.0);
 
         // Time should start at zero seconds
-        assert_eq!(time_manager.get_time(), Time::from_s(0.0));
+        assert_eq!(time_manager.get_time(), SimTime::from_s(0.0));
 
         // Advance time by 1s
         time_manager.advance_by(one_sec);
@@ -311,13 +308,13 @@ mod tests {
         time_manager.advance_by(one_sec);
 
         // Time should now be at 2 seconds
-        assert_eq!(time_manager.get_time(), Time::from_s(2.0));
+        assert_eq!(time_manager.get_time(), SimTime::from_s(2.0));
 
         // Advance again, but this time by 3 seconds
-        time_manager.advance_by(Time::from_s(3.0));
+        time_manager.advance_by(SimTime::from_s(3.0));
 
         // Time should now be at 5 seconds
-        assert_eq!(time_manager.get_time(), Time::from_s(5.0));
+        assert_eq!(time_manager.get_time(), SimTime::from_s(5.0));
     }
 
     #[test]
@@ -328,15 +325,15 @@ mod tests {
         // Create a time manager and a handy reusable
         // variable representing one second
         let mut time_manager = TimeManager::new();
-        let one_sec = Time::from_s(1.0);
+        let one_sec = SimTime::from_s(1.0);
 
         // Schedule the events to be emitted later
-        time_manager.schedule_event(Time::from_s(2.0), Box::new(a_evt));
-        time_manager.schedule_event(Time::from_s(6.0), Box::new(b_evt));
+        time_manager.schedule_event(SimTime::from_s(2.0), Box::new(a_evt));
+        time_manager.schedule_event(SimTime::from_s(6.0), Box::new(b_evt));
 
         // Advance by 1s. No events yet.
         time_manager.advance_by(one_sec);
-        assert_eq!(time_manager.get_time(), Time::from_s(1.0));
+        assert_eq!(time_manager.get_time(), SimTime::from_s(1.0));
 
         let mut next_events: Vec<(SimTime, Vec<Box<dyn Event>>)> =
             time_manager.next_events().collect();
@@ -355,7 +352,7 @@ mod tests {
                 Distance::from_m(3.5)
             );
         }
-        assert_eq!(time_manager.get_time(), Time::from_s(2.1));
+        assert_eq!(time_manager.get_time(), SimTime::from_s(2.1));
 
         // Advance again automatically. Should fire the second event.
         time_manager.advance();
@@ -370,7 +367,7 @@ mod tests {
                 Amount::from_mol(123456.0)
             );
         }
-        assert_eq!(time_manager.get_time(), Time::from_s(6.0));
+        assert_eq!(time_manager.get_time(), SimTime::from_s(6.0));
     }
 
     #[test]

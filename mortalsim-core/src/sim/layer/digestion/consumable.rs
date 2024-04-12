@@ -138,8 +138,8 @@ impl Consumable {
         for (cid, change) in self.volume_changes.iter() {
             if change.start < sim_time && change.end > sim_time {
                 let result = change.function.call(
-                    sim_time.s - change.start.s,
-                    change.end.s - change.start.s,
+                    (sim_time - change.start).to_s(),
+                    (change.end - change.start).to_s(),
                     change.amount.m3,
                 );
                 // Make sure the volume change is valid, and log a warning if it's not

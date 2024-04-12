@@ -10,6 +10,7 @@ use super::component::{DigestionComponent, DigestionInitializer};
 use super::consumable::Consumable;
 use super::consumed::Consumed;
 use super::{ConsumeEvent, DigestionDirection, EliminateEvent};
+use crate::units::base::Time;
 
 type ConsumableId = IdType;
 
@@ -34,7 +35,7 @@ pub struct DigestionLayer<O: Organism> {
 
 impl<O: Organism> DigestionLayer<O> {
     // Delay between elimination discovery and execution
-    const ELIMINATION_DELAY: SimTime = SimTime {s: 0.0};
+    const ELIMINATION_DELAY: SimTime = SimTime(Time {s: 0.0});
 
     /// Creates a Sim with the default set of modules which is equal to all registered
     /// modules at the time of execution.
