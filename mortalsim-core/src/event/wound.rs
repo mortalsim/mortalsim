@@ -4,7 +4,7 @@ use super::{Event, Infection, NumType};
 
 /// Properties of an acute wound
 #[derive(Debug, Clone, PartialEq)]
-struct WoundProperties<O: Organism> {
+pub struct WoundProperties<O: Organism> {
     location: O::AnatomyType,
     length: Distance<NumType>,
     width: Distance<NumType>,
@@ -15,7 +15,7 @@ struct WoundProperties<O: Organism> {
 /// Event indicating a wound to a body location
 /// See https://www.ncbi.nlm.nih.gov/books/NBK380/
 #[derive(Debug, Clone, PartialEq, EnumCount, EnumIs)]
-enum AcuteWound<O: Organism> {
+pub enum AcuteWound<O: Organism> {
     Incision(WoundProperties<O>),
     Burn(WoundProperties<O>),
     Cut(WoundProperties<O>),
