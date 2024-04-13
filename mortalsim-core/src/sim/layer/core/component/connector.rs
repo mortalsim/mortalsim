@@ -3,7 +3,7 @@ use crate::hub::event_transformer::TransformerItem;
 use crate::hub::EventTransformer;
 use crate::sim::{Organism, SimState, SimTime};
 use crate::id_gen::IdType;
-use crate::IdGenerator;
+use crate::{IdGenerator, SimTimeSpan};
 use anyhow::Result;
 use std::any::TypeId;
 use std::collections::HashMap;
@@ -26,7 +26,7 @@ pub struct CoreConnector<O: Organism> {
     /// Map of local ids to layer transform ids
     pub(crate) transform_id_map: HashMap<IdType, IdType>,
     /// List of events to schedule
-    pub(crate) pending_schedules: Vec<(SimTime, (IdType, Box<dyn Event>))>,
+    pub(crate) pending_schedules: Vec<(SimTimeSpan, (IdType, Box<dyn Event>))>,
     /// List of events to unschedule
     pub(crate) pending_unschedules: Vec<IdType>,
     /// Transforms pending from the last run of the component
@@ -65,7 +65,7 @@ impl<O: Organism> CoreConnector<O> {
     /// ### Arguments
     /// * `wait_time` - Amount of time to wait before execution
     /// * `evt` - `Event` to emit after `wait_time` has elapsed
-    pub fn schedule_event(&mut self, wait_time: SimTime, evt: impl Event) -> IdType {
+    pub fn schedule_event(&mut self, wait_time: SimTimeSpan, evt: impl Event) -> IdType {
         let schedule_id = self.id_gen.get_id();
         self.pending_schedules.push((wait_time, (schedule_id, Box::new(evt))));
         schedule_id
@@ -195,6 +195,7 @@ pub mod test {
     use crate::units::base::Distance;
     use crate::units::base::Time;
     use crate::SimTime;
+    use crate::SimTimeSpan;
 
     use super::CoreConnector;
 
@@ -228,7 +229,7 @@ pub mod test {
     #[test]
     pub fn test_emit() {
         let mut connector = CoreConnector::<TestOrganism>::new();
-        connector.schedule_event(SimTime::from_s(1.0), basic_event_a());
+        connector.schedule_event(SimTimeSpan::from_s(1.0), basic_event_a());
     }
 
     #[test]

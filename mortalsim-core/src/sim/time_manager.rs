@@ -8,7 +8,7 @@ use crate::event::Event;
 use crate::hub::event_transformer::{EventTransformer, TransformerItem};
 use crate::units::base::Time;
 use crate::id_gen::{IdGenerator, IdType, InvalidIdError};
-use crate::SimTime;
+use crate::{SimTime, SimTimeSpan};
 use anyhow::{Error, Result};
 use std::any::TypeId;
 use std::collections::hash_map::HashMap;
@@ -77,10 +77,10 @@ impl TimeManager {
     ///
     /// ### Arguments
     /// * `time_step` - Amount of time to advance by
-    pub fn advance_by(&mut self, time_step: SimTime) {
+    pub fn advance_by(&mut self, time_step: SimTimeSpan) {
         // If the time_step is zero or negative, advance to the next
         // point in the simulation
-        if time_step <= SimTime::from_s(0.0) {
+        if time_step <= SimTimeSpan::from_s(0.0) {
             return self.advance();
         }
 
@@ -95,7 +95,7 @@ impl TimeManager {
     /// * `event` - Event instance to emit
     ///
     /// Returns the schedule ID
-    pub fn schedule_event(&mut self, wait_time: SimTime, event: Box<dyn Event>) -> IdType {
+    pub fn schedule_event(&mut self, wait_time: SimTimeSpan, event: Box<dyn Event>) -> IdType {
         let exec_time = self.sim_time + wait_time;
         let mut evt_list = self.event_queue.get_mut(&exec_time);
 
@@ -286,6 +286,7 @@ mod tests {
     use crate::units::base::Amount;
     use crate::units::base::Distance;
     use crate::secs;
+    use crate::SimTimeSpan;
     use std::any::TypeId;
 
     #[test]
@@ -294,24 +295,25 @@ mod tests {
         // variable representing one second
         let mut time_manager = TimeManager::new();
         let one_sec = SimTime::from_s(1.0);
+        let one_sec_span = SimTimeSpan::from_s(1.0);
 
         // Time should start at zero seconds
         assert_eq!(time_manager.get_time(), SimTime::from_s(0.0));
 
         // Advance time by 1s
-        time_manager.advance_by(one_sec);
+        time_manager.advance_by(one_sec_span);
 
         // time should now be at 1 second
         assert_eq!(time_manager.get_time(), one_sec);
 
         // Advance another second
-        time_manager.advance_by(one_sec);
+        time_manager.advance_by(one_sec_span);
 
         // Time should now be at 2 seconds
         assert_eq!(time_manager.get_time(), SimTime::from_s(2.0));
 
         // Advance again, but this time by 3 seconds
-        time_manager.advance_by(SimTime::from_s(3.0));
+        time_manager.advance_by(SimTimeSpan::from_s(3.0));
 
         // Time should now be at 5 seconds
         assert_eq!(time_manager.get_time(), SimTime::from_s(5.0));
@@ -325,14 +327,13 @@ mod tests {
         // Create a time manager and a handy reusable
         // variable representing one second
         let mut time_manager = TimeManager::new();
-        let one_sec = SimTime::from_s(1.0);
 
         // Schedule the events to be emitted later
-        time_manager.schedule_event(SimTime::from_s(2.0), Box::new(a_evt));
-        time_manager.schedule_event(SimTime::from_s(6.0), Box::new(b_evt));
+        time_manager.schedule_event(SimTimeSpan::from_s(2.0), Box::new(a_evt));
+        time_manager.schedule_event(SimTimeSpan::from_s(6.0), Box::new(b_evt));
 
         // Advance by 1s. No events yet.
-        time_manager.advance_by(one_sec);
+        time_manager.advance_by(SimTimeSpan::from_s(1.0));
         assert_eq!(time_manager.get_time(), SimTime::from_s(1.0));
 
         let mut next_events: Vec<(SimTime, Vec<Box<dyn Event>>)> =
@@ -340,7 +341,7 @@ mod tests {
         assert!(next_events.is_empty());
 
         // Advance again. First event should fire.
-        time_manager.advance_by(secs!(1.1));
+        time_manager.advance_by(SimTimeSpan::from_s(1.1));
 
         next_events = time_manager.next_events().collect();
         assert!(!next_events.is_empty());

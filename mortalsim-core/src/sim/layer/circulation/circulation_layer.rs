@@ -219,7 +219,7 @@ mod tests {
     use crate::sim::organism::test::{TestBloodVessel, TestOrganism, TestSim};
     use crate::sim::{SimConnector, SimTime};
     use crate::substance::Substance;
-    use crate::mmol_per_L;
+    use crate::{mmol_per_L, SimTimeSpan};
 
     #[test]
     fn layer() {
@@ -242,7 +242,7 @@ mod tests {
         component.run();
         layer.process_component(&mut connector, &mut component);
 
-        connector.time_manager.advance_by(SimTime::from_s(2.0));
+        connector.time_manager.advance_by(SimTimeSpan::from_s(2.0));
         layer.pre_exec(&mut connector);
 
         let glc = layer
@@ -260,7 +260,7 @@ mod tests {
             expected
         );
 
-        connector.time_manager.advance_by(SimTime::from_s(2.0));
+        connector.time_manager.advance_by(SimTimeSpan::from_s(2.0));
         layer.pre_exec(&mut connector);
 
         let glc = layer

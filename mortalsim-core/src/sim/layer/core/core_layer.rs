@@ -254,7 +254,7 @@ pub mod test {
     use crate::sim::layer::core::component::connector::test::basic_event_a;
     use crate::sim::organism::test::TestOrganism;
     use crate::sim::{SimConnector, SimTime};
-    use crate::secs;
+    use crate::{secs, SimTimeSpan};
 
     #[test]
     fn layer_process() {
@@ -266,10 +266,10 @@ pub mod test {
         layer.setup_component(&mut connector, &mut component_a);
         layer.setup_component(&mut connector, &mut component_b);
 
-        connector.time_manager.schedule_event(secs!(1.0), Box::new(TestEventA::new(Distance::from_m(1.0))));
-        connector.time_manager.schedule_event(secs!(1.0), Box::new(TestEventB::new(Amount::from_mmol(1.0))));
+        connector.time_manager.schedule_event(SimTimeSpan::from_s(1.0), Box::new(TestEventA::new(Distance::from_m(1.0))));
+        connector.time_manager.schedule_event(SimTimeSpan::from_s(1.0), Box::new(TestEventB::new(Amount::from_mmol(1.0))));
 
-        connector.time_manager.advance_by(secs!(2.0));
+        connector.time_manager.advance_by(SimTimeSpan::from_s(2.0));
 
         layer.pre_exec(&mut connector);
 
@@ -308,10 +308,10 @@ pub mod test {
         layer.lock().unwrap().setup_component_sync(&mut connector.lock().unwrap(), &mut component_a);
         layer.lock().unwrap().setup_component_sync(&mut connector.lock().unwrap(), &mut component_b);
 
-        connector.lock().unwrap().time_manager.schedule_event(secs!(1.0), Box::new(TestEventA::new(Distance::from_m(1.0))));
-        connector.lock().unwrap().time_manager.schedule_event(secs!(1.0), Box::new(TestEventB::new(Amount::from_mmol(1.0))));
+        connector.lock().unwrap().time_manager.schedule_event(SimTimeSpan::from_s(1.0), Box::new(TestEventA::new(Distance::from_m(1.0))));
+        connector.lock().unwrap().time_manager.schedule_event(SimTimeSpan::from_s(1.0), Box::new(TestEventB::new(Amount::from_mmol(1.0))));
 
-        connector.lock().unwrap().time_manager.advance_by(secs!(2.0));
+        connector.lock().unwrap().time_manager.advance_by(SimTimeSpan::from_s(2.0));
 
         layer.lock().unwrap().pre_exec_sync(&mut connector.lock().unwrap());
 

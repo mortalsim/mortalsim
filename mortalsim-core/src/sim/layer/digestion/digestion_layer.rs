@@ -2,7 +2,7 @@ use crate::sim::component::{SimComponent, SimComponentProcessor, SimComponentPro
 use crate::sim::layer::{InternalLayerTrigger, SimLayer, SimLayerSync};
 use crate::sim::organism::Organism;
 use crate::sim::{SimConnector, SimTime};
-use crate::{secs, IdType};
+use crate::{secs, IdType, SimTimeSpan};
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::marker::PhantomData;
 
@@ -17,7 +17,7 @@ type ConsumableId = IdType;
 pub struct DigestionLayer<O: Organism> {
     pd: PhantomData<O>,
     /// Default duration each component receives a consumable for
-    default_digestion_duration: SimTime,
+    default_digestion_duration: SimTimeSpan,
     /// Tracks the order in which substance stores pass
     /// through each component, according to the order
     /// they were added
@@ -35,14 +35,14 @@ pub struct DigestionLayer<O: Organism> {
 
 impl<O: Organism> DigestionLayer<O> {
     // Delay between elimination discovery and execution
-    const ELIMINATION_DELAY: SimTime = SimTime(Time {s: 0.0});
+    const ELIMINATION_DELAY: SimTimeSpan = SimTimeSpan(Time {s: 0.0});
 
     /// Creates a Sim with the default set of modules which is equal to all registered
     /// modules at the time of execution.
     pub fn new() -> Self {
         Self {
             pd: PhantomData,
-            default_digestion_duration: secs!(60.0),
+            default_digestion_duration: SimTimeSpan::from_s(60.0),
             component_map: HashMap::new(),
             trigger_map: HashSet::new(),
             consumed_map: Vec::new(),
@@ -169,9 +169,9 @@ impl<O: Organism> SimLayer for DigestionLayer<O> {
             .flatten()
             .min_by(|a, b| a.exit_time.partial_cmp(&b.exit_time).unwrap())
         {
-            let mut delay = secs!(0.0);
+            let mut delay = SimTimeSpan::from_s(0.0);
             if min_consumed.exit_time > connector.sim_time() {
-                delay = min_consumed.exit_time - connector.sim_time();
+                delay = connector.sim_time().span_to(&min_consumed.exit_time);
             }
             let id = connector
                 .time_manager
@@ -277,7 +277,7 @@ impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessorSync<O, T> for 
 mod tests {
     use std::{borrow::BorrowMut, ops::RangeBounds, sync::{Arc, Mutex}, thread::scope};
 
-    use crate::{sim::{component::{SimComponent, SimComponentProcessor, SimComponentProcessorSync}, layer::{digestion::{component::test::TestDigestionComponent, consumable::test::{test_ammonia, test_fiber, test_food}, ConsumeEvent, DigestionComponent, DigestionDirection, EliminateEvent}, InternalLayerTrigger, SimLayer}, organism::test::TestOrganism, Organism, SimConnector, SimTime}, substance::{Substance, SubstanceConcentration}, util::secs};
+    use crate::{sim::{component::{SimComponent, SimComponentProcessor, SimComponentProcessorSync}, layer::{digestion::{component::test::TestDigestionComponent, consumable::test::{test_ammonia, test_fiber, test_food}, ConsumeEvent, DigestionComponent, DigestionDirection, EliminateEvent}, InternalLayerTrigger, SimLayer}, organism::test::TestOrganism, Organism, SimConnector, SimTime}, substance::{Substance, SubstanceConcentration}, util::secs, SimTimeSpan};
 
     use super::DigestionLayer;
 
@@ -341,7 +341,7 @@ mod tests {
         // getting added
         connector.active_events.drain(..);
 
-        connector.time_manager.advance_by(SimTime::from_s(10.0));
+        connector.time_manager.advance_by(SimTimeSpan::from_s(10.0));
 
         // Should schedule an internal trigger event
         let mut next_events = connector.time_manager.next_events();
@@ -354,7 +354,7 @@ mod tests {
         run_layer(&mut layer, &mut connector, &mut components);
         layer.post_exec(&mut connector);
 
-        connector.time_manager.advance_by(SimTime::from_s(2.0));
+        connector.time_manager.advance_by(SimTimeSpan::from_s(2.0));
 
         // Should be eliminating the ammonia
         let (exec_time, mut evts) = connector.time_manager.next_events().next().unwrap();
@@ -387,7 +387,7 @@ mod tests {
         run_layer(&mut layer, &mut connector, &mut components);
         layer.post_exec(&mut connector);
 
-        connector.time_manager.advance_by(SimTime::from_min(1.0));
+        connector.time_manager.advance_by(SimTimeSpan::from_min(1.0));
         layer.pre_exec(&mut connector);
 
         // First component should still have the food
@@ -405,7 +405,7 @@ mod tests {
         assert_eq!(layer.consumed_map.get(1).unwrap().len(), 1);
 
         // Go through a cycle
-        connector.time_manager.advance_by(SimTime::from_min(5.0));
+        connector.time_manager.advance_by(SimTimeSpan::from_min(5.0));
         layer.pre_exec(&mut connector);
         run_layer(&mut layer, &mut connector, &mut components);
         layer.post_exec(&mut connector);
@@ -414,7 +414,7 @@ mod tests {
         assert_eq!(layer.consumed_map.get(0).unwrap().len(), 0);
         assert_eq!(layer.consumed_map.get(1).unwrap().len(), 0);
 
-        connector.time_manager.advance_by(SimTime::from_s(1.0));
+        connector.time_manager.advance_by(SimTimeSpan::from_s(1.0));
 
         // Should be eliminating the fiber
         let (_, mut evts) = connector.time_manager.next_events().next().unwrap();
@@ -466,7 +466,7 @@ mod tests {
         // getting added
         connector.lock().unwrap().active_events.drain(..);
 
-        connector.lock().unwrap().time_manager.advance_by(SimTime::from_s(10.0));
+        connector.lock().unwrap().time_manager.advance_by(SimTimeSpan::from_s(10.0));
 
         // Should schedule an internal trigger event
         let mut next_events = connector.lock().unwrap().time_manager.next_events();
@@ -479,7 +479,7 @@ mod tests {
         run_layer_sync(&layer, &connector, &mut components);
         layer.lock().unwrap().post_exec(&mut connector.lock().unwrap());
 
-        connector.lock().unwrap().time_manager.advance_by(SimTime::from_s(2.0));
+        connector.lock().unwrap().time_manager.advance_by(SimTimeSpan::from_s(2.0));
 
         // Should be eliminating the ammonia
         let (exec_time, mut evts) = connector.lock().unwrap().time_manager.next_events().next().unwrap();
@@ -512,7 +512,7 @@ mod tests {
         run_layer_sync(&layer, &connector, &mut components);
         layer.lock().unwrap().post_exec(&mut connector.lock().unwrap());
 
-        connector.lock().unwrap().time_manager.advance_by(SimTime::from_min(1.0));
+        connector.lock().unwrap().time_manager.advance_by(SimTimeSpan::from_min(1.0));
         layer.lock().unwrap().pre_exec(&mut connector.lock().unwrap());
 
         // First component should still have the food
@@ -530,7 +530,7 @@ mod tests {
         assert_eq!(layer.lock().unwrap().consumed_map.get(1).unwrap().len(), 1);
 
         // Go through a cycle
-        connector.lock().unwrap().time_manager.advance_by(SimTime::from_min(5.0));
+        connector.lock().unwrap().time_manager.advance_by(SimTimeSpan::from_min(5.0));
         layer.lock().unwrap().pre_exec(&mut connector.lock().unwrap());
         run_layer_sync(&layer, &connector, &mut components);
         layer.lock().unwrap().post_exec(&mut connector.lock().unwrap());
@@ -539,7 +539,7 @@ mod tests {
         assert_eq!(layer.lock().unwrap().consumed_map.get(0).unwrap().len(), 0);
         assert_eq!(layer.lock().unwrap().consumed_map.get(1).unwrap().len(), 0);
 
-        connector.lock().unwrap().time_manager.advance_by(SimTime::from_s(1.0));
+        connector.lock().unwrap().time_manager.advance_by(SimTimeSpan::from_s(1.0));
 
         // Should be eliminating the fiber
         let (_, mut evts) = connector.lock().unwrap().time_manager.next_events().next().unwrap();

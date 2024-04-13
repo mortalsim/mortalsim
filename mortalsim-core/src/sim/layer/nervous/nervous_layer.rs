@@ -9,7 +9,7 @@ use crate::sim::component::{SimComponentProcessor, SimComponentProcessorSync};
 use crate::sim::layer::{InternalLayerTrigger, SimLayer, SimLayerSync};
 use crate::sim::organism::Organism;
 use crate::sim::SimConnector;
-use crate::{secs, IdGenerator, IdType, SimTime};
+use crate::{secs, IdGenerator, IdType, SimTime, SimTimeSpan};
 
 use super::component::{NervousComponent, NervousInitializer};
 use super::nerve_signal::NerveSignal;
@@ -186,9 +186,9 @@ impl<O: Organism> SimLayer for NervousLayer<O> {
 
     fn post_exec(&mut self, connector: &mut SimConnector) {
         if let Some(min_time) = self.pending_signals.keys().min() {
-            let mut delay = secs!(0.0);
+            let mut delay = SimTimeSpan::from_s(0.0);
             if *min_time > connector.sim_time() {
-                delay = *min_time - connector.sim_time();
+                delay = connector.sim_time().span_to(min_time);
             }
             let id = connector
                 .time_manager
@@ -336,6 +336,7 @@ pub mod test {
     use crate::sim::layer::{SimLayer, SimLayerSync};
     use crate::sim::organism::test::TestOrganism;
     use crate::sim::{Organism, SimConnector, SimTime};
+    use crate::SimTimeSpan;
 
 
     fn process_components<O: Organism>(layer: &mut NervousLayer<O>, connector: &mut SimConnector, components: &mut Vec<Box<dyn NervousComponent<O>>>) {
@@ -388,27 +389,27 @@ pub mod test {
 
         println!("{:?}", layer.pending_signals.keys());
 
-        connector.time_manager.advance_by(SimTime::from_s(1.0));
+        connector.time_manager.advance_by(SimTimeSpan::from_s(1.0));
         process_components(&mut layer, &mut connector, &mut components);
 
         // We should have one reflex movement pending
         assert!(layer.pending_signals.len() == 4);
         assert!(layer.pending_signals.values().any(|x| x.get(0).is_some_and(|s| s.message_is::<MovementEvent>())));
 
-        connector.time_manager.advance_by(SimTime::from_s(1.0));
+        connector.time_manager.advance_by(SimTimeSpan::from_s(1.0));
         process_components(&mut layer, &mut connector, &mut components);
 
         // Reflex event should have completed (no longer in pending)
         assert!(layer.pending_signals.len() == 3);
         assert!(!layer.pending_signals.values().any(|x| x.get(0).is_some_and(|s| s.message_is::<MovementEvent>())));
 
-        connector.time_manager.advance_by(SimTime::from_s(4.0));
+        connector.time_manager.advance_by(SimTimeSpan::from_s(4.0));
         process_components(&mut layer, &mut connector, &mut components);
 
         // We should only have one signal since the second PainEvent shouldn't evoke a movement
         assert!(layer.pending_signals.len() == 2);
         
-        connector.time_manager.advance_by(SimTime::from_s(5.0));
+        connector.time_manager.advance_by(SimTimeSpan::from_s(5.0));
         process_components(&mut layer, &mut connector, &mut components);
 
         // We should have one additional movement response signal, and one last pain signal
@@ -421,7 +422,7 @@ pub mod test {
         layer.setup_component(&mut connector, &mut painkiller_component);
         components.push(Box::new(painkiller_component));
 
-        connector.time_manager.advance_by(SimTime::from_s(1.0));
+        connector.time_manager.advance_by(SimTimeSpan::from_s(1.0));
         process_components(&mut layer, &mut connector, &mut components);
 
         // The pain event should have been transformed so it shouldn't evoke
@@ -452,27 +453,27 @@ pub mod test {
 
         println!("{:?}", layer.lock().unwrap().pending_signals.keys());
 
-        connector.lock().unwrap().time_manager.advance_by(SimTime::from_s(1.0));
+        connector.lock().unwrap().time_manager.advance_by(SimTimeSpan::from_s(1.0));
         process_components_sync(&layer, &connector, &mut components);
 
         // We should have one reflex movement pending
         assert!(layer.lock().unwrap().pending_signals.len() == 4);
         assert!(layer.lock().unwrap().pending_signals.values().any(|x| x.get(0).is_some_and(|s| s.message_is::<MovementEvent>())));
 
-        connector.lock().unwrap().time_manager.advance_by(SimTime::from_s(1.0));
+        connector.lock().unwrap().time_manager.advance_by(SimTimeSpan::from_s(1.0));
         process_components_sync(&layer, &connector, &mut components);
 
         // Reflex event should have completed (no longer in pending)
         assert!(layer.lock().unwrap().pending_signals.len() == 3);
         assert!(!layer.lock().unwrap().pending_signals.values().any(|x| x.get(0).is_some_and(|s| s.message_is::<MovementEvent>())));
 
-        connector.lock().unwrap().time_manager.advance_by(SimTime::from_s(4.0));
+        connector.lock().unwrap().time_manager.advance_by(SimTimeSpan::from_s(4.0));
         process_components_sync(&layer, &connector, &mut components);
 
         // We should only have one signal since the second PainEvent shouldn't evoke a movement
         assert!(layer.lock().unwrap().pending_signals.len() == 2);
         
-        connector.lock().unwrap().time_manager.advance_by(SimTime::from_s(5.0));
+        connector.lock().unwrap().time_manager.advance_by(SimTimeSpan::from_s(5.0));
         process_components_sync(&layer, &connector, &mut components);
 
         // We should have one additional movement response signal, and one last pain signal
@@ -485,7 +486,7 @@ pub mod test {
         layer.lock().unwrap().setup_component(&mut *connector.lock().unwrap(), &mut painkiller_component);
         components.push(Box::new(painkiller_component));
 
-        connector.lock().unwrap().time_manager.advance_by(SimTime::from_s(1.0));
+        connector.lock().unwrap().time_manager.advance_by(SimTimeSpan::from_s(1.0));
         process_components_sync(&layer, &connector, &mut components);
 
         // The pain event should have been transformed so it shouldn't evoke

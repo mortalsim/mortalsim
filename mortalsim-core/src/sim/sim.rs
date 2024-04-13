@@ -3,7 +3,7 @@ use std::sync::Arc;
 use std::vec::Drain;
 
 use crate::event::{Event, EventDrainIterator};
-use crate::IdType;
+use crate::{IdType, SimTimeSpan};
 
 use super::component::registry::ComponentRegistry;
 use super::{Organism, SimTime};
@@ -38,7 +38,7 @@ pub trait Sim {
     ///
     /// ### Arguments
     /// * `time_step` - Amount of time to advance by
-    fn advance_by(&mut self, time_step: SimTime);
+    fn advance_by(&mut self, time_step: SimTimeSpan);
 
     /// Schedules an `Event` for future emission on this simulation
     ///
@@ -47,7 +47,7 @@ pub trait Sim {
     /// * `event` - Event instance to emit
     ///
     /// Returns the schedule ID
-    fn schedule_event(&mut self, wait_time: SimTime, event: Box<dyn Event>) -> IdType;
+    fn schedule_event(&mut self, wait_time: SimTimeSpan, event: Box<dyn Event>) -> IdType;
 
     /// Unschedules a previously scheduled `Event`
     ///

@@ -368,6 +368,13 @@ macro_rules! ordered_time {
 ordered_time!(SimTime);
 ordered_time!(SimTimeSpan);
 
+impl SimTime {
+    /// Returns a new `SimTimeSpan` from `self` to another
+    pub fn span_to(&self, other: &Self) -> SimTimeSpan {
+        SimTimeSpan(Time::from_s(other.0.s - self.0.s))
+    }
+}
+
 impl Add<SimTimeSpan> for SimTime {
     type Output = Self;
     fn add(self, rhs: SimTimeSpan) -> Self::Output {

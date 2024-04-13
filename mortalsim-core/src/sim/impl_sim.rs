@@ -119,7 +119,7 @@ macro_rules! impl_sim {
                 self.layer_manager.update(&mut self.connector);
             }
 
-            fn advance_by(&mut self, time_step: $crate::sim::SimTime) {
+            fn advance_by(&mut self, time_step: $crate::SimTimeSpan) {
                 self.connector.time_manager.advance_by(time_step);
                 self.layer_manager.update(&mut self.connector);
             }
@@ -138,7 +138,7 @@ macro_rules! impl_sim {
 
             fn schedule_event(
                 &mut self,
-                wait_time: $crate::sim::SimTime,
+                wait_time: $crate::SimTimeSpan,
                 event: Box<dyn $crate::event::Event>,
             ) -> $crate::IdType {
                 self.connector.time_manager.schedule_event(wait_time, event)

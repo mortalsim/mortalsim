@@ -20,7 +20,7 @@ use crate::units::base::Distance;
 use crate::event::test::TestEventA;
 use crate::sim::layer::core::component::test::{TestComponentA, TestComponentB};
 use crate::sim::{Sim, SimTime};
-use crate::secs;
+use crate::{secs, SimTimeSpan};
 
 use crate::sim::impl_sim;
 use super::{AnatomicalRegion, Organism};
@@ -54,13 +54,13 @@ fn test_default() {
     let mut sim: Box<dyn Sim> = Box::new(tsim);
 
     sim.advance();
-    sim.advance_by(secs!(1.0));
+    sim.advance_by(SimTimeSpan::from_s(1.0));
     assert_eq!(sim.active_components().len(), 2);
     assert!(sim.has_component("TestComponentA"));
     assert!(sim.has_component("TestComponentB"));
     assert!(!sim.has_component("not there"));
     assert!(sim.remove_component("test").is_err());
-    sim.schedule_event(secs!(0.0), Box::new(TestEventA::new(Distance::from_m(1.0))));
+    sim.schedule_event(SimTimeSpan::from_s(0.0), Box::new(TestEventA::new(Distance::from_m(1.0))));
     assert!(sim.unschedule_event(&1234).is_err());
     assert_eq!(sim.time(), secs!(1.0));
 
@@ -83,7 +83,7 @@ fn test_layers_init_run() {
 
     println!("running test sim");
     for i in 1..10 {
-        tsim.advance_by(SimTime::from_s(i.into()));
+        tsim.advance_by(SimTimeSpan::from_s(i.into()));
     }
 
     // test the threaded version
@@ -92,7 +92,7 @@ fn test_layers_init_run() {
 
     println!("running threaded test sim");
     for i in 1..10 {
-        tsim.advance_by(SimTime::from_s(i.into()));
+        tsim.advance_by(SimTimeSpan::from_s(i.into()));
     }
 
     for fid in fids {
