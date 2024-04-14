@@ -1,9 +1,10 @@
+use super::change::DependentSubstanceChange;
 use super::{SubstanceChange, SubstanceConcentration};
 use crate::sim::SimTime;
 use crate::substance::Substance;
 use crate::id_gen::{IdGenerator, IdType};
 use crate::math::BoundFn;
-use crate::secs;
+use crate::{secs, SimTimeSpan};
 use core::panic;
 use std::collections::HashMap;
 use std::fmt;
@@ -22,6 +23,8 @@ pub struct SubstanceStore {
     composition: HashMap<Substance, SubstanceConcentration>,
     /// Keep track of any Substances which are changing
     substance_changes: HashMap<Substance, HashMap<IdType, SubstanceChange>>,
+    /// Keep track of any Substances which are changing
+    dependent_changes: HashMap<Substance, DependentSubstanceChange>,
     /// Keep track of the solute percentage to ensure validity
     solute_pct: f64,
 }
@@ -66,6 +69,7 @@ impl SubstanceStore {
             sim_time: secs!(0.0),
             composition: HashMap::new(),
             substance_changes: HashMap::new(),
+            dependent_changes: HashMap::new(),
             solute_pct: 0.0,
         }
     }
@@ -168,7 +172,7 @@ impl SubstanceStore {
         substance: Substance,
         amount: SubstanceConcentration,
         start_time: SimTime,
-        duration: SimTime,
+        duration: SimTimeSpan,
         bound_fn: BoundFn,
     ) -> IdType {
         // Constrain the start time to a minimum of the current sim time
@@ -198,6 +202,16 @@ impl SubstanceStore {
         change_id: &IdType,
     ) -> Option<&'a SubstanceChange> {
         self.substance_changes.get(substance)?.get(change_id)
+    }
+
+    /// Get an iterator to all previously added `SubstanceChange`s
+    /// Does not include any attached dependent changes
+    ///
+    /// Returns an iterator of all `SubstanceChange`s
+    pub fn get_all_direct_changes<'a>(
+        &'a self,
+    ) -> impl Iterator<Item = (&Substance, &SubstanceChange)> {
+        self.substance_changes.iter().map(|(s, cm)| cm.values().map(move |c| (s, c))).flatten()
     }
 
     /// Unschedule a substance change on this store
@@ -233,7 +247,7 @@ impl SubstanceStore {
             let mut ids_to_remove = Vec::new();
 
             for (change_id, change) in change_map.iter_mut() {
-                if change.start_time < sim_time {
+                if change.start_time() < sim_time {
                     // Change we need to add is the function value at the current time
                     // minus the value recorded from the previous time point
                     let change_amt = change.next_amount(sim_time);
@@ -272,7 +286,7 @@ impl SubstanceStore {
                     self.composition.insert(*substance, new_conc);
                 }
 
-                if sim_time > change.start_time + change.duration {
+                if sim_time > change.start_time() + change.duration() {
                     ids_to_remove.push(*change_id);
                 }
             }
@@ -291,7 +305,7 @@ mod tests {
     use super::{BoundFn, Substance, SubstanceStore, ZERO_CONCENTRATION};
     use crate::{
         substance::SubstanceConcentration,
-        util::{mmol_per_L, secs},
+        util::{mmol_per_L, secs}, SimTimeSpan,
     };
     use std::collections::HashMap;
 
@@ -353,14 +367,14 @@ mod tests {
             Substance::ADP,
             mmol_per_L!(1.0),
             secs!(0.0),
-            secs!(1.0),
+            SimTimeSpan::from_s(1.0),
             BoundFn::Sigmoid,
         );
         store.schedule_change(
             Substance::ATP,
             mmol_per_L!(1.0),
             secs!(1.0),
-            secs!(1.0),
+            SimTimeSpan::from_s(1.0),
             BoundFn::Sigmoid,
         );
 

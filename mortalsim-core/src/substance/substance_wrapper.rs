@@ -83,7 +83,7 @@ macro_rules! substance_store_wrapper {
             &mut self,
             substance: crate::substance::Substance,
             amount: crate::substance::SubstanceConcentration,
-            duration: crate::sim::SimTime
+            duration: crate::sim::SimTimeSpan
         ) -> IdType {
             self.schedule_custom_change(
                 substance,
@@ -112,7 +112,7 @@ macro_rules! substance_store_wrapper {
             substance: crate::substance::Substance,
             amount: crate::substance::SubstanceConcentration,
             start_time: crate::sim::SimTime,
-            duration: crate::sim::SimTime,
+            duration: crate::sim::SimTimeSpan,
             bound_fn: crate::math::BoundFn,
         ) -> IdType {
             let id = self.$($field_path).+.schedule_change(substance, amount, start_time, duration, bound_fn);

@@ -16,7 +16,7 @@ pub use layer::Consumable;
 pub use organism::{Organism, AnatomicalRegion};
 pub use impl_sim::impl_sim;
 
-pub use crate::SimTime;
+pub use crate::{SimTime, SimTimeSpan};
 use crate::event::Event;
 
 pub struct SimConnector {

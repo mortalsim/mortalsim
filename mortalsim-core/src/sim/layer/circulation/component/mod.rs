@@ -5,7 +5,7 @@ pub use connector::CirculationConnector;
 pub use initializer::CirculationInitializer;
 
 use crate::sim::component::SimComponent;
-use crate::sim::organism::Organism;
+use crate::sim::Organism;
 
 pub trait CirculationComponent<O: Organism>: SimComponent<O> {
     /// Initializes the module. Should register any `Event` objects to listen for
@@ -35,7 +35,7 @@ pub mod test {
     use crate::sim::organism::test::{TestBloodVessel, TestOrganism, TestSim};
     use crate::sim::SimTime;
     use crate::substance::Substance;
-    use crate::mmol_per_L;
+    use crate::{mmol_per_L, SimTimeSpan};
     use simple_si_units::chemical::Concentration;
 
     pub struct TestCircComponentA {
@@ -84,7 +84,7 @@ pub mod test {
             self.cc_sim_connector
                 .blood_store(&TestBloodVessel::VenaCava)
                 .unwrap()
-                .schedule_change(Substance::GLC, mmol_per_L!(1.0), SimTime::from_s(1.0));
+                .schedule_change(Substance::GLC, mmol_per_L!(1.0), SimTimeSpan::from_s(1.0));
         }
     }
 

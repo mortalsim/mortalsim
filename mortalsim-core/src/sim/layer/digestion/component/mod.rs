@@ -27,7 +27,7 @@ pub mod test {
     use rand::{distributions::Alphanumeric, Rng};
     use simple_si_units::geometry::Volume;
 
-    use crate::{sim::{component::{ComponentRegistry, SimComponent}, layer::digestion::{consumable::test::{test_ammonia, test_fiber, test_food}, consumed::Consumed, DigestionDirection, DigestionInitializer}, organism::test::TestOrganism, Consumable, Organism, SimTime}, substance::Substance, util::{mmol_per_L, secs}};
+    use crate::{sim::{component::{ComponentRegistry, SimComponent}, layer::digestion::{consumable::test::{test_ammonia, test_fiber, test_food}, consumed::Consumed, DigestionDirection, DigestionInitializer}, organism::test::TestOrganism, Consumable, Organism, SimTime}, substance::Substance, util::{mmol_per_L, secs}, SimTimeSpan};
 
     use super::{DigestionComponent, DigestionConnector};
 
@@ -71,7 +71,7 @@ pub mod test {
                 }
                 else if cons.concentration_of(&Substance::GLC) > mmol_per_L!(0.0) {
                     // Mmmm sugar!
-                    cons.schedule_change(Substance::GLC, -cons.concentration_of(&Substance::GLC), SimTime::from_min(5.0));
+                    cons.schedule_change(Substance::GLC, -cons.concentration_of(&Substance::GLC), SimTimeSpan::from_min(5.0));
                     cons.set_exit(cons.entry_time + SimTime::from_min(5.0), DigestionDirection::EXHAUSTED).unwrap();
                 }
                 else {

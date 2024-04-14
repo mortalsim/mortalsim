@@ -98,7 +98,7 @@ pub mod test {
     use crate::sim::layer::circulation::component::connector::BloodStore;
     use crate::sim::SimTime;
     use crate::substance::{Substance, SubstanceStore};
-    use crate::mmol_per_L;
+    use crate::{mmol_per_L, SimTimeSpan};
     use simple_si_units::chemical::Concentration;
 
     #[test]
@@ -119,7 +119,7 @@ pub mod test {
             store: SubstanceStore::new(),
             change_map: HashMap::new(),
         };
-        store.schedule_change(Substance::GLC, mmol_per_L!(1.0), SimTime::from_s(1.0));
+        store.schedule_change(Substance::GLC, mmol_per_L!(1.0), SimTimeSpan::from_s(1.0));
     }
 
     #[test]
@@ -132,7 +132,7 @@ pub mod test {
             Substance::GLC,
             mmol_per_L!(1.0),
             SimTime::from_s(1.0),
-            SimTime::from_s(1.0),
+            SimTimeSpan::from_s(1.0),
             crate::math::BoundFn::Linear,
         );
     }
@@ -143,7 +143,7 @@ pub mod test {
             store: SubstanceStore::new(),
             change_map: HashMap::new(),
         };
-        let id = store.schedule_change(Substance::GLC, mmol_per_L!(1.0), SimTime::from_s(1.0));
+        let id = store.schedule_change(Substance::GLC, mmol_per_L!(1.0), SimTimeSpan::from_s(1.0));
         assert!(store.unschedule_change(&Substance::GLC, &id).is_some());
     }
 

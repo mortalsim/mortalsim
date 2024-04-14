@@ -7,6 +7,8 @@ pub struct CirculationInitializer<O: Organism> {
     pub(crate) vessel_connections: HashSet<O::VesselType>,
     /// Notifications requested for the associated component
     pub(crate) substance_notifies: HashMap<O::VesselType, HashMap<Substance, ConcentrationTracker>>,
+    /// Notify any changes to any vessel
+    pub(crate) notify_any: bool,
     /// Attached all vessels to the component.
     pub(crate) attach_all: bool,
 }
@@ -16,6 +18,7 @@ impl<O: Organism> CirculationInitializer<O> {
         CirculationInitializer {
             vessel_connections: HashSet::new(),
             substance_notifies: HashMap::new(),
+            notify_any: false,
             attach_all: false,
         }
     }
@@ -42,6 +45,15 @@ impl<O: Organism> CirculationInitializer<O> {
         substance_map.insert(substance, ConcentrationTracker::new(threshold));
     }
 
+    /// When called, ANY change on ANY vessel will trigger the `CirculationComponent`.
+    /// Inherently attaches all vessels.
+    pub fn notify_any_change(
+        &mut self,
+    ) {
+        self.notify_any = true;
+        self.attach_all = true;
+    }
+
     /// Attaches a vessel for use by the associated `CirculationComponent`
     ///
     /// ### Arguments
@@ -51,8 +63,7 @@ impl<O: Organism> CirculationInitializer<O> {
     }
 
     /// When called, ALL vessels will be attached to the associated
-    /// `CirculationComponent`. Note that this will cause the component
-    /// to `run` at every simulation step
+    /// `CirculationComponent`.
     pub fn attach_all_vessels(&mut self) {
         self.attach_all = true;
     }
