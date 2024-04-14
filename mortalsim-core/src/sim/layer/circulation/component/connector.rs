@@ -13,30 +13,30 @@ use std::sync::{Arc, Mutex, MutexGuard};
 #[derive(Default)]
 pub struct BloodStore {
     store: SubstanceStore,
-    change_map: HashMap<Substance, Vec<IdType>>,
+    change_id_map: HashMap<Substance, Vec<IdType>>,
 }
 
 impl BloodStore {
     pub fn new() -> BloodStore {
         BloodStore {
             store: SubstanceStore::new(),
-            change_map: HashMap::new(),
+            change_id_map: HashMap::new(),
         }
     }
 
-    pub fn build(store: SubstanceStore, change_map: HashMap<Substance, Vec<IdType>>) -> BloodStore {
-        BloodStore { store, change_map }
+    pub fn build(store: SubstanceStore, change_id_map: HashMap<Substance, Vec<IdType>>) -> BloodStore {
+        BloodStore { store, change_id_map }
     }
 
     pub(crate) fn extract(self) -> (SubstanceStore, HashMap<Substance, Vec<IdType>>) {
-        (self.store, self.change_map)
+        (self.store, self.change_id_map)
     }
 
     pub(crate) fn advance(&mut self, sim_time: SimTime) {
         self.store.advance(sim_time)
     }
 
-    substance_store_wrapper!(store, change_map);
+    substance_store_wrapper!(store, change_id_map);
 }
 
 pub struct CirculationConnector<O: Organism> {
@@ -105,7 +105,7 @@ pub mod test {
     fn test_get_concentration() {
         let store = BloodStore {
             store: SubstanceStore::new(),
-            change_map: HashMap::new(),
+            change_id_map: HashMap::new(),
         };
         assert_eq!(
             store.concentration_of(&Substance::GLC),
@@ -117,7 +117,7 @@ pub mod test {
     fn test_schedule_change() {
         let mut store = BloodStore {
             store: SubstanceStore::new(),
-            change_map: HashMap::new(),
+            change_id_map: HashMap::new(),
         };
         store.schedule_change(Substance::GLC, mmol_per_L!(1.0), SimTimeSpan::from_s(1.0));
     }
@@ -126,7 +126,7 @@ pub mod test {
     fn test_schedule_custom_change() {
         let mut store = BloodStore {
             store: SubstanceStore::new(),
-            change_map: HashMap::new(),
+            change_id_map: HashMap::new(),
         };
         store.schedule_custom_change(
             Substance::GLC,
@@ -141,7 +141,7 @@ pub mod test {
     fn test_unschedule() {
         let mut store = BloodStore {
             store: SubstanceStore::new(),
-            change_map: HashMap::new(),
+            change_id_map: HashMap::new(),
         };
         let id = store.schedule_change(Substance::GLC, mmol_per_L!(1.0), SimTimeSpan::from_s(1.0));
         assert!(store.unschedule_change(&Substance::GLC, &id).is_some());
@@ -151,7 +151,7 @@ pub mod test {
     fn test_bad_unschedule() {
         let mut store = BloodStore {
             store: SubstanceStore::new(),
-            change_map: HashMap::new(),
+            change_id_map: HashMap::new(),
         };
         assert!(store.unschedule_change(&Substance::GLC, &1).is_none());
     }

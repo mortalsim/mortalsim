@@ -37,9 +37,6 @@ impl<O: Organism> SimLayer for CirculationLayer<O> {
         for (_, store) in self.composition_map.iter() {
             store.borrow_mut().advance(connector.sim_time());
         }
-        for (_, store) in self.composition_map_sync.iter() {
-            store.lock().unwrap().advance(connector.sim_time());
-        }
     }
 
     fn post_exec(&mut self, _connector: &mut SimConnector) {
@@ -49,7 +46,9 @@ impl<O: Organism> SimLayer for CirculationLayer<O> {
 
 impl<O:Organism> SimLayerSync for CirculationLayer<O> {
     fn pre_exec_sync(&mut self, connector: &mut SimConnector) {
-        self.pre_exec(connector)
+        for (_, store) in self.composition_map_sync.iter() {
+            store.lock().unwrap().advance(connector.sim_time());
+        }
     }
 
     fn post_exec_sync(&mut self, _connector: &mut SimConnector) {

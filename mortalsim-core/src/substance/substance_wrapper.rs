@@ -135,6 +135,22 @@ macro_rules! substance_store_wrapper {
             self.$($id_map_path).+.entry(*substance).or_default().retain(|c| c != change_id);
             self.$($field_path).+.unschedule_change(substance, change_id)
         }
+
+        /// Returns `true` if new changes have occurred since the last call to
+        /// get_new_direct_changes(), `false` otherwise
+        pub fn has_new_changes(&self) -> bool {
+            self.$($field_path).+.has_new_changes()
+        }
+
+        /// Get an iterator to all newly added `SubstanceChange`s
+        /// since the last time the method was called
+        ///
+        /// Returns an iterator of all new `SubstanceChange`s
+        pub fn get_new_direct_changes(
+            &mut self
+        ) -> impl Iterator<Item = (crate::substance::Substance, &crate::substance::SubstanceChange)> {
+            self.$($field_path).+.get_new_direct_changes()
+        }
     };
 }
 

@@ -8,6 +8,7 @@ use crate::{secs, SimTimeSpan};
 use core::panic;
 use std::collections::HashMap;
 use std::fmt;
+use std::mem::swap;
 use std::sync::OnceLock;
 
 static ZERO_CONCENTRATION: OnceLock<SubstanceConcentration> = OnceLock::new();
@@ -254,18 +255,32 @@ impl SubstanceStore {
         self.substance_changes.iter().map(|(s, cm)| cm.values().map(move |c| (*s, c))).flatten()
     }
 
+    /// Returns `true` if new changes have occurred since the last call to
+    /// get_new_direct_changes(), `false` otherwise
+    pub fn has_new_changes(&self) -> bool {
+        !self.new_changes.is_empty()
+    }
+
+
     /// Get an iterator to all newly added `SubstanceChange`s
     /// since the last time the method was called
     ///
     /// Returns an iterator of all new `SubstanceChange`s
-    pub fn get_new_direct_changes<'a>(
+    pub fn get_new_direct_changes(
         &mut self,
     ) -> impl Iterator<Item = (Substance, &SubstanceChange)> {
 
-        self.substance_changes
+        // Create a new empty map of changes and swap with the current one
+        // so we can take full ownership of it here
+        let mut new_changes = HashMap::new();
+        swap(&mut new_changes, &mut self.new_changes);
+
+        let results = self.substance_changes
             .iter()
-            .filter(|(s, cm)| self.new_changes.get(s).is_some_and(|id| cm.contains_key(id)))
-            .map(|(s, cm)| cm.values().map(move |c| (*s, c))).flatten()
+            .filter(move |(s, cm)| new_changes.get(s).is_some_and(|id| cm.contains_key(id)))
+            .map(|(s, cm)| cm.values().map(move |c| (*s, c))).flatten();
+
+        results
     }
 
     /// Unschedule a substance change on this store
