@@ -7,6 +7,7 @@ use crate::SimTimeSpan;
 
 #[derive(Debug, Clone)]
 struct SubstanceChangeFn {
+    pub start_time: SimTime,
     pub amount: SubstanceConcentration,
     pub duration: SimTimeSpan,
     pub bound_fn: BoundFn,
@@ -28,12 +29,14 @@ impl SubstanceChangeFn {
     ///
     /// Returns a new SubstanceChangeFn starting at 0.0
     pub fn new(
+        start_time: SimTime,
         amount: SubstanceConcentration,
         duration: SimTimeSpan,
         bound_fn: BoundFn,
     ) -> Self {
         check_duration(duration);
         Self {
+            start_time,
             amount,
             duration,
             bound_fn,
@@ -46,9 +49,9 @@ impl SubstanceChangeFn {
     /// ### Arguments
     /// * `cur_time` - current simulation time to evaluate the change at
     /// * `start_time` - simulation time when the change began
-    pub fn next_amount(&self, cur_time: SimTime, start_time: SimTime) -> SubstanceConcentration {
+    pub fn next_amount(&self, cur_time: SimTime) -> SubstanceConcentration {
         SubstanceConcentration::from_mM(self.bound_fn.call(
-            (cur_time - start_time).to_s(),
+            (cur_time - self.start_time).to_s(),
             self.duration.to_s(),
             self.amount.to_mM(),
         ))
@@ -59,7 +62,6 @@ impl SubstanceChangeFn {
 /// Representation of a substance change
 #[derive(Debug, Clone)]
 pub struct SubstanceChange {
-    start_time: SimTime,
     cancel_time: Arc<RwLock<SimTime>>,
     prev_val: SubstanceConcentration,
     change_fn: Arc<SubstanceChangeFn>,
@@ -83,10 +85,9 @@ impl SubstanceChange {
     ) -> Self {
         check_duration(duration);
         Self {
-            start_time,
             cancel_time: Arc::new(RwLock::new(SimTime::from_s(-1.0))),
             prev_val: SubstanceConcentration::from_mM(0.0),
-            change_fn: Arc::new(SubstanceChangeFn::new(amount, duration, bound_fn))
+            change_fn: Arc::new(SubstanceChangeFn::new(start_time, amount, duration, bound_fn))
         }
     }
 
@@ -96,7 +97,7 @@ impl SubstanceChange {
     /// ### Arguments
     /// * `sim_time` - current simulation time to evaluate the change at
     pub fn next_amount(&mut self, sim_time: SimTime) -> SubstanceConcentration {
-        let next = self.change_fn.next_amount(sim_time, self.start_time);
+        let next = self.change_fn.next_amount(sim_time);
         let result = next - self.prev_val;
         self.prev_val = next;
         result
@@ -110,7 +111,7 @@ impl SubstanceChange {
     }
 
     pub fn start_time(&self) -> SimTime {
-        self.start_time
+        self.change_fn.start_time
     }
 
     pub fn duration(&self) -> SimTimeSpan {
@@ -121,7 +122,6 @@ impl SubstanceChange {
 /// A change dependent on a change elsewhere
 #[derive(Debug, Clone)]
 pub struct DependentSubstanceChange {
-    start_time: SimTime,
     time_diff: SimTimeSpan,
     cancel_time: Arc<RwLock<SimTime>>,
     prev_val: SubstanceConcentration,
@@ -142,12 +142,11 @@ impl DependentSubstanceChange {
         start_time: SimTime,
         change: &SubstanceChange,
     ) -> Self {
-        if start_time <= change.start_time {
+        if start_time <= change.start_time() {
             panic!("DependentSubstanceChange start_time must be greater than the source change's start_time")
         }
         Self {
-            start_time,
-            time_diff: change.start_time.span_to(&start_time),
+            time_diff: change.start_time().span_to(&start_time),
             cancel_time: change.cancel_time.clone(),
             prev_val: SubstanceConcentration::from_mM(0.0),
             change_fn: change.change_fn.clone(),
@@ -167,14 +166,14 @@ impl DependentSubstanceChange {
             return None
         }
 
-        let next = self.change_fn.next_amount(sim_time, self.start_time);
+        let next = self.change_fn.next_amount(sim_time - self.time_diff);
         let result = next - self.prev_val;
         self.prev_val = next;
         Some(result)
     }
 
     pub fn start_time(&self) -> SimTime {
-        self.start_time
+        self.change_fn.start_time + self.time_diff
     }
 
     pub fn duration(&self) -> SimTimeSpan {

@@ -24,9 +24,13 @@ pub struct SubstanceStore {
     /// Keep track of any Substances which are changing
     substance_changes: HashMap<Substance, HashMap<IdType, SubstanceChange>>,
     /// Keep track of any Substances which are changing
-    dependent_changes: HashMap<Substance, DependentSubstanceChange>,
+    dependent_changes: HashMap<Substance, Vec<DependentSubstanceChange>>,
+    /// Keep track of newly added change ids
+    new_changes: HashMap<Substance, IdType>,
     /// Keep track of the solute percentage to ensure validity
     solute_pct: f64,
+    /// whether to track new changes or not
+    track_new: bool,
 }
 
 impl fmt::Debug for SubstanceStore {
@@ -70,7 +74,9 @@ impl SubstanceStore {
             composition: HashMap::new(),
             substance_changes: HashMap::new(),
             dependent_changes: HashMap::new(),
+            new_changes: HashMap::new(),
             solute_pct: 0.0,
+            track_new: false,
         }
     }
 
@@ -186,8 +192,42 @@ impl SubstanceStore {
             .entry(substance)
             .or_default()
             .insert(change_id, change);
+        
+        if self.track_new {
+            self.new_changes.insert(substance, change_id);
+        }
 
         change_id
+    }
+
+    /// Schedule a dependent substance change on this store
+    /// equal to a change on a different store with a given delay.
+    ///
+    /// Panics if `start_time < sim_time` or `start_time <= change.start_time()`
+    ///
+    /// ### Arguments
+    /// * `substance`  - the substance to change
+    /// * `start_time` - simulation time to start the change
+    /// * `change`     - change to duplicate on this store
+    ///
+    /// Returns an id corresponding to this change
+    pub fn schedule_dependent_change(
+        &mut self,
+        substance: Substance,
+        start_time: SimTime,
+        change: &SubstanceChange,
+    ) {
+        // Constrain the start time to a minimum of the current sim time
+        if start_time < self.sim_time {
+            panic!("start_time cannot be less than the current sim time!");
+        }
+
+        let dep_change = DependentSubstanceChange::new(start_time, change);
+        self.dependent_changes
+            .entry(substance)
+            .or_default()
+            .push(dep_change);
+
     }
 
     /// Get a reference to a previously added `SubstanceChange`
@@ -210,8 +250,22 @@ impl SubstanceStore {
     /// Returns an iterator of all `SubstanceChange`s
     pub fn get_all_direct_changes<'a>(
         &'a self,
-    ) -> impl Iterator<Item = (&Substance, &SubstanceChange)> {
-        self.substance_changes.iter().map(|(s, cm)| cm.values().map(move |c| (s, c))).flatten()
+    ) -> impl Iterator<Item = (Substance, &SubstanceChange)> {
+        self.substance_changes.iter().map(|(s, cm)| cm.values().map(move |c| (*s, c))).flatten()
+    }
+
+    /// Get an iterator to all newly added `SubstanceChange`s
+    /// since the last time the method was called
+    ///
+    /// Returns an iterator of all new `SubstanceChange`s
+    pub fn get_new_direct_changes<'a>(
+        &mut self,
+    ) -> impl Iterator<Item = (Substance, &SubstanceChange)> {
+
+        self.substance_changes
+            .iter()
+            .filter(|(s, cm)| self.new_changes.get(s).is_some_and(|id| cm.contains_key(id)))
+            .map(|(s, cm)| cm.values().map(move |c| (*s, c))).flatten()
     }
 
     /// Unschedule a substance change on this store
@@ -232,6 +286,10 @@ impl SubstanceStore {
             .remove(change_id)
     }
 
+    /// Track any new changes added to this store
+    pub fn track_changes(&mut self) {
+        self.track_new = true;
+    }
 
     /// Clear all scheduled changes on this store
     pub fn clear_all_changes(&mut self) {
