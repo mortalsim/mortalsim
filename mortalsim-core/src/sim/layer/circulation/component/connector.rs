@@ -7,7 +7,7 @@ use crate::substance::{Substance, SubstanceStore};
 use crate::IdType;
 use std::borrow::{Borrow, BorrowMut};
 use std::cell::{RefCell, RefMut};
-use std::collections::HashMap;
+use std::collections::{hash_map, HashMap};
 use std::sync::{Arc, Mutex, MutexGuard};
 
 #[derive(Default)]
@@ -75,6 +75,20 @@ impl<O: Organism> CirculationConnector<O> {
             return Some(Either::Right(store.lock().unwrap()));
         }
         None
+    }
+
+    /// Retrieves an iterator of all existing blood stores which are connected
+    /// to this component.
+    pub fn with_blood_stores(&self, mut fcn: impl FnMut(O::VesselType, &mut BloodStore)) {
+        if self.vessel_map_sync.is_empty() {
+            for (v, s) in self.vessel_map.iter() {
+                fcn(*v, &mut *s.borrow_mut())
+            }
+        } else {
+            for (v, s) in self.vessel_map_sync.iter() {
+                fcn(*v, &mut *s.lock().unwrap())
+            }
+        }
     }
 
     /// Retrieves the current simulation time

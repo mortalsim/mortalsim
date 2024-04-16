@@ -80,6 +80,24 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessor<O, T> for Ci
     fn check_component(&mut self, component: &T) -> bool {
         let comp_settings = self.component_settings.get_mut(component.id()).unwrap();
 
+        // If it gets notified of any change, trigger if any changes have occurred on
+        // any vessel
+        if comp_settings.notify_any {
+            if self.composition_map.values().any(|s| s.borrow().has_new_changes()) {
+                return true
+            }
+        }
+
+        // If it has change notifications on specific vessels, check those
+        for vessel in comp_settings.vessel_notifies.iter() {
+            if self.composition_map.iter()
+                .filter(|(v, _)| *v == vessel)
+                .any(|(_, s)| s.borrow().has_new_changes()) {
+                
+                return true
+            }
+        }
+
         let mut trigger = false;
 
         // Determine if any substances have changed beyond the threshold

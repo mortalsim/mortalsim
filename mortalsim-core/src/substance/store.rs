@@ -26,12 +26,14 @@ pub struct SubstanceStore {
     substance_changes: HashMap<Substance, HashMap<IdType, SubstanceChange>>,
     /// Keep track of any Substances which are changing
     dependent_changes: HashMap<Substance, Vec<DependentSubstanceChange>>,
+    /// Keep track of staged changes, which will be "new" on the next advance
+    staged_changes: HashMap<Substance, IdType>,
     /// Keep track of newly added change ids
     new_changes: HashMap<Substance, IdType>,
     /// Keep track of the solute percentage to ensure validity
     solute_pct: f64,
     /// whether to track new changes or not
-    track_new: bool,
+    track_changes: bool,
 }
 
 impl fmt::Debug for SubstanceStore {
@@ -75,9 +77,10 @@ impl SubstanceStore {
             composition: HashMap::new(),
             substance_changes: HashMap::new(),
             dependent_changes: HashMap::new(),
+            staged_changes: HashMap::new(),
             new_changes: HashMap::new(),
             solute_pct: 0.0,
-            track_new: false,
+            track_changes: false,
         }
     }
 
@@ -194,8 +197,8 @@ impl SubstanceStore {
             .or_default()
             .insert(change_id, change);
         
-        if self.track_new {
-            self.new_changes.insert(substance, change_id);
+        if self.track_changes {
+            self.staged_changes.insert(substance, change_id);
         }
 
         change_id
@@ -270,10 +273,8 @@ impl SubstanceStore {
         &mut self,
     ) -> impl Iterator<Item = (Substance, &SubstanceChange)> {
 
-        // Create a new empty map of changes and swap with the current one
-        // so we can take full ownership of it here
-        let mut new_changes = HashMap::new();
-        swap(&mut new_changes, &mut self.new_changes);
+        // Create a reference of the changes that the iterator can own
+        let new_changes = &self.new_changes;
 
         let results = self.substance_changes
             .iter()
@@ -303,7 +304,7 @@ impl SubstanceStore {
 
     /// Track any new changes added to this store
     pub fn track_changes(&mut self) {
-        self.track_new = true;
+        self.track_changes = true;
     }
 
     /// Clear all scheduled changes on this store
@@ -316,6 +317,12 @@ impl SubstanceStore {
     /// ### Arguments
     /// * `sim_time` - the new simulation time
     pub(crate) fn advance(&mut self, sim_time: SimTime) {
+
+        if self.track_changes {
+            swap(&mut self.staged_changes, &mut self.new_changes);
+            self.staged_changes.clear();
+        }
+
         for (substance, change_map) in self.substance_changes.iter_mut() {
             let mut ids_to_remove = Vec::new();
 

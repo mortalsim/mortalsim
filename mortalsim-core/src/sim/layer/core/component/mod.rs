@@ -70,7 +70,7 @@ pub trait CoreComponent<O: Organism>: SimComponent<O> {
     ///
     /// ### Arguments
     /// * `initializer` - Helper object for initializing the module
-    fn core_init(&mut self, _initializer: &mut CoreInitializer<O>);
+    fn core_init(&mut self, initializer: &mut CoreInitializer<O>);
 
     /// Used by the Sim to retrieve a mutable reference to this module's
     /// CoreConnector, which tracks module interactions

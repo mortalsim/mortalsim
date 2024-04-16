@@ -7,6 +7,8 @@ pub struct CirculationInitializer<O: Organism> {
     pub(crate) vessel_connections: HashSet<O::VesselType>,
     /// Notifications requested for the associated component
     pub(crate) substance_notifies: HashMap<O::VesselType, HashMap<Substance, ConcentrationTracker>>,
+    /// Notifications requested for the associated component
+    pub(crate) vessel_notifies: HashSet<O::VesselType>,
     /// Notify any changes to any vessel
     pub(crate) notify_any: bool,
     /// Attached all vessels to the component.
@@ -18,6 +20,7 @@ impl<O: Organism> CirculationInitializer<O> {
         CirculationInitializer {
             vessel_connections: HashSet::new(),
             substance_notifies: HashMap::new(),
+            vessel_notifies: HashSet::new(),
             notify_any: false,
             attach_all: false,
         }
@@ -43,6 +46,20 @@ impl<O: Organism> CirculationInitializer<O> {
             .entry(vessel)
             .or_insert(HashMap::new());
         substance_map.insert(substance, ConcentrationTracker::new(threshold));
+    }
+
+    /// Registers the associated `CirculationComponent` to `run` whenever the
+    /// provided `BloodVessel` has any newly scheduled changes to its composition.
+    /// Also automatically attaches the vessel for use by the component.
+    ///
+    /// ### Arguments
+    /// * `vessel`    - `BloodVessel` to notify on changes
+    pub fn notify_scheduled_change(
+        &mut self,
+        vessel: O::VesselType,
+    ) {
+        self.vessel_connections.insert(vessel);
+        self.vessel_notifies.insert(vessel);
     }
 
     /// When called, ANY change on ANY vessel will trigger the `CirculationComponent`.
