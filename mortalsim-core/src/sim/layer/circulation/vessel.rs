@@ -6,7 +6,7 @@ use std::str::FromStr;
 use crate::sim::layer::AnatomicalRegionIter;
 
 pub trait BloodVessel:
-    Hash + Clone + Copy + Eq + fmt::Debug + Send
+    Hash + Clone + Copy + Eq + fmt::Debug + Send + Into<&'static str>
 {
     type AnatomyType: Clone;
     fn max_arterial_depth() -> u32;

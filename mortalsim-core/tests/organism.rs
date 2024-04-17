@@ -5,7 +5,7 @@ use std::collections::HashSet;
 use std::hash::Hash;
 use std::sync::OnceLock;
 use mortalsim_core::{impl_sim, sim::layer::{nervous::{Nerve, NerveIter}, AnatomicalRegionIter}};
-use strum_macros::Display;
+use strum_macros::{Display, IntoStaticStr};
 
 use mortalsim_core::sim::{layer::circulation::{BloodVessel, BloodVesselType, VesselIter}, AnatomicalRegion, Organism};
 
@@ -26,7 +26,7 @@ fn get_region_set() -> AnatomicalRegionIter<'static, SampleAnatomicalRegion>{
     }).iter())
 }
 
-#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, IntoStaticStr)]
 pub enum SampleBloodVessel {
     Aorta,
     VenaCava,

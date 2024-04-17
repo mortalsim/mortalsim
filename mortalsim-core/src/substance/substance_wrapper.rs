@@ -151,6 +151,30 @@ macro_rules! substance_store_wrapper {
         ) -> impl Iterator<Item = (crate::substance::Substance, &crate::substance::SubstanceChange)> {
             self.$($field_path).+.get_new_direct_changes()
         }
+
+        /// Schedule a dependent substance change on this store
+        /// equal to a change on a different store with a given delay.
+        ///
+        /// Panics if `start_time < sim_time` or `start_time <= change.start_time()`
+        ///
+        /// ### Arguments
+        /// * `substance`  - the substance to change
+        /// * `start_time` - simulation time to start the change
+        /// * `change`     - change to duplicate on this store
+        ///
+        /// Returns an id corresponding to this change
+        pub fn schedule_dependent_change(
+            &mut self,
+            substance: crate::substance::Substance,
+            start_time: crate::SimTime,
+            change: &crate::substance::SubstanceChange,
+        ) {
+            self.$($field_path).+.schedule_dependent_change(
+                substance,
+                start_time,
+                change,
+            )
+        }
     };
 }
 
