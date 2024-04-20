@@ -25,17 +25,3 @@ pub mod math;
 pub mod units {
     pub use simple_si_units::*;
 }
-
-#[cfg(test)]
-mod test {
-    use std::sync::Once;
-    static INIT: Once = Once::new();
-
-    pub fn init_test() {
-        use simple_logger::SimpleLogger;
-
-        INIT.call_once(|| {
-            SimpleLogger::new().init().unwrap();
-        });
-    }
-}

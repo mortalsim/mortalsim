@@ -39,7 +39,7 @@ pub fn bound_linear(t: f64, d: f64, a: f64) -> f64 {
     return a;
 }
 
-#[cfg(test)]
+
 mod tests {
     use super::{bound_linear, bound_sigmoid};
 

@@ -87,7 +87,7 @@ impl<O: Organism> CoreInitializer<O> {
     }
 }
 
-#[cfg(test)]
+
 pub mod test {
     use crate::event::test::{TestEventA, TestEventB};
     use crate::sim::organism::test::{TestOrganism, TestSim};

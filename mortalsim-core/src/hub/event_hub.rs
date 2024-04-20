@@ -380,7 +380,7 @@ impl<'a> EventHub<'a> {
     }
 }
 
-#[cfg(test)]
+
 mod tests {
     use super::EventHub;
     use crate::event::test::TestEventA;
@@ -395,8 +395,6 @@ mod tests {
 
     #[test]
     fn test_hub() {
-        crate::test::init_test();
-
         let any_count = RwLock::new(0);
         let a_count = RwLock::new(0);
         let on_val_a = RwLock::new(Distance::from_m(0.0));
@@ -454,8 +452,6 @@ mod tests {
 
     #[test]
     fn test_hub_priority_listeners() {
-        crate::test::init_test();
-
         let calls = Arc::new(Mutex::new(Vec::new()));
 
         let mut hub = EventHub::new();
@@ -482,8 +478,6 @@ mod tests {
 
     #[test]
     fn test_hub_priority_transformers() {
-        crate::test::init_test();
-
         let calls = Arc::new(Mutex::new(Vec::new()));
 
         let mut hub = EventHub::new();

@@ -222,7 +222,7 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessorSync<O, T> fo
     }
 }
 
-#[cfg(test)]
+
 mod tests {
     use std::cell::RefCell;
     use std::sync::{Arc, Mutex};

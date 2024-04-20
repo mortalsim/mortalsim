@@ -22,7 +22,7 @@ pub trait DigestionComponent<O: Organism>: SimComponent<O> {
     fn digestion_connector(&mut self) -> &mut DigestionConnector<O>;
 }
 
-#[cfg(test)]
+
 pub mod test {
     use rand::{distributions::Alphanumeric, Rng};
     use simple_si_units::geometry::Volume;

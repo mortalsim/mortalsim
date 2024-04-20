@@ -237,7 +237,7 @@ impl<O: Organism, T: CoreComponent<O>> SimComponentProcessorSync<O, T> for CoreL
     }
 }
 
-#[cfg(test)]
+
 pub mod test {
     use std::panic::catch_unwind;
     use std::sync::Mutex;

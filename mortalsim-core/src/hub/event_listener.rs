@@ -227,7 +227,7 @@ impl<'a, T: Event> EventListener for ListenerItem<'a, T> {
     }
 }
 
-#[cfg(test)]
+
 mod tests {
     use super::EventListener;
     use super::ListenerItem;

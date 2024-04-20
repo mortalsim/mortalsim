@@ -34,7 +34,7 @@ impl<'a> Iterator for EventDrainIterator<'a> {
     }
 }
 
-#[cfg(test)]
+
 pub mod test {
 
     use super::Event;

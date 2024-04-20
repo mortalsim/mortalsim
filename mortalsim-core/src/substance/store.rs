@@ -380,7 +380,7 @@ impl SubstanceStore {
     }
 }
 
-#[cfg(test)]
+
 mod tests {
     use super::{BoundFn, Substance, SubstanceStore, ZERO_CONCENTRATION};
     use crate::{

@@ -150,7 +150,7 @@ impl<'a, T: Event> EventTransformer for TransformerItem<'a, T> {
     }
 }
 
-#[cfg(test)]
+
 mod tests {
     use super::EventTransformer;
     use super::TransformerItem;

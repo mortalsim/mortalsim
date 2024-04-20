@@ -23,7 +23,7 @@ pub trait CirculationComponent<O: Organism>: SimComponent<O> {
     fn circulation_connector(&mut self) -> &mut CirculationConnector<O>;
 }
 
-#[cfg(test)]
+
 pub mod test {
     use std::cell::RefCell;
 

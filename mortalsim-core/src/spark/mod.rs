@@ -293,7 +293,7 @@ impl MainObject {
     }
 }
 
-#[cfg(test)]
+
 mod tests {
     use super::ConnectorA;
     use super::ConnectorB;

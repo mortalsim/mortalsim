@@ -332,7 +332,7 @@ impl Consumable {
 
 }
 
-#[cfg(test)]
+
 pub mod test {
     use crate::sim::SimTime;
     use crate::substance::{Substance, SubstanceConcentration, SubstanceStore};

@@ -176,7 +176,7 @@ impl Consumed {
     }
 }
 
-#[cfg(test)]
+
 pub mod test {
     use crate::sim::layer::digestion::DigestionDirection;
     use crate::units::base::{Amount, Mass};

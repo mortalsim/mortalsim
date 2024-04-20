@@ -274,7 +274,7 @@ impl TimeManager {
     }
 }
 
-#[cfg(test)]
+
 mod tests {
     use super::Time;
     use super::TimeManager;

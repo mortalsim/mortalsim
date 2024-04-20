@@ -133,7 +133,7 @@ impl SimState {
     }
 }
 
-#[cfg(test)]
+
 mod tests {
     use super::SimState;
     use crate::event::test::TestEventA;
@@ -145,8 +145,6 @@ mod tests {
 
     #[test]
     fn test_sim_state() {
-        crate::test::init_test();
-
         let mut state = SimState::new();
 
         state.set_state(TestEventA::new(Distance::from_m(0.0)));

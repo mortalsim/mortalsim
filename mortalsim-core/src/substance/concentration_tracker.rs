@@ -21,7 +21,7 @@ impl ConcentrationTracker {
     }
 }
 
-#[cfg(test)]
+
 pub mod test {
     use simple_si_units::chemical::Concentration;
 

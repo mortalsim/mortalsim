@@ -323,7 +323,7 @@ impl<O: Organism, T: NervousComponent<O>> SimComponentProcessorSync<O, T> for Ne
     }
 }
 
-#[cfg(test)]
+
 pub mod test {
     use std::os::windows::process;
     use std::sync::Mutex;

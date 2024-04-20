@@ -273,7 +273,7 @@ impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessorSync<O, T> for 
     }
 }
 
-#[cfg(test)]
+
 mod tests {
     use std::{borrow::BorrowMut, ops::RangeBounds, sync::{Arc, Mutex}, thread::scope};
 

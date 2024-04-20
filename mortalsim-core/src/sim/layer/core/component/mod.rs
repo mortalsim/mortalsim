@@ -80,7 +80,7 @@ pub trait CoreComponent<O: Organism>: SimComponent<O> {
     fn core_connector(&mut self) -> &mut CoreConnector<O>;
 }
 
-#[cfg(test)]
+
 pub mod test {
     use super::CoreComponent;
     use super::{CoreConnector, CoreInitializer};

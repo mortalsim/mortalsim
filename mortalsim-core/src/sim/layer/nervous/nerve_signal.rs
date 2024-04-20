@@ -110,7 +110,7 @@ impl<O: Organism> Drop for NerveSignal<O> {
     }
 }
 
-#[cfg(test)]
+
 pub mod test {
     use simple_si_units::base::Distance;
 

@@ -23,7 +23,7 @@ pub trait NervousComponent<O: Organism>: SimComponent<O> {
     fn nervous_connector(&mut self) -> &mut NervousConnector<O>;
 }
 
-#[cfg(test)]
+
 pub mod test {
     use crate::{event::Event, sim::{component::SimComponent, organism::test::{TestAnatomicalRegion, TestNerve, TestOrganism}, Organism, SimTime}};
 

@@ -11,5 +11,4 @@ pub trait Organism: Debug + Send + Clone + Copy + 'static {
     type AnatomyType: AnatomicalRegion;
 }
 
-#[cfg(test)]
 pub mod test;

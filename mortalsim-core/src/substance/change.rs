@@ -181,7 +181,7 @@ impl DependentSubstanceChange {
     }
 }
 
-#[cfg(test)]
+
 mod tests {
 
     use super::{BoundFn, DependentSubstanceChange, SubstanceChange};

@@ -139,7 +139,7 @@ impl IdGenerator {
     }
 }
 
-#[cfg(test)]
+
 mod tests {
     use super::DuplicateIdReturnError;
     use super::IdGenerator;

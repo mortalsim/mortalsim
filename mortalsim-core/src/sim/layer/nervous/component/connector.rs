@@ -127,7 +127,7 @@ impl<O: Organism> NervousConnector<O> {
     }
 }
 
-#[cfg(test)]
+
 pub mod test {
     use std::any::TypeId;
     use std::collections::HashMap;

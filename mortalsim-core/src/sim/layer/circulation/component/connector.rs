@@ -104,7 +104,7 @@ impl<O: Organism> CirculationConnector<O> {
     }
 }
 
-#[cfg(test)]
+
 pub mod test {
 
     use std::collections::HashMap;

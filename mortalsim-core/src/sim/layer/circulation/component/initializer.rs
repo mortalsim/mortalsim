@@ -86,7 +86,7 @@ impl<O: Organism> CirculationInitializer<O> {
     }
 }
 
-#[cfg(test)]
+
 pub mod test {
     use crate::sim::organism::test::{TestBloodVessel, TestOrganism, TestSim};
     use crate::substance::Substance;
