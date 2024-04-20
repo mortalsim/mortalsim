@@ -167,31 +167,24 @@ impl SubstanceStore {
     /// Schedule a substance change on this store
     /// with a custom shape over the given duration.
     ///
-    /// Panics if `start_time < sim_time` or `duration <= 0`
+    /// Panics if `start_time < sim_time`
     ///
     /// ### Arguments
     /// * `substance`  - the substance to change
-    /// * `start_time` - simulation time to start the change
-    /// * `amount`     - total concentration change to take place
-    /// * `duration`   - amount of time over which the change takes place
-    /// * `bound_fn`   - the shape of the function
+    /// * `change`     - change to execute
     ///
     /// Returns an id corresponding to this change
     pub fn schedule_change(
         &mut self,
         substance: Substance,
-        amount: SubstanceConcentration,
-        start_time: SimTime,
-        duration: SimTimeSpan,
-        bound_fn: BoundFn,
+        change: SubstanceChange,
     ) -> IdType {
         // Constrain the start time to a minimum of the current sim time
-        if start_time < self.sim_time {
+        if change.start_time() < self.sim_time {
             panic!("start_time cannot be less than the current sim time!");
         }
 
         let change_id = self.id_gen.get_id();
-        let change = SubstanceChange::new(start_time, amount, duration, bound_fn);
         self.substance_changes
             .entry(substance)
             .or_default()
@@ -384,7 +377,7 @@ impl SubstanceStore {
 mod tests {
     use super::{BoundFn, Substance, SubstanceStore, ZERO_CONCENTRATION};
     use crate::{
-        substance::SubstanceConcentration,
+        substance::{SubstanceChange, SubstanceConcentration},
         util::{mmol_per_L, secs}, SimTimeSpan,
     };
     use std::collections::HashMap;
@@ -445,17 +438,21 @@ mod tests {
         let mut store = SubstanceStore::new();
         let change_id = store.schedule_change(
             Substance::ADP,
-            mmol_per_L!(1.0),
-            secs!(0.0),
-            SimTimeSpan::from_s(1.0),
-            BoundFn::Sigmoid,
+            SubstanceChange::new(
+                secs!(0.0),
+                mmol_per_L!(1.0),
+                SimTimeSpan::from_s(1.0),
+                BoundFn::Sigmoid,
+            ),
         );
         store.schedule_change(
             Substance::ATP,
-            mmol_per_L!(1.0),
-            secs!(1.0),
-            SimTimeSpan::from_s(1.0),
-            BoundFn::Sigmoid,
+            SubstanceChange::new(
+                secs!(1.0),
+                mmol_per_L!(1.0),
+                SimTimeSpan::from_s(1.0),
+                BoundFn::Sigmoid,
+            ),
         );
 
         let time1 = secs!(0.5);

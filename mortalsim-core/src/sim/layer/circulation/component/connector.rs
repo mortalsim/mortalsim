@@ -111,7 +111,7 @@ pub mod test {
 
     use crate::sim::layer::circulation::component::connector::BloodStore;
     use crate::sim::SimTime;
-    use crate::substance::{Substance, SubstanceStore};
+    use crate::substance::{Substance, SubstanceChange, SubstanceStore};
     use crate::{mmol_per_L, SimTimeSpan};
     use simple_si_units::chemical::Concentration;
 
@@ -144,10 +144,12 @@ pub mod test {
         };
         store.schedule_custom_change(
             Substance::GLC,
-            mmol_per_L!(1.0),
-            SimTime::from_s(1.0),
-            SimTimeSpan::from_s(1.0),
-            crate::math::BoundFn::Linear,
+            SubstanceChange::new(
+                SimTime::from_s(1.0),
+                mmol_per_L!(1.0),
+                SimTimeSpan::from_s(1.0),
+                crate::math::BoundFn::Linear,
+            )
         );
     }
 

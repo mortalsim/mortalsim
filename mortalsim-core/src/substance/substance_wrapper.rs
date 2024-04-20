@@ -87,35 +87,32 @@ macro_rules! substance_store_wrapper {
         ) -> IdType {
             self.schedule_custom_change(
                 substance,
-                amount,
-                self.$($field_path).+.sim_time(),
-                duration,
-                crate::math::BoundFn::Sigmoid
+                crate::substance::SubstanceChange::new(
+                    self.$($field_path).+.sim_time(),
+                    amount,
+                    duration,
+                    crate::math::BoundFn::Sigmoid
+                )
             )
         }
 
         /// Schedule a substance change on this store
         /// with a custom shape over the given duration.
         ///
-        /// Panics if `start_time < sim_time` or `duration <= 0`
-        ///
         /// ### Arguments
         /// * `substance`  - the substance to change
-        /// * `start_time` - simulation time to start the change
-        /// * `amount`     - total concentration change to take place
-        /// * `duration`   - amount of time over which the change takes place
-        /// * `bound_fn`   - the shape of the function
+        /// * `change`     - change to execute
         ///
         /// Returns an id corresponding to this change
         pub fn schedule_custom_change(
             &mut self,
             substance: crate::substance::Substance,
-            amount: crate::substance::SubstanceConcentration,
-            start_time: crate::sim::SimTime,
-            duration: crate::sim::SimTimeSpan,
-            bound_fn: crate::math::BoundFn,
+            change: crate::substance::SubstanceChange,
         ) -> IdType {
-            let id = self.$($field_path).+.schedule_change(substance, amount, start_time, duration, bound_fn);
+            let id = self.$($field_path).+.schedule_change(
+                substance,
+                change,
+            );
             self.$($id_map_path).+.entry(substance).or_default().push(id);
             id
         }
