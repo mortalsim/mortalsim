@@ -187,12 +187,17 @@ impl<O: Organism> SimComponent<O> for SimpleBloodFlow<O> {
 }
 
 #[cfg(test)]
+mod test;
+
+#[cfg(test)]
 mod tests {
-    // use mortalsim_core::units::mechanical::Frequency;
-    // use mortalsim_core::event::HeartRate;
+    use mortalsim_core::sim::organism::test::{TestBloodVessel, TestOrganism};
+    use mortalsim_core::units::mechanical::Frequency;
+    use mortalsim_core::event::HeartRate;
     use mortalsim_human::{HumanBloodVessel, HumanOrganism};
 
     use super::*;
+    use super::test::*;
 
     #[test]
     fn distance_between() {
@@ -208,5 +213,25 @@ mod tests {
             SimpleBloodFlow::<HumanOrganism>::distance_between(HumanBloodVessel::RightFibularArtery, HumanBloodVessel::LeftFibularArtery),
             16
         );
+    }
+
+    #[test]
+    fn blood_delay() {
+        let sbf = SimpleBloodFlow::<TestOrganism>::new(
+            HeartRate(Frequency::from_Hz(60.0)),
+            Time::from_s(60.0),
+        );
+
+        let d1 = sbf.calculate_blood_delay(TestBloodVessel::Aorta, TestBloodVessel::AbdominalAorta);
+        assert!(
+            d1 < SimTimeSpan::from_s(60.0) && d1 > SimTimeSpan::from_s(1.0),
+            "Aorta->AbdominalAorta delay {d1} is not in a reasonable range."
+        );
+        
+        let d2 = sbf.calculate_blood_delay(TestBloodVessel::Aorta, TestBloodVessel::VenaCava);
+        assert!(
+            d2 < SimTimeSpan::from_s(60.0) && d2 > SimTimeSpan::from_s(20.0),
+            "Aorta->VenaCava delay {d2} is not in a reasonable range."
+        )
     }
 }
