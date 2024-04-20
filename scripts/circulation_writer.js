@@ -57,8 +57,8 @@ function writeCircFile(namespace, config) {
         (entry.links || []).forEach(e => processVein(e, vein, depth+1));
     }
 
-    config.arterial.forEach(e => processArtery(e, null, 0));
-    config.venous.forEach(e => processVein(e, null, 0));
+    config.arterial.forEach(e => processArtery(e, null, 1));
+    config.venous.forEach(e => processVein(e, null, 1));
 
     let allVessels = [...Object.values(arteries), ...Object.values(veins)];
 
@@ -69,8 +69,8 @@ function writeCircFile(namespace, config) {
  */
 use std::collections::HashSet;
 use std::sync::OnceLock;
-use crate::sim::layer::circulation::{BloodVesselType, BloodVessel, VesselIter};
-use crate::sim::layer::AnatomicalRegionIter;
+use ${namespace == 'test' ? 'crate' : 'mortalsim_core'}::sim::layer::circulation::{BloodVesselType, BloodVessel, VesselIter};
+use ${namespace == 'test' ? 'crate' : 'mortalsim_core'}::sim::layer::AnatomicalRegionIter;
 use super::${namespaceCapitalized}AnatomicalRegion;
 
 #[derive(Debug, Display, Hash, Clone, Copy, PartialEq, Eq, EnumString, IntoStaticStr)]

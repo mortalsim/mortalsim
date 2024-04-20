@@ -1,5 +1,5 @@
 ---
-path: mortalsim-core/src/sim/organism/human/human_circulation.rs
+path: mortalsim-human/src/human_circulation.rs
 arterial:
   - id: Aorta
     regions: [Thoracic]

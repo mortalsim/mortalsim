@@ -162,9 +162,9 @@ impl BloodVessel for TestBloodVessel {
             vessel_list
         }).iter())
     }
-    fn max_arterial_depth() -> u32 {2}
-    fn max_venous_depth() -> u32 {1}
-    fn max_cycle() -> u32 {3}
+    fn max_arterial_depth() -> u32 {3}
+    fn max_venous_depth() -> u32 {2}
+    fn max_cycle() -> u32 {5}
     fn vessel_type(&self) -> BloodVesselType {
         match self {
             TestBloodVessel::Aorta |
