@@ -104,9 +104,11 @@ impl<O: Organism> NerveSignal<O> {
 
 impl<O: Organism> Drop for NerveSignal<O> {
     fn drop(&mut self) {
-        if let Some(gen) = ID_GEN.get() {
-            gen.lock().unwrap().return_id(self.id()).unwrap();
-        }
+        // TODO: This is causing a stack buffer overflow somehow...
+        // need to figure it out
+        // if let Some(gen) = ID_GEN.get() {
+        //     gen.lock().unwrap().return_id(self.id()).unwrap();
+        // }
     }
 }
 
