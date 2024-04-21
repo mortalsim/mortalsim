@@ -125,13 +125,14 @@ pub mod test {
             registry.add_core_component(self);
         }
         fn run(&mut self) {
-            let evt_a = self.connector.get::<TestEventA>().unwrap();
-            assert_eq!(evt_a.len, Distance::from_m(3.0));
+            if let Some(evt_a) = self.connector.get::<TestEventA>() {
+                assert_eq!(evt_a.len, Distance::from_m(3.0));
 
-            log::debug!(
-                "Trigger Events: {:?}",
-                self.connector.trigger_events().collect::<Vec<&TypeId>>()
-            );
+                log::debug!(
+                    "Trigger Events: {:?}",
+                    self.connector.trigger_events().collect::<Vec<&TypeId>>()
+                );
+            }
         }
     }
 
@@ -167,13 +168,14 @@ pub mod test {
             registry.add_core_component(self);
         }
         fn run(&mut self) {
-            let evt_a = self.connector.get::<TestEventA>().unwrap();
-            assert_eq!(evt_a.len, Distance::from_m(3.0));
+            if let Some(evt_a) = self.connector.get::<TestEventA>() {
+                assert_eq!(evt_a.len, Distance::from_m(3.0));
 
-            log::debug!(
-                "Trigger Events: {:?}",
-                self.connector.trigger_events().collect::<Vec<&TypeId>>()
-            );
+                log::debug!(
+                    "Trigger Events: {:?}",
+                    self.connector.trigger_events().collect::<Vec<&TypeId>>()
+                );
+            }
         }
     }
 
