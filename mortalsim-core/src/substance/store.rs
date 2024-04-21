@@ -66,11 +66,18 @@ impl SubstanceStore {
         ZERO_CONCENTRATION.get_or_init(|| SubstanceConcentration::from_M(0.0))
     }
 
-    /// Constructs a new Substance store with the given identifier and initial volume
-    ///
-    /// ### Arguments
-    /// * `volume` - initial volume
+    /// Constructs a new Substance store
     pub fn new() -> SubstanceStore {
+        Self::new_impl(false)
+    }
+
+    /// Constructs a new Substance store
+    pub fn new_tracking() -> SubstanceStore {
+        Self::new_impl(true)
+    }
+
+    /// Constructs a new Substance store
+    fn new_impl(track_changes: bool) -> SubstanceStore {
         SubstanceStore {
             id_gen: IdGenerator::new(),
             sim_time: secs!(0.0),
@@ -80,7 +87,7 @@ impl SubstanceStore {
             staged_changes: HashMap::new(),
             new_changes: HashMap::new(),
             solute_pct: 0.0,
-            track_changes: false,
+            track_changes,
         }
     }
 
@@ -191,6 +198,7 @@ impl SubstanceStore {
             .insert(change_id, change);
         
         if self.track_changes {
+            println!("Tracking change to {}", substance);
             self.staged_changes.insert(substance, change_id);
         }
 

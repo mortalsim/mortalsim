@@ -10,7 +10,6 @@ use std::cell::{RefCell, RefMut};
 use std::collections::{hash_map, HashMap};
 use std::sync::{Arc, Mutex, MutexGuard};
 
-#[derive(Default)]
 pub struct BloodStore {
     store: SubstanceStore,
     change_id_map: HashMap<Substance, Vec<IdType>>,
@@ -19,7 +18,7 @@ pub struct BloodStore {
 impl BloodStore {
     pub fn new() -> BloodStore {
         BloodStore {
-            store: SubstanceStore::new(),
+            store: SubstanceStore::new_tracking(),
             change_id_map: HashMap::new(),
         }
     }
@@ -37,6 +36,12 @@ impl BloodStore {
     }
 
     substance_store_wrapper!(store, change_id_map);
+}
+
+impl Default for BloodStore {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 pub struct CirculationConnector<O: Organism> {
@@ -107,13 +112,17 @@ impl<O: Organism> CirculationConnector<O> {
 
 pub mod test {
 
+    use std::cell::RefCell;
     use std::collections::HashMap;
 
     use crate::sim::layer::circulation::component::connector::BloodStore;
+    use crate::sim::organism::test::{TestBloodVessel, TestOrganism};
     use crate::sim::SimTime;
     use crate::substance::{Substance, SubstanceChange, SubstanceStore};
     use crate::{mmol_per_L, SimTimeSpan};
     use simple_si_units::chemical::Concentration;
+
+    use super::CirculationConnector;
 
     #[test]
     fn test_get_concentration() {
@@ -170,5 +179,20 @@ pub mod test {
             change_id_map: HashMap::new(),
         };
         assert!(store.unschedule_change(&Substance::GLC, &1).is_none());
+    }
+
+    #[test]
+    fn test_get_multiple_stores() {
+        let mut con = CirculationConnector::<TestOrganism>::new();
+        con.vessel_map.insert(TestBloodVessel::Aorta, RefCell::new(BloodStore::new()));
+        con.vessel_map.insert(TestBloodVessel::AbdominalAorta, RefCell::new(BloodStore::new()));
+        con.vessel_map.insert(TestBloodVessel::VenaCava, RefCell::new(BloodStore::new()));
+
+        let a = con.blood_store(&TestBloodVessel::Aorta);
+        let aa = con.blood_store(&TestBloodVessel::AbdominalAorta);
+        let vc = con.blood_store(&TestBloodVessel::VenaCava);
+        let laa = con.blood_store(&TestBloodVessel::LeftAxillaryArtery);
+
+        assert!(a.is_some() && aa.is_some() && vc.is_some() && laa.is_none());
     }
 }
