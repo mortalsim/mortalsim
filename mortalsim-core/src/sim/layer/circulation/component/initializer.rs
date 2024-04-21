@@ -46,6 +46,7 @@ impl<O: Organism> CirculationInitializer<O> {
             .entry(vessel)
             .or_insert(HashMap::new());
         substance_map.insert(substance, ConcentrationTracker::new(threshold));
+        self.vessel_notifies.insert(vessel);
     }
 
     /// Registers the associated `CirculationComponent` to `run` whenever the

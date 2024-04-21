@@ -115,11 +115,17 @@ macro_rules! impl_sim {
             }
 
             fn advance(&mut self) {
+                if !self.layer_manager.first_update() {
+                    self.layer_manager.update(&mut self.connector);
+                }
                 self.connector.time_manager.advance();
                 self.layer_manager.update(&mut self.connector);
             }
 
             fn advance_by(&mut self, time_step: $crate::SimTimeSpan) {
+                if !self.layer_manager.first_update() {
+                    self.layer_manager.update(&mut self.connector);
+                }
                 self.connector.time_manager.advance_by(time_step);
                 self.layer_manager.update(&mut self.connector);
             }

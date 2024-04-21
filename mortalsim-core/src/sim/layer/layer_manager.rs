@@ -19,6 +19,7 @@ pub struct LayerManager<O: Organism> {
     layers: Vec<LayerProcessor<O>>,
     layers_sync: Vec<Mutex<LayerProcessorSync<O>>>,
     missing_layers: Vec<&'static LayerType>,
+    first_update: bool,
 }
 
 impl<O: Organism> LayerManager<O> {
@@ -33,6 +34,7 @@ impl<O: Organism> LayerManager<O> {
             ],
             layers_sync: Vec::new(),
             missing_layers: Vec::new(),
+            first_update: false,
         }
     }
     
@@ -47,7 +49,12 @@ impl<O: Organism> LayerManager<O> {
                 Mutex::new(LayerProcessorSync::new(Nervous)),
             ],
             missing_layers: Vec::new(),
+            first_update: false,
         }
+    }
+
+    pub fn first_update(&self) -> bool {
+        self.first_update
     }
 
     pub fn is_threaded(&self) -> bool {
@@ -71,6 +78,7 @@ impl<O: Organism> LayerManager<O> {
                 .into_iter()
                 .filter(|lt| !(matches!(lt, Core) || layer_types.contains(lt)))
                 .collect(),
+            first_update: false,
         }
     }
 
@@ -91,6 +99,7 @@ impl<O: Organism> LayerManager<O> {
                 .into_iter()
                 .filter(|lt| !(matches!(lt, Core) || layer_types.contains(lt)))
                 .collect(),
+            first_update: false,
         }
     }
 
@@ -183,18 +192,26 @@ impl<O: Organism> LayerManager<O> {
             layer.pre_exec(connector);
         }
 
-        let mut update_list = Vec::new();
+        let mut update_list;
 
-        for component in self.registry.all_components_mut() {
-            let mut check_list = self
-                .layers
-                .iter_mut()
-                .filter(|l| component.has_layer(&l.layer_type()));
+        if !self.first_update {
+            // If we haven't executed the first update,
+            // let ALL components run
+            update_list = self.registry.all_components_mut().collect();
+        }
+        else {
+            update_list = Vec::new();
+            for component in self.registry.all_components_mut() {
+                let mut check_list = self
+                    .layers
+                    .iter_mut()
+                    .filter(|l| component.has_layer(&l.layer_type()));
 
-            // If any of the supported layers indicate the component should be
-            // triggered, add the component to the update list
-            if check_list.any(|l| l.check_component(component)) {
-                update_list.push(component);
+                // If any of the supported layers indicate the component should be
+                // triggered, add the component to the update list
+                if check_list.any(|l| l.check_component(component)) {
+                    update_list.push(component);
+                }
             }
         }
 
@@ -230,18 +247,27 @@ impl<O: Organism> LayerManager<O> {
             layer.lock().unwrap().pre_exec_sync(connector);
         }
 
-        let mut update_list = Vec::new();
+        let mut update_list;
 
-        for component in self.registry.all_components_mut() {
-            let mut check_list = self
-                .layers_sync
-                .iter_mut()
-                .filter(|l| component.has_layer(&l.lock().unwrap().layer_type()));
+        if !self.first_update {
+            // If we haven't executed the first update,
+            // let ALL components run
+            update_list = self.registry.all_components_mut().collect();
+        }
+        else {
+            update_list = Vec::new();
 
-            // If any of the supported layers indicate the component should be
-            // triggered, add the component to the update list
-            if check_list.any(|l| l.lock().unwrap().check_component_sync(component)) {
-                update_list.push(component);
+            for component in self.registry.all_components_mut() {
+                let mut check_list = self
+                    .layers_sync
+                    .iter_mut()
+                    .filter(|l| component.has_layer(&l.lock().unwrap().layer_type()));
+
+                // If any of the supported layers indicate the component should be
+                // triggered, add the component to the update list
+                if check_list.any(|l| l.lock().unwrap().check_component_sync(component)) {
+                    update_list.push(component);
+                }
             }
         }
 
