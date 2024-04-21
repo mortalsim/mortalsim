@@ -133,6 +133,7 @@ impl<O: Organism> SimpleBloodFlow<O> {
 
 impl<O: Organism> CoreComponent<O> for SimpleBloodFlow<O> {
     fn core_init(&mut self, initializer: &mut mortalsim_core::sim::layer::core::CoreInitializer<O>) {
+        println!("Core init {}", self.id());
         initializer.notify::<HeartRate>();
         initializer.notify::<AorticBloodPressure>();
     }
@@ -143,6 +144,7 @@ impl<O: Organism> CoreComponent<O> for SimpleBloodFlow<O> {
 
 impl<O: Organism> CirculationComponent<O> for SimpleBloodFlow<O> {
     fn circulation_init(&mut self, circulation_initializer: &mut mortalsim_core::sim::layer::circulation::CirculationInitializer<O>) {
+        println!("Circ init {}", self.id());
         circulation_initializer.notify_any_change();
     }
 
@@ -164,12 +166,14 @@ impl<O: Organism> SimComponent<O> for SimpleBloodFlow<O> {
         self.circ_connector.with_blood_stores(|vessel, store| {
             all_list.push(vessel);
             if store.has_new_changes() {
+                println!("New changes on {:?}", vessel);
                 change_list.push(vessel);
             }
         });
 
         for source in change_list.iter() {
-            for target in all_list.iter() {
+            println!("propagating change from {:?}", source);
+            for target in all_list.iter().filter(|v| *v != source) {
                 let mut source_store = self.circ_connector.blood_store(source).unwrap();
                 let mut target_store = self.circ_connector.blood_store(target).unwrap();
                 let delay = self.calculate_blood_delay(*source, *target);
@@ -191,9 +195,14 @@ mod test;
 
 #[cfg(test)]
 mod tests {
+    use mortalsim_core::math::BoundFn;
     use mortalsim_core::sim::organism::test::{TestBloodVessel, TestOrganism};
+    use mortalsim_core::substance::{Substance, SubstanceChange, SubstanceConcentration};
     use mortalsim_core::units::mechanical::Frequency;
     use mortalsim_core::event::HeartRate;
+    use mortalsim_core::sim::organism::test::TestSim;
+    use mortalsim_core::sim::Sim;
+    use mortalsim_core::SimTime;
     use mortalsim_human::{HumanBloodVessel, HumanOrganism};
 
     use super::*;
@@ -233,5 +242,91 @@ mod tests {
             d2 < SimTimeSpan::from_s(60.0) && d2 > SimTimeSpan::from_s(20.0),
             "Aorta->VenaCava delay {d2} is not in a reasonable range."
         )
+    }
+
+    fn blood_component_aorta(time_factor: f64) -> TestBloodCheckerComponent {
+        TestBloodCheckerComponent::new(
+            TestBloodVessel::Aorta,
+            vec![
+                (
+                    SimTime::from_s(0.0),
+                    Substance::O2,
+                    SubstanceChange::new(
+                        SimTime::from_s(1.0),
+                        SubstanceConcentration::from_mM(50.0),
+                        SimTimeSpan::from_s(10.0),
+                        BoundFn::Linear,
+                    ),
+                )
+            ],
+            vec![
+                (SimTime::from_s(5.0*time_factor), Substance::CO2, SubstanceConcentrationRange::new(-0.1, 0.1)),
+                (SimTime::from_s(120.0*time_factor), Substance::CO2, SubstanceConcentrationRange::new(1.0, 3.0)),
+                (SimTime::from_s(140.0*time_factor), Substance::CO2, SubstanceConcentrationRange::new(3.0, 5.0)),
+            ],
+        )
+    }
+
+    fn blood_component_left_arm(time_factor: f64) -> TestBloodCheckerComponent {
+        TestBloodCheckerComponent::new(
+            TestBloodVessel::LeftAxillaryVein,
+            vec![
+                (
+                    SimTime::from_s(1.0),
+                    Substance::CO2,
+                    SubstanceChange::new(
+                        SimTime::from_s(5.0),
+                        SubstanceConcentration::from_mM(20.0),
+                        SimTimeSpan::from_s(10.0),
+                        BoundFn::Linear,
+                    ),
+                )
+            ],
+            vec![
+                (SimTime::from_s(1.0*time_factor), Substance::O2, SubstanceConcentrationRange::new(-0.1, 0.1)),
+                (SimTime::from_s(50.0*time_factor), Substance::O2, SubstanceConcentrationRange::new(9.0, 11.0)),
+                (SimTime::from_s(60.0*time_factor), Substance::O2, SubstanceConcentrationRange::new(24.0, 26.0)),
+            ],
+        )
+    }
+
+    fn blood_component_right_leg(time_factor: f64) -> TestBloodCheckerComponent {
+        TestBloodCheckerComponent::new(
+            TestBloodVessel::RightFemoralVein,
+            vec![
+                (
+                    SimTime::from_s(1.0),
+                    Substance::CO2,
+                    SubstanceChange::new(
+                        SimTime::from_s(5.0),
+                        SubstanceConcentration::from_mM(20.0),
+                        SimTimeSpan::from_s(10.0),
+                        BoundFn::Linear,
+                    ),
+                )
+            ],
+            vec![
+                (SimTime::from_s(1.0*time_factor), Substance::O2, SubstanceConcentrationRange::new(-0.1, 0.1)),
+                (SimTime::from_s(39.0*time_factor), Substance::O2, SubstanceConcentrationRange::new(14.0, 16.0)),
+                (SimTime::from_s(70.0*time_factor), Substance::O2, SubstanceConcentrationRange::new(25.0, 27.0)),
+            ],
+        )
+    }
+
+    #[test]
+    fn test_blood_flow() {
+        let bhr = HeartRate(Frequency::from_Hz(60.0));
+        let bdt = Time::from_s(60.0);
+        let mut sim = TestSim::new();
+        sim.add_component(SimpleBloodFlow::new(bhr, bdt)).unwrap();
+        sim.add_component(blood_component_aorta(1.0)).unwrap();
+        sim.add_component(blood_component_left_arm(1.0)).unwrap();
+        sim.add_component(blood_component_right_leg(1.0)).unwrap();
+
+        for _ in 1..2200 {
+            sim.advance_by(SimTimeSpan::from_s(0.1));
+        }
+
+        assert!(false)
     }
 }
