@@ -1,4 +1,4 @@
-use super::change::DependentSubstanceChange;
+use super::change::{DependentSubstanceChange, SubstanceChangeItem};
 use super::{SubstanceChange, SubstanceConcentration};
 use crate::sim::SimTime;
 use crate::substance::Substance;
@@ -313,6 +313,55 @@ impl SubstanceStore {
         self.substance_changes.clear()
     }
 
+    fn process_change(
+        sim_time: SimTime,
+        substance: &Substance,
+        change: &mut dyn SubstanceChangeItem,
+        solute_pct: f64,
+        composition: &mut HashMap<Substance, SubstanceConcentration>,
+    ) -> f64 {
+        if change.start_time() < sim_time {
+            // Change we need to add is the function value at the current time
+            // minus the value recorded from the previous time point
+            let change_amt = change.next_amount(sim_time);
+            let prev_conc = composition
+                .get(substance)
+                .unwrap_or(Self::zero_concentration());
+
+            // Check to make sure new concentration is non-negative
+            let mut new_conc = *prev_conc + change_amt;
+            if new_conc < SubstanceConcentration::from_M(0.0) {
+                log::warn!(
+                    "Substance change attempted to set a negative solute concentration for {}: {}\n{}",
+                    substance,
+                    new_conc,
+                    "Setting to zero.",
+                );
+                new_conc = SubstanceConcentration::from_M(0.0);
+            }
+
+            // Check to make sure new concentration doesn't exceed possible solute volume
+            let change_pct = change_amt.molpm3*substance.molar_volume().m3_per_mol;
+            if solute_pct + change_pct > 1.0 {
+                log::warn!(
+                    "Substance change attempted to set an invalid solute concentration for {}: {}\n{}\n{}",
+                    substance,
+                    new_conc,
+                    format!("Total solute percentage would be {:.1}%",change_pct*100.0),
+                    format!("{} concentration will remain unchanged.", substance),
+                );
+                return solute_pct;
+            }
+            
+            // register the change in solute percent and the concentration change
+            composition.insert(*substance, new_conc);
+            solute_pct + change_pct
+        }
+        else {
+            solute_pct
+        }
+    }
+
     /// Advances time for this substance store, making any necessary changes
     ///
     /// ### Arguments
@@ -326,46 +375,14 @@ impl SubstanceStore {
 
         for (substance, change_map) in self.substance_changes.iter_mut() {
             let mut ids_to_remove = Vec::new();
-
             for (change_id, change) in change_map.iter_mut() {
-                if change.start_time() < sim_time {
-                    // Change we need to add is the function value at the current time
-                    // minus the value recorded from the previous time point
-                    let change_amt = change.next_amount(sim_time);
-                    let prev_conc = self
-                        .composition
-                        .get(substance)
-                        .unwrap_or(Self::zero_concentration());
-
-                    // Check to make sure new concentration is non-negative
-                    let mut new_conc = *prev_conc + change_amt;
-                    if new_conc < SubstanceConcentration::from_M(0.0) {
-                        log::warn!(
-                            "Substance change attempted to set a negative solute concentration for {}: {}\n{}",
-                            substance,
-                            new_conc,
-                            "Setting to zero.",
-                        );
-                        new_conc = SubstanceConcentration::from_M(0.0);
-                    }
-
-                    // Check to make sure new concentration doesn't exceed possible solute volume
-                    let change_pct = change_amt.molpm3*substance.molar_volume().m3_per_mol;
-                    if self.solute_pct + change_pct > 1.0 {
-                        log::warn!(
-                            "Substance change attempted to set an invalid solute concentration for {}: {}\n{}\n{}",
-                            substance,
-                            new_conc,
-                            format!("Total solute percentage would be {:.1}%",change_pct*100.0),
-                            format!("{} concentration will remain unchanged.", substance),
-                        );
-                        continue;
-                    }
-                    
-                    // register the change in solute percent and the concentration change
-                    self.solute_pct += change_pct;
-                    self.composition.insert(*substance, new_conc);
-                }
+                self.solute_pct = Self::process_change(
+                    sim_time,
+                    substance,
+                    change,
+                    self.solute_pct,
+                    &mut self.composition
+                );
 
                 if sim_time > change.start_time() + change.duration() {
                     ids_to_remove.push(*change_id);
@@ -374,6 +391,27 @@ impl SubstanceStore {
 
             for change_id in ids_to_remove {
                 change_map.remove(&change_id);
+            }
+        }
+
+        for (substance, change_map) in self.dependent_changes.iter_mut() {
+            let mut idx_to_remove = Vec::new();
+            for (change_idx, change) in change_map.iter_mut().enumerate() {
+                self.solute_pct = Self::process_change(
+                    sim_time,
+                    substance,
+                    change,
+                    self.solute_pct,
+                    &mut self.composition
+                );
+
+                if change.is_cancelled(sim_time) || sim_time > change.start_time() + change.duration() {
+                    idx_to_remove.push(change_idx);
+                }
+            }
+
+            for change_idx in idx_to_remove {
+                change_map.remove(change_idx);
             }
         }
 
