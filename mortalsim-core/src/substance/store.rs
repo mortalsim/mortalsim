@@ -1,4 +1,4 @@
-use super::change::{DependentSubstanceChange, SubstanceChangeItem};
+use super::change::{self, DependentSubstanceChange, SubstanceChangeItem};
 use super::{SubstanceChange, SubstanceConcentration};
 use crate::sim::SimTime;
 use crate::substance::Substance;
@@ -6,7 +6,7 @@ use crate::id_gen::{IdGenerator, IdType};
 use crate::math::BoundFn;
 use crate::{secs, SimTimeSpan};
 use core::panic;
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
 use std::fmt;
 use std::mem::swap;
 use std::sync::OnceLock;
@@ -25,7 +25,7 @@ pub struct SubstanceStore {
     /// Keep track of any Substances which are changing
     substance_changes: HashMap<Substance, HashMap<IdType, SubstanceChange>>,
     /// Keep track of any Substances which are changing
-    dependent_changes: HashMap<Substance, Vec<DependentSubstanceChange>>,
+    dependent_changes: HashMap<Substance, VecDeque<DependentSubstanceChange>>,
     /// Keep track of staged changes, which will be "new" on the next advance
     staged_changes: HashMap<Substance, IdType>,
     /// Keep track of newly added change ids
@@ -231,8 +231,7 @@ impl SubstanceStore {
         self.dependent_changes
             .entry(substance)
             .or_default()
-            .push(dep_change);
-
+            .push_back(dep_change);
     }
 
     /// Get a reference to a previously added `SubstanceChange`
@@ -395,8 +394,7 @@ impl SubstanceStore {
         }
 
         for (substance, change_map) in self.dependent_changes.iter_mut() {
-            let mut idx_to_remove = Vec::new();
-            for (change_idx, change) in change_map.iter_mut().enumerate() {
+            for change in change_map.iter_mut() {
                 self.solute_pct = Self::process_change(
                     sim_time,
                     substance,
@@ -404,14 +402,10 @@ impl SubstanceStore {
                     self.solute_pct,
                     &mut self.composition
                 );
-
-                if change.is_cancelled(sim_time) || sim_time > change.start_time() + change.duration() {
-                    idx_to_remove.push(change_idx);
-                }
             }
 
-            for change_idx in idx_to_remove {
-                change_map.remove(change_idx);
+            while change_map.front().is_some_and(|c| c.is_cancelled(sim_time) || sim_time > c.start_time() + c.duration()) {
+                change_map.pop_front();
             }
         }
 
