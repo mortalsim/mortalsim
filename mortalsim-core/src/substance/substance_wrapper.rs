@@ -164,11 +164,13 @@ macro_rules! substance_store_wrapper {
             &mut self,
             substance: crate::substance::Substance,
             start_time: crate::SimTime,
+            factor: f64,
             change: &crate::substance::SubstanceChange,
         ) {
             self.$($field_path).+.schedule_dependent_change(
                 substance,
                 start_time,
+                factor,
                 change,
             )
         }

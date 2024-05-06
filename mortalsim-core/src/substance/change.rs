@@ -139,6 +139,7 @@ pub struct DependentSubstanceChange {
     cancel_time: Arc<RwLock<SimTime>>,
     prev_val: SubstanceConcentration,
     change_fn: Arc<SubstanceChangeFn>,
+    factor: f64,
 }
 
 impl DependentSubstanceChange {
@@ -153,22 +154,28 @@ impl DependentSubstanceChange {
     /// Returns a new SubstanceChange starting at 0.0
     pub fn new(
         start_time: SimTime,
+        factor: f64,
         change: &SubstanceChange,
     ) -> Self {
         if start_time <= change.start_time() {
             panic!("DependentSubstanceChange start_time must be greater than the source change's start_time")
         }
+        println!("Dependent change: {:?} : {:?}", start_time, factor);
         Self {
             time_diff: change.start_time().span_to(&start_time),
             cancel_time: change.cancel_time.clone(),
             prev_val: SubstanceConcentration::from_mM(0.0),
             change_fn: change.change_fn.clone(),
+            factor: factor,
         }
     }
 
     pub fn is_cancelled(&self, sim_time: SimTime) -> bool {
         let cancel_time = *self.cancel_time.read().unwrap();
-        cancel_time > SimTime::from_s(0.0) && cancel_time + self.time_diff < sim_time
+        if cancel_time > SimTime::from_s(0.0) {
+            return cancel_time + self.time_diff < sim_time
+        }
+        false
     }
 }
 
@@ -179,7 +186,7 @@ impl SubstanceChangeItem for DependentSubstanceChange {
             return SubstanceConcentration::from_M(0.0);
         }
 
-        let next = self.change_fn.next_amount(sim_time - self.time_diff);
+        let next = self.change_fn.next_amount(sim_time - self.time_diff) * self.factor;
         let result = next - self.prev_val;
         self.prev_val = next;
         result
@@ -253,7 +260,7 @@ mod tests {
         let duration = SimTimeSpan::from_s(1.0);
         let mut change = SubstanceChange::new(secs!(0.0), amt, duration, BoundFn::Sigmoid);
 
-        let mut dep_change = DependentSubstanceChange::new(secs!(0.25), &change);
+        let mut dep_change = DependentSubstanceChange::new(secs!(0.25), 1.0, &change);
 
         // Should be at about half amplitude
         let mut sim_time = secs!(0.75);

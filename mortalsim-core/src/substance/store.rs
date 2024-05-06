@@ -220,6 +220,7 @@ impl SubstanceStore {
         &mut self,
         substance: Substance,
         start_time: SimTime,
+        factor: f64,
         change: &SubstanceChange,
     ) {
         // Constrain the start time to a minimum of the current sim time
@@ -227,7 +228,7 @@ impl SubstanceStore {
             panic!("start_time cannot be less than the current sim time!");
         }
 
-        let dep_change = DependentSubstanceChange::new(start_time, change);
+        let dep_change = DependentSubstanceChange::new(start_time, factor, change);
         self.dependent_changes
             .entry(substance)
             .or_default()
@@ -342,11 +343,18 @@ impl SubstanceStore {
             // Check to make sure new concentration doesn't exceed possible solute volume
             let change_pct = change_amt.molpm3*substance.molar_volume().m3_per_mol;
             if solute_pct + change_pct > 1.0 {
+                println!(
+                    "Substance change attempted to set an invalid solute concentration for {}: {}\n{}\n{}",
+                    substance,
+                    new_conc,
+                    format!("Total solute percentage would be {:.1}%",(solute_pct + change_pct)*100.0),
+                    format!("{} concentration will remain unchanged.", substance),
+                );
                 log::warn!(
                     "Substance change attempted to set an invalid solute concentration for {}: {}\n{}\n{}",
                     substance,
                     new_conc,
-                    format!("Total solute percentage would be {:.1}%",change_pct*100.0),
+                    format!("Total solute percentage would be {:.1}%",(solute_pct + change_pct)*100.0),
                     format!("{} concentration will remain unchanged.", substance),
                 );
                 return solute_pct;
