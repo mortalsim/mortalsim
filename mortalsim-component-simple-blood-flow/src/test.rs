@@ -1,4 +1,4 @@
-use std::collections::{HashSet, VecDeque};
+use std::collections::{HashMap, HashSet, VecDeque};
 
 use mortalsim_core::sim::component::SimComponent;
 use mortalsim_core::sim::layer::circulation::{CirculationComponent, CirculationConnector};
@@ -14,13 +14,19 @@ pub struct SubstanceConcentrationRange {
 
 impl SubstanceConcentrationRange {
     #[allow(non_snake_case)]
-    pub fn new(min_mM: f64, max_mM: f64) -> Self {
+    pub fn new(min_uM: f64, max_uM: f64) -> Self {
         Self {
-            min: SubstanceConcentration::from_mM(min_mM),
-            max: SubstanceConcentration::from_mM(max_mM),
+            min: SubstanceConcentration::from_uM(min_uM),
+            max: SubstanceConcentration::from_uM(max_uM),
         }
     }
     pub fn check(&self, val: SubstanceConcentration) {
+        println!("Concentration {}. Expected range {} -> {}",
+            val,
+            self.min,
+            self.max
+        );
+
         assert!(
             val >= self.min && val <= self.max,
             "Concentration {} is not within expected range {} -> {}",
@@ -28,12 +34,6 @@ impl SubstanceConcentrationRange {
             self.min,
             self.max
         );
-
-        println!("Concentration {}. Expected range {} -> {}",
-            val,
-            self.min,
-            self.max
-        )
     }
 }
 
@@ -49,6 +49,8 @@ pub struct TestBloodCheckerComponent {
     pending_reads: VecDeque<(SimTime, Substance, SubstanceConcentrationRange)>,
     /// Circulation connector
     circ_connector: CirculationConnector<TestOrganism>,
+    /// Prev
+    prev: HashMap<Substance, SubstanceConcentration>,
 }
 
 impl TestBloodCheckerComponent {
@@ -66,6 +68,7 @@ impl TestBloodCheckerComponent {
             pending_writes: writes.into(),
             pending_reads: reads.into(),
             circ_connector: CirculationConnector::new(),
+            prev: HashMap::new(),
         }
     }
 }
@@ -110,9 +113,21 @@ impl SimComponent<TestOrganism> for TestBloodCheckerComponent {
                 .schedule_custom_change(substance, change);
         }
 
+        if let Some((_, substance, _ex)) = self.pending_reads.get(0) {
+            let val = self.circ_connector
+                .blood_store(&self.vessel)
+                .unwrap()
+                .concentration_of(&substance);
+            if !self.prev.contains_key(substance) || (&val - self.prev.get(substance).unwrap()).molpm3 > 0.000001 {
+                println!("{}: {} {:?}: {}", self.circ_connector.sim_time(), self.id(), self.vessel, val);
+            }
+
+            self.prev.insert(*substance, val);
+        }
+
         while self.pending_reads.len() > 0 && self.pending_reads.get(0).unwrap().0 <= sim_time {
             let (_, substance, expected) = self.pending_reads.pop_front().unwrap();
-            println!("Reading value on {:?}", self.vessel);
+            println!("{}: Reading value on {:?}", sim_time, self.vessel);
             let conc = self.circ_connector
                 .blood_store(&self.vessel)
                 .unwrap()
