@@ -70,6 +70,12 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessor<O, T> for Ci
                     .entry(vessel)
                     .or_insert(HashMap::new());
                 let notify_list = vsubstance_map.entry(substance).or_insert(Vec::new());
+
+                log::debug!("Setting up notification on vessel {:?} substance {} for component {}",
+                    vessel,
+                    substance,
+                    component.id()
+                );
                 notify_list.push((tracker.threshold, component.id()));
             }
         }
@@ -110,6 +116,13 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessor<O, T> for Ci
                     .borrow()
                     .concentration_of(substance);
                 if tracker.check(val) {
+                    log::debug!(
+                        "Tracker for Component {} on vessel {:?} substance {} has exceeded threshold with value {}",
+                        component.id(),
+                        vessel,
+                        substance,
+                        val,
+                    );
                     trigger = true;
                     tracker.update(val)
                 }
@@ -120,7 +133,8 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessor<O, T> for Ci
     }
 
     fn prepare_component(&mut self, connector: &mut SimConnector, component: &mut T) {
-        let comp_settings = self.component_settings.get_mut(component.id()).unwrap();
+        let comp_id = component.id();
+        let comp_settings = self.component_settings.get_mut(comp_id).unwrap();
         let circulation_connector = component.circulation_connector();
         circulation_connector.sim_time = connector.sim_time();
 
@@ -128,6 +142,7 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessor<O, T> for Ci
             swap(&mut self.composition_map, &mut circulation_connector.vessel_map);
         } else {
             for vessel in comp_settings.vessel_connections.iter() {
+                log::trace!("Attaching vessel {:?} for component {}", vessel, comp_id);
                 let store = self.composition_map.remove(vessel).unwrap_or_default();
                 circulation_connector
                     .vessel_map
@@ -137,7 +152,8 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessor<O, T> for Ci
     }
 
     fn process_component(&mut self, _: &mut SimConnector, component: &mut T) {
-        let comp_settings = self.component_settings.get(component.id()).unwrap();
+        let comp_id = component.id();
+        let comp_settings = self.component_settings.get(comp_id).unwrap();
         let circulation_connector = component.circulation_connector();
 
         if comp_settings.attach_all {
@@ -145,6 +161,7 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessor<O, T> for Ci
         } else {
             // move stores back from the component
             for vessel in comp_settings.vessel_connections.iter() {
+                log::trace!("Putting vessel {:?} back from component {}", vessel, comp_id);
                 let store = circulation_connector.vessel_map.remove(vessel).unwrap_or_default();
                 self.composition_map.insert(*vessel, store);
             }
@@ -172,6 +189,7 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessorSync<O, T> fo
         } else {
             for vessel in self.component_settings.get(comp_id).unwrap().vessel_connections.iter() {
 
+                log::debug!("Cloning reference to vessel {:?} for component {}", vessel, comp_id);
                 let store = self.composition_map_sync.entry(*vessel).or_default();
                 circulation_connector
                     .vessel_map_sync
@@ -198,6 +216,13 @@ impl<O: Organism, T: CirculationComponent<O>> SimComponentProcessorSync<O, T> fo
                     .unwrap()
                     .concentration_of(substance);
                 if tracker.check(val) {
+                    log::debug!(
+                        "Tracker for Component {} on vessel {:?} substance {} has exceeded threshold with value {}",
+                        component.id(),
+                        vessel,
+                        substance,
+                        val,
+                    );
                     trigger = true;
                     tracker.update(val)
                 }

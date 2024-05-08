@@ -53,6 +53,7 @@ impl<O: Organism> DigestionLayer<O> {
 
     /// Consume a new SubstanceStore
     fn consume(&mut self, consumable: Consumable) {
+        log::debug!("Adding new consumable to the digestion layer: {:?}", consumable);
         let consumed = Consumed::new(consumable);
         if let Some(list) = self.consumed_map.get_mut(0) {
             list.push(consumed);
@@ -118,6 +119,7 @@ impl<O: Organism> SimLayer for DigestionLayer<O> {
                 if (pos == 0 && removed.exit_direction == DigestionDirection::BACK)
                     || (pos >= last && removed.exit_direction == DigestionDirection::FORWARD)
                 {
+                    log::debug!("Eliminating consumable {:?}: {:?}", removed.exit_direction, removed.consumable);
                     let evt = Box::new(EliminateEvent::new(
                         removed.consumable,
                         removed.exit_direction,
@@ -135,28 +137,31 @@ impl<O: Organism> SimLayer for DigestionLayer<O> {
                 // set defaults, which the component may override
                 removed.exit_time = removed.entry_time + self.default_digestion_duration;
                 
-                match removed.exit_direction {
+                let target_idx = match removed.exit_direction {
                     DigestionDirection::FORWARD => {
-                        let target_idx = pos + 1;
-                        self.consumed_map
-                            .get_mut(target_idx)
-                            .expect("invalid index")
-                            .push(removed);
-                        self.trigger_map.insert(target_idx);
+                        Some(pos + 1)
                     }
                     DigestionDirection::BACK => {
                         // Always default to FORWARD, even if it was previously BACK
                         removed.exit_direction = DigestionDirection::FORWARD;
-                        let target_idx = pos - 1;
-                        self.consumed_map
-                            .get_mut(target_idx)
-                            .expect("invalid index")
-                            .push(removed);
-                        self.trigger_map.insert(target_idx);
+                        Some(pos - 1)
                     }
                     DigestionDirection::EXHAUSTED => {
                         // Drop the removed consumable completely
+                        None
                     }
+                };
+
+                if let Some(idx) = target_idx {
+                    log::debug!("Moving consumable FORWARD to index {}: {:?}", idx, removed.consumable);
+                    self.consumed_map
+                        .get_mut(idx)
+                        .expect("invalid index")
+                        .push(removed);
+                    self.trigger_map.insert(idx);
+                }
+                else {
+                    log::debug!("Exhausting Consumable from pos {}: {:?}", pos, removed.consumable);
                 }
             }
         }
@@ -176,6 +181,7 @@ impl<O: Organism> SimLayer for DigestionLayer<O> {
             let id = connector
                 .time_manager
                 .schedule_event(delay, Box::new(InternalLayerTrigger));
+            log::debug!("Setting internal digestion trigger with {} delay. ID: {}", delay, id);
             self.internal_trigger_id = Some(id);
         }
     }
@@ -197,6 +203,8 @@ impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessor<O, T> for Dige
         let mut initializer = DigestionInitializer::new();
         component.digestion_init(&mut initializer);
 
+        log::debug!("Adding digestion component {} to position {}", component.id(), self.component_map.len());
+
         self.component_map
             .insert(component.id(), self.component_map.len());
 
@@ -217,6 +225,7 @@ impl<O: Organism, T: DigestionComponent<O>> SimComponentProcessor<O, T> for Dige
         let consumed_list = self.consumed_map.get_mut(component_pos).unwrap();
 
         if component.digestion_connector().unschedule_all {
+            log::debug!("Clearing all previous consumable changes for component {}", component.id());
             consumed_list.iter_mut().for_each(|c| c.clear_all_changes());
         }
 

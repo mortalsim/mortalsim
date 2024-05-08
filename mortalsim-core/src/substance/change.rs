@@ -160,7 +160,6 @@ impl DependentSubstanceChange {
         if start_time <= change.start_time() {
             panic!("DependentSubstanceChange start_time must be greater than the source change's start_time")
         }
-        println!("Dependent change: {:?} : {:?}", start_time, factor);
         Self {
             time_diff: change.start_time().span_to(&start_time),
             cancel_time: change.cancel_time.clone(),

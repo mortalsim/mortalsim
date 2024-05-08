@@ -1,12 +1,14 @@
+use std::any::TypeId;
 use std::borrow::BorrowMut;
 use std::collections::HashSet;
 use std::sync::Mutex;
 use std::thread::{scope, Scope};
 
 use strum::VariantArray;
+use rand::distributions::{Alphanumeric, DistString};
 
 use crate::sim::component::registry::{ComponentRegistry, ComponentWrapper};
-use crate::sim::component::{SimComponent, SimComponentProcessor, SimComponentProcessorSync};
+use crate::sim::component::{ComponentFactory, SimComponent, SimComponentProcessor, SimComponentProcessorSync};
 use crate::sim::layer::SimLayer;
 use crate::sim::{Organism, SimConnector};
 
@@ -15,6 +17,7 @@ use super::{LayerType, SimLayerSync};
 use super::LayerType::*;
 
 pub struct LayerManager<O: Organism> {
+    id: String,
     registry: ComponentRegistry<O>,
     layers: Vec<LayerProcessor<O>>,
     layers_sync: Vec<Mutex<LayerProcessorSync<O>>>,
@@ -23,44 +26,51 @@ pub struct LayerManager<O: Organism> {
 }
 
 impl<O: Organism> LayerManager<O> {
-    pub fn new() -> Self {
+
+    fn create(
+        layers: Vec<LayerProcessor<O>>,
+        layers_sync: Vec<Mutex<LayerProcessorSync<O>>>,
+        missing_layers: Vec<&'static LayerType>,
+    ) -> Self {
         Self {
+            id: Alphanumeric.sample_string(&mut rand::thread_rng(), 16),
             registry: ComponentRegistry::new(),
-            layers: vec![
+            first_update: false,
+            layers,
+            layers_sync,
+            missing_layers: missing_layers,
+        }
+    }
+
+    /// Creates a sequential LayerManager with all layers
+    pub fn new() -> Self {
+        Self::create(
+            vec![
                 LayerProcessor::new(Core),
                 LayerProcessor::new(Circulation),
                 LayerProcessor::new(Digestion),
                 LayerProcessor::new(Nervous),
             ],
-            layers_sync: Vec::new(),
-            missing_layers: Vec::new(),
-            first_update: false,
-        }
+            Vec::new(),
+            Vec::new(),
+        )
     }
     
+    /// Creates a threaded LayerManager with all layers
     pub fn new_threaded() -> Self {
-        Self {
-            registry: ComponentRegistry::new(),
-            layers: Vec::new(),
-            layers_sync: vec![
+        Self::create(
+            Vec::new(),
+            vec![
                 Mutex::new(LayerProcessorSync::new(Core)),
                 Mutex::new(LayerProcessorSync::new(Circulation)),
                 Mutex::new(LayerProcessorSync::new(Digestion)),
                 Mutex::new(LayerProcessorSync::new(Nervous)),
             ],
-            missing_layers: Vec::new(),
-            first_update: false,
-        }
+            Vec::new(),
+        )
     }
 
-    pub fn first_update(&self) -> bool {
-        self.first_update
-    }
-
-    pub fn is_threaded(&self) -> bool {
-        self.layers.is_empty()
-    }
-
+    /// Creates a sequential LayerManager with a specified set of layers
     pub fn new_custom(mut layer_types: HashSet<LayerType>) -> Self {
         // always include Core
         let mut layers = vec![LayerProcessor::new(Core)];
@@ -70,18 +80,17 @@ impl<O: Organism> LayerManager<O> {
 
         layers.extend(layer_types.iter().map(|lt| LayerProcessor::new(*lt)));
 
-        Self {
-            registry: ComponentRegistry::new(),
+        Self::create(
             layers,
-            layers_sync: Vec::new(),
-            missing_layers: LayerType::VARIANTS
+            Vec::new(),
+            LayerType::VARIANTS
                 .into_iter()
                 .filter(|lt| !(matches!(lt, Core) || layer_types.contains(lt)))
                 .collect(),
-            first_update: false,
-        }
+        )
     }
 
+    /// Creates a threaded LayerManager with a specified set of layers
     pub fn new_custom_threaded(mut layer_types: HashSet<LayerType>) -> Self {
         // always include Core
         let mut layers = vec![Mutex::new(LayerProcessorSync::new(Core))];
@@ -91,26 +100,54 @@ impl<O: Organism> LayerManager<O> {
 
         layers.extend(layer_types.iter().map(|lt| Mutex::new(LayerProcessorSync::new(*lt))));
 
-        Self {
-            registry: ComponentRegistry::new(),
-            layers: Vec::new(),
-            layers_sync: layers,
-            missing_layers: LayerType::VARIANTS
+        Self::create(
+            Vec::new(),
+            layers,
+            LayerType::VARIANTS
                 .into_iter()
                 .filter(|lt| !(matches!(lt, Core) || layer_types.contains(lt)))
                 .collect(),
-            first_update: false,
-        }
+        )
     }
 
+    /// Whether the first update has occurred
+    pub fn first_update(&self) -> bool {
+        self.first_update
+    }
+
+    /// Whether this LayerManager is threaded or not
+    pub fn is_threaded(&self) -> bool {
+        self.layers.is_empty()
+    }
+
+    /// Checks whether the given component uses any layers
+    /// that are not supported by this LayerManager
+    fn check_layers(
+        missing_layers: &Vec<&'static LayerType>,
+        component: &mut Box<dyn ComponentWrapper<O>>,
+    ) -> anyhow::Result<()>{
+        if !missing_layers.is_empty() {
+            if missing_layers.iter().any(|lt| component.has_layer(lt)) {
+                return Err(anyhow!(
+                    "Layer types [{:?}] are not supported for this Sim!",
+                    missing_layers
+                ));
+            }
+        }
+        Ok(())
+    }
+
+    /// Initial setup for a component
     fn setup_component(
         layers: &mut Vec<LayerProcessor<O>>,
         layers_sync: &mut Vec<Mutex<LayerProcessorSync<O>>>,
         connector: &mut SimConnector,
-        wrapper: &mut Box<dyn ComponentWrapper<O>>) {
+        wrapper: &mut Box<dyn ComponentWrapper<O>>
+    ) {
         if layers_sync.is_empty() {
             for layer in layers.iter_mut() {
                 if wrapper.has_layer(&layer.layer_type()) {
+                    log::debug!("Setting up layer {:?} for component {}", layer.layer_type(), wrapper.id());
                     layer.setup_component(connector, wrapper);
                 }
             }
@@ -119,14 +156,14 @@ impl<O: Organism> LayerManager<O> {
             for layer in layers_sync.iter_mut() {
                 let mut locked_layer = layer.lock().unwrap();
                 if wrapper.has_layer(&locked_layer.layer_type()) {
+                    log::debug!("Setting up layer {:?} (sync) for component {}", locked_layer.layer_type(), wrapper.id());
                     locked_layer.setup_component_sync(connector, wrapper);
                 }
             }
         }
     }
 
-
-    pub fn process_removal(
+    fn process_removal(
         layers: &mut Vec<LayerProcessor<O>>,
         layers_sync: &mut Vec<Mutex<LayerProcessorSync<O>>>,
         connector: &mut SimConnector,
@@ -134,6 +171,7 @@ impl<O: Organism> LayerManager<O> {
         if layers_sync.is_empty() {
             for layer in layers.iter_mut() {
                 if wrapper.has_layer(&layer.layer_type()) {
+                    log::debug!("Removing component {} from layer {:?}", wrapper.id(), layer.layer_type());
                     layer.remove_component(connector, wrapper);
                 }
             }
@@ -142,33 +180,38 @@ impl<O: Organism> LayerManager<O> {
             for layer in layers_sync.iter_mut() {
                 let mut locked_layer = layer.lock().unwrap();
                 if wrapper.has_layer(&locked_layer.layer_type()) {
+                    log::debug!("Removing component {} from layer {:?}", wrapper.id(), locked_layer.layer_type());
                     locked_layer.remove_component_sync(connector, wrapper);
                 }
             }
         }
     }
 
-
-    pub fn add_component(&mut self, connector: &mut SimConnector, component: impl SimComponent<O>) -> anyhow::Result<&'_ mut Box<dyn ComponentWrapper<O>>> {
+    /// Registers and initializes a new component with this LayerManager
+    pub fn add_component(
+        &mut self, connector: &mut SimConnector,
+        component: impl SimComponent<O>
+    ) -> anyhow::Result<&'_ mut Box<dyn ComponentWrapper<O>>> {
         let wrapper = self.registry.add_component(component)?;
-        if !self.missing_layers.is_empty() {
-            if self.missing_layers.iter().any(|lt| wrapper.has_layer(lt)) {
-                return Err(anyhow!(
-                    "Layer types [{:?}] are not supported for this Sim!",
-                    self.missing_layers
-                ));
-            }
-        }
+        Self::check_layers(&self.missing_layers, wrapper)?;
         Self::setup_component(&mut self.layers, &mut self.layers_sync, connector, wrapper);
         Ok(wrapper)
     }
 
-    pub fn attach_component<'a>(&mut self, connector: &mut SimConnector, attach_fn: impl FnOnce(&mut ComponentRegistry<O>) -> &'_ mut Box<dyn ComponentWrapper<O>>) {
-        let wrapper = attach_fn(&mut self.registry);
+    /// Registers and initializes a new component with this LayerManager from
+    /// the given ComponentFactory
+    pub fn add_component_from_factory<'a>(
+        &mut self,
+        connector: &mut SimConnector,
+        factory: &mut ComponentFactory<'a, O>,
+    ) -> anyhow::Result<&'_ mut Box<dyn ComponentWrapper<O>>> {
+        let wrapper = factory.attach(&mut self.registry);
+        Self::check_layers(&self.missing_layers, wrapper)?;
         Self::setup_component(&mut self.layers, &mut self.layers_sync, connector, wrapper);
+        Ok(wrapper)
     }
 
-
+    /// Unregisters and removes a component from this LayerManager
     pub fn remove_component(&mut self, connector: &mut SimConnector, component_id: &str) -> anyhow::Result<Box<dyn ComponentWrapper<O>>> {
         match self.registry.remove_component(component_id) {
             Ok(mut wrapper) => {
@@ -179,16 +222,20 @@ impl<O: Organism> LayerManager<O> {
         }
     }
 
+    /// Retrieves an iterator of all registered components
     pub fn components(&self) -> impl Iterator<Item = &'static str> + '_ {
         self.registry.all_components().map(|c| c.id())
     }
 
+    /// Checks whether the given id corresponds to a registered component
     pub fn has_component(&self, component_id: &str) -> bool {
         self.registry.has_component(component_id)
     }
 
     fn update_sequential(&mut self, connector: &mut SimConnector) {
+        log::trace!("Running sequential update");
         for layer in self.layers.iter_mut() {
+            log::trace!("Running pre_exec for layer {:?}", layer.layer_type());
             layer.pre_exec(connector);
         }
 
@@ -197,11 +244,13 @@ impl<O: Organism> LayerManager<O> {
         if !self.first_update {
             // If we haven't executed the first update,
             // let ALL components run
+            log::trace!("Staging all components for initial run");
             update_list = self.registry.all_components_mut().collect();
         }
         else {
             update_list = Vec::new();
             for component in self.registry.all_components_mut() {
+                log::trace!("Checking component {}", component.id());
                 let mut check_list = self
                     .layers
                     .iter_mut()
@@ -210,6 +259,7 @@ impl<O: Organism> LayerManager<O> {
                 // If any of the supported layers indicate the component should be
                 // triggered, add the component to the update list
                 if check_list.any(|l| l.check_component(component)) {
+                    log::trace!("Component {} staged for a run", component.id());
                     update_list.push(component);
                 }
             }
@@ -225,26 +275,33 @@ impl<O: Organism> LayerManager<O> {
                 .collect();
 
             for layer in layer_list.iter_mut() {
+                log::trace!("Preparing component {} with layer {:?}", component.id(), layer.layer_type());
                 layer.prepare_component(connector, component);
             }
 
             // Execute component logic
+            log::trace!("Executing component {}", component.id());
             component.run();
 
             // Execute post run processing
             for layer in layer_list.iter_mut() {
+                log::trace!("Processing component {} with layer {:?}", component.id(), layer.layer_type());
                 layer.process_component(connector, component);
             }
         }
 
         for layer in self.layers.iter_mut() {
+            log::trace!("Running post_exec for layer {:?}", layer.layer_type());
             layer.post_exec(connector);
         }
     }
 
     fn update_threaded(&mut self, connector: &mut SimConnector) {
+        log::trace!("Running threaded update");
         for layer in self.layers_sync.iter_mut() {
-            layer.lock().unwrap().pre_exec_sync(connector);
+            let mut locked_layer = layer.lock().unwrap();
+            log::trace!("Running pre_exec_sync for layer {:?}", locked_layer.layer_type());
+            locked_layer.pre_exec_sync(connector);
         }
 
         let mut update_list;
@@ -252,12 +309,14 @@ impl<O: Organism> LayerManager<O> {
         if !self.first_update {
             // If we haven't executed the first update,
             // let ALL components run
+            log::trace!("Staging all components for initial run");
             update_list = self.registry.all_components_mut().collect();
         }
         else {
             update_list = Vec::new();
 
             for component in self.registry.all_components_mut() {
+                log::trace!("Checking component {}", component.id());
                 let mut check_list = self
                     .layers_sync
                     .iter_mut()
@@ -266,6 +325,7 @@ impl<O: Organism> LayerManager<O> {
                 // If any of the supported layers indicate the component should be
                 // triggered, add the component to the update list
                 if check_list.any(|l| l.lock().unwrap().check_component_sync(component)) {
+                    log::trace!("Component {} staged for a run", component.id());
                     update_list.push(component);
                 }
             }
@@ -285,15 +345,20 @@ impl<O: Organism> LayerManager<O> {
                         .collect();
 
                     for layer in layer_list.iter_mut() {
-                        layer.lock().unwrap().prepare_component_sync(mconnector.lock().unwrap().borrow_mut(), component);
+                        let mut locked_layer = layer.lock().unwrap();
+                        log::trace!("Preparing component {} with layer {:?}", component.id(), locked_layer.layer_type());
+                        locked_layer.prepare_component_sync(mconnector.lock().unwrap().borrow_mut(), component);
                     }
 
                     // Execute component logic
+                    log::trace!("Executing component {}", component.id());
                     component.run();
 
                     // Execute post run processing
                     for layer in layer_list.iter_mut() {
-                        layer.lock().unwrap().process_component_sync(mconnector.lock().unwrap().borrow_mut(), component);
+                        let mut locked_layer = layer.lock().unwrap();
+                        log::trace!("Processing component {} with layer {:?}", component.id(), locked_layer.layer_type());
+                        locked_layer.process_component_sync(mconnector.lock().unwrap().borrow_mut(), component);
                     }
                 });
             }
@@ -301,10 +366,13 @@ impl<O: Organism> LayerManager<O> {
 
         let reclaimed_connector = mconnector.into_inner().unwrap();
         for layer in self.layers_sync.iter_mut() {
-            layer.lock().unwrap().post_exec_sync(reclaimed_connector);
+            let mut locked_layer = layer.lock().unwrap();
+            log::trace!("Running post_exec_sync for layer {:?}", locked_layer.layer_type());
+            locked_layer.post_exec_sync(reclaimed_connector);
         }
     }
 
+    /// Executes an update across all layers and registered components
     pub fn update(&mut self, connector: &mut SimConnector) {
         if self.is_threaded() {
             self.update_threaded(connector)

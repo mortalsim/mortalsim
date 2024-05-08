@@ -47,11 +47,13 @@ impl<O: Organism> CoreLayer<O> {
     }
 
     fn process_connector(&mut self, connector: &mut SimConnector, component: &mut impl CoreComponent<O>) {
+        let comp_id = component.id();
         let comp_connector = component.core_connector();
 
         // Unschedule any requested events
         if comp_connector.unschedule_all {
             for (_, schedule_id) in comp_connector.scheduled_id_map.drain() {
+                log::trace!("Unscheduling change {} for component {}", schedule_id, comp_id);
                 connector
                     .time_manager
                     .unschedule_event(&schedule_id)
@@ -59,6 +61,7 @@ impl<O: Organism> CoreLayer<O> {
             }
         } else {
             for schedule_id in comp_connector.pending_unschedules.drain(..) {
+                log::trace!("Unscheduling change {} for component {}", schedule_id, comp_id);
                 connector
                     .time_manager
                     .unschedule_event(&schedule_id)
@@ -68,6 +71,7 @@ impl<O: Organism> CoreLayer<O> {
 
         // Unschedule any requested transforms
         for transformer_id in comp_connector.pending_untransforms.drain(..) {
+            log::trace!("Unscheduling transform {} for component {}", transformer_id, comp_id);
             connector.time_manager.unset_transform(&transformer_id)
                 .expect("tried to unset an invalid transformer_id!");
         }
@@ -75,6 +79,7 @@ impl<O: Organism> CoreLayer<O> {
         // Schedule any new events
         for (wait_time, (local_id, evt)) in comp_connector.pending_schedules.drain(..) {
             let schedule_id = connector.time_manager.schedule_event(wait_time, evt);
+            log::trace!("Scheduling event {} for component {}", schedule_id, comp_id);
             comp_connector
                 .scheduled_id_map
                 .insert(local_id, schedule_id);
@@ -83,9 +88,9 @@ impl<O: Organism> CoreLayer<O> {
         // Add any pending transformations from the component
         for (local_id, transformer) in comp_connector.pending_transforms.drain(..) {
             let transform_id = connector.time_manager.insert_transformer(transformer);
+            log::trace!("Scheduling transform {} for component {}", transform_id, comp_id);
             comp_connector.transform_id_map.insert(local_id, transform_id);
         }
-
     }
 }
 
@@ -122,7 +127,11 @@ impl<O: Organism> SimLayer for CoreLayer<O> {
         // update state
         for evt in connector.active_events.iter() {
             if !evt.transient() {
+                log::debug!("Updating state with event {:?}", evt);
                 connector.state.put_state(evt.clone());
+            }
+            else {
+                log::debug!("Dropping transient event {:?}", evt);
             }
         }
     }
@@ -142,6 +151,7 @@ impl<O: Organism> SimLayerSync for CoreLayer<O> {
 
 impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer<O> {
     fn setup_component(&mut self, connector: &mut SimConnector, component: &mut T) {
+        let comp_id = component.id();
         let mut initializer = CoreInitializer::new();
         component.core_init(&mut initializer);
 
@@ -152,10 +162,12 @@ impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer
         // Add any pending transformations from the component
         for (local_id, transformer) in initializer.pending_transforms {
             let transform_id = connector.time_manager.insert_transformer(transformer);
+            log::debug!("Adding initial transform {} from component {}", transform_id, comp_id);
             comp_connector.transform_id_map.insert(local_id, transform_id);
         }
 
         for type_id in initializer.pending_notifies {
+            log::debug!("Adding notification for event type {:?} for component {}", type_id, comp_id);
             self.module_notifications
                 .entry(type_id)
                 .or_default()
@@ -163,6 +175,7 @@ impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer
         }
 
         for event in initializer.initial_outputs {
+            log::debug!("Setting initial state with event {:?} from component {}", event, comp_id);
             connector.state.put_state(event.into());
         }
     }
@@ -189,11 +202,15 @@ impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer
     }
 
     fn remove_component(&mut self, connector: &mut SimConnector, component: &mut T) {
+        let comp_id = component.id();
+
         // unschedule all the component's pending events and transforms
         for schedule_id in component.core_connector().scheduled_id_map.values() {
+            log::debug!("Unscheduling event {} from component {}", schedule_id, comp_id);
             connector.time_manager.unschedule_event(schedule_id).ok();
         }
         for transformer_id in component.core_connector().transform_id_map.values() {
+            log::debug!("Unscheduling transform {} from component {}", transformer_id, comp_id);
             connector.time_manager.unset_transform(transformer_id).ok();
         }
     }

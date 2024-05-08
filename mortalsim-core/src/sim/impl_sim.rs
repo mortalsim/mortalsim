@@ -59,14 +59,13 @@ macro_rules! impl_sim {
             pub fn remove_default(
                 factory_id: &$crate::IdType,
             ) -> anyhow::Result<()> {
-                println!("removing {}", factory_id);
+                log::debug!("removing {}", factory_id);
                 let mut found_idx = None;
                 if let Some((idx, _)) = Self::default_factories()
                     .iter()
                     .enumerate()
                     .find(|(_, (id, _f))| id == factory_id)
                 {
-                    println!("found {}", idx);
                     found_idx = Some(idx.clone());
                 };
 
@@ -89,7 +88,7 @@ macro_rules! impl_sim {
                 let mut connector = $crate::sim::SimConnector::new();
 
                 for (_, factory) in Self::default_factories().iter_mut() {
-                    layer_manager.attach_component(&mut connector, |reg| factory.attach(reg))
+                    layer_manager.add_component_from_factory(&mut connector, factory).unwrap();
                 }
                 
                 Self {

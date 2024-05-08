@@ -46,6 +46,7 @@ impl<O: Organism> NervousLayer<O> {
         }
     }
 
+    /// Add new transforms to the registered_transforms map
     fn add_transforms(
         &mut self,
         registered_transforms: &mut HashMap<O::NerveType, HashMap<TypeId, IdType>>,
@@ -57,6 +58,7 @@ impl<O: Organism> NervousLayer<O> {
         for (nerve, mut type_map) in new_transforms {
             for (type_id, transformer) in type_map.drain() {
                 let transform_id = self.id_gen.get_id();
+                log::debug!("Adding transform on nerve {:?} for type {:?}. ID: {}", nerve, type_id, transform_id);
                 registered_transforms
                     .entry(nerve)
                     .or_default()
@@ -72,13 +74,16 @@ impl<O: Organism> NervousLayer<O> {
         }
     }
 
+    /// Remove any signals in the given iterator of (emit_time, signal_id).
     fn remove_signals(&mut self, items: impl Iterator<Item = (SimTime, IdType)>) {
         for (signal_time, signal_id) in items {
             if let Some(mut signal_ids) = self.pending_signals.remove(&signal_time) {
                 if let Some(idx) = signal_ids.iter().position(|x| x.id() == signal_id) {
+                    log::debug!("removing nerve signal {} at time {}", signal_id, signal_time);
                     signal_ids.remove(idx);
                     // Reinsert as long as there are other signals remaining
                     if signal_ids.len() > 0 {
+                        log::debug!("There are still other signals scheduled for time {}", signal_time);
                         self.pending_signals.insert(signal_time, signal_ids);
                     }
                 }
@@ -86,9 +91,11 @@ impl<O: Organism> NervousLayer<O> {
         }
     }
 
+    /// Removing any transforms in the given iterator of (nerve, Map<signal_type, id>).
     fn remove_transforms(&mut self, items: impl Iterator<Item = (O::NerveType, HashMap<TypeId, IdType>)>) {
         for (nerve, mut type_map) in items {
             for (type_id, transform_id) in type_map.drain() {
+                log::debug!("Removing transform {} from nerve {:?} for signal type {:?}", transform_id, nerve, type_id);
                 self.transforms
                     .entry(nerve)
                     .or_default()
@@ -156,11 +163,17 @@ impl<O: Organism> SimLayer for NervousLayer<O> {
                         // Apply any transformations
                         if let Some(fn_map) = self.transforms.get_mut(&nerve) {
                             if let Some(transform_list) = fn_map.get_mut(&signal.message_type_id()) {
-                                for (_, transform_box) in transform_list.iter_mut() {
+                                for (transform_id, transform_box) in transform_list.iter_mut() {
                                     // Note the dyn_message_mut call will panic if there are multiple
                                     // references to the inner message. But at this point there
                                     // should always only be a single reference in operation
+                                    log::debug!(
+                                        "Calling transform {} for nerve signal {:?}",
+                                        transform_id,
+                                        signal.dyn_message()
+                                    );
                                     if transform_box.transform(signal.dyn_message_mut()).is_none() {
+                                        log::debug!("Cancelling nerve signal {:?}", signal.dyn_message());
                                         continue 'sigloop;
                                     }
                                 }
@@ -171,6 +184,7 @@ impl<O: Organism> SimLayer for NervousLayer<O> {
                         if let Some(id_map) = self.signal_notifies.get(&nerve) {
                             if let Some(comp_ids) = id_map.get(&signal.message_type_id()) {
                                 for cid in comp_ids {
+                                    log::debug!("Preparing to trigger {} for nerve signal {}", cid, signal.id());
                                     self.notify_map.entry(cid).or_default().insert(signal.id());
                                 }
                             }
@@ -216,6 +230,12 @@ impl<O: Organism, T: NervousComponent<O> + ?Sized> SimComponentProcessor<O, T> f
 
         for (nerve, type_ids) in initializer.signal_notifies.into_iter() {
             for type_id in type_ids {
+                log::debug!(
+                    "Adding nerve notification for {:?} with signal type {:?} for component {}",
+                    nerve,
+                    type_id,
+                    component.id(),
+                );
                 self.signal_notifies
                     .entry(nerve)
                     .or_default()
@@ -251,6 +271,7 @@ impl<O: Organism, T: NervousComponent<O> + ?Sized> SimComponentProcessor<O, T> f
 
         // Add the incoming signals to the component's connector
         for signal in incoming_signals {
+            log::trace!("Prepping nerve signal {} for component {}", signal.id(), component.id());
             component.nervous_connector()
                 .incoming
                 .entry(signal.message_type_id())
@@ -303,6 +324,7 @@ impl<O: Organism, T: NervousComponent<O>> SimComponentProcessorSync<O, T> for Ne
 
         // Clone the incoming signals to the component's connector (as opposed to moving them)
         for signal in incoming_signals {
+            log::trace!("Prepping nerve signal {} for component {}", signal.id(), component.id());
             component.nervous_connector()
                 .incoming
                 .entry(signal.message_type_id())

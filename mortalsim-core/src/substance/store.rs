@@ -198,7 +198,7 @@ impl SubstanceStore {
             .insert(change_id, change);
         
         if self.track_changes {
-            println!("Tracking change to {}", substance);
+            log::debug!("Tracking changes to {}", substance);
             self.staged_changes.insert(substance, change_id);
         }
 
