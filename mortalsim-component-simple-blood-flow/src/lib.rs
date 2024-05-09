@@ -2,6 +2,7 @@ use std::any::TypeId;
 use std::collections::HashMap;
 use std::sync::{Arc, OnceLock, RwLock};
 
+
 use mortalsim_core::sim::component::SimComponent;
 use mortalsim_core::sim::layer::circulation::{BloodVessel, CirculationComponent, CirculationConnector};
 use mortalsim_core::sim::layer::core::{CoreComponent, CoreConnector};
@@ -102,7 +103,7 @@ impl<O: Organism> SimpleBloodFlow<O> {
     ) -> Vec<(u32, f64)> {
         // If we've hit a cycle, return immediately
         if visited.contains(&a) {
-            // println!("Path: {:?} -> {:?}", visited, a);
+            log::trace!("Path: {:?} -> {:?}", visited, a);
             return vec![];
         }
 
@@ -201,7 +202,7 @@ impl<O: Organism> SimComponent<O> for SimpleBloodFlow<O> {
         self.circ_connector.with_blood_stores(|vessel, store| {
             all_list.push(vessel);
             if store.has_new_changes() {
-                // println!("New changes on {:?}", vessel);
+                log::debug!("New changes on {:?}", vessel);
                 change_list.push(vessel);
             }
         });
@@ -211,7 +212,7 @@ impl<O: Organism> SimComponent<O> for SimpleBloodFlow<O> {
                 let mut source_store = self.circ_connector.blood_store(source).unwrap();
                 let mut target_store = self.circ_connector.blood_store(target).unwrap();
 
-                // println!("propagating changes from {:?} to {:?}", source, target);
+                log::debug!("propagating changes from {:?} to {:?}", source, target);
 
                 for (delay, factor) in self.calculate_blood_delays(*source, *target) {
                     for (substance, change) in source_store.get_new_direct_changes() {
@@ -245,7 +246,7 @@ mod tests {
     use super::*;
     use super::test::*;
 
-    #[test]
+    #[test_log::test]
     fn distance_factor_ao_ab() {
         let res = SimpleBloodFlow::<TestOrganism>::distance_factor_between(TestBloodVessel::Aorta, TestBloodVessel::AbdominalAorta);
         for (dist, fact) in res {
@@ -253,7 +254,7 @@ mod tests {
             assert_eq!(fact, 1.0);
         }
     }
-    #[test]
+    #[test_log::test]
     fn distance_factor_ao_vc() {
         let res = SimpleBloodFlow::<TestOrganism>::distance_factor_between(TestBloodVessel::Aorta, TestBloodVessel::InferiorVenaCava);
         for (dist, fact) in res {
@@ -261,7 +262,7 @@ mod tests {
             assert_eq!(fact, 0.5);
         }
     }
-    #[test]
+    #[test_log::test]
     fn distance_factor_rf_lf() {
         let res = SimpleBloodFlow::<TestOrganism>::distance_factor_between(TestBloodVessel::RightFemoralArtery, TestBloodVessel::LeftFemoralArtery);
         for (dist, fact) in res {
@@ -270,7 +271,7 @@ mod tests {
         }
     }
 
-    #[test]
+    #[test_log::test]
     fn blood_delay() {
         let sbf = SimpleBloodFlow::<TestOrganism>::new(
             HeartRate(Frequency::from_Hz(60.0)),
@@ -366,7 +367,7 @@ mod tests {
         )
     }
 
-    #[test]
+    #[test_log::test]
     fn test_blood_flow() {
         let bhr = HeartRate(Frequency::from_Hz(60.0));
         let bdt = Time::from_s(60.0);

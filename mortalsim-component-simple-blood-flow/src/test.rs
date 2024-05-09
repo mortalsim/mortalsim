@@ -21,7 +21,7 @@ impl SubstanceConcentrationRange {
         }
     }
     pub fn check(&self, val: SubstanceConcentration) {
-        println!("Concentration {}. Expected range {} -> {}",
+        log::info!("Concentration {}. Expected range {} -> {}",
             val,
             self.min,
             self.max
@@ -79,7 +79,7 @@ impl CirculationComponent<TestOrganism> for TestBloodCheckerComponent {
     }
 
     fn circulation_init(&mut self, circulation_initializer: &mut mortalsim_core::sim::layer::circulation::CirculationInitializer<TestOrganism>) {
-        println!("Circ init {}", self.id);
+        log::info!("Circ init {}", self.id);
         circulation_initializer.attach_vessel(self.vessel);
         for substance in self.pending_reads.iter().map(|(_, s, _e)| *s).collect::<HashSet<Substance>>() {
             circulation_initializer.notify_composition_change(
@@ -106,7 +106,7 @@ impl SimComponent<TestOrganism> for TestBloodCheckerComponent {
         // See if we need to write any substance changes
         while self.pending_writes.len() > 0 && self.pending_writes.get(0).unwrap().0 <= sim_time {
             let (_, substance, change) = self.pending_writes.pop_front().unwrap();
-            println!("Scheduling change on {:?}", self.vessel);
+            log::info!("Scheduling change on {:?}", self.vessel);
             self.circ_connector
                 .blood_store(&self.vessel)
                 .unwrap()
@@ -119,7 +119,7 @@ impl SimComponent<TestOrganism> for TestBloodCheckerComponent {
                 .unwrap()
                 .concentration_of(&substance);
             if !self.prev.contains_key(substance) || (&val - self.prev.get(substance).unwrap()).molpm3 > 0.000001 {
-                println!("{}: {} {:?}: {}", self.circ_connector.sim_time(), self.id(), self.vessel, val);
+                log::info!("{}: {} {:?}: {}", self.circ_connector.sim_time(), self.id(), self.vessel, val);
             }
 
             self.prev.insert(*substance, val);
@@ -127,7 +127,7 @@ impl SimComponent<TestOrganism> for TestBloodCheckerComponent {
 
         while self.pending_reads.len() > 0 && self.pending_reads.get(0).unwrap().0 <= sim_time {
             let (_, substance, expected) = self.pending_reads.pop_front().unwrap();
-            println!("{}: Reading value on {:?}", sim_time, self.vessel);
+            log::info!("{}: Reading value on {:?}", sim_time, self.vessel);
             let conc = self.circ_connector
                 .blood_store(&self.vessel)
                 .unwrap()

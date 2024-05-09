@@ -8,6 +8,8 @@ edition = "2021"
 [dependencies]
 mortalsim-core = { path = "../mortalsim-core" }
 mortalsim-human = { path = "../mortalsim-human" }
+log = "0.4"
 
 [dev-dependencies]
 rand = ">=0.8.5"
+test-log = ">=0.2"
