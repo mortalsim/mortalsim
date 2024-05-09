@@ -191,6 +191,8 @@ impl SubstanceStore {
             panic!("start_time cannot be less than the current sim time!");
         }
 
+        log::debug!("Scheduling substance change for {}: {:?}", substance, change);
+
         let change_id = self.id_gen.get_id();
         self.substance_changes
             .entry(substance)
@@ -227,6 +229,14 @@ impl SubstanceStore {
         if start_time < self.sim_time {
             panic!("start_time cannot be less than the current sim time!");
         }
+
+        log::debug!(
+            "Scheduling dependent change for {}. Start Time: {}, Factor: {}, Change: {:?}",
+            substance,
+            start_time,
+            factor,
+            change
+        );
 
         let dep_change = DependentSubstanceChange::new(start_time, factor, change);
         self.dependent_changes
@@ -297,6 +307,11 @@ impl SubstanceStore {
         substance: &Substance,
         change_id: &IdType,
     ) -> Option<SubstanceChange> {
+        log::debug!(
+            "Unscheduling change for {} with id {}",
+            substance,
+            change_id,
+        );
         self.substance_changes
             .entry(*substance)
             .or_default()
@@ -343,13 +358,6 @@ impl SubstanceStore {
             // Check to make sure new concentration doesn't exceed possible solute volume
             let change_pct = change_amt.molpm3*substance.molar_volume().m3_per_mol;
             if solute_pct + change_pct > 1.0 {
-                println!(
-                    "Substance change attempted to set an invalid solute concentration for {}: {}\n{}\n{}",
-                    substance,
-                    new_conc,
-                    format!("Total solute percentage would be {:.1}%",(solute_pct + change_pct)*100.0),
-                    format!("{} concentration will remain unchanged.", substance),
-                );
                 log::warn!(
                     "Substance change attempted to set an invalid solute concentration for {}: {}\n{}\n{}",
                     substance,
@@ -359,6 +367,8 @@ impl SubstanceStore {
                 );
                 return solute_pct;
             }
+
+            log::trace!("Executing substance change on {} from {} to {}", substance, prev_conc, new_conc);
             
             // register the change in solute percent and the concentration change
             composition.insert(*substance, new_conc);
@@ -397,7 +407,14 @@ impl SubstanceStore {
             }
 
             for change_id in ids_to_remove {
-                change_map.remove(&change_id);
+                let removed = change_map.remove(&change_id);
+                self.id_gen.return_id(change_id).expect("Returning invalid id");
+                log::debug!(
+                    "Change {} on substance {} has completed: {:?}",
+                    change_id,
+                    substance,
+                    removed
+                );
             }
         }
 
@@ -434,7 +451,6 @@ mod tests {
     fn bad_concentration() {
         let mut store = SubstanceStore::new();
         let err = store.set_concentration(Substance::GLC, SubstanceConcentration::from_M(200.0));
-        println!("{:?}", err);
         assert!(err.is_err());
 
         assert!(store.set_concentration(Substance::GLC, SubstanceConcentration::from_M(-1.0)).is_err());

@@ -167,7 +167,7 @@ impl<O: Organism, T: CoreComponent<O>> SimComponentProcessor<O, T> for CoreLayer
         }
 
         for type_id in initializer.pending_notifies {
-            log::debug!("Adding notification for event type {:?} for component {}", type_id, comp_id);
+            log::debug!("Adding notification on event {:?} for component {}", type_id, comp_id);
             self.module_notifications
                 .entry(type_id)
                 .or_default()
