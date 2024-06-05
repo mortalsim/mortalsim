@@ -58,6 +58,19 @@ impl Event for AorticBloodPressure {
     }
 }
 
+/// Event indicating a change of aortic blood pressure
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct PulmonaryBloodPressure {
+    pub systolic: Pressure<NumType>,
+    pub diastolic: Pressure<NumType>,
+}
+        
+impl Event for PulmonaryBloodPressure {
+    fn transient(&self) -> bool {
+        false
+    }
+}
+
 /// Event indicating a change of respiration rate
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct RespiratoryRate(pub Frequency<NumType>);
