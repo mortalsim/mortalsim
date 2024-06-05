@@ -37,8 +37,8 @@ clinically verified models.
 ### ![Layers](img/layers_shrek.jpg)
 
 MortalSim operates under the principle that,
-like ogres and onions, all living organisms can be modeled
-as a set of biological layers. These layers each
+like ogres and onions, all living organisms can be
+modeled as a set of biological layers. These layers
 provide a unique framework within which each
 component can communicate and interact with other
 simulation components.
