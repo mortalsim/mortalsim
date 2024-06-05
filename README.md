@@ -37,7 +37,7 @@ clinically verified models.
 ### ![Layers](img/layers_shrek.jpg)
 
 MortalSim operates under the principle that,
-like Ogres, all living organisms can be modeled
+like ogres and onions, all living organisms can be modeled
 as a set of biological layers. These layers each
 provide a unique framework within which each
 component can communicate and interact with other
@@ -61,7 +61,7 @@ MortalSim currently has the following layers:
 Mortalsim is centered around discrete `Event`s.
 At the top level, the progression of events
 provides the target simulation output, whether
-thats concious level, heart rate, or any other
+that's concious level, heart rate, or any other
 vital sign.
 
 Key physiological events are provided by the core
