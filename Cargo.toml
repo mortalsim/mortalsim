@@ -6,3 +6,10 @@ members = [
     "mortalsim-human",
     "mortalsim-simple-blood-flow",
 ]
+
+[workspace.package]
+rust-version = "1.76"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/mortalsim/mortalsim"
+authors = ["Ryan Sivek <developer@ryansivek.com>"]

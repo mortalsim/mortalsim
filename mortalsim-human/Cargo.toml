@@ -1,12 +1,11 @@
 [package]
 name = "mortalsim-human"
 version = "0.1.0"
-license = "MIT OR Apache-2.0"
-repository = "https://github.com/mortalsim/mortalsim"
-authors = ["Ryan Sivek <developer@ryansivek.com>"]
-edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
 
 [dependencies]
 mortalsim-core = { path = "../mortalsim-core" }
