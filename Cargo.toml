@@ -1,7 +1,9 @@
 [workspace]
 
+workspace.resolver = "2"
+
 members = [
     "mortalsim-core",
     "mortalsim-human",
-    "mortalsim-component-simple-blood-flow",
+    "mortalsim-simple-blood-flow",
 ]
