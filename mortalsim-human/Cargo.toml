@@ -9,7 +9,7 @@ rust-version.workspace = true
 repository.workspace = true
 
 [dependencies]
-mortalsim-core = { path = "../mortalsim-core" }
+mortalsim-core = { path = "../mortalsim-core", version="0.1.0" }
 anyhow = "1.0"
 strum = "0.26.1"
 strum_macros = "0.26.1"
