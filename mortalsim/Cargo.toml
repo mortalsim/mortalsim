@@ -1,0 +1,9 @@
+[package]
+name = "mortalsim"
+version = "0.1.0"
+description = "MortalSim (placeholder for now)"
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true

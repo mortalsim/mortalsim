@@ -2,6 +2,7 @@
 resolver = "2"
 
 members = [
+    "mortalsim",
     "mortalsim-core",
     "mortalsim-human",
     "mortalsim-simple-blood-flow",
