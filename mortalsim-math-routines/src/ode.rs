@@ -88,6 +88,16 @@ impl<T: Ode> OdeRunner<T> {
         self.constants[param] = value;
     }
 
+    pub fn set_initial_value(&mut self, param: T::RateBound, value: NumType) {
+        self.initial_rate_bound[param] = value;
+    }
+
+    pub fn set_initial_values_from_results(&mut self, results: &OdeResults) {
+        if let Some(res) = results.rate_bound_results.last() {
+            self.initial_rate_bound = res.clone().into();
+        }
+    }
+
     pub fn solve_fixed(
         &mut self,
         t_start: NumType,

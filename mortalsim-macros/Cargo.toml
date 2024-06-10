@@ -1,5 +1,5 @@
 [package]
-name = "mortalsim-math-routines"
+name = "mortalsim-macros"
 version = "0.1.0"
 rust-version.workspace = true
 edition.workspace = true
@@ -7,8 +7,11 @@ license.workspace = true
 repository.workspace = true
 authors.workspace = true
 
-[dependencies.mathru]
-version = "0.15"
+[lib]
+proc-macro = true
+name = "mortalsim_macros"
 
-[dev-dependencies]
-mortalsim-macros = { path = "../mortalsim-macros", version = "0.1.0" }
+[dependencies]
+proc-macro2 = "1.0"
+syn = "2.0"
+quote = "1.0"
