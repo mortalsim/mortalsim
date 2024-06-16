@@ -5,6 +5,7 @@ members = [
     "mortalsim",
     "mortalsim-core",
     "mortalsim-human",
+    "mortalsim-macros",
     "mortalsim-math-routines",
     "mortalsim-simple-blood-flow",
     "mortalsim-smith2004-cvs-human",
