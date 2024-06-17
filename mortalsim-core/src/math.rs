@@ -71,30 +71,4 @@ mod tests {
         sigmoid_1:    bound_sigmoid, (1.0, 1.0, 1.0, 1.0),
         sigmoid_1_1h: bound_sigmoid, (1.5, 1.0, 1.0, 1.0),
     }
-
-    // #[test]
-    // fn test_sigmoid() {
-
-    //     let tests = [
-
-    //     ]
-
-    //     let result = bound_sigmoid(0.0, 1.0, 1.0);
-    //     assert!((result - 0.0).abs() < 0.0001, "result: {}", result);
-
-    //     let result = bound_sigmoid(0.25, 1.0, 1.0);
-    //     assert!((result - 0.0619).abs() < 0.0001, "result: {}", result);
-
-    //     let result = bound_sigmoid(0.5, 1.0, 1.0);
-    //     assert!((result - 0.5).abs() < 0.0001, "result: {}", result);
-
-    //     let result = bound_sigmoid(0.75, 1.0, 1.0);
-    //     assert!((result - 0.9381).abs() < 0.0001, "result: {}", result);
-
-    //     let result = bound_sigmoid(1.0, 1.0, 1.0);
-    //     assert!((result - 1.0).abs() < 0.0001, "result: {}", result);
-
-    //     let result = bound_sigmoid(1.5, 1.0, 1.0);
-    //     assert!((result - 1.0).abs() < 0.0001, "result: {}", result);
-    // }
 }
