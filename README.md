@@ -127,6 +127,7 @@ This was selected for the following reasons:
 - [ ] Musculoskeletal Components
 
 ### Module Development Tools
+- [x] Math routines crate
 - [ ] SBML to MortalSim component tool (IN PROGRESS)
 - [ ] Test Harness for Core Components
 - [ ] Test Harness for Circulation Components

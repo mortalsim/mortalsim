@@ -1,8 +1,8 @@
 use proc_macro2::{TokenStream, Span};
 use quote::quote;
-use syn::{Data, DeriveInput, Ident};
+use syn::{Data, DeriveInput};
 
-pub(crate) fn param_enum_inner(ast: &DeriveInput, p_ty: &Ident) -> syn::Result<TokenStream> {
+pub(crate) fn param_enum_inner(ast: &DeriveInput) -> syn::Result<TokenStream> {
     let n = match &ast.data {
         Data::Enum(v) => v.variants.iter().try_fold(0usize, |acc, _v| {
             Ok::<usize, syn::Error>(acc + 1usize)
@@ -26,6 +26,5 @@ pub(crate) fn param_enum_inner(ast: &DeriveInput, p_ty: &Ident) -> syn::Result<T
         impl #impl_generics mortalsim_math_routines::params::Param for #name #ty_generics #where_clause {
             const COUNT: usize = #n;
         }
-        impl #impl_generics mortalsim_math_routines::params::#p_ty for #name #ty_generics #where_clause {}
     })
 }

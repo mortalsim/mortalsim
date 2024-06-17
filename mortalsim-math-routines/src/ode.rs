@@ -2,10 +2,17 @@ use std::cell::RefCell;
 
 use mathru::{algebra::linear::vector::Vector, analysis::differential_equation::ordinary::{solver::explicit::runge_kutta::fixed::{ExplicitRKMethod, FixedStepper}, ExplicitInitialValueProblemBuilder, ExplicitODE}};
 
-use crate::params::{ConstantParam, AssignmentParam, RateBoundParam, ParamVec};
+use crate::params::{Param, ParamVec};
 
 type NumType = f64;
 
+/// Solution results for a set of explicit Ordinary Differential Equations
+/// 
+/// The struct includes the following properties:
+/// `constants`: constant values which were unchanging throughout the execution
+/// `x_values`: the independent variable of integration (often time)
+/// `assignment_results`: variables assigned algebraically at each step of the solution
+/// `rate_bound_results`: dependent variables of the integration
 pub struct OdeResults<T: Ode> {
     pub constants: ParamVec<T::ConstParam>,
     pub x_values: Vec<NumType>,
@@ -14,61 +21,88 @@ pub struct OdeResults<T: Ode> {
 }
 
 impl<T: Ode> OdeResults<T> {
+    /// Length of the result set (number of x values)
     pub fn len(&self) -> usize {
         self.x_values.len()
     }
 
+    /// Value of x at the given index
     pub fn x(&self, index: usize) -> NumType{
         self.x_values[index]
     }
 
+    /// Value of the given constant variable
     pub fn constant_value(&self, param: T::ConstParam) -> NumType {
         self.constants[param]
     }
 
+    /// Value of the assignment variable at the given index
     pub fn assignment_value(&self, index: usize, param: T::AssignParam) -> NumType {
         self.assignment_results[index][param]
     }
 
+    /// Value of the assignment variable at the *nearest* x value.
+    /// 
+    /// Internally this uses total_cmp to determine nearness.
+    /// See https://doc.rust-lang.org/std/primitive.f64.html#method.total_cmp
     pub fn assignment_value_at_x(&self, x: NumType, param: T::AssignParam) -> NumType {
         let (index, _) = self.x_values
             .iter()
             .enumerate()
-            .min_by(|(_i1, v1), (_i2, v2)| (*v1 - x).abs().partial_cmp(&(*v2 - x).abs()).unwrap())
+            .min_by(|(_i1, v1), (_i2, v2)| (*v1 - x).abs().total_cmp(&(*v2 - x).abs()))
             .unwrap();
         self.assignment_value(index, param)
     }
 
+    /// Value of the rate bound variable at the given index
     pub fn rate_bound_value(&self, index: usize, param: T::RateParam) -> NumType {
         self.rate_bound_results[index][param]
     }
 
+    /// Value of the rate bound variable at the *nearest* x value.
+    /// 
+    /// Internally this uses total_cmp to determine nearness.
+    /// See https://doc.rust-lang.org/std/primitive.f64.html#method.total_cmp
     pub fn rate_bound_value_at_x(&self, x: NumType, param: T::RateParam) -> NumType {
         let (index, _) = self.x_values
             .iter()
             .enumerate()
-            .min_by(|(_i1, v1), (_i2, v2)| (*v1 - x).abs().partial_cmp(&(*v2 - x).abs()).unwrap())
+            .min_by(|(_i1, v1), (_i2, v2)| (*v1 - x).abs().total_cmp(&(*v2 - x).abs()))
             .unwrap();
         self.rate_bound_value(index, param)
     }
 }
 
+/// Representation of a set of explicit Ordinary Differential Equations
+/// 
+/// To define the Ode, implement this trait for a struct.
 pub trait Ode
 {
-    type ConstParam: ConstantParam;
-    type AssignParam: AssignmentParam;
-    type RateParam: RateBoundParam;
+    /// Constant param type for this ODE
+    type ConstParam: Param;
+    /// Assignment param type for this ODE
+    type AssignParam: Param;
+    /// Rate bound param type (dependent variables) for this ODE
+    type RateParam: Param;
+
+    // The values for constant variables in the ODE
     fn constants(&self) -> ParamVec<Self::ConstParam>;
+
+    /// The initial values for rate-bound (dependend) variables for the ODE
     fn initial_values(
         &self,
         constants: &ParamVec<Self::ConstParam>,
     ) -> ParamVec<Self::RateParam>;
+
+    /// Algebraic variable assignments for the ODE
     fn calc_assignments(
         &self,
         x: NumType,
         constants: &ParamVec<Self::ConstParam>,
         ode_vars: &ParamVec<Self::RateParam>,
     ) -> ParamVec<Self::AssignParam>;
+    
+    /// Rate variable assignments for the ODE
     fn calc_rates(
         &self,
         x: NumType,

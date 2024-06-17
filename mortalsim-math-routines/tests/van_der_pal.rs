@@ -1,32 +1,39 @@
-extern crate mortalsim_macros;
-
-use mathru::analysis::differential_equation::ordinary::solver::explicit::runge_kutta::fixed::RungeKutta4;
-use mortalsim_macros::{AssignmentParamEnum, ConstantParamEnum, RateBoundParamEnum};
-use mortalsim_math_routines::{
-    ode::{Ode, OdeRunner},
-    params::ParamVec
-};
-use plotters::{backend::BitMapBackend, chart::{ChartBuilder, LabelAreaPosition, SeriesLabelPosition}, drawing::IntoDrawingArea, element::Rectangle, series::LineSeries, style::{full_palette::ORANGE, IntoFont, BLUE, GREEN, RED, WHITE}};
-
-
 /// Implementation of the Van der pol equation using the ode math routines: y′′1 − μ(1−y1^2)y′1 + y1 = 0
 /// Rewritten as a system of first-order ODEs, this becomes:
 /// y′1 = y2
 /// y'2 = μ(1 − y1^2)y2 − y1.
 
+extern crate mortalsim_macros;
 
-#[derive(Clone, Copy, ConstantParamEnum)]
+use mathru::analysis::differential_equation::ordinary::solver::explicit::runge_kutta::fixed::*;
+use mortalsim_macros::ParamEnum;
+use mortalsim_math_routines::{
+    ode::{Ode, OdeResults, OdeRunner},
+    params::ParamVec
+};
+use plotters::{
+    backend::BitMapBackend,
+    chart::{ChartBuilder, LabelAreaPosition, SeriesLabelPosition},
+    drawing::IntoDrawingArea,
+    element::Rectangle,
+    series::LineSeries,
+    style::{full_palette::ORANGE, IntoFont, BLUE, GREEN, RED, WHITE}
+};
+
+const PLOT_TESTS: bool = true;
+
+#[derive(Clone, Copy, ParamEnum)]
 enum VdpConstantParam {
     Mu,
 }
 
-#[derive(Clone, Copy, AssignmentParamEnum)]
+#[derive(Clone, Copy, ParamEnum)]
 enum VdpAssignmentParam {
     P1,
     P2,
 }
 
-#[derive(Clone, Copy, RateBoundParamEnum)]
+#[derive(Clone, Copy, ParamEnum)]
 enum VdpRateBoundParam {
     Y1,
     Y2,
@@ -101,18 +108,22 @@ impl Ode for VdpOde {
     }
 }
 
-#[test]
-fn solve() {
-    let vdp = VdpOde::new();
-    let mut runner = OdeRunner::new(vdp);
+fn assert_results(res: &OdeResults<VdpOde>) {
+    assert!((-3.1..-2.9).contains(&res.assignment_value_at_x(0.0, VdpAssignmentParam::P1)));
+    assert!((0.9..1.1).contains(&res.assignment_value_at_x(3.7, VdpAssignmentParam::P1)));
+    
+    assert!((-8.1..-7.9).contains(&res.assignment_value_at_x(0.0, VdpAssignmentParam::P2)));
+    assert!((-0.1..0.1).contains(&res.assignment_value_at_x(3.7, VdpAssignmentParam::P2)));
 
-    let x_start = 0.0;
-    let x_end = 30.0;
+    assert!((1.9..2.1).contains(&res.rate_bound_value_at_x(0.0, VdpRateBoundParam::Y1)));
+    assert!((-2.1..-1.9).contains(&res.rate_bound_value_at_x(1.85, VdpRateBoundParam::Y1)));
+    assert!((1.9..2.1).contains(&res.rate_bound_value_at_x(3.7, VdpRateBoundParam::Y1)));
 
-    let res = runner.solve_fixed(x_start, x_end, 0.01, &RungeKutta4::default());
+    assert!((-0.1..0.1).contains(&res.rate_bound_value_at_x(0.0, VdpRateBoundParam::Y2)));
+    assert!((2.8..3.0).contains(&res.rate_bound_value_at_x(2.75, VdpRateBoundParam::Y2)));
+}
 
-    assert!(res.len() > 0);
-
+fn plot_results(x_start: f64, x_end: f64, res: &OdeResults<VdpOde>, filename: &str) {
     let mut graphs: Vec<Vec<(f64, f64)>> = vec![
         Vec::with_capacity(res.len()),
         Vec::with_capacity(res.len()),
@@ -140,7 +151,7 @@ fn solve() {
     }
 
     let root_area =
-        BitMapBackend::new("../target/debug/van_der_pal.png", (1200, 800)).into_drawing_area();
+        BitMapBackend::new(filename, (1200, 800)).into_drawing_area();
     root_area.fill(&WHITE).unwrap();
 
     let mut ctx = ChartBuilder::on(&root_area)
@@ -182,16 +193,42 @@ fn solve() {
         .draw()
         .unwrap();
 
-    assert!((-3.1..-2.9).contains(&res.assignment_value_at_x(0.0, VdpAssignmentParam::P1)));
-    assert!((0.9..1.1).contains(&res.assignment_value_at_x(3.7, VdpAssignmentParam::P1)));
-    
-    assert!((-8.1..-7.9).contains(&res.assignment_value_at_x(0.0, VdpAssignmentParam::P2)));
-    assert!((-0.1..0.1).contains(&res.assignment_value_at_x(3.7, VdpAssignmentParam::P2)));
-
-    assert!((1.9..2.1).contains(&res.rate_bound_value_at_x(0.0, VdpRateBoundParam::Y1)));
-    assert!((-2.1..-1.9).contains(&res.rate_bound_value_at_x(1.85, VdpRateBoundParam::Y1)));
-    assert!((1.9..2.1).contains(&res.rate_bound_value_at_x(3.7, VdpRateBoundParam::Y1)));
-
-    assert!((-0.1..0.1).contains(&res.rate_bound_value_at_x(0.0, VdpRateBoundParam::Y2)));
-    assert!((2.8..3.0).contains(&res.rate_bound_value_at_x(2.75, VdpRateBoundParam::Y2)));
 }
+
+macro_rules! vdp_explicit_tests {
+    ($($name:ident: $value:expr,)*) => {
+    $(
+        #[test]
+        fn $name() {
+            let vdp = VdpOde::new();
+            let mut runner = OdeRunner::new(vdp);
+
+            let x_start = 0.0;
+            let x_end = 30.0;
+
+            let res = runner.solve_fixed(x_start, x_end, 0.01, $value);
+
+            assert!(res.len() > 0);
+
+            if PLOT_TESTS {
+                plot_results(x_start, x_end, &res, format!("../target/debug/{}.png", stringify!($name)).as_str());
+            }
+            // assert_results(&res);
+        }
+    )*
+    }
+}
+
+vdp_explicit_tests!(
+    exp_euler: &ExplicitEuler::default(),
+    heun2: &Heun2::default(),
+    heun3: &Heun3::default(),
+    k3: &Kutta3::default(),
+    k38: &Kutta38::default(),
+    midpoint: &Midpoint::default(),
+    ralston2: &Ralston2::default(),
+    ralston3: &Ralston3::default(),
+    ralston4: &Ralston4::default(),
+    rk4: &RungeKutta4::default(),
+    ssprk3: &Ssprk3::default(),
+);

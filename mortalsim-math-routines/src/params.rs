@@ -4,9 +4,6 @@ use std::{marker::PhantomData, ops::{Index, IndexMut}};
 pub trait Param : Into<usize> + Clone + Copy {
     const COUNT: usize;
 }
-pub trait ConstantParam : Param {}
-pub trait AssignmentParam : Param {}
-pub trait RateBoundParam : Param {}
 
 #[derive(Clone)]
 pub struct ParamVec<T: Param> {
