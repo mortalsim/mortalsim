@@ -20,7 +20,7 @@ use plotters::{
     style::{full_palette::ORANGE, IntoFont, BLUE, GREEN, RED, WHITE}
 };
 
-const PLOT_TESTS: bool = true;
+const PLOT_TESTS: bool = false;
 
 #[derive(Clone, Copy, ParamEnum)]
 enum VdpConstantParam {
@@ -106,21 +106,6 @@ impl Ode for VdpOde {
         dy_dt[VdpRateBoundParam::Y2] = dy2_dt;
         dy_dt
     }
-}
-
-fn assert_results(res: &OdeResults<VdpOde>) {
-    assert!((-3.1..-2.9).contains(&res.assignment_value_at_x(0.0, VdpAssignmentParam::P1)));
-    assert!((0.9..1.1).contains(&res.assignment_value_at_x(3.7, VdpAssignmentParam::P1)));
-    
-    assert!((-8.1..-7.9).contains(&res.assignment_value_at_x(0.0, VdpAssignmentParam::P2)));
-    assert!((-0.1..0.1).contains(&res.assignment_value_at_x(3.7, VdpAssignmentParam::P2)));
-
-    assert!((1.9..2.1).contains(&res.rate_bound_value_at_x(0.0, VdpRateBoundParam::Y1)));
-    assert!((-2.1..-1.9).contains(&res.rate_bound_value_at_x(1.85, VdpRateBoundParam::Y1)));
-    assert!((1.9..2.1).contains(&res.rate_bound_value_at_x(3.7, VdpRateBoundParam::Y1)));
-
-    assert!((-0.1..0.1).contains(&res.rate_bound_value_at_x(0.0, VdpRateBoundParam::Y2)));
-    assert!((2.8..3.0).contains(&res.rate_bound_value_at_x(2.75, VdpRateBoundParam::Y2)));
 }
 
 fn plot_results(x_start: f64, x_end: f64, res: &OdeResults<VdpOde>, filename: &str) {
@@ -213,7 +198,6 @@ macro_rules! vdp_explicit_tests {
             if PLOT_TESTS {
                 plot_results(x_start, x_end, &res, format!("../target/debug/{}.png", stringify!($name)).as_str());
             }
-            // assert_results(&res);
         }
     )*
     }
