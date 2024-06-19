@@ -1,8 +1,18 @@
 use std::cell::RefCell;
 
-use mathru::{algebra::linear::vector::Vector, analysis::differential_equation::ordinary::{solver::explicit::runge_kutta::fixed::{ExplicitRKMethod, FixedStepper}, ExplicitInitialValueProblemBuilder, ExplicitODE}};
+pub mod runge_kutta {
+    pub mod fixed {
+        pub use mathru::analysis::differential_equation::ordinary::solver::explicit::runge_kutta::fixed::*;
+    }
+}
+
+use mathru::analysis::differential_equation::ordinary::{
+    ExplicitInitialValueProblemBuilder,
+    ExplicitODE
+};
 
 use crate::params::{Param, ParamVec};
+use crate::Vector;
 
 type NumType = f64;
 
@@ -14,9 +24,13 @@ type NumType = f64;
 /// `assignment_results`: variables assigned algebraically at each step of the solution
 /// `rate_bound_results`: dependent variables of the integration
 pub struct OdeResults<T: Ode> {
+    /// Constants for the ODE
     pub constants: ParamVec<T::ConstParam>,
+    /// Values of the independent variable of the ODE
     pub x_values: Vec<NumType>,
+    /// Assignment parameters at each step of the ODE
     pub assignment_results: Vec<ParamVec<T::AssignParam>>,
+    /// Rate bound parameters at each step of the ODE
     pub rate_bound_results: Vec<ParamVec<T::RateParam>>,
 }
 
@@ -112,14 +126,15 @@ pub trait Ode
     ) -> ParamVec<Self::RateParam>;
 }
 
+/// Construct for executing an explicit ODE
 pub struct OdeRunner<T: Ode>
 {
     ode: T,
     constants: ParamVec<T::ConstParam>,
     initial_rate_bound: ParamVec<T::RateParam>,
     assignment_history: RefCell<Vec<ParamVec<T::AssignParam>>>,
-    t_end: NumType,
-    step_size: NumType,
+    t_end: RefCell<NumType>,
+    step_size: RefCell<NumType>,
     prev_x: RefCell<NumType>,
 }
 
@@ -135,12 +150,13 @@ impl<T: Ode> OdeRunner<T> {
             constants: constants,
             initial_rate_bound,
             assignment_history: RefCell::new(vec![initial_assignments]),
-            t_end: 0.0,
-            step_size: 0.01,
+            t_end: RefCell::new(0.0),
+            step_size: RefCell::new(0.01),
             prev_x: RefCell::new(-1.0),
         }
     }
 
+    /// 
     pub fn set_constant(&mut self, param: T::ConstParam, value: NumType) {
         self.constants[param] = value;
     }
@@ -154,14 +170,14 @@ impl<T: Ode> OdeRunner<T> {
     }
 
     pub fn solve_fixed(
-        &mut self,
+        &self,
         t_start: NumType,
         t_end: NumType,
         step_size: NumType,
-        method: &impl ExplicitRKMethod<NumType>
+        method: &impl runge_kutta::fixed::ExplicitRKMethod<NumType>
     ) -> OdeResults<T> {
-        self.t_end = t_end;
-        self.step_size = step_size;
+        *self.t_end.borrow_mut() = t_end;
+        *self.step_size.borrow_mut() = step_size;
 
         let problem = ExplicitInitialValueProblemBuilder::new(
             self,
@@ -171,7 +187,7 @@ impl<T: Ode> OdeRunner<T> {
         .t_end(t_end)
         .build();
 
-        let solver = FixedStepper::new(self.step_size);
+        let solver = runge_kutta::fixed::FixedStepper::new(step_size);
 
         let (x, y) = solver.solve(&problem, method).unwrap();
 
@@ -195,9 +211,19 @@ impl<T: Ode> ExplicitODE<NumType> for OdeRunner<T>
         let y_params: ParamVec<T::RateParam> = y.clone().into();
         let assignments = self.ode.calc_assignments(*x, &self.constants, &y_params);
         let rates = self.ode.calc_rates(*x, &self.constants, &assignments, &y_params);
-        if *x == self.t_end || *x - *self.prev_x.borrow() >= self.step_size - self.step_size*0.01 {
+
+        // this function will often be called between step sizes depending on the
+        // method used. This ensures assignment_history aligns with the step sizes
+        // which will appear in the output
+        let mut prev_x = self.prev_x.borrow_mut();
+        let t_end = *self.t_end.borrow();
+        let step_size = *self.step_size.borrow();
+        if *x == t_end || *x - *prev_x >= step_size - step_size*0.01 {
             self.assignment_history.borrow_mut().push(assignments);
         }
+
+        *prev_x = *x;
+
         rates.into()
     }
 }

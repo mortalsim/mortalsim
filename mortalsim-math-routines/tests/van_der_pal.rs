@@ -5,7 +5,7 @@
 
 extern crate mortalsim_macros;
 
-use mathru::analysis::differential_equation::ordinary::solver::explicit::runge_kutta::fixed::*;
+use mortalsim_math_routines::ode::runge_kutta::fixed::*;
 use mortalsim_macros::ParamEnum;
 use mortalsim_math_routines::{
     ode::{Ode, OdeResults, OdeRunner},
@@ -186,7 +186,7 @@ macro_rules! vdp_explicit_tests {
         #[test]
         fn $name() {
             let vdp = VdpOde::new();
-            let mut runner = OdeRunner::new(vdp);
+            let runner = OdeRunner::new(vdp);
 
             let x_start = 0.0;
             let x_end = 30.0;

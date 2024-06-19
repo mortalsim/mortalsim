@@ -5,6 +5,26 @@ pub trait Param : Into<usize> + Clone + Copy {
     const COUNT: usize;
 }
 
+/// A Vector for ODE parameters.
+/// 
+/// This construct primarily provides convenient
+/// initialization and index methods for Vectors
+/// of values associated with ODE parameters.
+/// 
+/// ```
+/// use mortalsim_macros::ParamEnum;
+/// use mortalsim_math_routines::params::ParamVec;
+/// 
+/// #[derive(Clone, Copy, ParamEnum)]
+/// enum MyParamEnum {
+///     ParamA,
+///     ParamB,
+/// }
+/// 
+/// let mut myVec = ParamVec::<MyParamEnum>::new();
+/// myVec[MyParamEnum::ParamA] = 1.0_f64;
+/// myVec[MyParamEnum::ParamB] = 3.0_f64;
+/// ```
 #[derive(Clone)]
 pub struct ParamVec<T: Param> {
     v: Vector<f64>,
@@ -12,6 +32,7 @@ pub struct ParamVec<T: Param> {
 }
 
 impl<T: Param> ParamVec<T> {
+    /// Constructs a zero-filled Vector for each Param variant
     pub fn new() -> Self {
         Self {
             v: Vector::new_column(vec![0.0; T::COUNT]),
