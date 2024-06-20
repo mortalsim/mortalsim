@@ -1,5 +1,7 @@
-use mathru::algebra::linear::vector::Vector;
+use mathru::algebra::linear::vector::{Vector, VectorIterator, VectorIteratorMut};
 use std::{marker::PhantomData, ops::{Index, IndexMut}};
+
+use crate::ode::NumType;
 
 pub trait Param : Into<usize> + Clone + Copy {
     const COUNT: usize;
@@ -38,6 +40,16 @@ impl<T: Param> ParamVec<T> {
             v: Vector::new_column(vec![0.0; T::COUNT]),
             pd: PhantomData,
         }
+    }
+
+    // get an immutable iterator over elements in the ParamVec
+    pub fn iter(&self) -> VectorIterator<NumType> {
+        self.v.iter()
+    }
+
+    // get a mutable iterator over elements in the ParamVec
+    pub fn iter_mut(&mut self) -> VectorIteratorMut<NumType> {
+        self.v.iter_mut()
     }
 }
 
