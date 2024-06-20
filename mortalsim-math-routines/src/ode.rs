@@ -220,9 +220,8 @@ impl<T: Ode> ExplicitODE<NumType> for OdeRunner<T>
         let step_size = *self.step_size.borrow();
         if *x == t_end || *x - *prev_x >= step_size - step_size*0.01 {
             self.assignment_history.borrow_mut().push(assignments);
+            *prev_x = *x;
         }
-
-        *prev_x = *x;
 
         rates.into()
     }
