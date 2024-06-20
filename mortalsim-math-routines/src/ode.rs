@@ -14,7 +14,7 @@ use mathru::analysis::differential_equation::ordinary::{
 use crate::params::{Param, ParamVec};
 use crate::Vector;
 
-type NumType = f64;
+pub type NumType = f64;
 
 /// Solution results for a set of explicit Ordinary Differential Equations
 /// 
