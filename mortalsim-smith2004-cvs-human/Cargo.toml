@@ -1,0 +1,16 @@
+[package]
+name = "mortalsim-smith2004-cvs-human"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+mortalsim-core = { path = "../mortalsim-core", version = "0.1.0" }
+mortalsim-human = { path = "../mortalsim-human", version = "0.1.0" }
+mortalsim-macros = { path = "../mortalsim-macros", version = "0.1.0" }
+mortalsim-math-routines = { path = "../mortalsim-math-routines", version = "0.1.0" }
+
+[dev-dependencies]
+simple_logger = "1.11.0"
+plotters = "0.3"
