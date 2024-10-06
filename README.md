@@ -20,7 +20,7 @@ clinically verified models.
 ## Goals
 
 - Provide validated physiological events at the organism level
-- Support tens to thousands of simulated organisms simultaneously in real time with minimal impact to computing resources
+- Support parallel organism simulations in real time with minimal impact to computing resources
 - Modular architecture - relatively easy integration and customization
 - Support combinations of widely varying model approaches
 - Make model addition / removal as easy as possible
