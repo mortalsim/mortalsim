@@ -47,7 +47,9 @@ impl Event for Smith2004CvsParamChanges {
 
 /// This is a Mortalsim component to simulate cardiovascular dynamics
 /// 
-/// Populates `AorticBloodPressure` and `PulmonaryBloodPressure` events
+/// Populates `AorticBloodPressure` and `PulmonaryBloodPressure` events.
+/// Depends on the core `HeartRate` event. Constant parameters can be set
+/// using the custom `Smith2004CvsParamChanges` event.
 /// 
 /// This component exhibits a model from the article:
 /// 
