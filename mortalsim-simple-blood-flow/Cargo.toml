@@ -10,7 +10,6 @@ repository.workspace = true
 
 [dependencies]
 mortalsim-core = { path = "../mortalsim-core", version="0.1.0" }
-mortalsim-human = { path = "../mortalsim-human", version="0.1.0"  }
 log = "0.4"
 
 [dev-dependencies]

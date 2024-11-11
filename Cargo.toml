@@ -9,6 +9,7 @@ members = [
     "mortalsim-math-routines",
     "mortalsim-simple-blood-flow",
     "mortalsim-smith2004-cvs-human",
+    "mortalsim-test-harness",
 ]
 
 [workspace.package]
