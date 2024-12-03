@@ -125,7 +125,7 @@ impl<O: Organism> CoreConnector<O> {
     }
 
     /// Retrieves the `Event` object(s) which triggered the current `run` (if any)
-    pub fn trigger_events<'a>(&'a self) -> impl Iterator<Item = &TypeId> + 'a {
+    pub fn trigger_events<'a>(&'a self) -> impl Iterator<Item = &'a TypeId> + 'a {
         self.trigger_events.iter()
     }
 

@@ -265,7 +265,7 @@ impl SubstanceStore {
     /// Returns an iterator of all `SubstanceChange`s
     pub fn get_all_direct_changes<'a>(
         &'a self,
-    ) -> impl Iterator<Item = (Substance, &SubstanceChange)> {
+    ) -> impl Iterator<Item = (Substance, &'a SubstanceChange)> {
         self.substance_changes.iter().map(|(s, cm)| cm.values().map(move |c| (*s, c))).flatten()
     }
 
