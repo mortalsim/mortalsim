@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 
-use mortalsim_math_routines::{ode::{NumType, Ode}, params::ParamVec};
+use mortalsim_math_routines::ode::{NumType, Ode};
+use mortalsim_math_routines::params::ParamVec;
 
 use crate::params::{Smith2004CvsAssignmentParam, Smith2004CvsConstantParam, Smith2004CvsRateBoundParam};
 
@@ -277,11 +278,15 @@ impl Ode for Smith2004CvsOde {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::io::Write;
-    use mortalsim_math_routines::ode::{runge_kutta::fixed::RungeKutta4, OdeRunner};
-    use plotters::{
-        backend::BitMapBackend, chart::{ChartBuilder, LabelAreaPosition}, drawing::IntoDrawingArea, series::LineSeries, style::{full_palette::ORANGE, IntoFont, BLACK, BLUE, GREEN, RED, WHITE}
-    };
+    use std::fs;
+    use mortalsim_math_routines::ode::OdeRunner;
+    use mortalsim_math_routines::ode::runge_kutta::fixed::RungeKutta4;
+    use mortalsim_test_harness::charts::{write_chart, write_csv, ChartOptions};
+    use plotters::chart::{ChartBuilder, LabelAreaPosition};
+    use plotters::prelude::{BitMapBackend, IntoDrawingArea};
+    use plotters::series::LineSeries;
+    use plotters::style::{IntoFont, BLACK, WHITE};
+    use strum::IntoEnumIterator;
 
     use Smith2004CvsAssignmentParam as AssignParam;
     use Smith2004CvsRateBoundParam as RateParam;
@@ -291,63 +296,37 @@ mod tests {
         let x_start: f64 = 0.0;
         let x_end: f64 = 10.0;
 
+        let output_path = "./target";
+
+        fs::create_dir_all(output_path).expect("unable to create output directory");
+
         let runner = OdeRunner::new(Smith2004CvsOde::new());
 
         let results = runner.solve_fixed(x_start, x_end, 0.01, &RungeKutta4::default());
-
-        // Create chart
-        let mut graph_x1: Vec<(f64, f64)> = Vec::with_capacity(results.len());
-        let mut graph_x2: Vec<(f64, f64)> = Vec::with_capacity(results.len());
-        let mut graph_x3: Vec<(f64, f64)> = Vec::with_capacity(results.len());
-        let mut graph_x4: Vec<(f64, f64)> = Vec::with_capacity(results.len());
-
-        let mut ymax = 1.0;
-
-        for i in 0..results.len() {
-            let x_i = results.x(i);
-            let x1 = results.assignment_value(i, AssignParam::P_lv);
-            let x2 = results.assignment_value(i, AssignParam::P_rv);
-            let x3 = results.assignment_value(i, AssignParam::P_ao);
-            let x4 = results.assignment_value(i, AssignParam::P_pa);
-            graph_x1.push((x_i, x1));
-            graph_x2.push((x_i, x2));
-            graph_x3.push((x_i, x3));
-            graph_x4.push((x_i, x4));
-
-            if x1 > ymax { ymax = x1; }
-            if x2 > ymax { ymax = x2; }
-            if x3 > ymax { ymax = x3; }
-            if x4 > ymax { ymax = x4; }
-        }
-
-        let root_area =
-            BitMapBackend::new("./target/pressures.png", (1200, 800)).into_drawing_area();
-        root_area.fill(&WHITE).unwrap();
-
-        let mut ctx = ChartBuilder::on(&root_area)
-            .margin(20)
-            .set_label_area_size(LabelAreaPosition::Left, 40)
-            .set_label_area_size(LabelAreaPosition::Bottom, 40)
-            .caption("Smith2004 ODE Simulation", ("Arial", 40))
-            .build_cartesian_2d(x_start..x_end, -1.0f64..ymax)
-            .unwrap();
-
-        ctx.configure_mesh()
-            .x_desc("Time t")
-            .axis_desc_style(("sans-serif", 25).into_font())
-            .draw()
-            .unwrap();
-
-        ctx.draw_series(LineSeries::new(graph_x1, &BLUE)).unwrap();
-
-        ctx.draw_series(LineSeries::new(graph_x2, &RED)).unwrap();
-
-        ctx.draw_series(LineSeries::new(graph_x3, &GREEN)).unwrap();
         
-        ctx.draw_series(LineSeries::new(graph_x4, &ORANGE)).unwrap();
+        let chart_options: ChartOptions<Smith2004CvsOde> = ChartOptions::new(
+            "Smith2004 ODE Simulation - Pressure Chart".to_string(),
+            "Time".to_string(),
+            vec![
+                AssignParam::P_lv,
+                AssignParam::P_rv,
+                AssignParam::P_ao,
+                AssignParam::P_pa,
+            ],
+            Vec::new(),
+        );
+
+        write_chart("./target/pressures.png", &results, &chart_options);
 
 
-        // Create chart
+        write_csv(
+            "./target/cvs_human.csv",
+            &results, "time", 
+            AssignParam::iter().map(|a| a.into()),
+            RateParam::iter().map(|r| r.into()),
+        );
+
+        // Create custom Pressure Volume chart
         let mut graph_pv: Vec<(f64, f64)> = Vec::with_capacity(results.len());
 
         let mut xmax = 1.0;
@@ -362,10 +341,6 @@ mod tests {
             if y > ymax { ymax = y; }
         }
 
-        // let mut output_file = std::env::current_dir().unwrap();
-        // output_file.push("figures");
-        // output_file.push("ode_smith2004_cvs_human.png");
-    
         let root_area =
             BitMapBackend::new("./target/pv.png", (1200, 800)).into_drawing_area();
         root_area.fill(&WHITE).unwrap();
@@ -386,63 +361,5 @@ mod tests {
 
         ctx.draw_series(LineSeries::new(graph_pv, &BLACK)).unwrap();
 
-
-        let varnames = vec![
-            "time",
-            "e_t",
-            "tau",
-            "V_pcd",
-            "P_pcd",
-            "P_peri",
-            "V_lvf",
-            "P_lvf",
-            "P_lv",
-            "P_es_lvf",
-            "P_ed_lvf",
-            "V_rvf",
-            "P_rvf",
-            "P_rv",
-            "P_es_rvf",
-            "P_ed_rvf",
-            "P_pa",
-            "P_pu",
-            "P_ao",
-            "P_vc",
-            "Q_sys",
-            "Q_pul",
-            "V_lv",
-            "V_rv",
-            "V_pa",
-            "V_pu",
-            "V_ao",
-            "V_vc",
-            "Q_mt",
-            "Q_av",
-            "Q_tc",
-            "Q_pv",
-        ];
-
-        let csv_filename = "./target/cvs_human.csv";
-        let mut first_line = varnames.join(",");
-        first_line.push_str("\n");
-        std::fs::write(csv_filename, first_line).expect("Unable to write file");
-
-        let mut csv_file = std::fs::OpenOptions::new()
-            .write(true)
-            .append(true)
-            .open(csv_filename)
-            .unwrap();
-
-        let num_elems = 1 + results.assignment_results.len() + results.rate_bound_results.len();
-
-        for i in 0..results.len() {
-            let mut row = Vec::with_capacity(num_elems);
-            row.push(format!("{:.2}", results.x(i)));
-            row.extend(results.assignment_results[i].iter().map(|x| format!("{}", x)));
-            row.extend(results.rate_bound_results[i].iter().map(|x| format!("{}", x)));
-            if let Err(e) = writeln!(csv_file, "{}", row.join(",")) {
-                eprintln!("Couldn't write to file: {}", e);
-            }
-        }
     }
 }

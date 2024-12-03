@@ -1,8 +1,9 @@
 #![allow(non_camel_case_types)]
 
 use mortalsim_macros::ParamEnum;
+use strum_macros::{EnumIter, IntoStaticStr};
 
-#[derive(Debug, Clone, Copy, ParamEnum)]
+#[derive(Debug, Clone, Copy, ParamEnum, EnumIter, IntoStaticStr)]
 pub enum Smith2004CvsConstantParam {
     /// Resistance to flow into the left ventricle (mmHg_second_per_mL)
     R_mt,
@@ -80,7 +81,7 @@ pub enum Smith2004CvsConstantParam {
     V_d_vc,
 }
 
-#[derive(Debug, Clone, Copy, ParamEnum)]
+#[derive(Debug, Clone, Copy, ParamEnum, EnumIter, IntoStaticStr)]
 pub enum Smith2004CvsAssignmentParam {
     /// Time-varying elastance (dimensionless)
     e_t,
@@ -126,7 +127,7 @@ pub enum Smith2004CvsAssignmentParam {
     Q_pul,
 }
 
-#[derive(Debug, Clone, Copy, ParamEnum)]
+#[derive(Debug, Clone, Copy, ParamEnum, EnumIter, IntoStaticStr)]
 pub enum Smith2004CvsRateBoundParam {
     /// Left ventricle volume (mL)
     V_lv,

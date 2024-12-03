@@ -240,8 +240,8 @@ mod tests {
     use mortalsim_core::units::mechanical::Frequency;
     use mortalsim_core::event::HeartRate;
     use mortalsim_core::sim::organism::test::TestSim;
-    use mortalsim_core::sim::Sim;
     use mortalsim_core::SimTime;
+    use mortalsim_core::sim::Sim;
 
     use super::*;
     use super::test::*;

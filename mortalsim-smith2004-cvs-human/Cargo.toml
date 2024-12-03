@@ -10,7 +10,10 @@ mortalsim-core = { path = "../mortalsim-core", version = "0.1.0" }
 mortalsim-human = { path = "../mortalsim-human", version = "0.1.0" }
 mortalsim-macros = { path = "../mortalsim-macros", version = "0.1.0" }
 mortalsim-math-routines = { path = "../mortalsim-math-routines", version = "0.1.0" }
+strum = "0.26.1"
+strum_macros = "0.26.1"
 
 [dev-dependencies]
 simple_logger = "1.11.0"
 plotters = "0.3"
+mortalsim-test-harness = { path = "../mortalsim-test-harness", version = "0.1.0" }
