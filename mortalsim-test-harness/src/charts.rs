@@ -4,7 +4,8 @@ use mortalsim_math_routines::ode::{Ode, OdeResults};
 use plotters::chart::{ChartBuilder, LabelAreaPosition};
 use plotters::prelude::{BitMapBackend, IntoDrawingArea};
 use plotters::series::LineSeries;
-use plotters::style::{IntoFont, BLUE, CYAN, GREEN, MAGENTA, RED, WHITE, YELLOW};
+use plotters::style::full_palette::{ORANGE, PURPLE};
+use plotters::style::{IntoFont, BLUE, GREEN, MAGENTA, RED, WHITE};
 
 pub struct ChartOptions<T: Ode> {
     title: String,
@@ -13,14 +14,10 @@ pub struct ChartOptions<T: Ode> {
     x_desc: String,
     chart_x: u32,
     chart_y: u32,
-    auto_x_start: bool,
-    auto_x_end: bool,
-    x_start: f64,
-    x_end: f64,
-    auto_y_min: bool,
-    auto_y_max: bool,
-    y_min: f64,
-    y_max: f64,
+    x_start: Option<f64>,
+    x_end: Option<f64>,
+    y_min: Option<f64>,
+    y_max: Option<f64>,
 }
 
 impl<T: Ode> ChartOptions<T> {
@@ -32,41 +29,28 @@ impl<T: Ode> ChartOptions<T> {
             x_desc,
             chart_x: 1920,
             chart_y: 1080,
-            auto_x_start: true,
-            auto_x_end: true,
-            x_start: 0.0,
-            x_end: 0.0,
-            auto_y_min: true,
-            auto_y_max: true,
-            y_min: 0.0,
-            y_max: 0.0,
+            x_start: None,
+            x_end: None,
+            y_min: None,
+            y_max: None,
         }
     }
 
     pub fn x_start(&mut self, x_start: f64) {
-        self.x_start = x_start;
-        self.auto_x_start = false;
+        self.x_start = Some(x_start);
     }
 
     pub fn x_end(&mut self, x_end: f64) {
-        self.x_end = x_end;
-        self.auto_x_end = false;
+        self.x_end = Some(x_end);
     }
 
     pub fn y_min(&mut self, y_min: f64) {
-        self.y_min = y_min;
-        self.auto_y_min = false;
+        self.y_min = Some(y_min);
     }
 
     pub fn y_max(&mut self, y_max: f64) {
-        self.y_max = y_max;
-        self.auto_y_max = false;
+        self.y_max = Some(y_max);
     }
-}
-
-pub struct CsvOptions {
-    assign_var_names: Vec<String>,
-    rate_var_names: Vec<String>,
 }
 
 pub fn write_chart<T: Ode> (filepath: &str, chart_data: &OdeResults<T>, options: &ChartOptions<T>) {
@@ -106,12 +90,15 @@ pub fn write_chart<T: Ode> (filepath: &str, chart_data: &OdeResults<T>, options:
         BitMapBackend::new(filepath, (options.chart_x, options.chart_y)).into_drawing_area();
     root_area.fill(&WHITE).unwrap();
 
-    if !options.auto_y_min {
-        ymin = options.y_min;
+    let x_start = options.x_start.unwrap_or(chart_data.x(0));
+    let x_end = options.x_end.unwrap_or(chart_data.x(chart_data.len() - 1));
+
+    if options.y_min.is_some() {
+        ymin = options.y_min.unwrap();
     }
 
-    if !options.auto_y_max {
-        ymax = options.y_max;
+    if options.y_max.is_some() {
+        ymax = options.y_max.unwrap();
     }
 
     let mut ctx = ChartBuilder::on(&root_area)
@@ -119,7 +106,7 @@ pub fn write_chart<T: Ode> (filepath: &str, chart_data: &OdeResults<T>, options:
         .set_label_area_size(LabelAreaPosition::Left, 40)
         .set_label_area_size(LabelAreaPosition::Bottom, 40)
         .caption(&options.title, ("Arial", 40))
-        .build_cartesian_2d(options.x_start..options.x_end, ymin..ymax)
+        .build_cartesian_2d(x_start..x_end, ymin..ymax)
         .unwrap();
 
     ctx.configure_mesh()
@@ -129,11 +116,11 @@ pub fn write_chart<T: Ode> (filepath: &str, chart_data: &OdeResults<T>, options:
         .unwrap();
 
     let line_colors = [
+        BLUE,
         RED,
         GREEN,
-        BLUE,
-        YELLOW,
-        CYAN,
+        PURPLE,
+        ORANGE,
         MAGENTA,
     ];
 
@@ -150,9 +137,15 @@ pub fn write_chart<T: Ode> (filepath: &str, chart_data: &OdeResults<T>, options:
     }
 }
 
-pub fn write_csv<T: Ode> (filepath: &str, data: &OdeResults<T>, options: &CsvOptions) {
+pub fn write_csv<'a, T: Ode> (filepath: &str, data: &OdeResults<T>, x_var_name: &str, assign_var_names: impl Iterator<Item = &'a str>, rate_var_names: impl Iterator<Item = &'a str>) {
 
-    let mut first_line = [options.assign_var_names.as_slice(), options.rate_var_names.as_slice()].concat().join(",");
+    let mut first_line = String::new() + x_var_name;
+
+    for v in assign_var_names.chain(rate_var_names) {
+        first_line += ",";
+        first_line += v;
+    }
+
     first_line.push_str("\n");
     std::fs::write(filepath, first_line).expect("Unable to write file");
 
