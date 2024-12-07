@@ -165,20 +165,24 @@ impl TimeManager {
         let mut results = Vec::new();
 
         for evt_time in times_to_remove {
-            let evt_list = self.event_queue.remove(&evt_time).unwrap();
+            let mut evt_list = self.event_queue.remove(&evt_time).unwrap();
 
-            // Drop the registration token when returning the result vector
-            let mut result: Vec<Box<dyn Event>> =
-                evt_list.into_iter().map(|(_, evt)| evt).rev().collect();
-
-            for evt in result.iter_mut() {
+            for (id, evt) in evt_list.iter_mut().rev() {
                 // Call any transformers on the event
                 for transformers in self.event_transformers.get_mut(&evt.type_id()).iter_mut() {
                     for transformer in transformers.iter_mut() {
                         transformer.transform(evt.as_mut());
                     }
                 }
+
+                // Remove the ids from our mapping and recycle them
+                self.id_time_map.remove(id);
+                self.id_gen.return_id(*id).expect(format!("Error returning id {}", id).as_str());
             }
+            
+            // Drop the registration token when returning the result vector
+            let result: Vec<Box<dyn Event>> =
+                evt_list.into_iter().map(|(_, e)| e).rev().collect();
 
             if !result.is_empty() {
                 results.push((evt_time, result));
@@ -369,6 +373,37 @@ mod tests {
             );
         }
         assert_eq!(time_manager.get_time(), SimTime::from_s(6.0));
+    }
+
+    #[test]
+    fn unschedule_test() {
+        let a_evt = TestEventA::new(Distance::from_m(3.5));
+        let b_evt = TestEventB::new(Amount::from_mol(123456.0));
+
+        // Create a time manager and a handy reusable
+        // variable representing one second
+        let mut time_manager = TimeManager::new();
+
+        // Schedule the events to be emitted later
+        let id_a = time_manager.schedule_event(SimTimeSpan::from_s(2.0), Box::new(a_evt));
+        let id_b = time_manager.schedule_event(SimTimeSpan::from_s(6.0), Box::new(b_evt));
+
+        // Advance a little, but not past the first event
+        time_manager.advance_by(SimTimeSpan::from_s(1.0));
+
+        // Unschedule the A event
+        time_manager.unschedule_event(&id_a).expect("Error unscheduling a valid event");
+
+        time_manager.advance_by(SimTimeSpan::from_s(2.0));
+        
+        let next_events: Vec<(SimTime, Vec<Box<dyn Event>>)> =
+            time_manager.next_events().collect();
+        assert!(next_events.is_empty());
+
+        time_manager.advance_by(SimTimeSpan::from_s(10.0));
+
+        // Try unscheduling an id which is no longer valid
+        time_manager.unschedule_event(&id_b).unwrap();
     }
 
     #[test]
