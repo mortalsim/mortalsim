@@ -20,7 +20,7 @@ fn debug_print_generated(ast: &DeriveInput, toks: &TokenStream) {
     }
 }
 
-/// Implements ConstantParam for the given Enum
+/// Implements ParamEnum for the given Enum
 ///
 /// For a given enum generates implementations of:
 /// - `Into<usize>`
