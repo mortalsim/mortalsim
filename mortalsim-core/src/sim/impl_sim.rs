@@ -106,6 +106,34 @@ macro_rules! impl_sim {
             pub fn new_threaded() -> Self {
                 Self::init($crate::sim::layer::LayerManager::new_threaded())
             }
+
+            /// Retrieves a typed reference to an `Event` in this state
+            ///
+            /// returns a `&E` or `None` if no `Event` of this type has been set
+            pub fn get_state<T: $crate::event::Event>(&self) -> Option<&T> {
+                self.connector.state.get_state::<T>()
+            }
+    
+            /// Retrieves a typed reference to an `Event` in this state
+            ///
+            /// returns a `&E` or `None` if no `Event` of this type has been set
+            pub fn get_state_arc<T: $crate::event::Event>(&self) -> Option<std::sync::Arc<T>> {
+                self.connector.state.get_state_arc::<T>()
+            }
+
+            /// Retrieves a dyn `Event` in this state
+            ///
+            /// returns a cloned `Arc<E>` or `None` if no `Event` of this type has been set
+            pub fn get_dyn_state(&self, type_id: &std::any::TypeId) -> Option<&std::sync::Arc<dyn $crate::event::Event>> {
+                self.connector.state.get_dyn_state(type_id)
+            }
+
+            /// Checks whether an `Event` exists in this state for a given `Event` type
+            ///
+            /// returns `true` if it exists or `false` otherwise
+            pub fn has_state<T: $crate::event::Event>(&self) -> bool {
+                self.connector.state.has_state::<T>()
+            }
         }
 
         impl $crate::sim::Sim for $name {
