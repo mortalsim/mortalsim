@@ -193,6 +193,9 @@ impl<T: Ode> OdeRunner<T> {
 
         let last_assign = vec![self.assignment_history.borrow().last().unwrap().clone()];
 
+        // Make sure to reset prev_x after the solver runs
+        *self.prev_x.borrow_mut() = 0.0;
+
         OdeResults {
             constants: self.constants.clone().into(),
             x_values: x,
