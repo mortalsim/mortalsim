@@ -8,6 +8,7 @@ use downcast_rs::Downcast;
 use crate::sim::component::{SimComponentProcessor, SimComponentProcessorSync};
 use crate::sim::layer::{InternalLayerTrigger, SimLayer, SimLayerSync};
 use crate::sim::organism::Organism;
+use crate::sim::time_manager::ScheduleId;
 use crate::sim::SimConnector;
 use crate::{secs, IdGenerator, IdType, SimTime, SimTimeSpan};
 
@@ -30,7 +31,7 @@ pub struct NervousLayer<O: Organism> {
     /// Pending notifies
     pending_signals: BTreeMap<SimTime, Vec<NerveSignal<O>>>,
     /// Internal trigger id to unschedule if needed
-    internal_trigger_id: Option<IdType>,
+    internal_trigger_id: Option<ScheduleId>,
 }
 
 impl<O: Organism> NervousLayer<O> {

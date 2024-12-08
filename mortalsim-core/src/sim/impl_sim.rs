@@ -173,13 +173,13 @@ macro_rules! impl_sim {
                 &mut self,
                 wait_time: $crate::SimTimeSpan,
                 event: Box<dyn $crate::event::Event>,
-            ) -> $crate::IdType {
+            ) -> $crate::sim::time_manager::ScheduleId {
                 self.connector.time_manager.schedule_event(wait_time, event)
             }
 
             fn unschedule_event(
                 &mut self,
-                schedule_id: &$crate::IdType,
+                schedule_id: &$crate::sim::time_manager::ScheduleId,
             ) -> anyhow::Result<()> {
                 self.connector.time_manager.unschedule_event(schedule_id)
             }

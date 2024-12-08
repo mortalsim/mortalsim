@@ -54,10 +54,11 @@ impl<O: Organism> CoreLayer<O> {
         if comp_connector.unschedule_all {
             for (_, schedule_id) in comp_connector.scheduled_id_map.drain() {
                 log::trace!("Unscheduling change {} for component {}", schedule_id, comp_id);
+                // ignore invalid event id unschedules - if the time has already passed they will become invalid
                 connector
                     .time_manager
                     .unschedule_event(&schedule_id)
-                    .unwrap();
+                    .ok();
             }
         } else {
             for schedule_id in comp_connector.pending_unschedules.drain(..) {

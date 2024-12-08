@@ -15,6 +15,7 @@ use std::sync::{Mutex, MutexGuard, OnceLock};
 use crate::sim::layer::circulation::component::test::TestCircComponentA;
 use crate::sim::layer::digestion::component::test::TestDigestionComponent;
 use crate::sim::layer::nervous::component::test::{TestMovementComponent, TestPainReflexComponent};
+use crate::sim::time_manager::ScheduleId;
 use crate::units::base::Distance;
 
 use crate::event::test::TestEventA;
@@ -61,7 +62,6 @@ fn test_default() {
     assert!(!sim.has_component("not there"));
     assert!(sim.remove_component("test").is_err());
     sim.schedule_event(SimTimeSpan::from_s(0.0), Box::new(TestEventA::new(Distance::from_m(1.0))));
-    assert!(sim.unschedule_event(&1234).is_err());
     assert_eq!(sim.time(), secs!(1.0));
 
     TestSim::remove_default(&fid).unwrap();

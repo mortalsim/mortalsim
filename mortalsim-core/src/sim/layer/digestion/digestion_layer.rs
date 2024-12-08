@@ -1,6 +1,7 @@
 use crate::sim::component::{SimComponent, SimComponentProcessor, SimComponentProcessorSync};
 use crate::sim::layer::{InternalLayerTrigger, SimLayer, SimLayerSync};
 use crate::sim::organism::Organism;
+use crate::sim::time_manager::ScheduleId;
 use crate::sim::{SimConnector, SimTime};
 use crate::{secs, IdType, SimTimeSpan};
 use std::collections::{BTreeMap, HashMap, HashSet};
@@ -30,7 +31,7 @@ pub struct DigestionLayer<O: Organism> {
     /// Consumables staged for elimination
     elimination_list: Vec<(Consumable, DigestionDirection)>,
     /// Internal trigger id to unschedule if needed
-    internal_trigger_id: Option<IdType>,
+    internal_trigger_id: Option<ScheduleId>,
 }
 
 impl<O: Organism> DigestionLayer<O> {
@@ -413,6 +414,9 @@ mod tests {
         assert_eq!(layer.consumed_map.get(0).unwrap().len(), 1);
         assert_eq!(layer.consumed_map.get(1).unwrap().len(), 1);
 
+        // Drain the InternalLayerTrigger
+        assert!(connector.time_manager.next_events().next().unwrap().1.get(0).unwrap().is::<InternalLayerTrigger>());
+
         // Go through a cycle
         connector.time_manager.advance_by(SimTimeSpan::from_min(5.0));
         layer.pre_exec(&mut connector);
@@ -425,9 +429,11 @@ mod tests {
 
         connector.time_manager.advance_by(SimTimeSpan::from_s(1.0));
 
-        // Should be eliminating the fiber
-        let (_, mut evts) = connector.time_manager.next_events().next().unwrap();
+        let mut all_evts = connector.time_manager.next_events();
+        assert!(all_evts.next().unwrap().1.get(0).unwrap().is::<InternalLayerTrigger>());
+        let (_, mut evts) = all_evts.next().unwrap();
 
+        // Should be eliminating the fiber
         assert!(evts.get(0).is_some());
         assert!(evts.get(0).unwrap().is::<EliminateEvent>());
 
@@ -538,21 +544,26 @@ mod tests {
         assert_eq!(layer.lock().unwrap().consumed_map.get(0).unwrap().len(), 1);
         assert_eq!(layer.lock().unwrap().consumed_map.get(1).unwrap().len(), 1);
 
+        // Drain the InternalLayerTrigger
+        assert!(connector.lock().unwrap().time_manager.next_events().next().unwrap().1.get(0).unwrap().is::<InternalLayerTrigger>());
+
         // Go through a cycle
         connector.lock().unwrap().time_manager.advance_by(SimTimeSpan::from_min(5.0));
         layer.lock().unwrap().pre_exec(&mut connector.lock().unwrap());
         run_layer_sync(&layer, &connector, &mut components);
         layer.lock().unwrap().post_exec(&mut connector.lock().unwrap());
-        
+
         // Each list should be empty now
         assert_eq!(layer.lock().unwrap().consumed_map.get(0).unwrap().len(), 0);
         assert_eq!(layer.lock().unwrap().consumed_map.get(1).unwrap().len(), 0);
 
         connector.lock().unwrap().time_manager.advance_by(SimTimeSpan::from_s(1.0));
 
-        // Should be eliminating the fiber
-        let (_, mut evts) = connector.lock().unwrap().time_manager.next_events().next().unwrap();
+        let mut all_evts = connector.lock().unwrap().time_manager.next_events();
+        assert!(all_evts.next().unwrap().1.get(0).unwrap().is::<InternalLayerTrigger>());
+        let (_, mut evts) = all_evts.next().unwrap();
 
+        // Should be eliminating the fiber
         assert!(evts.get(0).is_some());
         assert!(evts.get(0).unwrap().is::<EliminateEvent>());
 

@@ -13,13 +13,15 @@ use anyhow::{Error, Result};
 use std::any::TypeId;
 use std::collections::hash_map::HashMap;
 use std::collections::BTreeMap;
-use std::fmt;
+use std::fmt::{self, Display};
+
+use super::layer::InternalLayerTrigger;
 
 pub struct TimeManager {
     /// Current simulation time
     sim_time: SimTime,
     /// Sorted map of events to be executed
-    event_queue: BTreeMap<SimTime, Vec<(IdType, Box<dyn Event>)>>,
+    pub event_queue: BTreeMap<SimTime, Vec<(IdType, Box<dyn Event>)>>,
     /// Map of event transformer functions
     event_transformers: HashMap<TypeId, Vec<Box<dyn EventTransformer>>>,
     /// Map of event transformer ids to event types for quick lookup
@@ -28,6 +30,15 @@ pub struct TimeManager {
     id_gen: IdGenerator,
     /// Used to lookup listeners and Event objects for unscheduling
     id_time_map: HashMap<IdType, SimTime>,
+}
+
+#[derive(Debug)]
+pub struct ScheduleId(pub(crate) IdType, pub(crate) SimTime);
+
+impl Display for ScheduleId {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(format!("ScheduleId({}-{})", self.0, self.1.0.s).as_str())
+    }
 }
 
 impl<'b> fmt::Debug for TimeManager {
@@ -95,7 +106,7 @@ impl TimeManager {
     /// * `event` - Event instance to emit
     ///
     /// Returns the schedule ID
-    pub fn schedule_event(&mut self, wait_time: SimTimeSpan, event: Box<dyn Event>) -> IdType {
+    pub fn schedule_event(&mut self, wait_time: SimTimeSpan, event: Box<dyn Event>) -> ScheduleId {
         let exec_time = self.sim_time + wait_time;
         let mut evt_list = self.event_queue.get_mut(&exec_time);
 
@@ -118,7 +129,7 @@ impl TimeManager {
         self.id_time_map.insert(id, exec_time);
 
         // Return the generated id
-        id
+        ScheduleId(id, exec_time)
     }
 
     /// Unschedules a previously scheduled `Event`
@@ -127,11 +138,14 @@ impl TimeManager {
     /// * `schedule_id` - Schedule ID returned by `schedule_event`
     ///
     /// Returns an Err Result if the provided ID is invalid
-    pub fn unschedule_event(&mut self, schedule_id: &IdType) -> Result<(), Error> {
-        match self.id_time_map.get(&schedule_id) {
+    pub fn unschedule_event(&mut self, schedule_id: &ScheduleId) -> Result<(), Error> {
+        if schedule_id.1 < self.get_time() {
+            return Err(anyhow!("Expired schedule_id {} passed to `unschedule_event`!", schedule_id))
+        }
+        match self.id_time_map.get(&schedule_id.0) {
             Some(time) => match self.event_queue.get_mut(time) {
                 Some(evt_list) => {
-                    evt_list.retain(|item| item.0 != *schedule_id);
+                    evt_list.retain(|item| item.0 != schedule_id.0);
                     Ok(())
                 }
                 None => {
@@ -403,7 +417,7 @@ mod tests {
         time_manager.advance_by(SimTimeSpan::from_s(10.0));
 
         // Try unscheduling an id which is no longer valid
-        time_manager.unschedule_event(&id_b).unwrap();
+        time_manager.unschedule_event(&id_b).expect_err("Should error");
     }
 
     #[test]

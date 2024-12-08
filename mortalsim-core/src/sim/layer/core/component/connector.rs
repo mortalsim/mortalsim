@@ -1,6 +1,7 @@
 use crate::event::Event;
 use crate::hub::event_transformer::TransformerItem;
 use crate::hub::EventTransformer;
+use crate::sim::time_manager::ScheduleId;
 use crate::sim::{Organism, SimState, SimTime};
 use crate::id_gen::IdType;
 use crate::{IdGenerator, SimTimeSpan};
@@ -22,13 +23,13 @@ pub struct CoreConnector<O: Organism> {
     /// Holds a list of Event types which triggered module execution, if applicable
     pub(crate) trigger_events: Vec<TypeId>,
     /// Map of local ids to layer schedule ids
-    pub(crate) scheduled_id_map: HashMap<IdType, IdType>,
+    pub(crate) scheduled_id_map: HashMap<IdType, ScheduleId>,
     /// Map of local ids to layer transform ids
     pub(crate) transform_id_map: HashMap<IdType, IdType>,
     /// List of events to schedule
     pub(crate) pending_schedules: Vec<(SimTimeSpan, (IdType, Box<dyn Event>))>,
     /// List of events to unschedule
-    pub(crate) pending_unschedules: Vec<IdType>,
+    pub(crate) pending_unschedules: Vec<ScheduleId>,
     /// Transforms pending from the last run of the component
     pub(crate) pending_transforms: Vec<(IdType, Box<dyn EventTransformer>)>,
     /// List of transforms to unschedule
@@ -190,6 +191,7 @@ pub mod test {
     use crate::event::test::TestEventA;
     use crate::event::test::TestEventB;
     use crate::sim::organism::test::{TestOrganism, TestSim};
+    use crate::sim::time_manager::ScheduleId;
     use crate::sim::SimState;
     use crate::units::base::Amount;
     use crate::units::base::Distance;
@@ -209,8 +211,8 @@ pub mod test {
 
     fn connector() -> CoreConnector<TestOrganism> {
         let mut connector = CoreConnector::new();
-        connector.scheduled_id_map.insert(1, 1);
-        connector.scheduled_id_map.insert(2, 2);
+        connector.scheduled_id_map.insert(1, ScheduleId(1, SimTime::from_s(1.0)));
+        connector.scheduled_id_map.insert(2, ScheduleId(2, SimTime::from_s(1.0)));
         connector.sim_state = SimState::new();
 
         let evt_a = Arc::new(basic_event_a());
@@ -222,7 +224,7 @@ pub mod test {
 
     fn connector_with_a_only() -> CoreConnector<TestOrganism> {
         let mut connector = CoreConnector::new();
-        connector.scheduled_id_map.insert(1,1);
+        connector.scheduled_id_map.insert(1,ScheduleId(1, SimTime::from_s(1.0)));
         connector
     }
 

@@ -6,6 +6,7 @@ use crate::event::{Event, EventDrainIterator};
 use crate::{IdType, SimTimeSpan};
 
 use super::component::registry::ComponentRegistry;
+use super::time_manager::ScheduleId;
 use super::{Organism, SimTime};
 
 pub trait Sim {
@@ -47,7 +48,7 @@ pub trait Sim {
     /// * `event` - Event instance to emit
     ///
     /// Returns the schedule ID
-    fn schedule_event(&mut self, wait_time: SimTimeSpan, event: Box<dyn Event>) -> IdType;
+    fn schedule_event(&mut self, wait_time: SimTimeSpan, event: Box<dyn Event>) -> ScheduleId;
 
     /// Unschedules a previously scheduled `Event`
     ///
@@ -55,7 +56,7 @@ pub trait Sim {
     /// * `schedule_id` - Schedule ID returned by `schedule_event`
     ///
     /// Returns an Err Result if the provided ID is invalid
-    fn unschedule_event(&mut self, schedule_id: &IdType) -> anyhow::Result<()>;
+    fn unschedule_event(&mut self, schedule_id: &ScheduleId) -> anyhow::Result<()>;
 
     /// Drains the last active `Event`s from the Sim
     fn drain_active(&mut self) -> EventDrainIterator;
