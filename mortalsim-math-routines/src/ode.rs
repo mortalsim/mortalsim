@@ -156,7 +156,6 @@ impl<T: Ode> OdeRunner<T> {
         }
     }
 
-    /// 
     pub fn set_constant(&mut self, param: T::ConstParam, value: NumType) {
         self.constants[param] = value;
     }

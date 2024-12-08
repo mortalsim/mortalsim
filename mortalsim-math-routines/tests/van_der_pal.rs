@@ -22,18 +22,18 @@ use plotters::{
 
 const PLOT_TESTS: bool = false;
 
-#[derive(Clone, Copy, ParamEnum)]
+#[derive(Clone, Copy, Debug, ParamEnum)]
 enum VdpConstantParam {
     Mu,
 }
 
-#[derive(Clone, Copy, ParamEnum)]
+#[derive(Clone, Copy, Debug, ParamEnum)]
 enum VdpAssignmentParam {
     P1,
     P2,
 }
 
-#[derive(Clone, Copy, ParamEnum)]
+#[derive(Clone, Copy, Debug, ParamEnum)]
 enum VdpRateBoundParam {
     Y1,
     Y2,

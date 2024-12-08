@@ -1,9 +1,10 @@
 use mathru::algebra::linear::vector::{Vector, VectorIterator, VectorIteratorMut};
+use std::fmt::Debug;
 use std::{marker::PhantomData, ops::{Index, IndexMut}};
 
 use crate::ode::NumType;
 
-pub trait Param : Into<usize> + Clone + Copy {
+pub trait Param : Into<usize> + Clone + Copy + Debug {
     const COUNT: usize;
 }
 
