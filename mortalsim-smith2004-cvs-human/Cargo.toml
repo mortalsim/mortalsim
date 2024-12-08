@@ -15,5 +15,6 @@ strum_macros = "0.26.1"
 
 [dev-dependencies]
 simple_logger = "1.11.0"
+test-log = ">=0.2"
 plotters = "0.3"
 mortalsim-test-harness = { path = "../mortalsim-test-harness", version = "0.1.0" }

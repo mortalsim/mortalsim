@@ -180,7 +180,7 @@ impl SimComponent<HumanOrganism> for Smith2004CvsComponent {
         // Go to the halfway point, after giving some time
         // for the model to stabilize before pulling the
         // results
-        let measure_start_idx = ((t_end/2.0)*step_size) as usize;
+        let measure_start_idx = results.len() / 2;
 
         for idx in measure_start_idx..results.len() {
             let bp_ao_x = results.assignment_value(idx, Smith2004CvsAssignmentParam::P_ao);
@@ -212,13 +212,49 @@ impl SimComponent<HumanOrganism> for Smith2004CvsComponent {
 
 #[cfg(test)]
 mod tests {
+    use mortalsim_core::event::{AorticBloodPressure, PulmonaryBloodPressure};
+    use mortalsim_core::sim::Sim;
     use mortalsim_core::sim::component::SimComponent;
+    use mortalsim_core::units::mechanical::Pressure;
+    use mortalsim_core::SimTimeSpan;
+    use mortalsim_human::HumanSim;
 
     use crate::Smith2004CvsComponent;
 
-    #[test]
+    #[test_log::test]
     fn component_run() {
         let mut comp = Smith2004CvsComponent::new();
         comp.run();
+    }
+
+    #[test_log::test]
+    fn with_test_sim() {
+        let mut sim = HumanSim::new();
+        let comp = Smith2004CvsComponent::new();
+        sim.add_component(comp).expect("Should add successfully");
+
+        assert!(sim.has_state::<AorticBloodPressure>());
+        assert!(sim.has_state::<PulmonaryBloodPressure>());
+
+        // Check that defaults are set
+        let ao_bp = sim.get_state::<AorticBloodPressure>().unwrap().clone();
+        assert!(ao_bp.systolic > Pressure::from_mmHg(0.0));
+        assert!(ao_bp.diastolic > Pressure::from_mmHg(0.0));
+
+        let p_bp = sim.get_state::<PulmonaryBloodPressure>().unwrap().clone();
+        assert!(p_bp.systolic > Pressure::from_mmHg(0.0));
+        assert!(p_bp.diastolic > Pressure::from_mmHg(0.0));
+
+        // Check advance
+        sim.advance_by(SimTimeSpan::from_s(10.0));
+
+        // Check that new values are different
+        let ao_bp_2 = sim.get_state::<AorticBloodPressure>().unwrap();
+        assert!(ao_bp.systolic != ao_bp_2.systolic, "{} == {}", ao_bp.systolic, ao_bp_2.systolic);
+        assert!(ao_bp.diastolic != ao_bp_2.diastolic);
+
+        let p_bp_2 = sim.get_state::<PulmonaryBloodPressure>().unwrap();
+        assert!(p_bp.systolic != p_bp_2.systolic);
+        assert!(p_bp.diastolic != p_bp_2.diastolic);
     }
 }
