@@ -18,7 +18,7 @@ pub trait Param : Into<usize> + Clone + Copy + Debug {
 /// use mortalsim_macros::ParamEnum;
 /// use mortalsim_math_routines::params::ParamVec;
 /// 
-/// #[derive(Clone, Copy, ParamEnum)]
+/// #[derive(Clone, Copy, Debug, ParamEnum)]
 /// enum MyParamEnum {
 ///     ParamA,
 ///     ParamB,
