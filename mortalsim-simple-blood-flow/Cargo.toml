@@ -13,5 +13,6 @@ mortalsim-core = { path = "../mortalsim-core", version="0.1.0" }
 log = "0.4"
 
 [dev-dependencies]
+mortalsim-test-harness = { path = "../mortalsim-test-harness", version="0.1.0" }
 rand = ">=0.8.5"
 test-log = ">=0.2"

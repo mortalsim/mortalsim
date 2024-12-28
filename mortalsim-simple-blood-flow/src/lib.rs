@@ -230,9 +230,6 @@ impl<O: Organism> SimComponent<O> for SimpleBloodFlow<O> {
 }
 
 #[cfg(test)]
-mod test;
-
-#[cfg(test)]
 mod tests {
     use mortalsim_core::math::BoundFn;
     use mortalsim_core::sim::organism::test::{TestBloodVessel, TestOrganism};
@@ -242,9 +239,9 @@ mod tests {
     use mortalsim_core::sim::organism::test::TestSim;
     use mortalsim_core::SimTime;
     use mortalsim_core::sim::Sim;
+    use mortalsim_test_harness::blood_checker::{BloodCheckerComponent, SubstanceConcentrationRange};
 
     use super::*;
-    use super::test::*;
 
     #[test_log::test]
     fn distance_factor_ao_ab() {
@@ -293,8 +290,8 @@ mod tests {
         }
     }
 
-    fn blood_component_aorta(time_factor: f64) -> TestBloodCheckerComponent {
-        TestBloodCheckerComponent::new(
+    fn blood_component_aorta(time_factor: f64) -> BloodCheckerComponent<TestOrganism> {
+        BloodCheckerComponent::new(
             TestBloodVessel::Aorta,
             vec![
                 (
@@ -317,8 +314,8 @@ mod tests {
         )
     }
 
-    fn blood_component_left_arm(time_factor: f64) -> TestBloodCheckerComponent {
-        TestBloodCheckerComponent::new(
+    fn blood_component_left_arm(time_factor: f64) -> BloodCheckerComponent<TestOrganism> {
+        BloodCheckerComponent::new(
             TestBloodVessel::LeftAxillaryVein,
             vec![
                 (
@@ -342,8 +339,8 @@ mod tests {
         )
     }
 
-    fn blood_component_right_leg(time_factor: f64) -> TestBloodCheckerComponent {
-        TestBloodCheckerComponent::new(
+    fn blood_component_right_leg(time_factor: f64) -> BloodCheckerComponent<TestOrganism> {
+        BloodCheckerComponent::new(
             TestBloodVessel::RightFemoralVein,
             vec![
                 (
